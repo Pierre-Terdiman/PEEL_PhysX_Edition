@@ -1,0 +1,48 @@
+// SQ tests for SAT vs Slabs (closest)
+
+NbFrames		100		// Default number of frames to simulate
+Rendering		false	// Enable or disable rendering
+RandomizeOrder	true	// Randomize engine order each frame, or not
+TrashCache		false	// Trash cache after each simulation call, or not
+
+// Test <name> <#frames>
+
+Test SceneRaycastVsStaticMeshes_MeshSurface 1400
+Test SceneRaycastVsStaticMeshes_TestZone_ShortRays
+Test SceneRaycastVsStaticMeshes_TestZone_LongRays
+Test SceneRaycastVsStaticMeshes_TestZone_VerticalRays
+Test SceneRaycastVsStaticMeshes_Archipelago16384
+Test SceneRaycastVsStaticMeshes_KP16384
+Test SceneRaycastVsStaticMeshes_KP16384_NoHit
+Test SceneRaycastVsStaticMeshes_KP2_Short
+Test SceneRaycastVsStaticMeshes_Terrain_Long
+Test SceneRaycastVsStaticMeshes_Terrain_Short
+Test SceneRaycastVsStaticMeshes_TessBunny16384_2
+Test SceneRaycastVsStaticMeshes_TessBunnyShort
+Test KP_RT
+Test KP_RT2 1400
+Test Terrain_RT
+Test TestZone_RT
+Test TestZone_RT2
+Test TestZone_RT3 1400
+Test SceneBoxSweepVsStaticMeshes_TessBunny_Test1
+Test SceneBoxSweepVsStaticMeshes_TessBunny_Test1b
+Test SceneBoxSweepVsStaticMeshes_TessBunny_Test4
+Test SceneSphereSweepVsStaticMeshes_Archipelago
+Test SceneSphereSweepVsStaticMeshes_KP
+Test SceneSphereSweepVsStaticMeshes_TessBunny
+Test SceneSphereSweepVsStaticMeshes_TessBunny2
+Test BoxSweep_TestZone
+Test BoxSweep2_TestZone
+Test SphereSweep_TestZone
+Test BulletRays_TestZone
+//Test SpecularBulletRays
+Test ValveRaycastsOnlyRays
+Test ValveRaycastsMidGame1
+Test ValveRaycastsMidGame2
+Test ValveRaycastsMidGame3
+Test ValveRaycastsMidGame4
+Test ValveRaysAndSweeps
+Test PlanetsideBulletRays
+Test PlanetsideBoxSweeps
+

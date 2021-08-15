@@ -1,0 +1,15 @@
+///////////////////////////////////////////////////////////////////////////////
+/*
+ *	PEEL - Physics Engine Evaluation Lab
+ *	Copyright (C) 2012 Pierre Terdiman
+ *	Homepage: http://www.codercorner.com/blog.htm
+ */
+///////////////////////////////////////////////////////////////////////////////
+
+#ifndef GRID_H
+#define GRID_H
+
+	class PintRender;
+	void RenderGrid(PintRender& renderer);
+
+#endif

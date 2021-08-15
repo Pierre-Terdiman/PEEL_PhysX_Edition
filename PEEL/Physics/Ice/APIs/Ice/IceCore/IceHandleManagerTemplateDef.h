@@ -1,0 +1,95 @@
+
+#ifdef TEMPLATED_MANAGER
+#ifdef TEMPLATED_OBJECT
+
+//	typedef udword  Handle;
+
+	class TEMPLATED_EXPORT TEMPLATED_MANAGER : public Allocateable
+	{
+		public:
+									TEMPLATED_MANAGER();
+									~TEMPLATED_MANAGER();
+		// Basic usage
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		/**
+		 *	Adds an object to the manager.
+		 *	\param		object	[in] the new object to be added.
+		 *	\return		The object's handle. Use it as further reference for the remove method.
+		 */
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+				Handle				Add(const TEMPLATED_OBJECT& object);
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		/**
+		 *	Removes an object from the manager.
+		 *	\param		handle	[in] the handle returned from the Add() method.
+		 */
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+				void				Remove(Handle handle);
+				void				RemovePhysicalIndex(udword physical_index);
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		/**
+		 *	Gets an object from the list. Returns real pointer according to handle.
+		 *	\param		handle	[in] the handle returned from the Add() method.
+		 *	\return		the corresponding object
+		 */
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+				TEMPLATED_OBJECT*	GetObject(Handle handle)	const;	// Returns object according to handle.
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		/**
+		 *	Updates an object.
+		 *	\param		handle	[in] the handle returned from the Add() method.
+		 *	\param		object	[in] the object's new address
+		 *	\return		true if success
+		 */
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+				bool				UpdateObject(Handle handle, const TEMPLATED_OBJECT& object);
+
+		// Advanced usage
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		/**
+		 *	Remaps the inner array in an app-friendly order. Of course all handles remain valid.
+		 *	\param		ranks	[in] remapping table => ranks[i] = index of new object i in old list
+		 *	\return		true if success
+		 */
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+				bool				Remap(const udword* ranks);
+
+		// Physical data access
+		inline_	udword				GetMaxNbObjects()			const	{ return mMaxNbObjects;		}	//!< Returns max number of objects
+		inline_	udword				GetNbObjects()				const	{ return mCurrentNbObjects;	}	//!< Returns current number of objects
+		inline_	TEMPLATED_OBJECT*	GetObjects()				const	{ return mObjects;			}	//!< Gets the complete list of objects
+
+		//! High-speed access - same as GetObject without any checkings - handle with care.
+		inline_	TEMPLATED_OBJECT&	PickObject(Handle handle)	const	{ return mObjects[mOutToIn[uword(handle)]]; }
+
+		// Stats
+				udword				GetUsedRam()				const;
+
+									PREVENT_COPY(TEMPLATED_MANAGER)
+		private:
+		// Physical list
+				TEMPLATED_OBJECT*	mObjects;			//!< Physical list, with no holes but unsorted.
+				udword				mCurrentNbObjects;	//!< Current number of objects in the physical list.
+				udword				mMaxNbObjects;		//!< Maximum possible number of objects in the physical list.
+
+		// Cross-references
+				uword*				mOutToIn;			//!< Maps virtual indices (handles) to real ones.
+				uword*				mInToOut;			//!< Maps real indices to virtual ones (handles).
+                uword*				mStamps;
+
+		// Recycled locations
+				udword				mNbFreeIndices;		//!< Current number of free indices
+
+		// Internal methods
+				bool				SetupLists(TEMPLATED_OBJECT* objects=null, uword* oti=null, uword* ito=null, uword* stamps=null);
+	};
+
+#endif
+#endif
+
+#undef TEMPLATED_EXPORT
+#undef TEMPLATED_MANAGER
+#undef TEMPLATED_OBJECT

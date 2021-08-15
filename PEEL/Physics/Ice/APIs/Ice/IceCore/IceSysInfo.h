@@ -1,0 +1,36 @@
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ *	Contains code to get system information.
+ *	\file		IceSysInfo.h
+ *	\author		Pierre Terdiman
+ *	\date		November, 5, 2001
+ */
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Include Guard
+#ifndef ICESYSINFO_H
+#define ICESYSINFO_H
+
+	struct ICECORE_API SystemInfo
+	{
+		sdword	DriverVersion;
+		sdword	Width;
+		sdword	Height;
+		sdword	BPP;
+	};
+
+	FUNCTION ICECORE_API void	GetSystemInfo_(SystemInfo& si);
+	FUNCTION ICECORE_API void	GetSystemDate(String& date);
+	FUNCTION ICECORE_API void	GetSystemTime(String& time);
+	FUNCTION ICECORE_API void	GetSystem(String& os);
+	FUNCTION ICECORE_API size_t	GetFreeRam();
+	FUNCTION ICECORE_API bool	GetHeapSize(size_t& used, size_t& unused);
+
+	// Directories
+	FUNCTION ICECORE_API bool	GetCurrentDir(String& directory);
+	FUNCTION ICECORE_API bool	GetSystemDir(String& directory);
+	FUNCTION ICECORE_API bool	GetWindowsDir(String& directory);
+
+#endif // ICESYSINFO_H
+

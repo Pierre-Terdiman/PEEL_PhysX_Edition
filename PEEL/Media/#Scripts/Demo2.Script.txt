@@ -1,0 +1,162 @@
+// Showtime!
+
+NbFrames		10		// Number of frames to simulate
+//NbFrames		100000		// Number of frames to simulate
+Rendering		true	// Enable or disable rendering
+RandomizeOrder	false	// Randomize engine order each frame, or not
+TrashCache		false	// Trash cache after each simulation call, or not
+SaveExcelFile	false
+
+// WE NEED TO PRELOAD ALL MESHES!!!
+
+// -p PINT_PhysX51d.dll -s C:\Projects\#PEEL\PEEL_Timestamp58\Media\#Scripts\Demo2.Script.txt
+
+// 1000 frames = 1300 ticks?
+
+// FOTW animated?
+// Raytraced stuff?
+
+//Part CDStack
+//SphericalJointNet2 ?
+//Ragdolls?
+//LegoExploding
+//DynamicsOnMeshLevel?
+//VoronoiFracture3 4 5 6
+// Many more Lego vehicles => on bridge, on logs, etc
+//Terrain_RT2
+//Animated sweeps
+// Finish with NX monster truck
+// Deformable terrain
+// show some editor features
+
+
+Part CardHouse									80
+Part CDStack									177
+
+//Part Ragdolls									354
+//Part Ragdolls									531
+//Subscene	Ragdolls_100_Aggregate
+//Part MujocoHumanoid								708
+
+Part VehicleTest								354
+Part CaterpillarTrackOnBridge					531
+Part MujocoHumanoid								708
+//Part SphericalJointNet2							708
+
+
+Part TwoLegoGears								885
+Part ThreeLegoGears								1060
+Part RackAndPinion								1235
+Part UniversalJoint								1502
+
+Part SteeringTest4b								1685
+Part DuneBuggySteeringTest						1858
+Part LegoTechnicKart							2908	//2568	//2389	//2215	//2036
+
+//Part JacobsLadder								2215	//1685	1858	2036
+
+Part Terrain_RT2								3082
+Part PortalScene1								3258
+Part PortalScene2								3433
+Part PortalScene3								3610
+//Part Convex12K								3785
+//Part VehicleSDKTruck							3963
+//Part VehicleSDKAndRope							4137
+//Part VoronoiFracture3							4137
+Part VoronoiFracture3							4314
+
+Part LegoExploding								4700	//4600	//4314
+Part JacobsLadder								5457
+Part LegoStuntTruckVehicle						6157	//5804	//5631
+Part LegoPolicePursuitTruck						6949	//6157
+
+Part VoronoiFracture5							20000
+WireframeOverlay	0
+Tool	Bullet
+
+//Part VoronoiFracture3							5631
+
+
+
+/*
+//Part PortalScene1								177
+//Part PortalScene2								354
+Part PortalScene3								531
+
+Part PortalJointFinal							708
+Part CardHouse									885
+Part TwoLegoGears								1060	//1062
+
+Part ThreeLegoGears								1235	//1239
+Part RackAndPinion								1502	//1503
+Part UniversalJoint								1685
+
+//Part JacobsLadder								1858
+//Part MujocoHumanoid							2036
+	Part JacobsLadder								2036
+Part Terrain_RT2								2215
+
+//Part VoronoiFracture3							2389
+//Part CaterpillarTrackOnBridge					2568
+	Part VoronoiFracture3						2568
+Part SteeringTest4b								2741
+
+Part DuneBuggySteeringTest						2908
+Part LegoTechnicKart							3082
+Part Convex12K									3258
+
+Part VehicleSDKTruck							3433
+Part VehicleSDKAndRope							3610
+
+Part CDStack									3785
+Part SphericalJointNet2							3963
+Part Ragdolls									4137
+Part LegoExploding								4314
+Part VoronoiFracture5							5457
+Part VoronoiFracture4							5631
+Part LegoDesertVehicle							5804
+Part MujocoHumanoid								5983
+Part CaterpillarTrackOnBridge					6157
+Part LegoStuntTruckVehicle						6343
+Part Lego4x4									6522
+Part PortalScene2								6697
+Part PortalScene1								6949
+Part PortalScene2								7125
+Part PortalScene1								7301
+Part PortalScene2								7479
+Part PortalScene1								20000
+*/
+
+/*
+Part PortalScene1								770
+Part PortalScene2								1420
+Part PortalScene3								3000
+Part PortalJointFinal							3500
+Part CardHouse									4000
+Part TwoLegoGears								5000
+Part ThreeLegoGears								6000
+Part RackAndPinion								7000
+Part UniversalJoint								8000
+Part JacobsLadder								9000
+Part MujocoHumanoid								10000
+Part LegoSpeedChampions							11000
+Part SceneRaycastVsStaticMeshes_TestBunnyShort	12000
+Part CaterpillarTrackOnBridge					13000
+Part SteeringTest4b								14000
+Part DuneBuggySteeringTest						15000
+Part LegoTechnicKart							16000
+Part Convex12K									17000
+Part VehicleSDKTruck							18000
+Part VehicleSDKAndRope							19000
+Part LegoSpeedChampions_F40						20000
+Part LegoRacerVehicle							21000
+Part LegoDesertVehicle							22000
+Part LegoOffRoaderVehicle						23000
+Part LegoStuntTruckVehicle						24000
+*/
+
+
+//Music Music2.mp3	0
+Music Music3.mp3	0
+//Music Celestial.mp3	0
+

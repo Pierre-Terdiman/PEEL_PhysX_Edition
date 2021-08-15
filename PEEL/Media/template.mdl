@@ -1,0 +1,45 @@
+mdl 1.4;
+
+import ::anno::author;
+import ::anno::copyright_notice;
+import ::anno::description;
+import ::anno::display_name;
+import ::anno::in_group;
+import ::anno::key_words;
+import ::base::file_texture;
+import ::base::mono_mode;
+import ::base::texture_coordinate_info;
+import ::base::texture_return;
+import ::df::diffuse_reflection_bsdf;
+import ::state::normal;
+import ::state::texture_coordinate;
+import ::state::texture_tangent_u;
+import ::state::texture_tangent_v;
+import ::tex::gamma_mode;
+import ::tex::wrap_mode;
+
+export material mat_<TEXTURE_NAME>()
+[[
+    ::anno::in_group("", "", "")
+]]
+ = 
+    let {
+        bool tmp0 = false;
+        material_surface tmp1(
+            ::df::diffuse_reflection_bsdf(::base::file_texture(texture_2d("<TEXTURE_NAME>.png", ::tex::gamma_default), color(0.f, 0.f, 0.f), color(1.f, 1.f, 1.f), ::base::mono_alpha, ::base::texture_coordinate_info(::state::texture_coordinate(0), ::state::texture_tangent_u(0), ::state::texture_tangent_v(0)), float2(0.f, 1.f), float2(0.f, 1.f), ::tex::wrap_repeat, ::tex::wrap_repeat, false).tint, 0.f, ""),
+            material_emission(emission: edf(), intensity: color(0.f, 0.f, 0.f), mode: intensity_radiant_exitance));
+        material_surface tmp2 = material_surface(scattering: bsdf(), emission: material_emission(emission: edf(), intensity: color(0.f, 0.f, 0.f), mode: intensity_radiant_exitance));
+        color tmp3 = color(1.f, 1.f, 1.f);
+        material_volume tmp4 = material_volume(scattering: vdf(), absorption_coefficient: color(0.f, 0.f, 0.f), scattering_coefficient: color(0.f, 0.f, 0.f));
+        material_geometry tmp5(
+            float3(0.f),
+            ::base::file_texture(texture_2d("<TEXTURE_NAME>.png", ::tex::gamma_default), color(0.f, 0.f, 0.f), color(1.f, 1.f, 1.f), ::base::mono_alpha, ::base::texture_coordinate_info(::state::texture_coordinate(0), ::state::texture_tangent_u(0), ::state::texture_tangent_v(0)), float2(0.f, 1.f), float2(0.f, 1.f), ::tex::wrap_repeat, ::tex::wrap_repeat, false).mono,
+            ::state::normal());
+    } in
+        material(
+            thin_walled: tmp0,
+            surface: tmp1,
+            backface: tmp2,
+            ior: tmp3,
+            volume: tmp4,
+            geometry: tmp5);

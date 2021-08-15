@@ -1,0 +1,253 @@
+// Showtime!
+
+NbFrames		10		// Number of frames to simulate
+//NbFrames		100000		// Number of frames to simulate
+Rendering		true	// Enable or disable rendering
+RandomizeOrder	false	// Randomize engine order each frame, or not
+TrashCache		false	// Trash cache after each simulation call, or not
+SaveExcelFile	false
+
+// WE NEED TO PRELOAD ALL MESHES!!!
+
+//-p PINT_PhysX40.dll -s F:\Projects\PEEL\Build\#Scripts\Demo.Script.txt
+
+Music Music.mp3	0
+
+Part ConvexCompoundsChain						400
+Part InitialPenetration							500
+Part ArticulationDriveVsStaticObstacle			600
+Part LimitedHingeJoint2							800
+Part CCDTest_BoxVsStack							900
+Part CapsuleStack								1000
+Part FixedJointsTorus							1200
+
+Part KinematicObjects_NoOverlap_DynamicObjects	1600	//400
+Part Dominos									2000	//400
+Part CCDTest_DynamicBoxesVsStaticContainer2		2100	//100
+Part CylinderStack								2200	//100
+Part ArticulatedVehicle							2400	//200
+Part StackOfSmallCompounds						2500	//100
+//Part CCDTest_DynamicBoxesVsStaticContainer		2600	//100
+Part PileOfRagdolls_16							2600	//100
+Part RollingCylinder							2800	//200
+Part CCDTest_AngularCCD							2900	//100
+Part BoxTower									3000	//100
+Part ConvexGalore2								3200	//200
+Part KinematicCharacter							3600	//400
+//Part MotorizedHinges							4010	//410
+//Part MultiBodyVehicle							4010	//410
+Part ConnectedMCArticulations					4010	//100	*
+Part SphericalJointNet							4400	//390
+Part ArticulatedChain_MCArticulation			4800	//400
+Part StableSphericalChain						5220	//420
+Part CatenaryBridge								5630	//410
+
+	Part HACD_Test_02								6030	//400	*
+	Part CaterpillarTrack							6430	//400	*
+	Part ConvexStack								6530	//100	*
+	Part BoxStacks									6630	//100	*
+	Part VoronoiFracture							6830	//200	*
+	Part ScissorLift								6930	//100	*
+	Part PrismaticSpring							7030	//100	*
+	Part InitialVelocities							7230	//200	*
+	Part ConvexStack2								7330	//100	*
+//	Part BoxTower									7430	//100
+//	Part ConvexGalore								7630	//200
+//	Part PileOfRagdolls_16							7630	//200	*
+	Part MotorizedHinges							7630	//200	*
+	Part CompoundTowerTweaked						8030	//400	*
+//	Part MotorizedHinges							8430	//410
+	Part Winch										8820	//		*
+//	Part CompoundTowerTweaked						8820	//390	*
+//	Part ArticulatedChain_MCArticulation			9220	//400
+//	Part StableSphericalChain						9640	//420
+	Part SwingSet_MCArticulation					9640	//410	*
+	Part Tank										10050	//410	*
+
+		Part VehicleSDK									10450	//400	*
+//		Part VehicleTest								10450	//400	*
+		Part CCT										10850	//400	*
+//		Part CCDTest_DynamicBoxesVsStaticContainer2		10950	//100
+		Part Compounds320NotTouching					11050	//100	*
+		Part FrictionRamp								11250	//200	*		
+		Part Restitution								11350	//100	*
+//		Part ConnectedMCArticulations					11450	//100	*
+		Part VoronoiFracture2							11650	//200	*
+		Part InternalEdges								11750	//100	*
+//		Part BasicJointAPI								11850	//100	*
+		Part SceneSweepVsSingleTriangle					11850	//100	*	
+//		Part HighMassRatioCollisions					12050	//200	*
+		Part BulldozerTest								12050	//200	*		
+//		Part HugePileOfLargeConvexes					12450	//400	*
+		Part HugePileOfLargeConvexes					12860	//410	*
+//		Part EmptyScene									500000
+		Part MultiBodyVehicle							500000
+
+
+
+/*
+Test Crane_MCArticulation		1030	//2070
+Test Ragdolls				191
+Test CapsuleStack2		50
+//Test CollisionGroups	100
+Test HighMassRatioCollisions		200
+Test FrictionRamp		460
+Test Restitution		200
+Test BasicJointAPI		250
+Test SphericalJointNet2		400
+Test ConnectedMCArticulations		100
+//multibody vehicle
+//box stacks
+//box container
+Test PileOfSmallCompounds		280
+Test PileOfLargeConvexes		460
+Test HugePileOfLargeConvexes		1000
+Test ConvexGalore2		400
+Test ConvexGalore3		400
+Test DynamicsOnMeshLevel		370
+Test BulldozerTest		1000
+Test VehicleTest		1000
+//avalanche
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+Test ConvexCompoundsChain						520	// 400
+Test InitialPenetration							120	// 500
+Test ArticulationDriveVsStaticObstacle			120	// 600
+Test LimitedHingeJoint2							260	// 800
+Test CCDTest_BoxVsStack							130
+Test CapsuleStack								120
+Test FixedJointsTorus							260
+
+Test KinematicObjects_NoOverlap_DynamicObjects	510
+Test Dominos									520		//2500
+Test CCDTest_DynamicBoxesVsStaticContainer2		120
+Test CylinderStack								120
+Test ArticulatedVehicle							270
+Test StackOfSmallCompounds						120
+Test CCDTest_DynamicBoxesVsStaticContainer		120
+Test RollingCylinder							270
+Test CCDTest_AngularCCD							120
+Test BoxTower									120
+Test ConvexGalore								270
+Test KinematicCharacter							500			// 
+Test MotorizedHinges							510			//430
+Test SphericalJointNet							510
+Test ArticulatedChain_MCArticulation			520
+Test StableSphericalChain						2010
+Test CatenaryBridge								520		//600		// camera flip
+// Ok until here
+//	Test GyroscopicPrecession		1030
+//	Test FrictionRamp2							510	//460
+//	Test ArticulatedCaterpillarTrack			520	//400
+		Test KinematicObjects_NoOverlap_DynamicObjects	510
+		Test Dominos									520		//2500
+		Test CCDTest_DynamicBoxesVsStaticContainer2		120
+		Test CylinderStack								120
+		Test ArticulatedVehicle							270
+		Test StackOfSmallCompounds						120
+		Test CCDTest_DynamicBoxesVsStaticContainer		120
+		Test RollingCylinder							270
+		Test CCDTest_AngularCCD							120
+		Test BoxTower									120
+		Test ConvexGalore								270
+		Test KinematicCharacter							500			// 
+		Test MotorizedHinges							510			//430
+		Test SphericalJointNet							510
+		Test ArticulatedChain_MCArticulation			520
+		Test StableSphericalChain						2010
+		Test CatenaryBridge								520		//600		// camera flip
+	
+			Test KinematicObjects_NoOverlap_DynamicObjects	510
+			Test Dominos									520		//2500
+			Test CCDTest_DynamicBoxesVsStaticContainer2		120
+			Test CylinderStack								120
+			Test ArticulatedVehicle							270
+			Test StackOfSmallCompounds						120
+			Test CCDTest_DynamicBoxesVsStaticContainer		120
+			Test RollingCylinder							270
+			Test CCDTest_AngularCCD							120
+			Test BoxTower									120
+			Test ConvexGalore								270
+			Test KinematicCharacter							500			// 
+			Test MotorizedHinges							510			//430
+			Test SphericalJointNet							510	// MUSIC ENDS HERE!!!!
+			Test ArticulatedChain_MCArticulation			520
+			Test StableSphericalChain						2010
+			Test CatenaryBridge								520		//600		// camera flip
+	
+	
+	
+// Syncro here
+Test Crane_MCArticulation		1030	//2070
+Test SwingSet_MCArticulation		4500
+
+	Test PileOfRagdolls_16		320
+	Test ScissorLift			150
+	Test Ragdolls				191
+*	Test CompoundTowerTweaked	370
+
+
+*Test ConvexStack		100
+*Test ConvexStack2		100
+Test ConvexStack3		100
+Test CapsuleStack2		50
+Test InitialVelocities		220
+
+
+
+//Test CollisionGroups	100
+Test HighMassRatioCollisions		200
+Test FrictionRamp		460
+Test Restitution		200
+Test InternalEdges		400
+Test BasicJointAPI		250
+Test PrismaticSpring		170
+Test SphericalJointNet2		400
+Test ConnectedMCArticulations		100
+Test Winch							1800
+*Test HACD_Test_02								450
+
+//multibody vehicle
+//box stacks
+//box container
+
+Test Compounds320NotTouching		400
+Test PileOfSmallCompounds		280
+Test PileOfLargeConvexes		460
+Test HugePileOfLargeConvexes		1000
+Test ConvexGalore2		400
+Test ConvexGalore3		400
+Test DynamicsOnMeshLevel		370
+Test VoronoiFracture		200
+Test VoronoiFracture2		400
+Test VehicleSDK				1000
+Test CCT				1000
+Test CaterpillarTrack	400
+Test Tank		1000
+Test BulldozerTest		1000
+Test VehicleTest		1000
+
+//avalanche
+*/
+
+

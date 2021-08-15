@@ -1,0 +1,55 @@
+// Test script for PEEL
+
+NbFrames		200		// Number of frames to simulate
+Rendering		true	// Enable or disable rendering
+RandomizeOrder	false	// Randomize engine order each frame, or not
+TrashCache		false	// Trash cache after each simulation call, or not
+
+Test LargeBoxStack
+Test MediumBoxStacks
+Test ManySmallBoxStacks
+Test DominosEx
+Test BoxContainerAndSpheres
+Test BoxContainerAndBoxes
+Test BoxContainerAndCapsules
+Test PotPourri_Box
+Test PotPourri_Box_WithConvexes
+Test Compounds320NotTouching
+Test Compounds320Touching
+Test PileOfSmallCompounds
+Test ConvexStack
+Test ConvexStack3
+Test PileOfLargeConvexes
+Test PileOfMediumConvexes
+Test PileOfSmallConvexes
+Test ConvexCompoundsChain
+Test FixedJointsTorusStressTest
+Test SphericalJointChain
+Test HingeJointChain
+Test BridgeUsingHinges
+Test SphericalJointNet
+Test SphericalJointNet2
+Test ConvexGalore
+Test ConvexClash0
+Test ConvexClash1
+Test ConvexClash2
+Test ConvexClash3
+Test ConvexClash4
+Test ConvexClash5
+Test ConvexClash6
+Test ConvexClash7
+Test ConvexClash8
+Test ConvexClash9
+Test ConvexClash10
+Test ConvexClash11
+Test ConvexClash12
+Test ConvexClash13
+Test SpheresOnPlanarMesh
+Test BoxesOnPlanarMesh
+Test SmallConvexesOnPlanarMesh
+Test BigConvexesOnPlanarMesh
+Test Ragdolls_100
+Test Ragdolls_256
+Test DynamicConvexesOnArchipelago
+Test VoronoiFracture
+Test HACD_Test_01
