@@ -7,4 +7,4 @@ PEEL was a tool designed to evaluate, compare and benchmark physics engines. See
 
 This is PEEL 2.0, dedicated to PhysX.
 
-For now this is mainly a private backup of the code online.
+For now this is mainly a private backup of the code online. Feel free to look at it but there is no documentation, it is not easy to compile, it is unsupported, you're on your own.
