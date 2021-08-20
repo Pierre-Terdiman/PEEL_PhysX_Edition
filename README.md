@@ -11,7 +11,7 @@ For now this is mainly a private backup of the code online. Feel free to look at
 
 Screenshots:
 
-![alt text](Screenshots\Screenshot00.jpg?raw=true) ![alt text](Screenshots\Screenshot01.jpg?raw=true) ![alt text](Screenshots\Screenshot02.jpg?raw=true)
+![alt text](/Screenshots/Screenshot00.jpg?raw=true) ![alt text](Screenshots\Screenshot01.jpg?raw=true) ![alt text](Screenshots\Screenshot02.jpg?raw=true)
 ![alt text](Screenshots\Screenshot03.jpg?raw=true) ![alt text](Screenshots\Screenshot04.jpg?raw=true) ![alt text](Screenshots\Screenshot05.jpg?raw=true)
 ![alt text](Screenshots\Screenshot06.jpg?raw=true) ![alt text](Screenshots\Screenshot07.jpg?raw=true) ![alt text](Screenshots\Screenshot08.jpg?raw=true)
 ![alt text](Screenshots\Screenshot09.jpg?raw=true) ![alt text](Screenshots\Screenshot10.jpg?raw=true) ![alt text](Screenshots\Screenshot11.jpg?raw=true)
