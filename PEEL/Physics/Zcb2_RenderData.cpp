@@ -9,6 +9,7 @@
 #include "stdafx.h"
 #include "Zcb2_RenderData.h"
 #include "PintShapeRenderer.h"
+#include "./LZ4/lz4.h"
 
 // We decouple the shape renderers from the exported render data because of the render models. A simple box
 // can be interpreted either as a unique OpenGL cube captured in a display list, or as a convex object part
@@ -385,6 +386,133 @@ bool RenderDataChunkCollection::Import(const VirtualFile& file)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#define MANAGED_TEXTURE_CHUNK_VERSION	1
+
+ManagedTextureChunk::ManagedTextureChunk() : mBitmap(null), mCompressed(null), mWidth(0), mHeight(0), mCompressedSize(0)
+{
+	mChunkType						= ManagedTextureType;
+	mManagedTextureCore.mVersion	= MANAGED_TEXTURE_CHUNK_VERSION;
+}
+
+ManagedTextureChunk::~ManagedTextureChunk()
+{
+	ICE_FREE(mCompressed);
+	DELETESINGLE(mBitmap);
+}
+
+bool ManagedTextureChunk::SetSourceBitmap(const Picture& pic)
+{
+	const udword Width = pic.GetWidth();
+	const udword Height = pic.GetHeight();
+	const RGBAPixel* Pixels = pic.GetPixels();
+	const bool ValidBitmapData = Pixels && Width && Height;
+	if(!ValidBitmapData)
+		return false;
+
+	if(0)
+	{
+		GetCore().Disable(MANAGED_TEXTURE_CHUNK_FLAG_COMPRESSED);
+
+		DELETESINGLE(mBitmap);
+		mBitmap = ICE_NEW(Picture);
+		CHECKALLOC(mBitmap);
+		mBitmap->Copy(pic);
+	}
+	else
+	{
+		GetCore().Enable(MANAGED_TEXTURE_CHUNK_FLAG_COMPRESSED);	// We always compress textures now
+
+		const udword inputSize = Width*Height*sizeof(RGBAPixel);
+		const int dstCapacity = LZ4_compressBound(inputSize);
+		void* dst = ICE_ALLOC(dstCapacity);
+		const int compressedSize = LZ4_compress_default((const char*)Pixels, (char*)dst, inputSize, dstCapacity);
+		//printf("srcSize: %d | compressedSize: %d\n", inputSize, compressedSize);
+
+		ICE_FREE(mCompressed);
+		mCompressed = (ubyte*)ICE_ALLOC(compressedSize);
+		CopyMemory(mCompressed, dst, compressedSize);
+
+		ICE_FREE(dst);
+
+		mWidth = Width;
+		mHeight = Height;
+		mCompressedSize = compressedSize;
+	}
+	return true;
+}
+
+const char* ManagedTextureChunk::Validate()
+{
+	return BaseChunk::Validate();
+}
+
+bool ManagedTextureChunk::Export(CustomArray& array)
+{
+	BaseChunk::Export(array);
+	mManagedTextureCore.Export(array);
+
+	if(IsTextureCompressed())
+	{
+		array.Store(mWidth).Store(mHeight).Store(mCompressedSize);
+		array.Store(mCompressed, mCompressedSize);
+	}
+	else
+	{
+		udword Width = 0;
+		udword Height = 0;
+		if(mBitmap)
+		{
+			Width	= mBitmap->GetWidth();
+			Height	= mBitmap->GetHeight();
+		}
+
+		array.Store(Width).Store(Height);
+
+		const bool ValidBitmapData = mBitmap && mBitmap->GetPixels() && Width && Height;
+		if(ValidBitmapData)
+			array.Store(mBitmap->GetPixels(), sizeof(RGBAPixel)*Width*Height);
+	}
+	return true;
+}
+
+bool ManagedTextureChunk::Import(const VirtualFile& file)
+{
+	BaseChunk::Import(file);
+	mManagedTextureCore.Import(file);
+
+	if(IsTextureCompressed())
+	{
+		mWidth	= file.ReadDword();
+		mHeight	= file.ReadDword();
+		mCompressedSize	= file.ReadDword();
+
+		if(mWidth && mHeight && mCompressedSize)
+		{
+			mCompressed = (ubyte*)ICE_ALLOC(mCompressedSize);
+			file.ReadBuffer(mCompressed, mCompressedSize);
+
+			// #### temp
+			mBitmap = ICE_NEW(Picture)(ToWord(mWidth), ToWord(mHeight));
+			int decompressedSize = LZ4_decompress_safe((const char*)mCompressed, (char*)mBitmap->GetPixels(), mCompressedSize, mWidth*mHeight*sizeof(RGBAPixel));
+			ASSERT(decompressedSize==mWidth*mHeight*sizeof(RGBAPixel));
+		}
+	}
+	else
+	{
+		const udword Width	= file.ReadDword();
+		const udword Height	= file.ReadDword();
+
+		if(Width && Height)
+		{
+			mBitmap = ICE_NEW(Picture)(ToWord(Width), ToWord(Height));
+			file.ReadBuffer(mBitmap->GetPixels(), Width*Height*sizeof(RGBAPixel));
+		}
+	}
+	return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 ZCB2FactoryEx::ZCB2FactoryEx()// : mGlobalScale(1.0f)
 {
 }
@@ -439,6 +567,9 @@ void ZCB2FactoryEx::NewUnknownChunk(udword type, const char* name, const Virtual
 			ASSERT(Chunk.GetID()==mImportHelper_Renderers.GetNbEntries());
 
 			const bool UseDirectData = Chunk.IsSetDirectData();
+			if(0)
+				OutputConsoleInfo(_F("UseDirectData = %d\n", UseDirectData));
+			//UseDirectData = true;
 			const bool UseActiveEdges = Chunk.IsSetActiveEdges();
 
 			PintShapeRenderer* Renderer;
@@ -551,6 +682,23 @@ void ZCB2FactoryEx::NewUnknownChunk(udword type, const char* name, const Virtual
 
 				RC->AddRenderer(r, LocalPoses[i]);
 			}
+			return;
+		}
+		break;
+
+		case ManagedTextureType:
+		{
+			ManagedTextureChunk Chunk;
+			Chunk.SetName(name);	//######
+			Chunk.Import(file);
+
+			const Picture* B = Chunk.GetBitmap();
+			const ManagedTexture* MT = CreateManagedTexture(B->GetWidth(), B->GetHeight(), B->GetPixels(), null/*Chunk.GetFilename()*/);
+			//mImportHelper_Textures.AddPtr(MT);
+			ZCB2FactoryEx::TextureData* TD = ICE_RESERVE(ZCB2FactoryEx::TextureData, mImportHelper_TextureData);
+			TD->mTexture = MT;
+			// The chunk ID is only needed if we try to import old ZB2 files into PEEL, i.e. when the TXMP chunk is used as originally intended.
+			TD->mZB2ID = Chunk.GetID();
 			return;
 		}
 		break;

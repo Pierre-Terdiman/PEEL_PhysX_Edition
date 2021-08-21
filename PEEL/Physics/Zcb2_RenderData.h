@@ -44,6 +44,7 @@
 		MeshRenderDataType		= 'RD06',
 		ColorRenderDataType		= 'RD07',
 		RenderCollectionType	= 'RD08',
+		ManagedTextureType		= 'RD09',
 	};
 
 	///////////////////////////////////////////////////////////////////////////
@@ -140,6 +141,25 @@
 		PtrContainer			mRenderDataChunks;
 //		PintRendererCollection*	mCollection;
 		Container				mLocalPoses;
+	};
+
+	enum ManagedTextureChunkFlag
+	{
+		MANAGED_TEXTURE_CHUNK_FLAG_COMPRESSED	= (1<<0),
+	};
+
+	class ManagedTextureChunk : public BaseChunk
+	{
+									DECLARE_CHUNK(ManagedTextureChunk, mManagedTextureCore)
+		// Data access
+		inline_	bool				IsTextureCompressed()	const	{ return (mManagedTextureCore.mFlags & MANAGED_TEXTURE_CHUNK_FLAG_COMPRESSED)!=0;	}
+		inline_	const Picture*		GetBitmap()				const	{ return mBitmap;																	}
+
+				bool				SetSourceBitmap(const Picture& pic);
+		private:
+				Picture*			mBitmap;
+				ubyte*				mCompressed;
+				udword				mWidth, mHeight, mCompressedSize;
 	};
 
 	///////////////////////////////////////////////////////////////////////////

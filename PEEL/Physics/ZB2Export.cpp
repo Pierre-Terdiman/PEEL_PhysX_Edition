@@ -58,26 +58,34 @@ static void _ExportRenderSource(RenderDataChunk* chunk, ZCB2Exporter& database, 
 		{
 			ColorRenderDataChunk* CRDChunk = static_cast<ColorRenderDataChunk*>(chunk);
 
-//			const ManagedTexture& MT = CRDChunk->mTexture;
 			const ManagedTexture* MT = CRDChunk->mTexture;
-//			if(MT.mExportID == INVALID_ID)
 			if(MT && MT->mExportID == INVALID_ID)
 			{
-//				if(MT.mSource)	//#### temporary
-				if(MT->mSource)	//#### temporary
+				if(MT->mSource)
 				{
-//					MT.mExportID = texture_id++;
 					MT->mExportID = texture_id++;
 
 					//### not a great design/solution here
 					textures.AddPtr(MT);
 
-					TXMPChunk* txmp = static_cast<TXMPChunk*>(database.CreateChunk('TXMP'));
 					// TODO: support external files (filename/URL)
-//					txmp->SetSourceBitmap(MT.mSource, null, null);
-					txmp->SetSourceBitmap(MT->mSource, null, null);
-					const char* error = txmp->Validate();
-					ASSERT(!error);
+					if(1)
+					{
+						ManagedTextureChunk* MTC = ICE_NEW(ManagedTextureChunk);
+						database.RegisterUserDefinedChunk(MTC, TRUE);
+						MTC->SetSourceBitmap(*MT->mSource);
+						const char* error = MTC->Validate();
+						ASSERT(!error);
+					}
+					else
+					{
+						// Old codepath using TXMP chunks
+
+						TXMPChunk* txmp = static_cast<TXMPChunk*>(database.CreateChunk('TXMP'));
+						txmp->SetSourceBitmap(MT->mSource, null, null);
+						const char* error = txmp->Validate();
+						ASSERT(!error);
+					}
 				}
 			}
 

@@ -9,8 +9,6 @@
 #include "stdafx.h"
 #include "Sound.h"
 
-#define PEEL_SOUND
-
 #ifdef PEEL_SOUND
 	#ifdef _WIN64
 	static char* FMOD_DLL_Name = "fmod64.dll";

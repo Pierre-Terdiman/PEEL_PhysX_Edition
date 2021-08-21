@@ -65,7 +65,7 @@
 #include "Scattering.h"
 #include "SupportFile.h"
 
-#ifdef USE_SPY
+#ifdef PEEL_USE_SPY
 	#ifdef _DEBUG
 		//#pragma comment(lib, "Spy/SpyClient_D.lib")
 		#pragma comment(lib, "../Spy/SpyClient.lib")
@@ -1573,7 +1573,7 @@ static void RenderCallback()
 	if(!gScreenWidth || !gScreenHeight)
 		return;
 
-#ifdef USE_SPY
+#ifdef PEEL_USE_SPY
 	{
 		Spy::Zone Spy_RenderCallback("RenderCallback");
 #endif
@@ -1952,7 +1952,7 @@ static void RenderCallback()
 		RecordCameraPose();
 	}
 
-#ifdef USE_SPY
+#ifdef PEEL_USE_SPY
 	}
 	Spy::Sync();
 #endif
@@ -2074,7 +2074,7 @@ static void gCleanup()
 
 	ReleasePEELMenuBar();
 	PEEL_ReleaseThreads();
-#ifdef USE_SPY
+#ifdef PEEL_USE_SPY
 	Spy::Close();
 #endif
 	PEEL_GlobalClose();
@@ -2460,7 +2460,7 @@ int PEEL_main(int argc, char** argv)
 		}
 	}
 
-#ifdef USE_SPY
+#ifdef PEEL_USE_SPY
 	Spy::Init();
 #endif
 

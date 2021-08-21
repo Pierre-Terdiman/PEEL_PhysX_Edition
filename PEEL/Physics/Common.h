@@ -9,8 +9,6 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#define PEEL_PUBLIC_BUILD
-
 	#define ICE_RESERVE(type, container)	reinterpret_cast<type*>((container).Reserve(sizeof(type)/sizeof(udword)));
 
 	inline_ float	degToRad(float a)

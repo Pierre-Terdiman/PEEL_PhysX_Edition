@@ -31,12 +31,11 @@
 #include "GlutX/Include/GlutX.h"
 #include <vector>
 
+#include "PEEL_Settings.h"
+
 #define STRINGIFY(A) #A
 
-#ifndef _WIN64
-	//#define USE_SPY
-#endif
-#ifdef USE_SPY
+#ifdef PEEL_USE_SPY
 	#include "Spy\SpyClient.h"
 	#define SPY_ZONE(Label)	Spy::Zone __SpyZone(Label);
 #else
