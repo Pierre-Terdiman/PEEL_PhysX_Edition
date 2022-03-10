@@ -12,9 +12,11 @@ uniform vec3 sunDir;
 uniform float reflectionCoeff = 0.0;
 //uniform float specularCoeff = 0.0;
 
-uniform sampler2DRect reflectionTex;
+//uniform sampler2DRect reflectionTex;
+uniform sampler2D reflectionTex;
 uniform sampler2D envTexture;
 uniform sampler2D texture;
+uniform vec2 reflectionSize;	// x = 1/width ; y = 1/height
 
 // Shadow map
 uniform float shadowAmbient = 0.1;
@@ -518,6 +520,8 @@ void main()
 	//float s = 1.0;//*********
 	float brightness = dot(normal, -parallelLightDir);
 	
+//brightness = 1.0;
+
 //	float diffuse = s * (0.3 + 0.7 * max(brightness,0.0));
 
 		float diffuse = s * mix(max(brightness, 0.0), 0.5 + brightness*0.5, 0.2);
@@ -531,6 +535,9 @@ void main()
 		float intensity = smoothstep(spotLightCosineDecayBegin, spotLightCosineDecayEnd, cosine);
 		float ldn = dot(normal, lvec);
 		float diffComp = max(0.0, ldn);
+
+//diffComp = 1.0;
+//intensity = 1.0;
 
 		float shadowC = shadowCoeff1();
 //		float shadowC = shadowCoeff(0);
@@ -556,6 +563,9 @@ void main()
 		float ldn = dot(normal, lvec);
 		float diffComp = max(0.0, ldn);
 
+//diffComp = 1.0;
+//intensity = 1.0;
+
 		float shadowC = shadowCoeff2();
 //		float shadowC = shadowCoeff(1);
 		float shadowFactor = ((1.0 - shadowAmbient)*shadowC + shadowAmbient);
@@ -569,6 +579,9 @@ void main()
 		float intensity = smoothstep(spotLightCosineDecayBegin3, spotLightCosineDecayEnd3, cosine);
 		float ldn = dot(normal, lvec);
 		float diffComp = max(0.0, ldn);
+
+//diffComp = 1.0;
+//intensity = 1.0;
 
 		float shadowC = shadowCoeff3();
 //		float shadowC = shadowCoeff(2);
@@ -652,7 +665,8 @@ void main()
 
 	if(reflectionCoeff!=0)
 	{
-		vec4 reflectColor = texture2DRect(reflectionTex, gl_FragCoord.xy);
+		//vec4 reflectColor = texture2DRect(reflectionTex, gl_FragCoord.xy);
+		vec4 reflectColor = texture2D(reflectionTex, gl_FragCoord.xy * reflectionSize);
 //		reflectColor *= (intensity*shadowC + intensity2*shadowC2 + intensity3*shadowC3);
 		reflectColor *= diffuse;
 		color = reflectionCoeff * reflectColor + (1.0 - reflectionCoeff) * color;
@@ -681,6 +695,13 @@ void main()
 //	//color.xyz += 0.3*vec3(1.3,0.7,0.3)*pow( sundot, 8.0 );
 //	color.xyz += 0.3*vec3(2.0,2.0,2.0)*pow( sundot, 8.0 );
 //	gl_FragColor = vec4(color.xyz, Saved.w);
+
+
+//	float luminance = dot(color.xyz, vec3(0.2126, 0.7152, 0.0722));
+//	float gradient = fwidth(luminance);
+//	//float isEdge = float(gradient > 0.00001);
+//	float isEdge = float(gradient > 0.1);
+//	gl_FragColor = vec4(isEdge, isEdge, isEdge, Saved.w);
 
 
 	if(numShadows == 42)

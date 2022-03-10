@@ -1,0 +1,382 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Common">
+      <UniqueIdentifier>{27d04039-d8e8-4a48-874a-cc611b93a70f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Common\Portal joint XP">
+      <UniqueIdentifier>{03e6195f-a3c3-4704-926b-ce182ea29519}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Common\New joints">
+      <UniqueIdentifier>{62b0b30c-b008-44c7-a80c-28369ce901ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Extensions">
+      <UniqueIdentifier>{6a3a946b-aa76-4a33-bf78-cb49d6f9e0eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\CCT">
+      <UniqueIdentifier>{335f4d21-9f45-43b4-aa7d-ff6d48109fa9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\DelayLoad.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PINT_PhysX412.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\PINT_Common.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_Actor.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_ActorManager.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_Allocator.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_CCT.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_ContactModif.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_ContactNotif.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_DebugViz.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_Error.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_FilterShader.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_Joint.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_Mesh.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_PerTestUI.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_Queries.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_Scene.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_Setup.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_Shape.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_Vehicles.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX4_RCA.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\PortalJoint.cpp">
+      <Filter>Source Files\Common\Portal joint XP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\GearJoint.cpp">
+      <Filter>Source Files\Common\New joints</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\RackAndPinion.cpp">
+      <Filter>Source Files\Common\New joints</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Extensions\ExtBroadPhase.cpp">
+      <Filter>Source Files\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Extensions\ExtCollection.cpp">
+      <Filter>Source Files\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Extensions\ExtConvexMeshExt.cpp">
+      <Filter>Source Files\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Extensions\ExtCpuWorkerThread.cpp">
+      <Filter>Source Files\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Extensions\ExtD6Joint.cpp">
+      <Filter>Source Files\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Extensions\ExtDefaultCpuDispatcher.cpp">
+      <Filter>Source Files\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Extensions\ExtDefaultErrorCallback.cpp">
+      <Filter>Source Files\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Extensions\ExtDefaultSimulationFilterShader.cpp">
+      <Filter>Source Files\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Extensions\ExtDefaultStreams.cpp">
+      <Filter>Source Files\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Extensions\ExtDistanceJoint.cpp">
+      <Filter>Source Files\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Extensions\ExtExtensions.cpp">
+      <Filter>Source Files\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Extensions\ExtFixedJoint.cpp">
+      <Filter>Source Files\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Extensions\ExtJoint.cpp">
+      <Filter>Source Files\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Extensions\ExtMetaData.cpp">
+      <Filter>Source Files\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Extensions\ExtPrismaticJoint.cpp">
+      <Filter>Source Files\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Extensions\ExtPvd.cpp">
+      <Filter>Source Files\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Extensions\ExtPxStringTable.cpp">
+      <Filter>Source Files\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Extensions\ExtRaycastCCD.cpp">
+      <Filter>Source Files\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Extensions\ExtRevoluteJoint.cpp">
+      <Filter>Source Files\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Extensions\ExtRigidActorExt.cpp">
+      <Filter>Source Files\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Extensions\ExtRigidBodyExt.cpp">
+      <Filter>Source Files\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Extensions\ExtSceneQueryExt.cpp">
+      <Filter>Source Files\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Extensions\ExtSimpleFactory.cpp">
+      <Filter>Source Files\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Extensions\ExtSmoothNormals.cpp">
+      <Filter>Source Files\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Extensions\ExtSphericalJoint.cpp">
+      <Filter>Source Files\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Extensions\ExtTriangleMeshExt.cpp">
+      <Filter>Source Files\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CCT\CctBoxController.cpp">
+      <Filter>Source Files\CCT</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CCT\CctCapsuleController.cpp">
+      <Filter>Source Files\CCT</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CCT\CctCharacterController.cpp">
+      <Filter>Source Files\CCT</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CCT\CctCharacterControllerCallbacks.cpp">
+      <Filter>Source Files\CCT</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CCT\CctCharacterControllerManager.cpp">
+      <Filter>Source Files\CCT</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CCT\CctController.cpp">
+      <Filter>Source Files\CCT</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CCT\CctObstacleContext.cpp">
+      <Filter>Source Files\CCT</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CCT\CctSweptBox.cpp">
+      <Filter>Source Files\CCT</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CCT\CctSweptCapsule.cpp">
+      <Filter>Source Files\CCT</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CCT\CctSweptVolume.cpp">
+      <Filter>Source Files\CCT</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\PINT_PhysX412.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\stdafx.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PINT_Common.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_Actor.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_ActorManager.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_Allocator.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_CCT.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_ContactModif.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_ContactNotif.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_DebugViz.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_Error.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_FilterShader.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_Joint.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_Mesh.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_PerTestUI.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_Queries.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_Scene.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_Setup.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_Shape.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_Vehicles.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PINT_Ice.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PortalJoint.h">
+      <Filter>Source Files\Common\Portal joint XP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PxPortalJoint.h">
+      <Filter>Source Files\Common\Portal joint XP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\GearJoint.h">
+      <Filter>Source Files\Common\New joints</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PxGearJoint.h">
+      <Filter>Source Files\Common\New joints</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PxRackAndPinionJoint.h">
+      <Filter>Source Files\Common\New joints</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\RackAndPinion.h">
+      <Filter>Source Files\Common\New joints</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Extensions\ExtConstraintHelper.h">
+      <Filter>Source Files\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Extensions\ExtCpuWorkerThread.h">
+      <Filter>Source Files\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Extensions\ExtD6Joint.h">
+      <Filter>Source Files\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Extensions\ExtDefaultCpuDispatcher.h">
+      <Filter>Source Files\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Extensions\ExtDistanceJoint.h">
+      <Filter>Source Files\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Extensions\ExtFixedJoint.h">
+      <Filter>Source Files\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Extensions\ExtInertiaTensor.h">
+      <Filter>Source Files\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Extensions\ExtJoint.h">
+      <Filter>Source Files\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Extensions\ExtJointMetaDataExtensions.h">
+      <Filter>Source Files\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Extensions\ExtPlatform.h">
+      <Filter>Source Files\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Extensions\ExtPrismaticJoint.h">
+      <Filter>Source Files\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Extensions\ExtPvd.h">
+      <Filter>Source Files\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Extensions\ExtRevoluteJoint.h">
+      <Filter>Source Files\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Extensions\ExtSerialization.h">
+      <Filter>Source Files\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Extensions\ExtSharedQueueEntryPool.h">
+      <Filter>Source Files\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Extensions\ExtSphericalJoint.h">
+      <Filter>Source Files\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Extensions\ExtTaskQueueHelper.h">
+      <Filter>Source Files\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CCT\CctBoxController.h">
+      <Filter>Source Files\CCT</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CCT\CctCapsuleController.h">
+      <Filter>Source Files\CCT</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CCT\CctCharacterController.h">
+      <Filter>Source Files\CCT</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CCT\CctCharacterControllerManager.h">
+      <Filter>Source Files\CCT</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CCT\CctController.h">
+      <Filter>Source Files\CCT</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CCT\CctInternalStructs.h">
+      <Filter>Source Files\CCT</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CCT\CctObstacleContext.h">
+      <Filter>Source Files\CCT</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CCT\CctSweptBox.h">
+      <Filter>Source Files\CCT</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CCT\CctSweptCapsule.h">
+      <Filter>Source Files\CCT</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CCT\CctSweptVolume.h">
+      <Filter>Source Files\CCT</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CCT\CctUtils.h">
+      <Filter>Source Files\CCT</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

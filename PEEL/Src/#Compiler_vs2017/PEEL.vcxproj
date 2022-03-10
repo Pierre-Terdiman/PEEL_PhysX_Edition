@@ -1,0 +1,958 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{48F3F88D-E628-4E2E-9F22-C4D5CF8A046D}</ProjectGuid>
+    <RootNamespace>PEEL</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>15.0.28307.799</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <GenerateManifest>true</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <GenerateManifest>true</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <GenerateManifest>true</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <GenerateManifest>true</GenerateManifest>
+    <TargetName>$(ProjectName)</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\Ice\APIs\Ice;..\HACD;..\Glut\include;..\..\..\PEEL_Externals;..\DevIL\include;..\foundation;..\foundation\include;..\;..\..\Private\NVD;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;GLUT_NO_LIB_PRAGMA;PX_PHYSX_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <BrowseInformation>true</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>..\GL\glew32.lib;opengl32.lib;glu32.lib;..\GlutX\Lib\GlutX_D.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>..\..\Build\PEEL_DEBUG_vs2017.exe</OutputFile>
+      <AdditionalLibraryDirectories>..\DevIL\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <Bscmake>
+      <OutputFile>$(IntDir)$(ProjectName).bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\Ice\APIs\Ice;..\HACD;..\Glut\include;..\..\..\PEEL_Externals;..\DevIL\include;..\foundation;..\foundation\include;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;GLUT_NO_LIB_PRAGMA;PX_PHYSX_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <BrowseInformation>true</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>..\GL\glew64.lib;opengl32.lib;glu32.lib;..\GlutX\Lib\GlutX64_D.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>..\..\Build64\PEEL64_DEBUG_vs2017.exe</OutputFile>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+    <Bscmake>
+      <OutputFile>$(IntDir)$(ProjectName).bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\Ice\APIs\Ice;..\HACD;..\Spy;..\Glut\include;..\..\..\PEEL_Externals;..\DevIL\include;..\foundation;..\foundation\include;..\;..\..\Private\NVD;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;GLUT_NO_LIB_PRAGMA;PX_PHYSX_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <BrowseInformation>true</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>..\GL\glew32.lib;opengl32.lib;glu32.lib;..\GlutX\Lib\GlutX.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>..\..\Build\PEEL_vs2017.exe</OutputFile>
+      <AdditionalLibraryDirectories>..\DevIL\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration />
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <Bscmake>
+      <OutputFile>$(IntDir)$(ProjectName).bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\Ice\APIs\Ice;..\HACD;..\Spy;..\Glut\include;..\..\..\PEEL_Externals;..\DevIL\include;..\foundation;..\foundation\include;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;GLUT_NO_LIB_PRAGMA;PX_PHYSX_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <OmitFramePointers>true</OmitFramePointers>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>..\GL\glew64.lib;opengl32.lib;glu32.lib;..\GlutX\Lib\GlutX64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>..\..\Build64\PEEL64_vs2017.exe</OutputFile>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration />
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+    <Bscmake>
+      <OutputFile>$(IntDir)$(ProjectName).bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Camera.cpp" />
+    <ClCompile Include="..\CameraManager.cpp" />
+    <ClCompile Include="..\Capsule.cpp" />
+    <ClCompile Include="..\Common.cpp" />
+    <ClCompile Include="..\ControlInterface.cpp" />
+    <ClCompile Include="..\ConvexHull2D.cpp" />
+    <ClCompile Include="..\CRC32.cpp" />
+    <ClCompile Include="..\CustomICEAllocator.cpp" />
+    <ClCompile Include="..\Cylinder.cpp" />
+    <ClCompile Include="..\DefaultControlInterface.cpp" />
+    <ClCompile Include="..\DefaultEnv.cpp" />
+    <ClCompile Include="..\Devil.cpp" />
+    <ClCompile Include="..\DisplayTexture.cpp" />
+    <ClCompile Include="..\FlatShader.cpp" />
+    <ClCompile Include="..\Foundation.cpp" />
+    <ClCompile Include="..\foundation\src\PsAllocator.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\PsAssert.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\PsFoundation.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\PsMathUtils.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\PsString.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\PsTempAllocator.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\PsUtilities.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\windows\PsWindowsAtomic.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\windows\PsWindowsCpu.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\windows\PsWindowsFPU.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\windows\PsWindowsMutex.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\windows\PsWindowsPrintString.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\windows\PsWindowsSList.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\windows\PsWindowsSocket.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\windows\PsWindowsSync.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\windows\PsWindowsThread.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\windows\PsWindowsTime.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\Fracture\Convex.cpp" />
+    <ClCompile Include="..\Fracture\Delaunay3d.cpp" />
+    <ClCompile Include="..\Fracture\Fracture.cpp" />
+    <ClCompile Include="..\Fracture\FracturePattern.cpp" />
+    <ClCompile Include="..\Fracture\MultiConvex.cpp" />
+    <ClCompile Include="..\FrameBufferObject.cpp" />
+    <ClCompile Include="..\Gamepad.cpp" />
+    <ClCompile Include="..\GLConvexRenderer.cpp" />
+    <ClCompile Include="..\GLFontRenderer.cpp" />
+    <ClCompile Include="..\GLMesh.cpp" />
+    <ClCompile Include="..\GLPointRenderer.cpp" />
+    <ClCompile Include="..\GLPointRenderer2.cpp" />
+    <ClCompile Include="..\GLRenderHelpers.cpp" />
+    <ClCompile Include="..\GLRenderStates.cpp" />
+    <ClCompile Include="..\GLScaledCylinder.cpp" />
+    <ClCompile Include="..\GLShader.cpp" />
+    <ClCompile Include="..\GLTexture.cpp" />
+    <ClCompile Include="..\GLVSync.cpp" />
+    <ClCompile Include="..\Grid.cpp" />
+    <ClCompile Include="..\GUI_ActorEdit.cpp" />
+    <ClCompile Include="..\GUI_ActorSelection.cpp" />
+    <ClCompile Include="..\GUI_CompoundEdit.cpp" />
+    <ClCompile Include="..\GUI_EditBox.cpp" />
+    <ClCompile Include="..\GUI_Helpers.cpp" />
+    <ClCompile Include="..\GUI_ImportCollada.cpp" />
+    <ClCompile Include="..\GUI_JointEdit.cpp" />
+    <ClCompile Include="..\GUI_JointParams.cpp" />
+    <ClCompile Include="..\GUI_PosEdit.cpp" />
+    <ClCompile Include="..\HACD\hacdGraph.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\HACD\hacdHACD.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\HACD\hacdICHull.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\HACD\hacdManifoldMesh.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\IceBunny.cpp" />
+    <ClCompile Include="..\LegoLib\LegoLib.cpp" />
+    <ClCompile Include="..\Loader_Bin.cpp" />
+    <ClCompile Include="..\Loader_Obj.cpp" />
+    <ClCompile Include="..\Loader_Rays.cpp" />
+    <ClCompile Include="..\Loader_RepX.cpp" />
+    <ClCompile Include="..\Loader_ShapeProfile.cpp" />
+    <ClCompile Include="..\LoopTheLoop.cpp" />
+    <ClCompile Include="..\LZ4\lz4.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\LZ4\lz4frame.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\LZ4\lz4hc.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\LZ4\xxhash.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\MatcapShader.cpp" />
+    <ClCompile Include="..\MeshCleaner.cpp" />
+    <ClCompile Include="..\MinimalRegionManager.cpp" />
+    <ClCompile Include="..\MyConvex.cpp" />
+    <ClCompile Include="..\PEEL.cpp" />
+    <ClCompile Include="..\PEEL_MenuBar.cpp" />
+    <ClCompile Include="..\PEEL_Threads.cpp" />
+    <ClCompile Include="..\PhysicsData.cpp" />
+    <ClCompile Include="..\Pint.cpp" />
+    <ClCompile Include="..\PintBatchConvexShapeRenderer.cpp" />
+    <ClCompile Include="..\PintColorShapeRenderer.cpp" />
+    <ClCompile Include="..\PintConvexInstanceShapeRenderer.cpp" />
+    <ClCompile Include="..\PintDLBoxShapeRenderer.cpp" />
+    <ClCompile Include="..\PintDLCapsuleShapeRenderer.cpp" />
+    <ClCompile Include="..\PintDLConvexShapeRenderer.cpp" />
+    <ClCompile Include="..\PintDLCylinderShapeRenderer.cpp" />
+    <ClCompile Include="..\PintDLMeshShapeRenderer.cpp" />
+    <ClCompile Include="..\PintDLShapeRenderer.cpp" />
+    <ClCompile Include="..\PintDLSphereShapeRenderer.cpp" />
+    <ClCompile Include="..\PintEngineData.cpp" />
+    <ClCompile Include="..\PintGLMeshShapeRenderer.cpp" />
+    <ClCompile Include="..\PintGUIHelper.cpp" />
+    <ClCompile Include="..\PintObjectsManager.cpp" />
+    <ClCompile Include="..\PintPointSpriteSphereShapeRenderer.cpp" />
+    <ClCompile Include="..\PintRender.cpp" />
+    <ClCompile Include="..\PintRenderState.cpp" />
+    <ClCompile Include="..\PintSelectionManager.cpp" />
+    <ClCompile Include="..\PintShapeRenderer.cpp" />
+    <ClCompile Include="..\PintSQ.cpp" />
+    <ClCompile Include="..\PintTerrainTileRenderer.cpp" />
+    <ClCompile Include="..\PintTiming.cpp" />
+    <ClCompile Include="..\PintVisibilityManager.cpp" />
+    <ClCompile Include="..\PINT_Editor.cpp" />
+    <ClCompile Include="..\Plugins.cpp" />
+    <ClCompile Include="..\ProceduralTrack.cpp" />
+    <ClCompile Include="..\ProgressBar.cpp" />
+    <ClCompile Include="..\QPCTime.cpp" />
+    <ClCompile Include="..\RaytracingTest.cpp" />
+    <ClCompile Include="..\RaytracingWindow.cpp" />
+    <ClCompile Include="..\RenderModel.cpp" />
+    <ClCompile Include="..\RenderModelFFP.cpp" />
+    <ClCompile Include="..\RenderModelMatcap.cpp" />
+    <ClCompile Include="..\RenderModelSimpleShader.cpp" />
+    <ClCompile Include="..\RenderModelSimpleShadows.cpp" />
+    <ClCompile Include="..\RenderTarget.cpp" />
+    <ClCompile Include="..\RepX_Tools.cpp" />
+    <ClCompile Include="..\RevolutionShape.cpp" />
+    <ClCompile Include="..\RoundCorners.cpp" />
+    <ClCompile Include="..\Scattering.cpp" />
+    <ClCompile Include="..\ScreenQuad.cpp" />
+    <ClCompile Include="..\ScreenQuad_BackColor.cpp" />
+    <ClCompile Include="..\ScreenQuad_ColorGradient.cpp" />
+    <ClCompile Include="..\ScreenQuad_ColorSphere.cpp" />
+    <ClCompile Include="..\Script.cpp" />
+    <ClCompile Include="..\Shader.cpp" />
+    <ClCompile Include="..\ShadowMap.cpp" />
+    <ClCompile Include="..\ShadowShader.cpp" />
+    <ClCompile Include="..\SimpleShader.cpp" />
+    <ClCompile Include="..\Simulate.cpp" />
+    <ClCompile Include="..\Sound.cpp" />
+    <ClCompile Include="..\Sphere.cpp" />
+    <ClCompile Include="..\Starter.cpp" />
+    <ClCompile Include="..\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\Streaming.cpp" />
+    <ClCompile Include="..\SupportFile.cpp" />
+    <ClCompile Include="..\SurfaceManager.cpp" />
+    <ClCompile Include="..\Terrain.cpp" />
+    <ClCompile Include="..\TerrainManager.cpp" />
+    <ClCompile Include="..\TerrainRegionManager.cpp" />
+    <ClCompile Include="..\TerrainStreamingUI.cpp" />
+    <ClCompile Include="..\TestScenes.cpp" />
+    <ClCompile Include="..\TestScenesHelpers.cpp" />
+    <ClCompile Include="..\TestScenes_API.cpp" />
+    <ClCompile Include="..\TestScenes_Articulations.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_BasicJoints.cpp" />
+    <ClCompile Include="..\TestScenes_Behavior.cpp" />
+    <ClCompile Include="..\TestScenes_Bulldozer_WIP.cpp" />
+    <ClCompile Include="..\TestScenes_CCD.cpp" />
+    <ClCompile Include="..\TestScenes_CCT.cpp" />
+    <ClCompile Include="..\TestScenes_ContactGeneration.cpp" />
+    <ClCompile Include="..\TestScenes_Cooking.cpp" />
+    <ClCompile Include="..\TestScenes_Cylinders.cpp" />
+    <ClCompile Include="..\TestScenes_D6.cpp" />
+    <ClCompile Include="..\TestScenes_Fracture.cpp" />
+    <ClCompile Include="..\TestScenes_Heightfield.cpp" />
+    <ClCompile Include="..\TestScenes_Import.cpp" />
+    <ClCompile Include="..\TestScenes_Joints.cpp" />
+    <ClCompile Include="..\TestScenes_Joints_WIP.cpp" />
+    <ClCompile Include="..\TestScenes_Kinematics.cpp" />
+    <ClCompile Include="..\TestScenes_MCArticulations.cpp" />
+    <ClCompile Include="..\TestScenes_Midphase.cpp" />
+    <ClCompile Include="..\TestScenes_MidphaseMeshMesh.cpp" />
+    <ClCompile Include="..\TestScenes_Overlap.cpp" />
+    <ClCompile Include="..\TestScenes_Performance.cpp" />
+    <ClCompile Include="..\TestScenes_Portals.cpp" />
+    <ClCompile Include="..\TestScenes_Raycast.cpp" />
+    <ClCompile Include="..\TestScenes_RCArticulations.cpp" />
+    <ClCompile Include="..\TestScenes_StaticScene.cpp" />
+    <ClCompile Include="..\TestScenes_Sweep.cpp" />
+    <ClCompile Include="..\TestScenes_Terrain.cpp" />
+    <ClCompile Include="..\TestScenes_Undefined.cpp" />
+    <ClCompile Include="..\TestScenes_Vehicles.cpp" />
+    <ClCompile Include="..\TestScenes_VehiclesBase.cpp" />
+    <ClCompile Include="..\TestSelector.cpp" />
+    <ClCompile Include="..\TextureManager.cpp" />
+    <ClCompile Include="..\TitleData.cpp" />
+    <ClCompile Include="..\TitleWindow.cpp" />
+    <ClCompile Include="..\Tool.cpp" />
+    <ClCompile Include="..\ToolAddImpulse.cpp" />
+    <ClCompile Include="..\ToolBullet.cpp" />
+    <ClCompile Include="..\ToolCreateJoint.cpp" />
+    <ClCompile Include="..\ToolCreateRope.cpp" />
+    <ClCompile Include="..\ToolObjectCreate.cpp" />
+    <ClCompile Include="..\ToolPicking.cpp" />
+    <ClCompile Include="..\ToolRayBased.cpp" />
+    <ClCompile Include="..\ToolRotate.cpp" />
+    <ClCompile Include="..\ToolShootObject.cpp" />
+    <ClCompile Include="..\ToolTerrainEditor.cpp" />
+    <ClCompile Include="..\ToolTexture.cpp" />
+    <ClCompile Include="..\ToolTransform.cpp" />
+    <ClCompile Include="..\ToolTranslate.cpp" />
+    <ClCompile Include="..\TrashCache.cpp" />
+    <ClCompile Include="..\USDExport.cpp" />
+    <ClCompile Include="..\Voronoi2D.cpp" />
+    <ClCompile Include="..\ZB2Export.cpp" />
+    <ClCompile Include="..\ZB2Import.cpp" />
+    <ClCompile Include="..\Zcb2_RenderData.cpp" />
+    <ClCompile Include="..\ZCB\IceZCBBreaker.cpp" />
+    <ClCompile Include="..\ZCB\PINT_ZCB.cpp" />
+    <ClCompile Include="..\ZCB\PINT_ZCB2.cpp" />
+    <ClCompile Include="..\ZCB\PINT_ZCB2_IceChunks.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Media\#Shaders\RenderModel_Mapcap_ps.h" />
+    <ClInclude Include="..\..\Media\#Shaders\RenderModel_Mapcap_vs.h" />
+    <ClInclude Include="..\..\Media\#Shaders\RenderModel_SimpleShader1_ps.h" />
+    <ClInclude Include="..\..\Media\#Shaders\RenderModel_SimpleShader1_vs.h" />
+    <ClInclude Include="..\..\Media\#Shaders\RenderModel_SimpleShader2_ps.h" />
+    <ClInclude Include="..\..\Media\#Shaders\RenderModel_SimpleShader2_vs.h" />
+    <ClInclude Include="..\..\Media\#Shaders\RenderModel_SimpleShadows_ps.h" />
+    <ClInclude Include="..\..\Media\#Shaders\RenderModel_SimpleShadows_vs.h" />
+    <ClInclude Include="..\..\Media\#Shaders\ScreenQuad_ColorSphere2_ps.h" />
+    <ClInclude Include="..\..\Media\#Shaders\ScreenQuad_ColorSphere_ps.h" />
+    <ClInclude Include="..\..\Media\#Shaders\ScreenQuad_ColorSphere_vs.h" />
+    <ClInclude Include="..\..\Media\#Shaders\ScreenQuad_Default_vs.h" />
+    <ClInclude Include="..\Camera.h" />
+    <ClInclude Include="..\CameraManager.h" />
+    <ClInclude Include="..\Capsule.h" />
+    <ClInclude Include="..\Common.h" />
+    <ClInclude Include="..\ControlInterface.h" />
+    <ClInclude Include="..\CRC32.h" />
+    <ClInclude Include="..\CustomICEAllocator.h" />
+    <ClInclude Include="..\Cylinder.h" />
+    <ClInclude Include="..\DefaultControlInterface.h" />
+    <ClInclude Include="..\DefaultEnv.h" />
+    <ClInclude Include="..\Devil.h" />
+    <ClInclude Include="..\DisplayTexture.h" />
+    <ClInclude Include="..\FlatShader.h" />
+    <CustomBuild Include="..\Foundation.h" />
+    <ClInclude Include="..\foundation\include\Ps.h" />
+    <ClInclude Include="..\foundation\include\PsAlignedMalloc.h" />
+    <ClInclude Include="..\foundation\include\PsAlloca.h" />
+    <ClInclude Include="..\foundation\include\PsAllocator.h" />
+    <ClInclude Include="..\foundation\include\PsAoS.h" />
+    <ClInclude Include="..\foundation\include\PsArray.h" />
+    <ClInclude Include="..\foundation\include\PsAtomic.h" />
+    <ClInclude Include="..\foundation\include\PsBasicTemplates.h" />
+    <ClInclude Include="..\foundation\include\PsBitUtils.h" />
+    <ClInclude Include="..\foundation\include\PsBroadcast.h" />
+    <ClInclude Include="..\foundation\include\PsCpu.h" />
+    <ClInclude Include="..\foundation\include\PsFoundation.h" />
+    <ClInclude Include="..\foundation\include\PsFPU.h" />
+    <ClInclude Include="..\foundation\include\PsHash.h" />
+    <ClInclude Include="..\foundation\include\PsHashInternals.h" />
+    <ClInclude Include="..\foundation\include\PsHashMap.h" />
+    <ClInclude Include="..\foundation\include\PsHashSet.h" />
+    <ClInclude Include="..\foundation\include\PsInlineAllocator.h" />
+    <ClInclude Include="..\foundation\include\PsInlineAoS.h" />
+    <ClInclude Include="..\foundation\include\PsInlineArray.h" />
+    <ClInclude Include="..\foundation\include\PsIntrinsics.h" />
+    <ClInclude Include="..\foundation\include\PsMathUtils.h" />
+    <ClInclude Include="..\foundation\include\PsMutex.h" />
+    <ClInclude Include="..\foundation\include\PsPool.h" />
+    <ClInclude Include="..\foundation\include\PsSList.h" />
+    <ClInclude Include="..\foundation\include\PsSocket.h" />
+    <ClInclude Include="..\foundation\include\PsSort.h" />
+    <ClInclude Include="..\foundation\include\PsSortInternals.h" />
+    <ClInclude Include="..\foundation\include\PsString.h" />
+    <ClInclude Include="..\foundation\include\PsSync.h" />
+    <ClInclude Include="..\foundation\include\PsTempAllocator.h" />
+    <ClInclude Include="..\foundation\include\PsThread.h" />
+    <ClInclude Include="..\foundation\include\PsTime.h" />
+    <ClInclude Include="..\foundation\include\PsUserAllocated.h" />
+    <ClInclude Include="..\foundation\include\PsUtilities.h" />
+    <ClInclude Include="..\foundation\include\PsVecMath.h" />
+    <ClInclude Include="..\foundation\include\PsVecMathAoSScalar.h" />
+    <ClInclude Include="..\foundation\include\PsVecMathAoSScalarInline.h" />
+    <ClInclude Include="..\foundation\include\PsVecMathSSE.h" />
+    <ClInclude Include="..\foundation\include\PsVecMathUtilities.h" />
+    <ClInclude Include="..\foundation\include\PsVecQuat.h" />
+    <ClInclude Include="..\foundation\include\PsVecTransform.h" />
+    <ClInclude Include="..\foundation\include\windows\PsWindowsAoS.h" />
+    <ClInclude Include="..\foundation\include\windows\PsWindowsFPU.h" />
+    <ClInclude Include="..\foundation\include\windows\PsWindowsInclude.h" />
+    <ClInclude Include="..\foundation\include\windows\PsWindowsInlineAoS.h" />
+    <ClInclude Include="..\foundation\include\windows\PsWindowsIntrinsics.h" />
+    <ClInclude Include="..\foundation\include\windows\PsWindowsTrigConstants.h" />
+    <ClInclude Include="..\foundation\Px.h" />
+    <ClInclude Include="..\foundation\PxAllocatorCallback.h" />
+    <ClInclude Include="..\foundation\PxAssert.h" />
+    <ClInclude Include="..\foundation\PxBitAndData.h" />
+    <ClInclude Include="..\foundation\PxBounds3.h" />
+    <ClInclude Include="..\foundation\PxErrorCallback.h" />
+    <ClInclude Include="..\foundation\PxErrors.h" />
+    <ClInclude Include="..\foundation\PxFlags.h" />
+    <ClInclude Include="..\foundation\PxFoundation.h" />
+    <ClInclude Include="..\foundation\PxFoundationConfig.h" />
+    <ClInclude Include="..\foundation\PxIntrinsics.h" />
+    <ClInclude Include="..\foundation\PxIO.h" />
+    <ClInclude Include="..\foundation\PxMat33.h" />
+    <ClInclude Include="..\foundation\PxMat44.h" />
+    <ClInclude Include="..\foundation\PxMath.h" />
+    <ClInclude Include="..\foundation\PxMathUtils.h" />
+    <ClInclude Include="..\foundation\PxMemory.h" />
+    <ClInclude Include="..\foundation\PxPhysicsVersion.h" />
+    <ClInclude Include="..\foundation\PxPlane.h" />
+    <ClInclude Include="..\foundation\PxPreprocessor.h" />
+    <ClInclude Include="..\foundation\PxProfiler.h" />
+    <ClInclude Include="..\foundation\PxQuat.h" />
+    <ClInclude Include="..\foundation\PxSharedAssert.h" />
+    <ClInclude Include="..\foundation\PxSimpleTypes.h" />
+    <ClInclude Include="..\foundation\PxStrideIterator.h" />
+    <ClInclude Include="..\foundation\PxTransform.h" />
+    <ClInclude Include="..\foundation\PxUnionCast.h" />
+    <ClInclude Include="..\foundation\PxVec2.h" />
+    <ClInclude Include="..\foundation\PxVec3.h" />
+    <ClInclude Include="..\foundation\PxVec4.h" />
+    <ClInclude Include="..\foundation\windows\PxWindowsIntrinsics.h" />
+    <CustomBuild Include="..\Fracture\Convex.h" />
+    <CustomBuild Include="..\Fracture\Delaunay3d.h" />
+    <ClInclude Include="..\Fracture\Fracture.h" />
+    <CustomBuild Include="..\Fracture\FracturePattern.h" />
+    <ClInclude Include="..\Fracture\MultiConvex.h" />
+    <ClInclude Include="..\FrameBufferObject.h" />
+    <ClInclude Include="..\Gamepad.h" />
+    <ClInclude Include="..\GLConvexRenderer.h" />
+    <ClInclude Include="..\GLFontData.h" />
+    <ClInclude Include="..\GLFontRenderer.h" />
+    <ClInclude Include="..\GLMesh.h" />
+    <ClInclude Include="..\GLPointRenderer.h" />
+    <ClInclude Include="..\GLPointRenderer2.h" />
+    <ClInclude Include="..\GLRenderHelpers.h" />
+    <ClInclude Include="..\GLRenderStates.h" />
+    <ClInclude Include="..\GLScaledCylinder.h" />
+    <ClInclude Include="..\GLShader.h" />
+    <ClInclude Include="..\GLTexture.h" />
+    <ClInclude Include="..\GLVSync.h" />
+    <ClInclude Include="..\Grid.h" />
+    <ClInclude Include="..\GUI_ActorEdit.h" />
+    <ClInclude Include="..\GUI_ActorSelection.h" />
+    <ClInclude Include="..\GUI_CompoundEdit.h" />
+    <ClInclude Include="..\GUI_EditBox.h" />
+    <ClInclude Include="..\GUI_Helpers.h" />
+    <ClInclude Include="..\GUI_ImportCollada.h" />
+    <ClInclude Include="..\GUI_JointEdit.h" />
+    <ClInclude Include="..\GUI_JointParams.h" />
+    <ClInclude Include="..\GUI_PosEdit.h" />
+    <ClInclude Include="..\GUI_RenderInterface.h" />
+    <ClInclude Include="..\HACD\hacdCircularList.h" />
+    <ClInclude Include="..\HACD\hacdGraph.h" />
+    <ClInclude Include="..\HACD\hacdHACD.h" />
+    <ClInclude Include="..\HACD\hacdICHull.h" />
+    <ClInclude Include="..\HACD\hacdManifoldMesh.h" />
+    <ClInclude Include="..\HACD\hacdVector.h" />
+    <ClInclude Include="..\HACD\hacdVersion.h" />
+    <ClInclude Include="..\IceBunny.h" />
+    <ClInclude Include="..\ICE_To_PX.h" />
+    <ClInclude Include="..\LegoLib\LegoLib.h" />
+    <ClInclude Include="..\Loader_Bin.h" />
+    <ClInclude Include="..\Loader_Obj.h" />
+    <ClInclude Include="..\Loader_Rays.h" />
+    <ClInclude Include="..\Loader_RepX.h" />
+    <ClInclude Include="..\Loader_ShapeProfile.h" />
+    <ClInclude Include="..\LoopTheLoop.h" />
+    <ClInclude Include="..\LZ4\lz4.h" />
+    <ClInclude Include="..\LZ4\lz4frame.h" />
+    <ClInclude Include="..\LZ4\lz4frame_static.h" />
+    <ClInclude Include="..\LZ4\lz4hc.h" />
+    <ClInclude Include="..\LZ4\xxhash.h" />
+    <ClInclude Include="..\MatcapShader.h" />
+    <ClInclude Include="..\MeshCleaner.h" />
+    <ClInclude Include="..\MinimalRegionManager.h" />
+    <ClInclude Include="..\MyConvex.h" />
+    <ClInclude Include="..\PEEL.h" />
+    <ClInclude Include="..\PEEL_MenuBar.h" />
+    <ClInclude Include="..\PEEL_Settings.h" />
+    <ClInclude Include="..\PEEL_Threads.h" />
+    <ClInclude Include="..\PhysicsData.h" />
+    <ClInclude Include="..\Pint.h" />
+    <ClInclude Include="..\PintBatchConvexShapeRenderer.h" />
+    <ClInclude Include="..\PintColorShapeRenderer.h" />
+    <ClInclude Include="..\PintConvexInstanceShapeRenderer.h" />
+    <ClInclude Include="..\PintDef.h" />
+    <ClInclude Include="..\PintDLBoxShapeRenderer.h" />
+    <ClInclude Include="..\PintDLCapsuleShapeRenderer.h" />
+    <ClInclude Include="..\PintDLConvexShapeRenderer.h" />
+    <ClInclude Include="..\PintDLCylinderShapeRenderer.h" />
+    <ClInclude Include="..\PintDLMeshShapeRenderer.h" />
+    <ClInclude Include="..\PintDLShapeRenderer.h" />
+    <ClInclude Include="..\PintDLSphereShapeRenderer.h" />
+    <ClInclude Include="..\PintEngineData.h" />
+    <ClInclude Include="..\PintGLMeshShapeRenderer.h" />
+    <ClInclude Include="..\PintGUIHelper.h" />
+    <ClInclude Include="..\PintNullRenderer.h" />
+    <ClInclude Include="..\PintObjectsManager.h" />
+    <ClInclude Include="..\PintPointSpriteSphereShapeRenderer.h" />
+    <ClInclude Include="..\PintRender.h" />
+    <ClInclude Include="..\PintRenderPass.h" />
+    <ClInclude Include="..\PintRenderState.h" />
+    <ClInclude Include="..\PintSelectionManager.h" />
+    <ClInclude Include="..\PintShapeRenderer.h" />
+    <ClInclude Include="..\PintSQ.h" />
+    <ClInclude Include="..\PintSurfaceInterface.h" />
+    <ClInclude Include="..\PintTerrainTileRenderer.h" />
+    <ClInclude Include="..\PintTiming.h" />
+    <ClInclude Include="..\PintVisibilityManager.h" />
+    <ClInclude Include="..\PINT_Editor.h" />
+    <ClInclude Include="..\Plugins.h" />
+    <ClInclude Include="..\ProceduralTrack.h" />
+    <ClInclude Include="..\Profiling.h" />
+    <ClInclude Include="..\ProgressBar.h" />
+    <ClInclude Include="..\QPCTime.h" />
+    <ClInclude Include="..\RaytracingTest.h" />
+    <ClInclude Include="..\RaytracingWindow.h" />
+    <ClInclude Include="..\RenderModel.h" />
+    <ClInclude Include="..\RenderModelFFP.h" />
+    <ClInclude Include="..\RenderModelMatcap.h" />
+    <ClInclude Include="..\RenderModelSimpleShader.h" />
+    <ClInclude Include="..\RenderModelSimpleShadows.h" />
+    <ClInclude Include="..\RenderTarget.h" />
+    <ClInclude Include="..\RepX_Tools.h" />
+    <ClInclude Include="..\resource.h" />
+    <ClInclude Include="..\RevolutionShape.h" />
+    <ClInclude Include="..\RoundCorners.h" />
+    <ClInclude Include="..\Scattering.h" />
+    <ClInclude Include="..\ScreenQuad.h" />
+    <ClInclude Include="..\ScreenQuad_BackColor.h" />
+    <ClInclude Include="..\ScreenQuad_ColorGradient.h" />
+    <ClInclude Include="..\ScreenQuad_ColorSphere.h" />
+    <ClInclude Include="..\Script.h" />
+    <ClInclude Include="..\Shader.h" />
+    <ClInclude Include="..\ShadowMap.h" />
+    <ClInclude Include="..\ShadowShader.h" />
+    <ClInclude Include="..\SimpleShader.h" />
+    <ClInclude Include="..\Sound.h" />
+    <ClInclude Include="..\SourceRay.h" />
+    <ClInclude Include="..\Sphere.h" />
+    <ClInclude Include="..\stdafx.h" />
+    <ClInclude Include="..\Streaming.h" />
+    <ClInclude Include="..\SupportFile.h" />
+    <ClInclude Include="..\SurfaceManager.h" />
+    <ClInclude Include="..\targetver.h" />
+    <ClInclude Include="..\Terrain.h" />
+    <ClInclude Include="..\TerrainManager.h" />
+    <ClInclude Include="..\TerrainRegionManager.h" />
+    <ClInclude Include="..\TerrainStreamingUI.h" />
+    <ClInclude Include="..\TestScenes.h" />
+    <ClInclude Include="..\TestScenesHelpers.h" />
+    <ClInclude Include="..\TestScenes_Heightfield.h" />
+    <ClInclude Include="..\TestScenes_VehiclesBase.h" />
+    <ClInclude Include="..\TestSelector.h" />
+    <ClInclude Include="..\TextureManager.h" />
+    <ClInclude Include="..\TitleWindow.h" />
+    <ClInclude Include="..\Tool.h" />
+    <ClInclude Include="..\ToolAddImpulse.h" />
+    <ClInclude Include="..\ToolBullet.h" />
+    <ClInclude Include="..\ToolCreateJoint.h" />
+    <ClInclude Include="..\ToolCreateRope.h" />
+    <ClInclude Include="..\ToolInterface.h" />
+    <ClInclude Include="..\ToolObjectCreate.h" />
+    <ClInclude Include="..\ToolPicking.h" />
+    <ClInclude Include="..\ToolRayBased.h" />
+    <ClInclude Include="..\ToolRotate.h" />
+    <ClInclude Include="..\ToolShootObject.h" />
+    <ClInclude Include="..\ToolTerrainEditor.h" />
+    <ClInclude Include="..\ToolTexture.h" />
+    <ClInclude Include="..\ToolTransform.h" />
+    <ClInclude Include="..\ToolTranslate.h" />
+    <ClInclude Include="..\TrashCache.h" />
+    <ClInclude Include="..\USDExport.h" />
+    <ClInclude Include="..\Voronoi2D.h" />
+    <ClInclude Include="..\ZB2Export.h" />
+    <ClInclude Include="..\ZB2Import.h" />
+    <ClInclude Include="..\Zcb2_RenderData.h" />
+    <ClInclude Include="..\ZCB\IceZCBBreaker.h" />
+    <ClInclude Include="..\ZCB\IceZCBFormat.h" />
+    <ClInclude Include="..\ZCB\PINT_ZCB.h" />
+    <ClInclude Include="..\ZCB\PINT_ZCB2.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\HACD\hacdCircularList.inl" />
+    <None Include="..\HACD\hacdVector.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\PEEL.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\PEEL.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

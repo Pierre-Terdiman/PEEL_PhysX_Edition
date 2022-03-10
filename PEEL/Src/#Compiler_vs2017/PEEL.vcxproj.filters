@@ -1,0 +1,1548 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Main">
+      <UniqueIdentifier>{f7af4703-8d63-4612-a939-3f765aed2a54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Import_Export">
+      <UniqueIdentifier>{b135a69e-7b59-45de-9e2a-b9018f78551b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Import_Export\ZCB">
+      <UniqueIdentifier>{f41bb229-8966-4a5e-8ee6-d771f7de3fe7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\GUI">
+      <UniqueIdentifier>{f2d4e132-ccde-4a46-9ef1-ba42999521fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Support">
+      <UniqueIdentifier>{796947cd-44d1-4f83-ae01-570c4d2a33ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Support\Shapes">
+      <UniqueIdentifier>{43c5c274-b489-46dc-aa67-e9ac238aed92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Support\OpenGL">
+      <UniqueIdentifier>{bb3af214-2b34-49bf-ae14-cafa0b6025d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Support\HACD">
+      <UniqueIdentifier>{541a1975-d5af-451c-9505-454e26489db4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Support\Fracture">
+      <UniqueIdentifier>{84555dae-910c-4aaa-ac25-a0ae2deb0f33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Support\Foundation">
+      <UniqueIdentifier>{37d1291b-d5d7-49ce-8f0d-ee70ae4cf921}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Support\Voronoi2D">
+      <UniqueIdentifier>{d1f676e6-c63a-42d3-a817-6c67719768ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Support\Streaming">
+      <UniqueIdentifier>{97017709-0882-421d-80d6-3de4fde19112}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Support\Scattering">
+      <UniqueIdentifier>{336dc7b0-d685-4709-9755-4f3766e6293d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Support\Terrain">
+      <UniqueIdentifier>{79035a19-202d-4218-8e80-88f58ab464fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Support\LZ4">
+      <UniqueIdentifier>{fec4eeb0-3f91-4be0-8ba1-9c1b94a92dc8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Test scenes">
+      <UniqueIdentifier>{d58a8da1-c14c-44fd-8f7e-92492a08b080}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Test scenes\Scene queries">
+      <UniqueIdentifier>{728f4802-877e-462a-9166-644907b9b677}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Test scenes\WIP">
+      <UniqueIdentifier>{48a30df5-aeb6-40df-9d7d-b283ad83368e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Test scenes\Disabled">
+      <UniqueIdentifier>{1a9c19d7-0e77-4ea7-aaaa-421354004f64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Test scenes\Articulations">
+      <UniqueIdentifier>{ba11da21-10c1-4854-b04b-fdd0ba51d660}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Test scenes\Joints">
+      <UniqueIdentifier>{ed46ef1d-5807-4eee-a949-6af3b1a85308}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Render">
+      <UniqueIdentifier>{59ac6a03-243b-4e97-8797-86668f759769}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Render\Shape renderers">
+      <UniqueIdentifier>{2ed25c07-f402-4ded-bc3d-437612cd4f02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Render\Shape renderers\Display-list-based">
+      <UniqueIdentifier>{afcf2784-7236-44f4-a963-29615e51a390}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Render\Render models">
+      <UniqueIdentifier>{17819749-1345-491f-b8fe-e2f5fc2d95e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Render\Render models\Matcap">
+      <UniqueIdentifier>{36e3ea51-72c7-4af3-aeb5-3ac0bbc2fd9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Render\Render models\SimpleShader">
+      <UniqueIdentifier>{46a3c448-b166-436b-8024-bced8c653655}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Render\Render models\SimpleShadows">
+      <UniqueIdentifier>{2010dfd0-1c09-4c96-970d-3a95b9c887e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\#PEEL">
+      <UniqueIdentifier>{48754231-751d-41ea-a5f8-794a4ebb2092}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\#PEEL\Tools">
+      <UniqueIdentifier>{48f2bf5a-0879-40d8-8204-5d8b14f17507}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\#PEEL\Tools\PRS">
+      <UniqueIdentifier>{86e70df1-e060-4734-bab1-9f1f8ef4ea45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\#PEEL\Editor">
+      <UniqueIdentifier>{a3e3c330-2c92-4904-aa15-a29abcfd9524}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\#PEEL\ScreenQuad">
+      <UniqueIdentifier>{7d8d4ddb-c7c0-4ff3-9107-2424f051ba62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\#PEEL\ScreenQuad\ColorSphere">
+      <UniqueIdentifier>{204dd17c-a15e-46b6-95df-e3b4be96ec34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\#PEEL\RaytracingTest">
+      <UniqueIdentifier>{719973c8-f748-4126-b3d2-107f5c70cf44}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\LegoLib\LegoLib.cpp">
+      <Filter>Source Files\Main\Import_Export</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Loader_Bin.cpp">
+      <Filter>Source Files\Main\Import_Export</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Loader_Obj.cpp">
+      <Filter>Source Files\Main\Import_Export</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Loader_Rays.cpp">
+      <Filter>Source Files\Main\Import_Export</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Loader_RepX.cpp">
+      <Filter>Source Files\Main\Import_Export</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Loader_ShapeProfile.cpp">
+      <Filter>Source Files\Main\Import_Export</Filter>
+    </ClCompile>
+    <ClCompile Include="..\USDExport.cpp">
+      <Filter>Source Files\Main\Import_Export</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ZB2Export.cpp">
+      <Filter>Source Files\Main\Import_Export</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ZB2Import.cpp">
+      <Filter>Source Files\Main\Import_Export</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ZCB\IceZCBBreaker.cpp">
+      <Filter>Source Files\Main\Import_Export\ZCB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ZCB\PINT_ZCB.cpp">
+      <Filter>Source Files\Main\Import_Export\ZCB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ZCB\PINT_ZCB2.cpp">
+      <Filter>Source Files\Main\Import_Export\ZCB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ZCB\PINT_ZCB2_IceChunks.cpp">
+      <Filter>Source Files\Main\Import_Export\ZCB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Zcb2_RenderData.cpp">
+      <Filter>Source Files\Main\Import_Export\ZCB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GUI_ActorEdit.cpp">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GUI_ActorSelection.cpp">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GUI_CompoundEdit.cpp">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GUI_EditBox.cpp">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GUI_Helpers.cpp">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GUI_ImportCollada.cpp">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GUI_JointEdit.cpp">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GUI_JointParams.cpp">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GUI_PosEdit.cpp">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PintGUIHelper.cpp">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ProgressBar.cpp">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\RaytracingWindow.cpp">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TitleData.cpp">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TitleWindow.cpp">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Camera.cpp">
+      <Filter>Source Files\Main\Support</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ConvexHull2D.cpp">
+      <Filter>Source Files\Main\Support</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CRC32.cpp">
+      <Filter>Source Files\Main\Support</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Devil.cpp">
+      <Filter>Source Files\Main\Support</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Gamepad.cpp">
+      <Filter>Source Files\Main\Support</Filter>
+    </ClCompile>
+    <ClCompile Include="..\QPCTime.cpp">
+      <Filter>Source Files\Main\Support</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Sound.cpp">
+      <Filter>Source Files\Main\Support</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SupportFile.cpp">
+      <Filter>Source Files\Main\Support</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Capsule.cpp">
+      <Filter>Source Files\Main\Support\Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Cylinder.cpp">
+      <Filter>Source Files\Main\Support\Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\IceBunny.cpp">
+      <Filter>Source Files\Main\Support\Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LoopTheLoop.cpp">
+      <Filter>Source Files\Main\Support\Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MyConvex.cpp">
+      <Filter>Source Files\Main\Support\Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ProceduralTrack.cpp">
+      <Filter>Source Files\Main\Support\Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\RevolutionShape.cpp">
+      <Filter>Source Files\Main\Support\Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Sphere.cpp">
+      <Filter>Source Files\Main\Support\Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Terrain.cpp">
+      <Filter>Source Files\Main\Support\Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLConvexRenderer.cpp">
+      <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLFontRenderer.cpp">
+      <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLMesh.cpp">
+      <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLPointRenderer.cpp">
+      <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLPointRenderer2.cpp">
+      <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLRenderHelpers.cpp">
+      <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLScaledCylinder.cpp">
+      <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLShader.cpp">
+      <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLTexture.cpp">
+      <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLVSync.cpp">
+      <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\HACD\hacdGraph.cpp">
+      <Filter>Source Files\Main\Support\HACD</Filter>
+    </ClCompile>
+    <ClCompile Include="..\HACD\hacdHACD.cpp">
+      <Filter>Source Files\Main\Support\HACD</Filter>
+    </ClCompile>
+    <ClCompile Include="..\HACD\hacdICHull.cpp">
+      <Filter>Source Files\Main\Support\HACD</Filter>
+    </ClCompile>
+    <ClCompile Include="..\HACD\hacdManifoldMesh.cpp">
+      <Filter>Source Files\Main\Support\HACD</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Fracture\Convex.cpp">
+      <Filter>Source Files\Main\Support\Fracture</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Fracture\Delaunay3d.cpp">
+      <Filter>Source Files\Main\Support\Fracture</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Fracture\Fracture.cpp">
+      <Filter>Source Files\Main\Support\Fracture</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Fracture\FracturePattern.cpp">
+      <Filter>Source Files\Main\Support\Fracture</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Fracture\MultiConvex.cpp">
+      <Filter>Source Files\Main\Support\Fracture</Filter>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\PsAllocator.cpp">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\PsAssert.cpp">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\PsFoundation.cpp">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\PsMathUtils.cpp">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\PsString.cpp">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\PsTempAllocator.cpp">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\PsUtilities.cpp">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\windows\PsWindowsAtomic.cpp">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\windows\PsWindowsCpu.cpp">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\windows\PsWindowsFPU.cpp">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\windows\PsWindowsMutex.cpp">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\windows\PsWindowsPrintString.cpp">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\windows\PsWindowsSList.cpp">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\windows\PsWindowsSocket.cpp">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\windows\PsWindowsSync.cpp">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\windows\PsWindowsThread.cpp">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\foundation\src\windows\PsWindowsTime.cpp">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Voronoi2D.cpp">
+      <Filter>Source Files\Main\Support\Voronoi2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MinimalRegionManager.cpp">
+      <Filter>Source Files\Main\Support\Streaming</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Streaming.cpp">
+      <Filter>Source Files\Main\Support\Streaming</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TerrainRegionManager.cpp">
+      <Filter>Source Files\Main\Support\Streaming</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TerrainStreamingUI.cpp">
+      <Filter>Source Files\Main\Support\Streaming</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Scattering.cpp">
+      <Filter>Source Files\Main\Support\Scattering</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TerrainManager.cpp">
+      <Filter>Source Files\Main\Support\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LZ4\lz4.c">
+      <Filter>Source Files\Main\Support\LZ4</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LZ4\lz4frame.c">
+      <Filter>Source Files\Main\Support\LZ4</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LZ4\lz4hc.c">
+      <Filter>Source Files\Main\Support\LZ4</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LZ4\xxhash.c">
+      <Filter>Source Files\Main\Support\LZ4</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes.cpp">
+      <Filter>Source Files\Main\Test scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_API.cpp">
+      <Filter>Source Files\Main\Test scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_Behavior.cpp">
+      <Filter>Source Files\Main\Test scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_CCD.cpp">
+      <Filter>Source Files\Main\Test scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_CCT.cpp">
+      <Filter>Source Files\Main\Test scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_ContactGeneration.cpp">
+      <Filter>Source Files\Main\Test scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_Cooking.cpp">
+      <Filter>Source Files\Main\Test scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_Cylinders.cpp">
+      <Filter>Source Files\Main\Test scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_Fracture.cpp">
+      <Filter>Source Files\Main\Test scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_Heightfield.cpp">
+      <Filter>Source Files\Main\Test scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_Import.cpp">
+      <Filter>Source Files\Main\Test scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_Kinematics.cpp">
+      <Filter>Source Files\Main\Test scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_Performance.cpp">
+      <Filter>Source Files\Main\Test scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_StaticScene.cpp">
+      <Filter>Source Files\Main\Test scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_Undefined.cpp">
+      <Filter>Source Files\Main\Test scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_Vehicles.cpp">
+      <Filter>Source Files\Main\Test scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_VehiclesBase.cpp">
+      <Filter>Source Files\Main\Test scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenesHelpers.cpp">
+      <Filter>Source Files\Main\Test scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_Midphase.cpp">
+      <Filter>Source Files\Main\Test scenes\Scene queries</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_MidphaseMeshMesh.cpp">
+      <Filter>Source Files\Main\Test scenes\Scene queries</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_Overlap.cpp">
+      <Filter>Source Files\Main\Test scenes\Scene queries</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_Raycast.cpp">
+      <Filter>Source Files\Main\Test scenes\Scene queries</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_Sweep.cpp">
+      <Filter>Source Files\Main\Test scenes\Scene queries</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_Bulldozer_WIP.cpp">
+      <Filter>Source Files\Main\Test scenes\WIP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_Joints_WIP.cpp">
+      <Filter>Source Files\Main\Test scenes\WIP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_Terrain.cpp">
+      <Filter>Source Files\Main\Test scenes\Disabled</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_Articulations.cpp">
+      <Filter>Source Files\Main\Test scenes\Articulations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_MCArticulations.cpp">
+      <Filter>Source Files\Main\Test scenes\Articulations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_RCArticulations.cpp">
+      <Filter>Source Files\Main\Test scenes\Articulations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_BasicJoints.cpp">
+      <Filter>Source Files\Main\Test scenes\Joints</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_D6.cpp">
+      <Filter>Source Files\Main\Test scenes\Joints</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_Joints.cpp">
+      <Filter>Source Files\Main\Test scenes\Joints</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestScenes_Portals.cpp">
+      <Filter>Source Files\Main\Test scenes\Joints</Filter>
+    </ClCompile>
+    <ClCompile Include="..\FrameBufferObject.cpp">
+      <Filter>Source Files\Main\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PintRender.cpp">
+      <Filter>Source Files\Main\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PintRenderState.cpp">
+      <Filter>Source Files\Main\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\RenderTarget.cpp">
+      <Filter>Source Files\Main\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ShadowMap.cpp">
+      <Filter>Source Files\Main\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PintBatchConvexShapeRenderer.cpp">
+      <Filter>Source Files\Main\Render\Shape renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PintColorShapeRenderer.cpp">
+      <Filter>Source Files\Main\Render\Shape renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PintConvexInstanceShapeRenderer.cpp">
+      <Filter>Source Files\Main\Render\Shape renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PintGLMeshShapeRenderer.cpp">
+      <Filter>Source Files\Main\Render\Shape renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PintPointSpriteSphereShapeRenderer.cpp">
+      <Filter>Source Files\Main\Render\Shape renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PintShapeRenderer.cpp">
+      <Filter>Source Files\Main\Render\Shape renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PintTerrainTileRenderer.cpp">
+      <Filter>Source Files\Main\Render\Shape renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PintDLBoxShapeRenderer.cpp">
+      <Filter>Source Files\Main\Render\Shape renderers\Display-list-based</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PintDLCapsuleShapeRenderer.cpp">
+      <Filter>Source Files\Main\Render\Shape renderers\Display-list-based</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PintDLConvexShapeRenderer.cpp">
+      <Filter>Source Files\Main\Render\Shape renderers\Display-list-based</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PintDLCylinderShapeRenderer.cpp">
+      <Filter>Source Files\Main\Render\Shape renderers\Display-list-based</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PintDLMeshShapeRenderer.cpp">
+      <Filter>Source Files\Main\Render\Shape renderers\Display-list-based</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PintDLShapeRenderer.cpp">
+      <Filter>Source Files\Main\Render\Shape renderers\Display-list-based</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PintDLSphereShapeRenderer.cpp">
+      <Filter>Source Files\Main\Render\Shape renderers\Display-list-based</Filter>
+    </ClCompile>
+    <ClCompile Include="..\RenderModel.cpp">
+      <Filter>Source Files\Main\Render\Render models</Filter>
+    </ClCompile>
+    <ClCompile Include="..\RenderModelFFP.cpp">
+      <Filter>Source Files\Main\Render\Render models</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shader.cpp">
+      <Filter>Source Files\Main\Render\Render models</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MatcapShader.cpp">
+      <Filter>Source Files\Main\Render\Render models\Matcap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\RenderModelMatcap.cpp">
+      <Filter>Source Files\Main\Render\Render models\Matcap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\RenderModelSimpleShader.cpp">
+      <Filter>Source Files\Main\Render\Render models\SimpleShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SimpleShader.cpp">
+      <Filter>Source Files\Main\Render\Render models\SimpleShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\FlatShader.cpp">
+      <Filter>Source Files\Main\Render\Render models\SimpleShadows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\RenderModelSimpleShadows.cpp">
+      <Filter>Source Files\Main\Render\Render models\SimpleShadows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ShadowShader.cpp">
+      <Filter>Source Files\Main\Render\Render models\SimpleShadows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CameraManager.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ControlInterface.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CustomICEAllocator.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DefaultControlInterface.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DefaultEnv.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DisplayTexture.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Foundation.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Grid.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PEEL.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PEEL_MenuBar.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PEEL_Threads.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PhysicsData.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Pint.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PintEngineData.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PintObjectsManager.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PintSelectionManager.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PintSQ.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PintTiming.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PintVisibilityManager.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Plugins.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\RepX_Tools.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\RoundCorners.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Script.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Simulate.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Starter.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\stdafx.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SurfaceManager.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestSelector.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TextureManager.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TrashCache.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Tool.cpp">
+      <Filter>Source Files\Main\#PEEL\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ToolAddImpulse.cpp">
+      <Filter>Source Files\Main\#PEEL\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ToolBullet.cpp">
+      <Filter>Source Files\Main\#PEEL\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ToolCreateJoint.cpp">
+      <Filter>Source Files\Main\#PEEL\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ToolCreateRope.cpp">
+      <Filter>Source Files\Main\#PEEL\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ToolObjectCreate.cpp">
+      <Filter>Source Files\Main\#PEEL\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ToolPicking.cpp">
+      <Filter>Source Files\Main\#PEEL\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ToolRayBased.cpp">
+      <Filter>Source Files\Main\#PEEL\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ToolShootObject.cpp">
+      <Filter>Source Files\Main\#PEEL\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ToolTerrainEditor.cpp">
+      <Filter>Source Files\Main\#PEEL\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ToolTexture.cpp">
+      <Filter>Source Files\Main\#PEEL\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ToolRotate.cpp">
+      <Filter>Source Files\Main\#PEEL\Tools\PRS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ToolTransform.cpp">
+      <Filter>Source Files\Main\#PEEL\Tools\PRS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ToolTranslate.cpp">
+      <Filter>Source Files\Main\#PEEL\Tools\PRS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PINT_Editor.cpp">
+      <Filter>Source Files\Main\#PEEL\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ScreenQuad.cpp">
+      <Filter>Source Files\Main\#PEEL\ScreenQuad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ScreenQuad_BackColor.cpp">
+      <Filter>Source Files\Main\#PEEL\ScreenQuad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ScreenQuad_ColorGradient.cpp">
+      <Filter>Source Files\Main\#PEEL\ScreenQuad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ScreenQuad_ColorSphere.cpp">
+      <Filter>Source Files\Main\#PEEL\ScreenQuad\ColorSphere</Filter>
+    </ClCompile>
+    <ClCompile Include="..\RaytracingTest.cpp">
+      <Filter>Source Files\Main\#PEEL\RaytracingTest</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLRenderStates.cpp">
+      <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MeshCleaner.cpp">
+      <Filter>Source Files\Main\Support</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\LegoLib\LegoLib.h">
+      <Filter>Source Files\Main\Import_Export</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Loader_Bin.h">
+      <Filter>Source Files\Main\Import_Export</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Loader_Obj.h">
+      <Filter>Source Files\Main\Import_Export</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Loader_Rays.h">
+      <Filter>Source Files\Main\Import_Export</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Loader_RepX.h">
+      <Filter>Source Files\Main\Import_Export</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Loader_ShapeProfile.h">
+      <Filter>Source Files\Main\Import_Export</Filter>
+    </ClInclude>
+    <ClInclude Include="..\USDExport.h">
+      <Filter>Source Files\Main\Import_Export</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ZB2Export.h">
+      <Filter>Source Files\Main\Import_Export</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ZB2Import.h">
+      <Filter>Source Files\Main\Import_Export</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ZCB\IceZCBBreaker.h">
+      <Filter>Source Files\Main\Import_Export\ZCB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ZCB\IceZCBFormat.h">
+      <Filter>Source Files\Main\Import_Export\ZCB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ZCB\PINT_ZCB.h">
+      <Filter>Source Files\Main\Import_Export\ZCB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ZCB\PINT_ZCB2.h">
+      <Filter>Source Files\Main\Import_Export\ZCB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Zcb2_RenderData.h">
+      <Filter>Source Files\Main\Import_Export\ZCB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GUI_ActorEdit.h">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GUI_ActorSelection.h">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GUI_CompoundEdit.h">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GUI_EditBox.h">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GUI_Helpers.h">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GUI_ImportCollada.h">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GUI_JointEdit.h">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GUI_JointParams.h">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GUI_PosEdit.h">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GUI_RenderInterface.h">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PintGUIHelper.h">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ProgressBar.h">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\RaytracingWindow.h">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TitleWindow.h">
+      <Filter>Source Files\Main\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Camera.h">
+      <Filter>Source Files\Main\Support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CRC32.h">
+      <Filter>Source Files\Main\Support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Devil.h">
+      <Filter>Source Files\Main\Support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Gamepad.h">
+      <Filter>Source Files\Main\Support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\QPCTime.h">
+      <Filter>Source Files\Main\Support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Sound.h">
+      <Filter>Source Files\Main\Support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SupportFile.h">
+      <Filter>Source Files\Main\Support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Capsule.h">
+      <Filter>Source Files\Main\Support\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Cylinder.h">
+      <Filter>Source Files\Main\Support\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\IceBunny.h">
+      <Filter>Source Files\Main\Support\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LoopTheLoop.h">
+      <Filter>Source Files\Main\Support\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MyConvex.h">
+      <Filter>Source Files\Main\Support\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ProceduralTrack.h">
+      <Filter>Source Files\Main\Support\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\RevolutionShape.h">
+      <Filter>Source Files\Main\Support\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Sphere.h">
+      <Filter>Source Files\Main\Support\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Terrain.h">
+      <Filter>Source Files\Main\Support\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GLConvexRenderer.h">
+      <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GLFontData.h">
+      <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GLFontRenderer.h">
+      <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GLMesh.h">
+      <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GLPointRenderer.h">
+      <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GLPointRenderer2.h">
+      <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GLRenderHelpers.h">
+      <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GLScaledCylinder.h">
+      <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GLShader.h">
+      <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GLTexture.h">
+      <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GLVSync.h">
+      <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\HACD\hacdCircularList.h">
+      <Filter>Source Files\Main\Support\HACD</Filter>
+    </ClInclude>
+    <ClInclude Include="..\HACD\hacdGraph.h">
+      <Filter>Source Files\Main\Support\HACD</Filter>
+    </ClInclude>
+    <ClInclude Include="..\HACD\hacdHACD.h">
+      <Filter>Source Files\Main\Support\HACD</Filter>
+    </ClInclude>
+    <ClInclude Include="..\HACD\hacdICHull.h">
+      <Filter>Source Files\Main\Support\HACD</Filter>
+    </ClInclude>
+    <ClInclude Include="..\HACD\hacdManifoldMesh.h">
+      <Filter>Source Files\Main\Support\HACD</Filter>
+    </ClInclude>
+    <ClInclude Include="..\HACD\hacdVector.h">
+      <Filter>Source Files\Main\Support\HACD</Filter>
+    </ClInclude>
+    <ClInclude Include="..\HACD\hacdVersion.h">
+      <Filter>Source Files\Main\Support\HACD</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Fracture\Fracture.h">
+      <Filter>Source Files\Main\Support\Fracture</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Fracture\MultiConvex.h">
+      <Filter>Source Files\Main\Support\Fracture</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ICE_To_PX.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\Ps.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsAlignedMalloc.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsAlloca.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsAllocator.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsAoS.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsArray.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsAtomic.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsBasicTemplates.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsBitUtils.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsBroadcast.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsCpu.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsFoundation.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsFPU.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsHash.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsHashInternals.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsHashMap.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsHashSet.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsInlineAllocator.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsInlineAoS.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsInlineArray.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsIntrinsics.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsMathUtils.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsMutex.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsPool.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsSList.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsSocket.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsSort.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsSortInternals.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsString.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsSync.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsTempAllocator.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsThread.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsTime.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsUserAllocated.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsUtilities.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsVecMath.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsVecMathAoSScalar.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsVecMathAoSScalarInline.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsVecMathSSE.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsVecMathUtilities.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsVecQuat.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\PsVecTransform.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\windows\PsWindowsAoS.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\windows\PsWindowsFPU.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\windows\PsWindowsInclude.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\windows\PsWindowsInlineAoS.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\windows\PsWindowsIntrinsics.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\include\windows\PsWindowsTrigConstants.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\Px.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxAllocatorCallback.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxAssert.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxBitAndData.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxBounds3.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxErrorCallback.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxErrors.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxFlags.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxFoundation.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxFoundationConfig.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxIntrinsics.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxIO.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxMat33.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxMat44.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxMath.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxMathUtils.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxMemory.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxPhysicsVersion.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxPlane.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxPreprocessor.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxProfiler.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxQuat.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxSharedAssert.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxSimpleTypes.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxStrideIterator.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxTransform.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxUnionCast.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxVec2.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxVec3.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\PxVec4.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\foundation\windows\PxWindowsIntrinsics.h">
+      <Filter>Source Files\Main\Support\Foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Voronoi2D.h">
+      <Filter>Source Files\Main\Support\Voronoi2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MinimalRegionManager.h">
+      <Filter>Source Files\Main\Support\Streaming</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Streaming.h">
+      <Filter>Source Files\Main\Support\Streaming</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TerrainRegionManager.h">
+      <Filter>Source Files\Main\Support\Streaming</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TerrainStreamingUI.h">
+      <Filter>Source Files\Main\Support\Streaming</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Scattering.h">
+      <Filter>Source Files\Main\Support\Scattering</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TerrainManager.h">
+      <Filter>Source Files\Main\Support\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LZ4\lz4.h">
+      <Filter>Source Files\Main\Support\LZ4</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LZ4\lz4frame.h">
+      <Filter>Source Files\Main\Support\LZ4</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LZ4\lz4frame_static.h">
+      <Filter>Source Files\Main\Support\LZ4</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LZ4\lz4hc.h">
+      <Filter>Source Files\Main\Support\LZ4</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LZ4\xxhash.h">
+      <Filter>Source Files\Main\Support\LZ4</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestScenes.h">
+      <Filter>Source Files\Main\Test scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestScenes_Heightfield.h">
+      <Filter>Source Files\Main\Test scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestScenes_VehiclesBase.h">
+      <Filter>Source Files\Main\Test scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestScenesHelpers.h">
+      <Filter>Source Files\Main\Test scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FrameBufferObject.h">
+      <Filter>Source Files\Main\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PintRender.h">
+      <Filter>Source Files\Main\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PintRenderPass.h">
+      <Filter>Source Files\Main\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PintRenderState.h">
+      <Filter>Source Files\Main\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\RenderTarget.h">
+      <Filter>Source Files\Main\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ShadowMap.h">
+      <Filter>Source Files\Main\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PintBatchConvexShapeRenderer.h">
+      <Filter>Source Files\Main\Render\Shape renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PintColorShapeRenderer.h">
+      <Filter>Source Files\Main\Render\Shape renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PintConvexInstanceShapeRenderer.h">
+      <Filter>Source Files\Main\Render\Shape renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PintGLMeshShapeRenderer.h">
+      <Filter>Source Files\Main\Render\Shape renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PintNullRenderer.h">
+      <Filter>Source Files\Main\Render\Shape renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PintPointSpriteSphereShapeRenderer.h">
+      <Filter>Source Files\Main\Render\Shape renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PintShapeRenderer.h">
+      <Filter>Source Files\Main\Render\Shape renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PintTerrainTileRenderer.h">
+      <Filter>Source Files\Main\Render\Shape renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PintDLBoxShapeRenderer.h">
+      <Filter>Source Files\Main\Render\Shape renderers\Display-list-based</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PintDLCapsuleShapeRenderer.h">
+      <Filter>Source Files\Main\Render\Shape renderers\Display-list-based</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PintDLConvexShapeRenderer.h">
+      <Filter>Source Files\Main\Render\Shape renderers\Display-list-based</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PintDLCylinderShapeRenderer.h">
+      <Filter>Source Files\Main\Render\Shape renderers\Display-list-based</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PintDLMeshShapeRenderer.h">
+      <Filter>Source Files\Main\Render\Shape renderers\Display-list-based</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PintDLShapeRenderer.h">
+      <Filter>Source Files\Main\Render\Shape renderers\Display-list-based</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PintDLSphereShapeRenderer.h">
+      <Filter>Source Files\Main\Render\Shape renderers\Display-list-based</Filter>
+    </ClInclude>
+    <ClInclude Include="..\RenderModel.h">
+      <Filter>Source Files\Main\Render\Render models</Filter>
+    </ClInclude>
+    <ClInclude Include="..\RenderModelFFP.h">
+      <Filter>Source Files\Main\Render\Render models</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shader.h">
+      <Filter>Source Files\Main\Render\Render models</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MatcapShader.h">
+      <Filter>Source Files\Main\Render\Render models\Matcap</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Media\#Shaders\RenderModel_Mapcap_ps.h">
+      <Filter>Source Files\Main\Render\Render models\Matcap</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Media\#Shaders\RenderModel_Mapcap_vs.h">
+      <Filter>Source Files\Main\Render\Render models\Matcap</Filter>
+    </ClInclude>
+    <ClInclude Include="..\RenderModelMatcap.h">
+      <Filter>Source Files\Main\Render\Render models\Matcap</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Media\#Shaders\RenderModel_SimpleShader1_ps.h">
+      <Filter>Source Files\Main\Render\Render models\SimpleShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Media\#Shaders\RenderModel_SimpleShader1_vs.h">
+      <Filter>Source Files\Main\Render\Render models\SimpleShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Media\#Shaders\RenderModel_SimpleShader2_ps.h">
+      <Filter>Source Files\Main\Render\Render models\SimpleShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Media\#Shaders\RenderModel_SimpleShader2_vs.h">
+      <Filter>Source Files\Main\Render\Render models\SimpleShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\RenderModelSimpleShader.h">
+      <Filter>Source Files\Main\Render\Render models\SimpleShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SimpleShader.h">
+      <Filter>Source Files\Main\Render\Render models\SimpleShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FlatShader.h">
+      <Filter>Source Files\Main\Render\Render models\SimpleShadows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Media\#Shaders\RenderModel_SimpleShadows_ps.h">
+      <Filter>Source Files\Main\Render\Render models\SimpleShadows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Media\#Shaders\RenderModel_SimpleShadows_vs.h">
+      <Filter>Source Files\Main\Render\Render models\SimpleShadows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\RenderModelSimpleShadows.h">
+      <Filter>Source Files\Main\Render\Render models\SimpleShadows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ShadowShader.h">
+      <Filter>Source Files\Main\Render\Render models\SimpleShadows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CameraManager.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ControlInterface.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CustomICEAllocator.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DefaultControlInterface.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DefaultEnv.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DisplayTexture.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Grid.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PEEL.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PEEL_MenuBar.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PEEL_Settings.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PEEL_Threads.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PhysicsData.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Pint.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PintDef.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PintEngineData.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PintObjectsManager.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PintSelectionManager.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PintSQ.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PintSurfaceInterface.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PintTiming.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PintVisibilityManager.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Plugins.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Profiling.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\RepX_Tools.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\RoundCorners.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Script.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SourceRay.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\stdafx.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SurfaceManager.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\targetver.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestSelector.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TextureManager.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TrashCache.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tool.h">
+      <Filter>Source Files\Main\#PEEL\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ToolAddImpulse.h">
+      <Filter>Source Files\Main\#PEEL\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ToolBullet.h">
+      <Filter>Source Files\Main\#PEEL\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ToolCreateJoint.h">
+      <Filter>Source Files\Main\#PEEL\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ToolCreateRope.h">
+      <Filter>Source Files\Main\#PEEL\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ToolInterface.h">
+      <Filter>Source Files\Main\#PEEL\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ToolObjectCreate.h">
+      <Filter>Source Files\Main\#PEEL\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ToolPicking.h">
+      <Filter>Source Files\Main\#PEEL\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ToolRayBased.h">
+      <Filter>Source Files\Main\#PEEL\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ToolShootObject.h">
+      <Filter>Source Files\Main\#PEEL\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ToolTerrainEditor.h">
+      <Filter>Source Files\Main\#PEEL\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ToolTexture.h">
+      <Filter>Source Files\Main\#PEEL\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ToolRotate.h">
+      <Filter>Source Files\Main\#PEEL\Tools\PRS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ToolTransform.h">
+      <Filter>Source Files\Main\#PEEL\Tools\PRS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ToolTranslate.h">
+      <Filter>Source Files\Main\#PEEL\Tools\PRS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PINT_Editor.h">
+      <Filter>Source Files\Main\#PEEL\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ScreenQuad.h">
+      <Filter>Source Files\Main\#PEEL\ScreenQuad</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ScreenQuad_BackColor.h">
+      <Filter>Source Files\Main\#PEEL\ScreenQuad</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ScreenQuad_ColorGradient.h">
+      <Filter>Source Files\Main\#PEEL\ScreenQuad</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ScreenQuad_ColorSphere.h">
+      <Filter>Source Files\Main\#PEEL\ScreenQuad\ColorSphere</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Media\#Shaders\ScreenQuad_ColorSphere2_ps.h">
+      <Filter>Source Files\Main\#PEEL\ScreenQuad\ColorSphere</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Media\#Shaders\ScreenQuad_ColorSphere_ps.h">
+      <Filter>Source Files\Main\#PEEL\ScreenQuad\ColorSphere</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Media\#Shaders\ScreenQuad_ColorSphere_vs.h">
+      <Filter>Source Files\Main\#PEEL\ScreenQuad\ColorSphere</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Media\#Shaders\ScreenQuad_Default_vs.h">
+      <Filter>Source Files\Main\#PEEL\ScreenQuad\ColorSphere</Filter>
+    </ClInclude>
+    <ClInclude Include="..\RaytracingTest.h">
+      <Filter>Source Files\Main\#PEEL\RaytracingTest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\resource.h" />
+    <ClInclude Include="..\GLRenderStates.h">
+      <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MeshCleaner.h">
+      <Filter>Source Files\Main\Support</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\HACD\hacdCircularList.inl">
+      <Filter>Source Files\Main\Support\HACD</Filter>
+    </None>
+    <None Include="..\HACD\hacdVector.inl">
+      <Filter>Source Files\Main\Support\HACD</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\PEEL.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\PEEL.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\Fracture\Convex.h">
+      <Filter>Source Files\Main\Support\Fracture</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Fracture\Delaunay3d.h">
+      <Filter>Source Files\Main\Support\Fracture</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Fracture\FracturePattern.h">
+      <Filter>Source Files\Main\Support\Fracture</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Foundation.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>
