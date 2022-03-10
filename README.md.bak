@@ -9,7 +9,7 @@ This is PEEL 2.0, dedicated to PhysX.
 
 For now this is mainly a private backup of the code online. Feel free to look at it but there is no documentation, it is not easy to compile, it is unsupported, you're on your own.
 
-Because the project supports both very old and very new engines, building everything with the same compiler is basically impossible. Some old engines whose source code has never been made public require e.g. Visual Studio 2010, while brand new engines only support Visual Studio 2019 and C++17. I have no good build solution for this project. Included here on GitHub are various manually maintained Visual Studio solutions. I tend to use VS2008 for Win32 builds, VS2017 for x64 builds, and VS2019 for new engines like Jolt (included here as an example).
+Because the project supports both very old and very new engines, building everything with the same compiler is basically impossible. Some old engines whose source code has never been made public require e.g. Visual Studio 2010, while brand new engines only support Visual Studio 2019 and C++17. I have no good build solution for this project. Included here on GitHub are various prebuilt Visual Studio solutions. I tend to use VS2008 for Win32 builds, VS2017 for x64 builds, and VS2019 for new engines like Jolt (included here as an example).
 
 While this is the "PhysX edition", I only included a plugin for PhysX4 here so far.
 
