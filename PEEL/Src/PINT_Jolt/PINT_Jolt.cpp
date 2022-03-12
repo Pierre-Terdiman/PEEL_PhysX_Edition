@@ -8,6 +8,8 @@
 
 #include "stdafx.h"
 
+// Uses Jolt libs from 12/03/2022
+
 /*
 Differences with PhysX:
 - no support for articulations
@@ -42,6 +44,12 @@ TODO:
 - try path constraint
 - heightfields
 - make rectangle selection work with Jolt
+
+"The higher the frequency, the quicker the body will move to its target. If you set a frequency of 1 then it will oscillate 1 time per second around the target position,
+if you set it to 20 it will oscillate 20 times per second around the target position. You should never go higher than half of your simulation frequency (otherwise: instability).
+
+Damping prevents overshoot. A damping of 0 means that the body will oscillate forever around its target position (in theory that is, with the integrator that Jolt uses that won't happen).
+A damping of 1 will barely overshoot the target and have almost no oscillation, but it will also take slightly longer to reach the target. I would say sensible ranges for frequency are 0.1-20 and for damping 0-1."
 */
 
 //#define USE_AVX	// doesn't seem to make any difference
@@ -193,57 +201,177 @@ static bool AssertFailedImpl(const char *inExpression, const char *inMessage, co
 
 #endif // JPH_ENABLE_ASSERTS
 
-// Layer that objects can be in, determines which other objects it can collide with
-// Typically you at least want to have 1 layer for moving bodies and 1 layer for static bodies, but you can have more
-// layers if you want. E.g. you could have a layer for high detail collision (which is not used by the physics simulation
-// but only if you do collision testing).
-namespace Layers
-{
-	static constexpr uint8 NON_MOVING = 0;
-	static constexpr uint8 MOVING = 1;
-	static constexpr uint8 NUM_LAYERS = 2;
-};
+#ifdef USE_JOLT_0
 
-// Function that determines if two object layers can collide
-static bool MyObjectCanCollide(ObjectLayer inObject1, ObjectLayer inObject2)
-{
-	switch (inObject1)
+	// Layer that objects can be in, determines which other objects it can collide with
+	// Typically you at least want to have 1 layer for moving bodies and 1 layer for static bodies, but you can have more
+	// layers if you want. E.g. you could have a layer for high detail collision (which is not used by the physics simulation
+	// but only if you do collision testing).
+	namespace Layers
 	{
-	case Layers::NON_MOVING:
-		return inObject2 == Layers::MOVING; // Non moving only collides with moving
-	case Layers::MOVING:
-		return true; // Moving collides with everything
-	default:
-		JPH_ASSERT(false);
-		return false;
-	}
-};
+		static constexpr uint8 NON_MOVING = 0;
+		static constexpr uint8 MOVING = 1;
+		static constexpr uint8 NUM_LAYERS = 2;
+	};
 
-// Each broadphase layer results in a separate bounding volume tree in the broad phase. You at least want to have
-// a layer for non-moving and moving objects to avoid having to update a tree full of static objects every frame.
-// You can have a 1-on-1 mapping between object layers and broadphase layers (like in this case) but if you have
-// many object layers you'll be creating many broad phase trees, which is not efficient. If you want to fine tune
-// your broadphase layers define JPH_TRACK_BROADPHASE_STATS and look at the stats reported on the TTY.
-namespace BroadPhaseLayers
-{
-	static constexpr BroadPhaseLayer NON_MOVING(0);
-	static constexpr BroadPhaseLayer MOVING(1);
-};
-
-// Function that determines if two broadphase layers can collide
-static bool MyBroadPhaseCanCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2)
-{
-	switch (inLayer1)
+	// Function that determines if two object layers can collide
+	static bool MyObjectCanCollide(ObjectLayer inObject1, ObjectLayer inObject2)
 	{
-	case Layers::NON_MOVING:
-		return inLayer2 == BroadPhaseLayers::MOVING;
-	case Layers::MOVING:
-		return true;	
-	default:
-		JPH_ASSERT(false);
-		return false;
+		switch (inObject1)
+		{
+		case Layers::NON_MOVING:
+			return inObject2 == Layers::MOVING; // Non moving only collides with moving
+		case Layers::MOVING:
+			return true; // Moving collides with everything
+		default:
+			JPH_ASSERT(false);
+			return false;
+		}
+	};
+
+	// Each broadphase layer results in a separate bounding volume tree in the broad phase. You at least want to have
+	// a layer for non-moving and moving objects to avoid having to update a tree full of static objects every frame.
+	// You can have a 1-on-1 mapping between object layers and broadphase layers (like in this case) but if you have
+	// many object layers you'll be creating many broad phase trees, which is not efficient. If you want to fine tune
+	// your broadphase layers define JPH_TRACK_BROADPHASE_STATS and look at the stats reported on the TTY.
+	namespace BroadPhaseLayers
+	{
+		static constexpr BroadPhaseLayer NON_MOVING(0);
+		static constexpr BroadPhaseLayer MOVING(1);
+	};
+
+	// Function that determines if two broadphase layers can collide
+	static bool MyBroadPhaseCanCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2)
+	{
+		switch (inLayer1)
+		{
+		case Layers::NON_MOVING:
+			return inLayer2 == BroadPhaseLayers::MOVING;
+		case Layers::MOVING:
+			return true;	
+		default:
+			JPH_ASSERT(false);
+			return false;
+		}
 	}
-}
+#endif
+
+////
+
+#ifdef USE_JOLT_1
+	/// Layer that objects can be in, determines which other objects it can collide with
+	namespace Layers
+	{
+		static constexpr uint8 UNUSED1 = 0; // 4 unused values so that broadphase layers values don't match with object layer values (for testing purposes)
+		static constexpr uint8 UNUSED2 = 1;
+		static constexpr uint8 UNUSED3 = 2;
+		static constexpr uint8 UNUSED4 = 3;
+		static constexpr uint8 NON_MOVING = 4;
+		static constexpr uint8 MOVING = 5;
+		static constexpr uint8 DEBRIS = 6; // Example: Debris collides only with NON_MOVING
+		static constexpr uint8 NUM_LAYERS = 7;
+	};
+
+	/// Function that determines if two object layers can collide
+	inline bool MyObjectCanCollide(ObjectLayer inObject1, ObjectLayer inObject2)
+	{
+		switch (inObject1)
+		{
+		case Layers::UNUSED1:
+		case Layers::UNUSED2:
+		case Layers::UNUSED3:
+		case Layers::UNUSED4:
+			return false;
+		case Layers::NON_MOVING:
+			return inObject2 == Layers::MOVING || inObject2 == Layers::DEBRIS;
+		case Layers::MOVING:
+			return inObject2 == Layers::NON_MOVING || inObject2 == Layers::MOVING;
+		case Layers::DEBRIS:
+			return inObject2 == Layers::NON_MOVING;
+		default:
+			JPH_ASSERT(false);
+			return false;
+		}
+	};
+
+	/// Broadphase layers
+	namespace BroadPhaseLayers
+	{
+		static constexpr BroadPhaseLayer NON_MOVING(0);
+		static constexpr BroadPhaseLayer MOVING(1);
+		static constexpr BroadPhaseLayer DEBRIS(2);
+		static constexpr BroadPhaseLayer UNUSED(3);
+		static constexpr uint NUM_LAYERS(4);
+	};
+
+	/// BroadPhaseLayerInterface implementation
+	class BPLayerInterfaceImpl final : public BroadPhaseLayerInterface
+	{
+	public:
+										BPLayerInterfaceImpl()
+		{
+			// Create a mapping table from object to broad phase layer
+			mObjectToBroadPhase[Layers::UNUSED1] = BroadPhaseLayers::UNUSED;
+			mObjectToBroadPhase[Layers::UNUSED2] = BroadPhaseLayers::UNUSED;
+			mObjectToBroadPhase[Layers::UNUSED3] = BroadPhaseLayers::UNUSED;
+			mObjectToBroadPhase[Layers::UNUSED4] = BroadPhaseLayers::UNUSED;
+			mObjectToBroadPhase[Layers::NON_MOVING] = BroadPhaseLayers::NON_MOVING;
+			mObjectToBroadPhase[Layers::MOVING] = BroadPhaseLayers::MOVING;
+			mObjectToBroadPhase[Layers::DEBRIS] = BroadPhaseLayers::DEBRIS;
+		}
+
+		virtual uint					GetNumBroadPhaseLayers() const override
+		{
+			return BroadPhaseLayers::NUM_LAYERS;
+		}
+
+		virtual BroadPhaseLayer			GetBroadPhaseLayer(ObjectLayer inLayer) const override
+		{
+			JPH_ASSERT(inLayer < Layers::NUM_LAYERS);
+			return mObjectToBroadPhase[inLayer];
+		}
+
+	#if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
+		virtual const char *			GetBroadPhaseLayerName(BroadPhaseLayer inLayer) const override
+		{
+			switch ((BroadPhaseLayer::Type)inLayer)
+			{
+			case (BroadPhaseLayer::Type)BroadPhaseLayers::NON_MOVING:	return "NON_MOVING";
+			case (BroadPhaseLayer::Type)BroadPhaseLayers::MOVING:		return "MOVING";
+			case (BroadPhaseLayer::Type)BroadPhaseLayers::DEBRIS:		return "DEBRIS";
+			case (BroadPhaseLayer::Type)BroadPhaseLayers::UNUSED:		return "UNUSED";
+			default:													JPH_ASSERT(false); return "INVALID";
+			}
+		}
+	#endif // JPH_EXTERNAL_PROFILE || JPH_PROFILE_ENABLED
+
+	private:
+		BroadPhaseLayer					mObjectToBroadPhase[Layers::NUM_LAYERS];
+	}gBroadPhaseLayerInterface;
+
+	/// Function that determines if two broadphase layers can collide
+	inline bool MyBroadPhaseCanCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2)
+	{
+		switch (inLayer1)
+		{
+		case Layers::NON_MOVING:
+			return inLayer2 == BroadPhaseLayers::MOVING;
+		case Layers::MOVING:
+			return inLayer2 == BroadPhaseLayers::NON_MOVING || inLayer2 == BroadPhaseLayers::MOVING;
+		case Layers::DEBRIS:
+			return inLayer2 == BroadPhaseLayers::NON_MOVING;
+		case Layers::UNUSED1:
+		case Layers::UNUSED2:
+		case Layers::UNUSED3:
+			return false;			
+		default:
+			JPH_ASSERT(false);
+			return false;
+		}
+	}
+#endif
+
+////
 
 // An example contact listener
 class MyContactListener : public ContactListener
@@ -278,12 +406,20 @@ public:
 class MyBodyActivationListener : public BodyActivationListener
 {
 public:
+#ifdef USE_JOLT_0
 	virtual void		OnBodyActivated(const BodyID &inBodyID, void *inBodyUserData) override
+#else
+	virtual void		OnBodyActivated(const BodyID &inBodyID, uint64 inBodyUserData) override
+#endif
 	{
 		cout << "A body got activated" << endl;
 	}
 
+#ifdef USE_JOLT_0
 	virtual void		OnBodyDeactivated(const BodyID &inBodyID, void *inBodyUserData) override
+#else
+	virtual void		OnBodyDeactivated(const BodyID &inBodyID, uint64 inBodyUserData) override
+#endif
 	{
 		cout << "A body went to sleep" << endl;
 	}
@@ -641,11 +777,17 @@ const char* JoltPint::GetName() const
 {
 	const int inNumThreads = gNbThreads ? gNbThreads : thread::hardware_concurrency() - 1;
 
-#ifdef USE_AVX
-	const char* Name = "Jolt AVX";
-#else
-	const char* Name = "Jolt";
+#ifdef USE_JOLT_0
+	#ifdef USE_AVX
+		const char* Name = "Jolt AVX";
+	#else
+		const char* Name = "Jolt";
+	#endif
 #endif
+#ifdef USE_JOLT_1
+	const char* Name = "Jolt_12_03_22";
+#endif
+
 	return _F("%s (%dT)", Name, inNumThreads);
 }
 
@@ -726,17 +868,24 @@ void JoltPint::Init(const PINT_WORLD_CREATE& desc)
 	gJobSystem = new JobSystemThreadPool(cMaxPhysicsJobs, cMaxPhysicsBarriers, inNumThreads);
 
 	// Create mapping table from object layer to broadphase layer
+#ifdef USE_JOLT_0
 	ObjectToBroadPhaseLayer object_to_broadphase;
 	object_to_broadphase.resize(Layers::NUM_LAYERS);
 	object_to_broadphase[Layers::NON_MOVING] = BroadPhaseLayers::NON_MOVING;
 	object_to_broadphase[Layers::MOVING] = BroadPhaseLayers::MOVING;
+#endif
 
 	gGroupFilter = new MyGroupFilterTable(32);
 	//printf("GroupFilter: %d\n", gGroupFilter->GetRefCount());
 
 	// Now we can create the actual physics system.
 	gPhysicsSystem = new PhysicsSystem;
+#ifdef USE_JOLT_0
 	gPhysicsSystem->Init(gMaxBodies, gNbBodyMutexes, gMaxBodyPairs, gMaxContactConstraints, object_to_broadphase, MyBroadPhaseCanCollide, MyObjectCanCollide);
+#endif
+#ifdef USE_JOLT_1
+	gPhysicsSystem->Init(gMaxBodies, gNbBodyMutexes, gMaxBodyPairs, gMaxContactConstraints, gBroadPhaseLayerInterface, MyBroadPhaseCanCollide, MyObjectCanCollide);
+#endif
 
 	gPhysicsSystem->SetGravity(ToVec3(desc.mGravity));
 
@@ -900,6 +1049,12 @@ Point JoltPint::GetMainColor()
 	return Point(0.5f, 0.9f, 0.8f);
 }
 
+#ifdef USE_JOLT_0
+static inline_ void BindRenderer(JPH::Shape* shape, udword index, PintShapeRenderer*)
+{
+	shape->SetUserData(index);
+}
+
 static PintShapeRenderer* RetrieveRenderer(const JoltPint& pint, const JPH::Shape* shape, udword index)
 {
 	switch(shape->GetSubType())
@@ -917,6 +1072,19 @@ static PintShapeRenderer* RetrieveRenderer(const JoltPint& pint, const JPH::Shap
 	};
 	return null;
 }
+#endif
+
+#ifdef USE_JOLT_1
+static inline_ void BindRenderer(JPH::Shape* shape, udword, PintShapeRenderer* renderer)
+{
+	shape->SetUserData(uint64(renderer));
+}
+
+static inline_ PintShapeRenderer* RetrieveRenderer(const JoltPint&, const JPH::Shape*, uint64 user_data)
+{
+	return reinterpret_cast<PintShapeRenderer*>(user_data);
+}
+#endif
 
 void JoltPint::Render(PintRender& renderer, PintRenderPass render_pass)
 {
@@ -1207,7 +1375,7 @@ static void CreateShape(Ref<JPH::Shape>& shape, JoltPint& pint, const PINT_SHAPE
 				shape = new SphereShape(Create->mRadius, inMaterial);
 				SetupOffsetShape(shape, LocalPose);
 				const udword Index = pint.mSphereShapes.RegisterShape(Create->mRadius, shape, inMaterial, Renderer, LocalPose, CollisionGroup);
-				shape->SetUserData(Index);
+				BindRenderer(shape, Index, Renderer);
 			}
 		}
 		break;
@@ -1222,7 +1390,7 @@ static void CreateShape(Ref<JPH::Shape>& shape, JoltPint& pint, const PINT_SHAPE
 				shape = new CapsuleShape(Create->mHalfHeight, Create->mRadius, inMaterial);
 				SetupOffsetShape(shape, LocalPose);
 				const udword Index = pint.mCapsuleShapes.RegisterShape(Create->mRadius, Create->mHalfHeight, shape, inMaterial, Renderer, LocalPose, CollisionGroup);
-				shape->SetUserData(Index);
+				BindRenderer(shape, Index, Renderer);
 			}
 		}
 		break;
@@ -1237,7 +1405,7 @@ static void CreateShape(Ref<JPH::Shape>& shape, JoltPint& pint, const PINT_SHAPE
 				shape = new CylinderShape(Create->mHalfHeight, Create->mRadius, TMin(inConvexRadius, Create->mHalfHeight), inMaterial);
 				SetupOffsetShape(shape, LocalPose);
 				const udword Index = pint.mCylinderShapes.RegisterShape(Create->mRadius, Create->mHalfHeight, shape, inMaterial, Renderer, LocalPose, CollisionGroup);
-				shape->SetUserData(Index);
+				BindRenderer(shape, Index, Renderer);
 			}
 		}
 		break;
@@ -1253,7 +1421,7 @@ static void CreateShape(Ref<JPH::Shape>& shape, JoltPint& pint, const PINT_SHAPE
 				shape = new BoxShape(Extents, TMin(inConvexRadius, Extents.ReduceMin()), inMaterial);
 				SetupOffsetShape(shape, LocalPose);
 				const udword Index = pint.mBoxShapes.RegisterShape(Create->mExtents, shape, inMaterial, Renderer, LocalPose, CollisionGroup);
-				shape->SetUserData(Index);
+				BindRenderer(shape, Index, Renderer);
 			}
 		}
 		break;
@@ -1286,7 +1454,7 @@ static void CreateShape(Ref<JPH::Shape>& shape, JoltPint& pint, const PINT_SHAPE
 				SetupOffsetShape(shape, LocalPose);
 
 				const udword Index = pint.mConvexShapes.RegisterShape(null, shape, inMaterial, Renderer, LocalPose, CollisionGroup);
-				shape->SetUserData(Index);
+				BindRenderer(shape, Index, Renderer);
 			}
 		}
 		break;
@@ -1306,7 +1474,7 @@ static void CreateShape(Ref<JPH::Shape>& shape, JoltPint& pint, const PINT_SHAPE
 				SetupOffsetShape(shape, LocalPose);
 
 				const udword Index = pint.mMeshShapes.RegisterShape(null, shape, inMaterial, Renderer, LocalPose, CollisionGroup);
-				shape->SetUserData(Index);
+				BindRenderer(shape, Index, Renderer);
 			}
 		}
 		break;
@@ -1335,7 +1503,7 @@ static void CreateShape(Ref<JPH::Shape>& shape, JoltPint& pint, const PINT_SHAPE
 				SetupOffsetShape(shape, LocalPose);
 
 				const udword Index = pint.mMeshShapes.RegisterShape(null, shape, inMaterial, Renderer, LocalPose, CollisionGroup);
-				shape->SetUserData(Index);
+				BindRenderer(shape, Index, Renderer);
 			}
 
 		}
@@ -1452,7 +1620,6 @@ PintActorHandle JoltPint::CreateObject(const PINT_OBJECT_CREATE& desc)
 		ActorData* AD = ICE_RESERVE(ActorData, mActors);
 		AD->mBody = NewBody;
 		//AD->mRenderer = Renderer;
-		//mShapeUserData.AddPtr(NewShape.GetPtr());
 	}
 
 	return PintActorHandle(NewBody);
@@ -1561,7 +1728,13 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 			const PINT_SPHERICAL_JOINT_CREATE& jc = static_cast<const PINT_SPHERICAL_JOINT_CREATE&>(desc);
 
 			PointConstraintSettings settings;
+#ifdef USE_JOLT_0
 			settings.mCommonPoint = Actor0->GetPosition() + M0.Multiply3x3(ToVec3(jc.mLocalPivot0.mPos));	// ### guess I can't use "local frames" in Jolt
+#endif
+#ifdef USE_JOLT_1
+			settings.mPoint1 = Actor0->GetPosition() + M0.Multiply3x3(ToVec3(jc.mLocalPivot0.mPos));
+			settings.mPoint2 = Actor1->GetPosition() + M1.Multiply3x3(ToVec3(jc.mLocalPivot1.mPos));
+#endif
 
 			J = settings.Create(*Actor0, *Actor1);
 
@@ -1659,8 +1832,21 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 			const PINT_PRISMATIC_JOINT_CREATE& jc = static_cast<const PINT_PRISMATIC_JOINT_CREATE&>(desc);
 
 			SliderConstraintSettings settings;
+#ifdef USE_JOLT_1
+			settings.SetPoint(*Actor0, *Actor1);
+#endif
 			if(jc.mLocalAxis0.IsNonZero())
+			{
+#ifdef USE_JOLT_0
 				settings.mSliderAxis	= M0.Multiply3x3(ToVec3(jc.mLocalAxis0));
+#endif
+#ifdef USE_JOLT_1
+				settings.mSliderAxis1	= M0.Multiply3x3(ToVec3(jc.mLocalAxis0));
+				settings.mSliderAxis2	= M0.Multiply3x3(ToVec3(jc.mLocalAxis1));
+				settings.mNormalAxis1	= settings.mSliderAxis1.GetNormalizedPerpendicular();
+				settings.mNormalAxis2	= settings.mSliderAxis2.GetNormalizedPerpendicular();
+#endif
+			}
 			else
 				ASSERT(0);
 
@@ -2212,6 +2398,7 @@ udword JoltPint::BatchSphereOverlapAny(PintSQThreadContext context, udword nb, P
 	const NarrowPhaseQuery& NPQ = gPhysicsSystem->GetNarrowPhaseQuery();
 
 	CollideShapeSettings settings;
+	settings.mBackFaceMode = EBackFaceMode::CollideWithBackFaces;
 
 	udword NbHits = 0;
 	while(nb--)
@@ -2235,17 +2422,59 @@ udword JoltPint::BatchSphereOverlapAny(PintSQThreadContext context, udword nb, P
 	return NbHits;
 }
 
-/*
 ///////////////////////////////////////////////////////////////////////////////
 
-udword JoltPint::BatchSphereOverlapObjects(PintSQThreadContext context, udword nb, PintOverlapObjectHit* dest, const PintSphereOverlapData* overlaps)
+udword JoltPint::BatchSphereOverlapObjects(PintSQThreadContext context, udword nb, PintMultipleHits* dest, Container& stream, const PintSphereOverlapData* overlaps)
 {
-	return 0;
+	const NarrowPhaseQuery& NPQ = gPhysicsSystem->GetNarrowPhaseQuery();
+
+	CollideShapeSettings settings;
+	settings.mBackFaceMode = EBackFaceMode::CollideWithBackFaces;
+
+	udword Offset = 0;
+	udword NbHits = 0;
+	while(nb--)
+	{
+		const SphereShape QueryShape(overlaps->mSphere.mRadius);
+
+		AllHitCollisionCollector<CollideShapeCollector> collector;
+		NPQ.CollideShape(&QueryShape, Vec3::sReplicate(1.0f), Mat44::sTranslation(ToVec3(overlaps->mSphere.mCenter)), settings, collector);
+
+		const udword Nb = udword(collector.mHits.size());
+		NbHits += Nb;
+		dest->mNbHits = Nb;
+		dest->mOffset = Offset;
+		Offset += Nb;
+
+		if(Nb)
+		{
+			PintOverlapHit* buffer = reinterpret_cast<PintOverlapHit*>(stream.Reserve(Nb*(sizeof(PintOverlapHit)/sizeof(udword))));
+			for(udword i=0;i<Nb;i++)
+			{
+				BodyLockRead lock(gPhysicsSystem->GetBodyLockInterfaceNoLock(), collector.mHits[i].mBodyID2);
+				if(lock.Succeeded())
+				{
+					const Body& hit_body = lock.GetBody();
+					buffer[i].mTouchedActor	= PintActorHandle(&hit_body);
+					buffer[i].mTouchedShape	= null;
+				}
+				else
+				{
+					buffer[i].mTouchedActor	= null;
+					buffer[i].mTouchedShape	= null;
+				}
+			}
+		}
+
+		overlaps++;
+		dest++;
+	}
+	return NbHits;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-udword JoltPint::BatchBoxOverlapAny(PintSQThreadContext context, udword nb, PintBooleanHit* dest, const PintBoxOverlapData* overlaps)
+/*udword JoltPint::BatchBoxOverlapAny(PintSQThreadContext context, udword nb, PintBooleanHit* dest, const PintBoxOverlapData* overlaps)
 {
 	return 0;
 }
