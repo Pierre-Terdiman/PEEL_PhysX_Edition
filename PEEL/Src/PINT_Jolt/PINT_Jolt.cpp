@@ -22,16 +22,16 @@ Differences with PhysX:
 - linear CCD & speculative contacts can both be enabled at the same time
 - Jolt does support per-joint friction value on regular joints (PhysX only supports it on RC articulation links)
 - no support for springs on (prismatic) limits
-- PhysX's joints use local frames, Jolt does not (pros & cons here)
+- PhysX's joints use local frames, Jolt does not (pros & cons here) -> JR: This is supported now.
 - shapes with non-idt local poses or with a non-zero COM are a special case (same design as Bullet/Havok), while it's the default in PhysX.
 - number of iterations are per-scene settings in Jolt, per-actor in PhysX
 - supports per-body gravity factor, PhysX doesn't
 - collision-groups / sim filtering data is per-shape in PhysX, while it seems per-actor in Jolt
 - hinge limits range is only 2*PI in Jolt, twice that in PhysX
 - there's no separation between convex/mesh objects and shapes in Jolt
-- I think Jolt has zero runtime allocations
+- I think Jolt has zero runtime allocations (JR: actually there is at least 1, but it is very minimal)
 - 4 iterations in Jolt is not enough, some stacks collapse, joints feel too soft (low Baumgarte by default)
-- Jolt uses AVX/SSE4, PhysX sticks to SSE2
+- Jolt uses AVX2/AVX/SSE4, PhysX sticks to SSE2
 
 TODO:
 - COM shapes
@@ -52,41 +52,40 @@ Damping prevents overshoot. A damping of 0 means that the body will oscillate fo
 A damping of 1 will barely overshoot the target and have almost no oscillation, but it will also take slightly longer to reach the target. I would say sensible ranges for frequency are 0.1-20 and for damping 0-1."
 */
 
-//#define USE_AVX	// doesn't seem to make any difference
-
 #include "PINT_Jolt.h"
 
 // The Jolt headers don't include Jolt.h. Always include Jolt.h before including any other Jolt header.
 // You can use Jolt.h in your precompiled header to speed up compilation.
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
 // Jolt includes
-#include <RegisterTypes.h>
-#include <Core/TempAllocator.h>
-#include <Core/JobSystemThreadPool.h>
-#include <Physics/PhysicsSettings.h>
-#include <Physics/PhysicsSystem.h>
-#include <Physics/Body/BodyCreationSettings.h>
-#include <Physics/Body/BodyActivationListener.h>
-#include <Physics/Collision/Shape/BoxShape.h>
-#include <Physics/Collision/Shape/SphereShape.h>
-#include <Physics/Collision/Shape/CapsuleShape.h>
-#include <Physics/Collision/Shape/CylinderShape.h>
-#include <Physics/Collision/Shape/ConvexHullShape.h>
-#include <Physics/Collision/Shape/MeshShape.h>
-#include <Physics/Collision/Shape/RotatedTranslatedShape.h>
-#include <Physics/Collision/Shape/StaticCompoundShape.h>
-#include <Physics/Collision/Shape/OffsetCenterOfMassShape.h>
-#include <Physics/Collision/RayCast.h>
-#include <Physics/Collision/ShapeCast.h>
-#include <Physics/Collision/CastResult.h>
-#include <Physics/Collision/CollisionCollectorImpl.h>
-#include <Physics/Collision/GroupFilterTable.h>
-#include <Physics/Constraints/PointConstraint.h>
-#include <Physics/Constraints/HingeConstraint.h>
-#include <Physics/Constraints/FixedConstraint.h>
-#include <Physics/Constraints/DistanceConstraint.h>
-#include <Physics/Constraints/SliderConstraint.h>
+#include <Jolt/RegisterTypes.h>
+#include <Jolt/Core/TempAllocator.h>
+#include <Jolt/Core/JobSystemThreadPool.h>
+#include <Jolt/Core/Factory.h>
+#include <Jolt/Physics/PhysicsSettings.h>
+#include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Body/BodyActivationListener.h>
+#include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
+#include <Jolt/Physics/Collision/Shape/CylinderShape.h>
+#include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
+#include <Jolt/Physics/Collision/Shape/MeshShape.h>
+#include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
+#include <Jolt/Physics/Collision/Shape/StaticCompoundShape.h>
+#include <Jolt/Physics/Collision/Shape/OffsetCenterOfMassShape.h>
+#include <Jolt/Physics/Collision/RayCast.h>
+#include <Jolt/Physics/Collision/ShapeCast.h>
+#include <Jolt/Physics/Collision/CastResult.h>
+#include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
+#include <Jolt/Physics/Collision/GroupFilterTable.h>
+#include <Jolt/Physics/Constraints/PointConstraint.h>
+#include <Jolt/Physics/Constraints/HingeConstraint.h>
+#include <Jolt/Physics/Constraints/FixedConstraint.h>
+#include <Jolt/Physics/Constraints/DistanceConstraint.h>
+#include <Jolt/Physics/Constraints/SliderConstraint.h>
 
 #include "..\PINT_Common\PINT_Ice.h"
 //#include "..\PINT_Common\PINT_Common.cpp"
@@ -135,13 +134,9 @@ static void TraceImpl(const char *inFMT, ...)
 	#pragma comment(lib, "../../Ice/Lib64/IceGUI64.lib")
 //	#pragma comment(lib, "../../Ice/Lib64/IML64.lib")
 	#ifdef _DEBUG
-		#pragma comment(lib, "../../../../PEEL_Externals/Jolt/Lib/x64/Debug/Jolt.lib")
+		#pragma comment(lib, "../../../../PEEL_Externals/JoltPhysics/Build/VS2022_CL/Debug/Jolt.lib")
 	#else
-		#ifdef USE_AVX
-			#pragma comment(lib, "../../../../PEEL_Externals/Jolt/Lib/x64/Release/JoltAVX.lib")
-		#else
-			#pragma comment(lib, "../../../../PEEL_Externals/Jolt/Lib/x64/Release/Jolt.lib")
-		#endif
+		#pragma comment(lib, "../../../../PEEL_Externals/JoltPhysics/Build/VS2022_CL/Distribution/Jolt.lib")
 	#endif
 #else
 	#pragma comment(lib, "../../Ice/Lib/IceCore.lib")
@@ -851,6 +846,9 @@ void JoltPint::Init(const PINT_WORLD_CREATE& desc)
 	Trace = TraceImpl;
 	JPH_IF_ENABLE_ASSERTS(AssertFailed = AssertFailedImpl;)
 
+	// Create a new factory
+	Factory::sInstance = new Factory;
+
 	// Register all Jolt physics types
 	RegisterTypes();
 
@@ -990,7 +988,7 @@ struct PhysicsSettings
 	{
 		struct Friction
 		{
-			static float CombineFunction(const Body &inBody1, const Body &inBody2)
+			static float CombineFunction(const Body &inBody1, const SubShapeID &inSubShapeID1, const Body &inBody2, const SubShapeID &inSubShapeID2)
 			{
 				float f0 = inBody1.GetFriction();
 				float f1 = inBody2.GetFriction();
@@ -1011,6 +1009,7 @@ void JoltPint::Close()
 	gGroupFilter = null;
 	DELETESINGLE(gJobSystem);
 	DELETESINGLE(gTempAllocator);
+	DELETESINGLE(Factory::sInstance);
 
 	{
 //		AllocSwitch _;
