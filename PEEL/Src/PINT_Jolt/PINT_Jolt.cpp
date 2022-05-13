@@ -196,175 +196,118 @@ static bool AssertFailedImpl(const char *inExpression, const char *inMessage, co
 
 #endif // JPH_ENABLE_ASSERTS
 
-#ifdef USE_JOLT_0
-
-	// Layer that objects can be in, determines which other objects it can collide with
-	// Typically you at least want to have 1 layer for moving bodies and 1 layer for static bodies, but you can have more
-	// layers if you want. E.g. you could have a layer for high detail collision (which is not used by the physics simulation
-	// but only if you do collision testing).
-	namespace Layers
-	{
-		static constexpr uint8 NON_MOVING = 0;
-		static constexpr uint8 MOVING = 1;
-		static constexpr uint8 NUM_LAYERS = 2;
-	};
-
-	// Function that determines if two object layers can collide
-	static bool MyObjectCanCollide(ObjectLayer inObject1, ObjectLayer inObject2)
-	{
-		switch (inObject1)
-		{
-		case Layers::NON_MOVING:
-			return inObject2 == Layers::MOVING; // Non moving only collides with moving
-		case Layers::MOVING:
-			return true; // Moving collides with everything
-		default:
-			JPH_ASSERT(false);
-			return false;
-		}
-	};
-
-	// Each broadphase layer results in a separate bounding volume tree in the broad phase. You at least want to have
-	// a layer for non-moving and moving objects to avoid having to update a tree full of static objects every frame.
-	// You can have a 1-on-1 mapping between object layers and broadphase layers (like in this case) but if you have
-	// many object layers you'll be creating many broad phase trees, which is not efficient. If you want to fine tune
-	// your broadphase layers define JPH_TRACK_BROADPHASE_STATS and look at the stats reported on the TTY.
-	namespace BroadPhaseLayers
-	{
-		static constexpr BroadPhaseLayer NON_MOVING(0);
-		static constexpr BroadPhaseLayer MOVING(1);
-	};
-
-	// Function that determines if two broadphase layers can collide
-	static bool MyBroadPhaseCanCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2)
-	{
-		switch (inLayer1)
-		{
-		case Layers::NON_MOVING:
-			return inLayer2 == BroadPhaseLayers::MOVING;
-		case Layers::MOVING:
-			return true;	
-		default:
-			JPH_ASSERT(false);
-			return false;
-		}
-	}
-#endif
-
 ////
 
-#ifdef USE_JOLT_1
-	/// Layer that objects can be in, determines which other objects it can collide with
-	namespace Layers
+/// Layer that objects can be in, determines which other objects it can collide with
+namespace Layers
+{
+	static constexpr uint8 UNUSED1 = 0; // 4 unused values so that broadphase layers values don't match with object layer values (for testing purposes)
+	static constexpr uint8 UNUSED2 = 1;
+	static constexpr uint8 UNUSED3 = 2;
+	static constexpr uint8 UNUSED4 = 3;
+	static constexpr uint8 NON_MOVING = 4;
+	static constexpr uint8 MOVING = 5;
+	static constexpr uint8 DEBRIS = 6; // Example: Debris collides only with NON_MOVING
+	static constexpr uint8 NUM_LAYERS = 7;
+};
+
+/// Function that determines if two object layers can collide
+inline bool MyObjectCanCollide(ObjectLayer inObject1, ObjectLayer inObject2)
+{
+	switch (inObject1)
 	{
-		static constexpr uint8 UNUSED1 = 0; // 4 unused values so that broadphase layers values don't match with object layer values (for testing purposes)
-		static constexpr uint8 UNUSED2 = 1;
-		static constexpr uint8 UNUSED3 = 2;
-		static constexpr uint8 UNUSED4 = 3;
-		static constexpr uint8 NON_MOVING = 4;
-		static constexpr uint8 MOVING = 5;
-		static constexpr uint8 DEBRIS = 6; // Example: Debris collides only with NON_MOVING
-		static constexpr uint8 NUM_LAYERS = 7;
-	};
+	case Layers::UNUSED1:
+	case Layers::UNUSED2:
+	case Layers::UNUSED3:
+	case Layers::UNUSED4:
+		return false;
+	case Layers::NON_MOVING:
+		return inObject2 == Layers::MOVING || inObject2 == Layers::DEBRIS;
+	case Layers::MOVING:
+		return inObject2 == Layers::NON_MOVING || inObject2 == Layers::MOVING;
+	case Layers::DEBRIS:
+		return inObject2 == Layers::NON_MOVING;
+	default:
+		JPH_ASSERT(false);
+		return false;
+	}
+};
 
-	/// Function that determines if two object layers can collide
-	inline bool MyObjectCanCollide(ObjectLayer inObject1, ObjectLayer inObject2)
+/// Broadphase layers
+namespace BroadPhaseLayers
+{
+	static constexpr BroadPhaseLayer NON_MOVING(0);
+	static constexpr BroadPhaseLayer MOVING(1);
+	static constexpr BroadPhaseLayer DEBRIS(2);
+	static constexpr BroadPhaseLayer UNUSED(3);
+	static constexpr uint NUM_LAYERS(4);
+};
+
+/// BroadPhaseLayerInterface implementation
+class BPLayerInterfaceImpl final : public BroadPhaseLayerInterface
+{
+public:
+									BPLayerInterfaceImpl()
 	{
-		switch (inObject1)
-		{
-		case Layers::UNUSED1:
-		case Layers::UNUSED2:
-		case Layers::UNUSED3:
-		case Layers::UNUSED4:
-			return false;
-		case Layers::NON_MOVING:
-			return inObject2 == Layers::MOVING || inObject2 == Layers::DEBRIS;
-		case Layers::MOVING:
-			return inObject2 == Layers::NON_MOVING || inObject2 == Layers::MOVING;
-		case Layers::DEBRIS:
-			return inObject2 == Layers::NON_MOVING;
-		default:
-			JPH_ASSERT(false);
-			return false;
-		}
-	};
+		// Create a mapping table from object to broad phase layer
+		mObjectToBroadPhase[Layers::UNUSED1] = BroadPhaseLayers::UNUSED;
+		mObjectToBroadPhase[Layers::UNUSED2] = BroadPhaseLayers::UNUSED;
+		mObjectToBroadPhase[Layers::UNUSED3] = BroadPhaseLayers::UNUSED;
+		mObjectToBroadPhase[Layers::UNUSED4] = BroadPhaseLayers::UNUSED;
+		mObjectToBroadPhase[Layers::NON_MOVING] = BroadPhaseLayers::NON_MOVING;
+		mObjectToBroadPhase[Layers::MOVING] = BroadPhaseLayers::MOVING;
+		mObjectToBroadPhase[Layers::DEBRIS] = BroadPhaseLayers::DEBRIS;
+	}
 
-	/// Broadphase layers
-	namespace BroadPhaseLayers
+	virtual uint					GetNumBroadPhaseLayers() const override
 	{
-		static constexpr BroadPhaseLayer NON_MOVING(0);
-		static constexpr BroadPhaseLayer MOVING(1);
-		static constexpr BroadPhaseLayer DEBRIS(2);
-		static constexpr BroadPhaseLayer UNUSED(3);
-		static constexpr uint NUM_LAYERS(4);
-	};
+		return BroadPhaseLayers::NUM_LAYERS;
+	}
 
-	/// BroadPhaseLayerInterface implementation
-	class BPLayerInterfaceImpl final : public BroadPhaseLayerInterface
+	virtual BroadPhaseLayer			GetBroadPhaseLayer(ObjectLayer inLayer) const override
 	{
-	public:
-										BPLayerInterfaceImpl()
-		{
-			// Create a mapping table from object to broad phase layer
-			mObjectToBroadPhase[Layers::UNUSED1] = BroadPhaseLayers::UNUSED;
-			mObjectToBroadPhase[Layers::UNUSED2] = BroadPhaseLayers::UNUSED;
-			mObjectToBroadPhase[Layers::UNUSED3] = BroadPhaseLayers::UNUSED;
-			mObjectToBroadPhase[Layers::UNUSED4] = BroadPhaseLayers::UNUSED;
-			mObjectToBroadPhase[Layers::NON_MOVING] = BroadPhaseLayers::NON_MOVING;
-			mObjectToBroadPhase[Layers::MOVING] = BroadPhaseLayers::MOVING;
-			mObjectToBroadPhase[Layers::DEBRIS] = BroadPhaseLayers::DEBRIS;
-		}
+		JPH_ASSERT(inLayer < Layers::NUM_LAYERS);
+		return mObjectToBroadPhase[inLayer];
+	}
 
-		virtual uint					GetNumBroadPhaseLayers() const override
-		{
-			return BroadPhaseLayers::NUM_LAYERS;
-		}
-
-		virtual BroadPhaseLayer			GetBroadPhaseLayer(ObjectLayer inLayer) const override
-		{
-			JPH_ASSERT(inLayer < Layers::NUM_LAYERS);
-			return mObjectToBroadPhase[inLayer];
-		}
-
-	#if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
-		virtual const char *			GetBroadPhaseLayerName(BroadPhaseLayer inLayer) const override
-		{
-			switch ((BroadPhaseLayer::Type)inLayer)
-			{
-			case (BroadPhaseLayer::Type)BroadPhaseLayers::NON_MOVING:	return "NON_MOVING";
-			case (BroadPhaseLayer::Type)BroadPhaseLayers::MOVING:		return "MOVING";
-			case (BroadPhaseLayer::Type)BroadPhaseLayers::DEBRIS:		return "DEBRIS";
-			case (BroadPhaseLayer::Type)BroadPhaseLayers::UNUSED:		return "UNUSED";
-			default:													JPH_ASSERT(false); return "INVALID";
-			}
-		}
-	#endif // JPH_EXTERNAL_PROFILE || JPH_PROFILE_ENABLED
-
-	private:
-		BroadPhaseLayer					mObjectToBroadPhase[Layers::NUM_LAYERS];
-	}gBroadPhaseLayerInterface;
-
-	/// Function that determines if two broadphase layers can collide
-	inline bool MyBroadPhaseCanCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2)
+#if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
+	virtual const char *			GetBroadPhaseLayerName(BroadPhaseLayer inLayer) const override
 	{
-		switch (inLayer1)
+		switch ((BroadPhaseLayer::Type)inLayer)
 		{
-		case Layers::NON_MOVING:
-			return inLayer2 == BroadPhaseLayers::MOVING;
-		case Layers::MOVING:
-			return inLayer2 == BroadPhaseLayers::NON_MOVING || inLayer2 == BroadPhaseLayers::MOVING;
-		case Layers::DEBRIS:
-			return inLayer2 == BroadPhaseLayers::NON_MOVING;
-		case Layers::UNUSED1:
-		case Layers::UNUSED2:
-		case Layers::UNUSED3:
-			return false;			
-		default:
-			JPH_ASSERT(false);
-			return false;
+		case (BroadPhaseLayer::Type)BroadPhaseLayers::NON_MOVING:	return "NON_MOVING";
+		case (BroadPhaseLayer::Type)BroadPhaseLayers::MOVING:		return "MOVING";
+		case (BroadPhaseLayer::Type)BroadPhaseLayers::DEBRIS:		return "DEBRIS";
+		case (BroadPhaseLayer::Type)BroadPhaseLayers::UNUSED:		return "UNUSED";
+		default:													JPH_ASSERT(false); return "INVALID";
 		}
 	}
-#endif
+#endif // JPH_EXTERNAL_PROFILE || JPH_PROFILE_ENABLED
+
+private:
+	BroadPhaseLayer					mObjectToBroadPhase[Layers::NUM_LAYERS];
+}gBroadPhaseLayerInterface;
+
+/// Function that determines if two broadphase layers can collide
+inline bool MyBroadPhaseCanCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2)
+{
+	switch (inLayer1)
+	{
+	case Layers::NON_MOVING:
+		return inLayer2 == BroadPhaseLayers::MOVING;
+	case Layers::MOVING:
+		return inLayer2 == BroadPhaseLayers::NON_MOVING || inLayer2 == BroadPhaseLayers::MOVING;
+	case Layers::DEBRIS:
+		return inLayer2 == BroadPhaseLayers::NON_MOVING;
+	case Layers::UNUSED1:
+	case Layers::UNUSED2:
+	case Layers::UNUSED3:
+		return false;			
+	default:
+		JPH_ASSERT(false);
+		return false;
+	}
+}
 
 ////
 
@@ -401,20 +344,12 @@ public:
 class MyBodyActivationListener : public BodyActivationListener
 {
 public:
-#ifdef USE_JOLT_0
-	virtual void		OnBodyActivated(const BodyID &inBodyID, void *inBodyUserData) override
-#else
 	virtual void		OnBodyActivated(const BodyID &inBodyID, uint64 inBodyUserData) override
-#endif
 	{
 		cout << "A body got activated" << endl;
 	}
 
-#ifdef USE_JOLT_0
-	virtual void		OnBodyDeactivated(const BodyID &inBodyID, void *inBodyUserData) override
-#else
 	virtual void		OnBodyDeactivated(const BodyID &inBodyID, uint64 inBodyUserData) override
-#endif
 	{
 		cout << "A body went to sleep" << endl;
 	}
@@ -772,27 +707,14 @@ const char* JoltPint::GetName() const
 {
 	const int inNumThreads = gNbThreads ? gNbThreads : thread::hardware_concurrency() - 1;
 
-#ifdef USE_JOLT_0
-	#ifdef USE_AVX
-		const char* Name = "Jolt AVX";
-	#else
-		const char* Name = "Jolt";
-	#endif
-#endif
-#ifdef USE_JOLT_1
-	const char* Name = "Jolt_12_03_22";
-#endif
+	const char* Name = "Jolt";
 
 	return _F("%s (%dT)", Name, inNumThreads);
 }
 
 const char* JoltPint::GetUIName() const
 {
-#ifdef USE_AVX
-	return "Jolt AVX";
-#else
 	return "Jolt";
-#endif
 }
 
 void JoltPint::GetCaps(PintCaps& caps) const
@@ -865,25 +787,12 @@ void JoltPint::Init(const PINT_WORLD_CREATE& desc)
 	const int inNumThreads = gNbThreads ? gNbThreads : thread::hardware_concurrency() - 1;
 	gJobSystem = new JobSystemThreadPool(cMaxPhysicsJobs, cMaxPhysicsBarriers, inNumThreads);
 
-	// Create mapping table from object layer to broadphase layer
-#ifdef USE_JOLT_0
-	ObjectToBroadPhaseLayer object_to_broadphase;
-	object_to_broadphase.resize(Layers::NUM_LAYERS);
-	object_to_broadphase[Layers::NON_MOVING] = BroadPhaseLayers::NON_MOVING;
-	object_to_broadphase[Layers::MOVING] = BroadPhaseLayers::MOVING;
-#endif
-
 	gGroupFilter = new MyGroupFilterTable(32);
 	//printf("GroupFilter: %d\n", gGroupFilter->GetRefCount());
 
 	// Now we can create the actual physics system.
 	gPhysicsSystem = new PhysicsSystem;
-#ifdef USE_JOLT_0
-	gPhysicsSystem->Init(gMaxBodies, gNbBodyMutexes, gMaxBodyPairs, gMaxContactConstraints, object_to_broadphase, MyBroadPhaseCanCollide, MyObjectCanCollide);
-#endif
-#ifdef USE_JOLT_1
 	gPhysicsSystem->Init(gMaxBodies, gNbBodyMutexes, gMaxBodyPairs, gMaxContactConstraints, gBroadPhaseLayerInterface, MyBroadPhaseCanCollide, MyObjectCanCollide);
-#endif
 
 	gPhysicsSystem->SetGravity(ToVec3(desc.mGravity));
 
@@ -1048,32 +957,6 @@ Point JoltPint::GetMainColor()
 	return Point(0.5f, 0.9f, 0.8f);
 }
 
-#ifdef USE_JOLT_0
-static inline_ void BindRenderer(JPH::Shape* shape, udword index, PintShapeRenderer*)
-{
-	shape->SetUserData(index);
-}
-
-static PintShapeRenderer* RetrieveRenderer(const JoltPint& pint, const JPH::Shape* shape, udword index)
-{
-	switch(shape->GetSubType())
-	{
-		case EShapeSubType::Sphere:		{ return pint.mSphereShapes.GetShapes()[index].mRenderer;	}break;
-		case EShapeSubType::Box:		{ return pint.mBoxShapes.GetShapes()[index].mRenderer;		}break;
-		case EShapeSubType::Capsule:	{ return pint.mCapsuleShapes.GetShapes()[index].mRenderer;	}break;
-		case EShapeSubType::Cylinder:	{ return pint.mCylinderShapes.GetShapes()[index].mRenderer;	}break;
-		case EShapeSubType::ConvexHull:	{ return pint.mConvexShapes.GetShapes()[index].mRenderer;	}break;
-		case EShapeSubType::Mesh:		{ return pint.mMeshShapes.GetShapes()[index].mRenderer;		}break;
-
-		default:
-			ASSERT(0);
-		break;
-	};
-	return null;
-}
-#endif
-
-#ifdef USE_JOLT_1
 static inline_ void BindRenderer(JPH::Shape* shape, udword, PintShapeRenderer* renderer)
 {
 	shape->SetUserData(uint64(renderer));
@@ -1083,7 +966,6 @@ static inline_ PintShapeRenderer* RetrieveRenderer(const JoltPint&, const JPH::S
 {
 	return reinterpret_cast<PintShapeRenderer*>(user_data);
 }
-#endif
 
 void JoltPint::Render(PintRender& renderer, PintRenderPass render_pass)
 {
@@ -1727,13 +1609,8 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 			const PINT_SPHERICAL_JOINT_CREATE& jc = static_cast<const PINT_SPHERICAL_JOINT_CREATE&>(desc);
 
 			PointConstraintSettings settings;
-#ifdef USE_JOLT_0
-			settings.mCommonPoint = Actor0->GetPosition() + M0.Multiply3x3(ToVec3(jc.mLocalPivot0.mPos));	// ### guess I can't use "local frames" in Jolt
-#endif
-#ifdef USE_JOLT_1
 			settings.mPoint1 = Actor0->GetPosition() + M0.Multiply3x3(ToVec3(jc.mLocalPivot0.mPos));
 			settings.mPoint2 = Actor1->GetPosition() + M1.Multiply3x3(ToVec3(jc.mLocalPivot1.mPos));
-#endif
 
 			J = settings.Create(*Actor0, *Actor1);
 
@@ -1831,20 +1708,14 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 			const PINT_PRISMATIC_JOINT_CREATE& jc = static_cast<const PINT_PRISMATIC_JOINT_CREATE&>(desc);
 
 			SliderConstraintSettings settings;
-#ifdef USE_JOLT_1
 			settings.SetPoint(*Actor0, *Actor1);
-#endif
+
 			if(jc.mLocalAxis0.IsNonZero())
 			{
-#ifdef USE_JOLT_0
-				settings.mSliderAxis	= M0.Multiply3x3(ToVec3(jc.mLocalAxis0));
-#endif
-#ifdef USE_JOLT_1
 				settings.mSliderAxis1	= M0.Multiply3x3(ToVec3(jc.mLocalAxis0));
 				settings.mSliderAxis2	= M0.Multiply3x3(ToVec3(jc.mLocalAxis1));
 				settings.mNormalAxis1	= settings.mSliderAxis1.GetNormalizedPerpendicular();
 				settings.mNormalAxis2	= settings.mSliderAxis2.GetNormalizedPerpendicular();
-#endif
 			}
 			else
 				ASSERT(0);
