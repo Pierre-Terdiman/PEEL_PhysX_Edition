@@ -170,8 +170,8 @@ static udword	gMaxContactConstraints		= 65536;	// "This is the maximum size of t
 														// interpenetrating / fall through the world. For a real project use something in the order of 65536."
 static udword	gNbBodyMutexes				= 0;		// "This determines how many mutexes to allocate to protect rigid bodies from concurrent access. Set it to 0 for the default settings."
 // Using 1/4 iterations here following this document: https://jrouwe.nl/jolt/JoltPhysicsMulticoreScaling.pdf
-static udword	gNbPosIter					= 1;		// Default value in Jolt = 2
-static udword	gNbVelIter					= 4;		// Default value in Jolt = 10. "Note that this needs to be >= 2 in order for friction to work (friction is applied using the non-penetration impulse from the previous iteration)"
+static udword	gNbPosIter					= 2;		// Default value in Jolt = 2
+static udword	gNbVelIter					= 10;		// Default value in Jolt = 10. "Note that this needs to be >= 2 in order for friction to work (friction is applied using the non-penetration impulse from the previous iteration)"
 static float	gLinearDamping				= 0.1f;		// Same default value as in PEEL. Jolt default is 0.05.
 static float	gAngularDamping				= 0.05f;	// Same default value as in PEEL.
 static float	gSpeculativeContactDistance	= 0.02f;	// Default value in Jolt
@@ -1759,6 +1759,7 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 			const PINT_FIXED_JOINT_CREATE& jc = static_cast<const PINT_FIXED_JOINT_CREATE&>(desc);
 
 			FixedConstraintSettings settings;
+			settings.SetPoint(*Actor0, *Actor1);
 
 			J = settings.Create(*Actor0, *Actor1);
 
@@ -2502,8 +2503,8 @@ bool JoltPint::SetDriveEnabled(PintJointHandle handle, bool flag)
 {
 	Constraint* Joint = reinterpret_cast<Constraint*>(handle);
 	ASSERT(Joint);
-	const EConstraintType JT = Joint->GetType();
-	if(JT==EConstraintType::Hinge)
+	const EConstraintSubType JT = Joint->GetSubType();
+	if(JT==EConstraintSubType::Hinge)
 	{
 		HingeConstraint* Hinge = static_cast<HingeConstraint*>(Joint);
 		Hinge->SetMotorState(flag ? EMotorState::Velocity : EMotorState::Off);	// ### to refine for position drives
@@ -2517,8 +2518,8 @@ bool JoltPint::SetDriveVelocity(PintJointHandle handle, const Point& linear, con
 {
 	Constraint* Joint = reinterpret_cast<Constraint*>(handle);
 	ASSERT(Joint);
-	const EConstraintType JT = Joint->GetType();
-	if(JT==EConstraintType::Hinge)
+	const EConstraintSubType JT = Joint->GetSubType();
+	if(JT==EConstraintSubType::Hinge)
 	{
 		HingeConstraint* Hinge = static_cast<HingeConstraint*>(Joint);
 		// See notes in SharedPhysX::SetDriveVelocity
