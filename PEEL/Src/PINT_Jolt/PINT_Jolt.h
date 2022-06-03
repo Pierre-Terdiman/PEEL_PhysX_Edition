@@ -69,100 +69,90 @@
 	class JoltPint : public Pint
 	{
 		public:
-									JoltPint();
-		virtual						~JoltPint();
+										JoltPint();
+		virtual							~JoltPint();
 
 		// Pint
-		virtual	const char*			GetName()				const	override;
-		virtual	const char*			GetUIName()				const	override;
-		virtual	void				GetCaps(PintCaps& caps)	const	override;
-		virtual	void				Init(const PINT_WORLD_CREATE& desc)	override;
-		virtual	void				SetGravity(const Point& gravity)	override;
-		virtual	void				Close()	override;
-		virtual	udword				Update(float dt)	override;
-		virtual	Point				GetMainColor()	override;
-		virtual	void				Render(PintRender& renderer, PintRenderPass render_pass)	override;
-		virtual	void				RenderDebugData(PintRender& renderer)	override;
+		virtual	const char*				GetName()				const	override;
+		virtual	const char*				GetUIName()				const	override;
+		virtual	void					GetCaps(PintCaps& caps)	const	override;
+		virtual	void					Init(const PINT_WORLD_CREATE& desc)	override;
+		virtual	void					SetGravity(const Point& gravity)	override;
+		virtual	void					Close()	override;
+		virtual	udword					Update(float dt)	override;
+		virtual	Point					GetMainColor()	override;
+		virtual	void					Render(PintRender& renderer, PintRenderPass render_pass)	override;
+		virtual	void					RenderDebugData(PintRender& renderer)	override;
 
-		virtual	void				SetDisabledGroups(udword nb_groups, const PintDisabledGroups* groups)		override;
-		virtual	PintMeshHandle		CreateMeshObject(const PINT_MESH_DATA_CREATE& desc, PintMeshIndex* index)	override;
-		virtual	PintActorHandle		CreateObject(const PINT_OBJECT_CREATE& desc)	override;
-		virtual	bool				ReleaseObject(PintActorHandle handle)	override;
-		virtual	PintJointHandle		CreateJoint(const PINT_JOINT_CREATE& desc)	override;
+		virtual	void					SetDisabledGroups(udword nb_groups, const PintDisabledGroups* groups)		override;
+		virtual	PintMeshHandle			CreateMeshObject(const PINT_MESH_DATA_CREATE& desc, PintMeshIndex* index)	override;
+		virtual bool					DeleteMeshObject(PintMeshHandle handle, const PintMeshIndex* index)		override;
+		virtual	PintHeightfieldHandle	CreateHeightfieldObject(const PINT_HEIGHTFIELD_DATA_CREATE& desc, PintHeightfieldData& data, PintHeightfieldIndex* index=null);
+		virtual	bool					DeleteHeightfieldObject(PintHeightfieldHandle handle=null, const PintHeightfieldIndex* index=null);
+		virtual	PintActorHandle			CreateObject(const PINT_OBJECT_CREATE& desc)	override;
+		virtual	bool					ReleaseObject(PintActorHandle handle)	override;
+		virtual	PintJointHandle			CreateJoint(const PINT_JOINT_CREATE& desc)	override;
 
-		virtual	bool				ResetSQFilters				()	{ return false;}
+		virtual	bool					ResetSQFilters				()	{ return false;}
 
 		//
-		virtual	udword				BatchRaycasts				(PintSQThreadContext context, udword nb, PintRaycastHit* dest, const PintRaycastData* raycasts)	override;
-		virtual	udword				BatchRaycastAny				(PintSQThreadContext context, udword nb, PintBooleanHit* dest, const PintRaycastData* raycasts)	override;
+		virtual	udword					BatchRaycasts				(PintSQThreadContext context, udword nb, PintRaycastHit* dest, const PintRaycastData* raycasts)	override;
+		virtual	udword					BatchRaycastAny				(PintSQThreadContext context, udword nb, PintBooleanHit* dest, const PintRaycastData* raycasts)	override;
 		//
-		virtual	udword				BatchBoxSweeps				(PintSQThreadContext context, udword nb, PintRaycastHit* dest, const PintBoxSweepData* sweeps)		override;
-		virtual	udword				BatchSphereSweeps			(PintSQThreadContext context, udword nb, PintRaycastHit* dest, const PintSphereSweepData* sweeps)	override;
-		virtual	udword				BatchCapsuleSweeps			(PintSQThreadContext context, udword nb, PintRaycastHit* dest, const PintCapsuleSweepData* sweeps)	override;
-//		virtual	udword				BatchConvexSweeps			(PintSQThreadContext context, udword nb, PintRaycastHit* dest, const PintConvexSweepData* sweeps)	override;
+		virtual	udword					BatchBoxSweeps				(PintSQThreadContext context, udword nb, PintRaycastHit* dest, const PintBoxSweepData* sweeps)		override;
+		virtual	udword					BatchSphereSweeps			(PintSQThreadContext context, udword nb, PintRaycastHit* dest, const PintSphereSweepData* sweeps)	override;
+		virtual	udword					BatchCapsuleSweeps			(PintSQThreadContext context, udword nb, PintRaycastHit* dest, const PintCapsuleSweepData* sweeps)	override;
+//		virtual	udword					BatchConvexSweeps			(PintSQThreadContext context, udword nb, PintRaycastHit* dest, const PintConvexSweepData* sweeps)	override;
 		//
-		virtual	udword				BatchSphereOverlapAny		(PintSQThreadContext context, udword nb, PintBooleanHit* dest, const PintSphereOverlapData* overlaps)		override;
-		virtual	udword				BatchSphereOverlapObjects	(PintSQThreadContext context, udword nb, PintMultipleHits* dest, Container& stream, const PintSphereOverlapData* overlaps)	override;
-/*		virtual	udword				BatchBoxOverlapAny			(PintSQThreadContext context, udword nb, PintBooleanHit* dest, const PintBoxOverlapData* overlaps);
-		virtual	udword				BatchBoxOverlapObjects		(PintSQThreadContext context, udword nb, PintOverlapObjectHit* dest, const PintBoxOverlapData* overlaps);
-		virtual	udword				BatchCapsuleOverlapAny		(PintSQThreadContext context, udword nb, PintBooleanHit* dest, const PintCapsuleOverlapData* overlaps);
-		virtual	udword				BatchCapsuleOverlapObjects	(PintSQThreadContext context, udword nb, PintOverlapObjectHit* dest, const PintCapsuleOverlapData* overlaps);
+		virtual	udword					BatchSphereOverlapAny		(PintSQThreadContext context, udword nb, PintBooleanHit* dest, const PintSphereOverlapData* overlaps)		override;
+		virtual	udword					BatchSphereOverlapObjects	(PintSQThreadContext context, udword nb, PintMultipleHits* dest, Container& stream, const PintSphereOverlapData* overlaps)	override;
+/*		virtual	udword					BatchBoxOverlapAny			(PintSQThreadContext context, udword nb, PintBooleanHit* dest, const PintBoxOverlapData* overlaps);
+		virtual	udword					BatchBoxOverlapObjects		(PintSQThreadContext context, udword nb, PintOverlapObjectHit* dest, const PintBoxOverlapData* overlaps);
+		virtual	udword					BatchCapsuleOverlapAny		(PintSQThreadContext context, udword nb, PintBooleanHit* dest, const PintCapsuleOverlapData* overlaps);
+		virtual	udword					BatchCapsuleOverlapObjects	(PintSQThreadContext context, udword nb, PintOverlapObjectHit* dest, const PintCapsuleOverlapData* overlaps);
 		//
-		virtual	udword				FindTriangles_MeshSphereOverlap	(PintSQThreadContext context, PintActorHandle handle, udword nb, const PintSphereOverlapData* overlaps);
-		virtual	udword				FindTriangles_MeshBoxOverlap	(PintSQThreadContext context, PintActorHandle handle, udword nb, const PintBoxOverlapData* overlaps);
-		virtual	udword				FindTriangles_MeshCapsuleOverlap(PintSQThreadContext context, PintActorHandle handle, udword nb, const PintCapsuleOverlapData* overlaps);*/
+		virtual	udword					FindTriangles_MeshSphereOverlap	(PintSQThreadContext context, PintActorHandle handle, udword nb, const PintSphereOverlapData* overlaps);
+		virtual	udword					FindTriangles_MeshBoxOverlap	(PintSQThreadContext context, PintActorHandle handle, udword nb, const PintBoxOverlapData* overlaps);
+		virtual	udword					FindTriangles_MeshCapsuleOverlap(PintSQThreadContext context, PintActorHandle handle, udword nb, const PintCapsuleOverlapData* overlaps);*/
 
-		virtual	PR					GetWorldTransform(PintActorHandle handle)					override;
-		virtual	void				SetWorldTransform(PintActorHandle handle, const PR& pose)	override;
+		virtual	PR						GetWorldTransform(PintActorHandle handle)					override;
+		virtual	void					SetWorldTransform(PintActorHandle handle, const PR& pose)	override;
 
-		virtual	void				AddWorldImpulseAtWorldPos(PintActorHandle handle, const Point& world_impulse, const Point& world_pos)	override;
+		virtual	void					AddWorldImpulseAtWorldPos(PintActorHandle handle, const Point& world_impulse, const Point& world_pos)	override;
 
-		virtual	Point				GetLinearVelocity(PintActorHandle handle)	override;
-		virtual	void				SetLinearVelocity(PintActorHandle handle, const Point& linear_velocity)	override;
+		virtual	Point					GetLinearVelocity(PintActorHandle handle)	override;
+		virtual	void					SetLinearVelocity(PintActorHandle handle, const Point& linear_velocity)	override;
 
-		virtual	Point				GetAngularVelocity(PintActorHandle handle)	override;
-		virtual	void				SetAngularVelocity(PintActorHandle handle, const Point& angular_velocity)	override;
+		virtual	Point					GetAngularVelocity(PintActorHandle handle)	override;
+		virtual	void					SetAngularVelocity(PintActorHandle handle, const Point& angular_velocity)	override;
 
-		virtual	bool				SetKinematicPose(PintActorHandle handle, const Point& pos)	override;
-		virtual	bool				SetKinematicPose(PintActorHandle handle, const PR& pr)		override;
-		virtual	bool				IsKinematic(PintActorHandle handle)							override;
-		virtual	bool				EnableKinematic(PintActorHandle handle, bool flag)			override;
+		virtual	bool					SetKinematicPose(PintActorHandle handle, const Point& pos)	override;
+		virtual	bool					SetKinematicPose(PintActorHandle handle, const PR& pr)		override;
+		virtual	bool					IsKinematic(PintActorHandle handle)							override;
+		virtual	bool					EnableKinematic(PintActorHandle handle, bool flag)			override;
 
-		virtual	PintAggregateHandle	CreateAggregate(udword max_size, bool enable_self_collision)	override			{ return null;		}
+		virtual	PintAggregateHandle		CreateAggregate(udword max_size, bool enable_self_collision)	override			{ return null;		}
 
-		virtual	bool				SetDriveEnabled(PintJointHandle handle, bool flag)									override;
-		virtual	bool				SetDriveVelocity(PintJointHandle handle, const Point& linear, const Point& angular)	override;
+		virtual	bool					SetDriveEnabled(PintJointHandle handle, bool flag)									override;
+		virtual	bool					SetDriveVelocity(PintJointHandle handle, const Point& linear, const Point& angular)	override;
 
-		virtual	Pint_Scene*			GetSceneAPI()	override	{ return &mSceneAPI;	}
-		virtual	Pint_Actor*			GetActorAPI()	override	{ return &mActorAPI;	}
-//		virtual	Pint_Shape*			GetShapeAPI()	override	{ return &mShapeAPI;	}
-//		virtual	Pint_Joint*			GetJointAPI()	override	{ return &mJointAPI;	}
+		virtual	Pint_Scene*				GetSceneAPI()	override	{ return &mSceneAPI;	}
+		virtual	Pint_Actor*				GetActorAPI()	override	{ return &mActorAPI;	}
+//		virtual	Pint_Shape*				GetShapeAPI()	override	{ return &mShapeAPI;	}
+//		virtual	Pint_Joint*				GetJointAPI()	override	{ return &mJointAPI;	}
 
-		//~Pint
+		struct ActorData
+		{
+			void*	mBody;
+		};
 
-				struct ActorData
-				{
-					void*	mBody;
-					//void*	mRenderer;
-				};
+		Jolt_SceneAPI					mSceneAPI;
+		Jolt_ActorAPI					mActorAPI;
+//		Jolt_ShapeAPI					mShapeAPI;
+//		Jolt_JointAPI					mJointAPI;
 
-		//private:
-				Jolt_SceneAPI		mSceneAPI;
-				Jolt_ActorAPI		mActorAPI;
-//				Jolt_ShapeAPI		mShapeAPI;
-//				Jolt_JointAPI		mJointAPI;
-
-				PtrContainer		mMeshes;
-				//PtrContainer		mActors;
-				Container			mActors;
-
-				SharedSphereShapes	mSphereShapes;
-				SharedBoxShapes		mBoxShapes;
-				SharedCapsuleShapes	mCapsuleShapes;
-				SharedCapsuleShapes	mCylinderShapes;
-				SharedMeshShapes	mConvexShapes;
-				SharedMeshShapes	mMeshShapes;
-				SharedMeshShapes	mHeightfieldShapes;
+		PtrContainer					mMeshes;
+		Container						mActors;
 	};
 
 	IceWindow*	Jolt_InitGUI(IceWidget* parent, PintGUIHelper& helper);
