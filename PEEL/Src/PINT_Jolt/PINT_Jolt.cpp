@@ -33,7 +33,6 @@ Differences with PhysX:
 - Jolt uses AVX2/AVX/SSE4, PhysX sticks to SSE2
 
 TODO:
-- COM shapes
 - more per-test UI
 - vehicles, CCTs
 - prismatic springs
@@ -1030,6 +1029,13 @@ PintActorHandle JoltPint::CreateObject(const PINT_OBJECT_CREATE& desc)
 
 		StaticCompoundShapeSettings::ShapeResult r = CB.mCompoundShape.Create();
 		NewShape = r.Get();
+	}
+
+	// Offset COM if requested
+	if (desc.mCOMLocalOffset.IsNonZero())
+	{
+		OffsetCenterOfMassShapeSettings settings(ToVec3(desc.mCOMLocalOffset), NewShape);
+		NewShape = settings.Create().Get();
 	}
 
 	const Vec3 Pos(ToVec3(desc.mPosition));
