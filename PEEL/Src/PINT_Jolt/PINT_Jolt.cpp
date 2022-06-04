@@ -164,7 +164,7 @@ static udword	gNbVelIter					= 10;		// Default value in Jolt = 10. "Note that th
 static float	gLinearDamping				= 0.1f;		// Same default value as in PEEL. Jolt default is 0.05.
 static float	gAngularDamping				= 0.05f;	// Same default value as in PEEL.
 static float	gSpeculativeContactDistance	= 0.02f;	// Default value in Jolt
-static float	gMaxPenetrationDistance		= 0.2f;		// Default value in Jolt
+static float	gPenetrationSlop			= 0.02f;	// Default value in Jolt
 static float	gBaumgarte					= 0.2f;		// Default value in Jolt
 static float	gDefaultFriction			= 0.5f;		// Same default value as in PEEL. Default value in Jolt = 0.2
 static float	gDefaultRestitution			= 0.0f;		// Default value in Jolt
@@ -681,7 +681,7 @@ void JoltPint::Init(const PINT_WORLD_CREATE& desc)
 	Settings.mNumPositionSteps				= gNbPosIter;
 	Settings.mAllowSleeping					= gAllowSleeping;
 	Settings.mSpeculativeContactDistance	= gSpeculativeContactDistance;
-	Settings.mMaxPenetrationDistance		= gMaxPenetrationDistance;
+	Settings.mPenetrationSlop				= gPenetrationSlop;
 	Settings.mBaumgarte						= gBaumgarte;
 
 	gPhysicsSystem->SetPhysicsSettings(Settings);
@@ -2146,7 +2146,7 @@ static IceEditBox* gEditBox_NbVelIter = null;
 static IceEditBox* gEditBox_LinearDamping = null;
 static IceEditBox* gEditBox_AngularDamping = null;
 static IceEditBox* gEditBox_SpeculativeContactDistance = null;
-static IceEditBox* gEditBox_MaxPenetrationDistance = null;
+static IceEditBox* gEditBox_PenetrationSlop = null;
 static IceEditBox* gEditBox_Baumgarte = null;
 static IceEditBox* gEditBox_Friction = null;
 static IceEditBox* gEditBox_Restitution = null;
@@ -2205,7 +2205,7 @@ static void gJolt_GetOptionsFromGUI(const char* test_name)
 	Common_GetFromEditBox(gLinearDamping, gEditBox_LinearDamping, 0.0f, MAX_FLOAT);
 	Common_GetFromEditBox(gAngularDamping, gEditBox_AngularDamping, 0.0f, MAX_FLOAT);
 	Common_GetFromEditBox(gSpeculativeContactDistance, gEditBox_SpeculativeContactDistance, 0.0f, MAX_FLOAT);
-	Common_GetFromEditBox(gMaxPenetrationDistance, gEditBox_MaxPenetrationDistance, 0.0f, MAX_FLOAT);
+	Common_GetFromEditBox(gPenetrationSlop, gEditBox_PenetrationSlop, 0.0f, MAX_FLOAT);
 	Common_GetFromEditBox(gBaumgarte, gEditBox_Baumgarte, 0.0f, 1.0f);
 	Common_GetFromEditBox(gDefaultFriction, gEditBox_Friction, 0.0f, MAX_FLOAT);
 	Common_GetFromEditBox(gDefaultRestitution, gEditBox_Restitution, 0.0f, MAX_FLOAT);
@@ -2267,7 +2267,7 @@ IceWindow* Jolt_InitGUI(IceWidget* parent, PintGUIHelper& helper)
 	gEditBox_LinearDamping				= CreateEditBox(helper, Main, y, "Linear damping:", helper.Convert(gLinearDamping), EDITBOX_FLOAT_POSITIVE);
 	gEditBox_AngularDamping				= CreateEditBox(helper, Main, y, "Angular damping:", helper.Convert(gAngularDamping), EDITBOX_FLOAT_POSITIVE);
 	gEditBox_SpeculativeContactDistance	= CreateEditBox(helper, Main, y, "Speculative contact distance:", helper.Convert(gSpeculativeContactDistance), EDITBOX_FLOAT_POSITIVE);
-	gEditBox_MaxPenetrationDistance		= CreateEditBox(helper, Main, y, "Max penetration distance:", helper.Convert(gMaxPenetrationDistance), EDITBOX_FLOAT_POSITIVE);
+	gEditBox_PenetrationSlop			= CreateEditBox(helper, Main, y, "Max penetration slop:", helper.Convert(gPenetrationSlop), EDITBOX_FLOAT_POSITIVE);
 	gEditBox_Baumgarte					= CreateEditBox(helper, Main, y, "Baumgarte:", helper.Convert(gBaumgarte), EDITBOX_FLOAT_POSITIVE);
 	gEditBox_Friction					= CreateEditBox(helper, Main, y, "Default friction:", helper.Convert(gDefaultFriction), EDITBOX_FLOAT_POSITIVE);
 	gEditBox_Restitution				= CreateEditBox(helper, Main, y, "Default restitution:", helper.Convert(gDefaultRestitution), EDITBOX_FLOAT_POSITIVE);
@@ -2294,7 +2294,7 @@ void Jolt_CloseGUI()
 	gEditBox_LinearDamping = null;
 	gEditBox_AngularDamping = null;
 	gEditBox_SpeculativeContactDistance = null;
-	gEditBox_MaxPenetrationDistance = null;
+	gEditBox_PenetrationSlop = null;
 	gEditBox_Baumgarte = null;
 	gEditBox_Friction = null;
 	gEditBox_Restitution = null;
