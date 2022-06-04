@@ -1328,6 +1328,14 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 	return PintJointHandle(J);
 }
 
+bool JoltPint::ReleaseJoint(PintJointHandle handle)
+{
+	Constraint* Joint = reinterpret_cast<Constraint*>(handle);
+	ASSERT(Joint);
+	gPhysicsSystem->RemoveConstraint(Joint);
+	return true;
+}
+
 void JoltPint::SetDisabledGroups(udword nb_groups, const PintDisabledGroups* groups)
 {
 	if(!gGroupFilter)

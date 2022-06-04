@@ -102,6 +102,7 @@
 		virtual	PintActorHandle			CreateObject(const PINT_OBJECT_CREATE& desc)	override;
 		virtual	bool					ReleaseObject(PintActorHandle handle)	override;
 		virtual	PintJointHandle			CreateJoint(const PINT_JOINT_CREATE& desc)	override;
+		virtual	bool					ReleaseJoint(PintJointHandle handle) override;
 
 		virtual	bool					ResetSQFilters				()	{ return false;}
 
