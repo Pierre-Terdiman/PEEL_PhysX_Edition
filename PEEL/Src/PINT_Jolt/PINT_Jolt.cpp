@@ -863,22 +863,19 @@ static Ref<JPH::Shape> CreateMeshShape(const SurfaceInterface& surface)
 	return settings.Create().Get();
 }
 
-static Ref<JPH::Shape> CreateShape(JoltPint& pint, const PINT_SHAPE_CREATE* shape_create)
+Ref<JPH::Shape> JoltPint::CreateShape(const PINT_SHAPE_CREATE* shape_create)
 {
 	Ref<JPH::Shape> shape;
 
 	PintShapeRenderer* Renderer = shape_create->mRenderer;
+	const PR LocalPose(shape_create->mLocalPos, shape_create->mLocalRot);
 
 	// Check if we can share the shape
 	bool AllowSharing = shape_create->CanShare(gAllowShapeSharing);
 	if (AllowSharing)
-	{
-		shape = pint.mCachedShapes[Renderer];
-		if (shape != nullptr)
-			return shape;
-	}
-
-	const PR LocalPose(shape_create->mLocalPos, shape_create->mLocalRot);
+		for (CachedShape &S : mCachedShapes)
+			if (S.mRenderer == Renderer && S.mLocalPose.mPos == LocalPose.mPos && S.mLocalPose.mRot == LocalPose.mRot)
+				return S.mShape;
 
 	// In PhysX the collision group is stored in PxFilterData, and thus it's used as a part of the shape identifier (when sharing shapes).
 	// In Jolt it's only used per-body (not per-shape) so we don't actually need it here.
@@ -980,7 +977,7 @@ static Ref<JPH::Shape> CreateShape(JoltPint& pint, const PINT_SHAPE_CREATE* shap
 
 	// Remember the shape for sharing
 	if (AllowSharing)
-		pint.mCachedShapes[Renderer] = shape;
+		mCachedShapes.push_back({ Renderer, LocalPose, shape });
 
 	return shape;
 }
@@ -1004,7 +1001,7 @@ PintActorHandle JoltPint::CreateObject(const PINT_OBJECT_CREATE& desc)
 	Ref<JPH::Shape> NewShape;
 	if(NbShapes==1)
 	{
-		NewShape = CreateShape(*this, ShapeCreate);
+		NewShape = CreateShape(ShapeCreate);
 	}
 	else
 	{
@@ -1016,7 +1013,7 @@ PintActorHandle JoltPint::CreateObject(const PINT_OBJECT_CREATE& desc)
 
 			virtual	void	ReportShape(const PINT_SHAPE_CREATE& create, udword index, void* user_data)
 			{
-				Ref<JPH::Shape> NewShape = CreateShape(mPint, &create);
+				Ref<JPH::Shape> NewShape = mPint.CreateShape(&create);
 
 				if (NewShape->GetSubType() == EShapeSubType::RotatedTranslated)
 				{

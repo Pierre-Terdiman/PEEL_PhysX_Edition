@@ -98,6 +98,7 @@
 		virtual bool					DeleteMeshObject(PintMeshHandle handle, const PintMeshIndex* index)		override;
 		virtual	PintHeightfieldHandle	CreateHeightfieldObject(const PINT_HEIGHTFIELD_DATA_CREATE& desc, PintHeightfieldData& data, PintHeightfieldIndex* index=null);
 		virtual	bool					DeleteHeightfieldObject(PintHeightfieldHandle handle=null, const PintHeightfieldIndex* index=null);
+		Ref<JPH::Shape>					CreateShape(const PINT_SHAPE_CREATE* shape_create);
 		virtual	PintActorHandle			CreateObject(const PINT_OBJECT_CREATE& desc)	override;
 		virtual	bool					ReleaseObject(PintActorHandle handle)	override;
 		virtual	PintJointHandle			CreateJoint(const PINT_JOINT_CREATE& desc)	override;
@@ -155,7 +156,14 @@
 //		Jolt_ShapeAPI					mShapeAPI;
 //		Jolt_JointAPI					mJointAPI;
 
-		map<PintShapeRenderer*, Ref<JPH::Shape>> mCachedShapes;
+		struct CachedShape
+		{
+			PintShapeRenderer*			mRenderer;
+			PR							mLocalPose;
+			Ref<JPH::Shape>				mShape;
+		};
+
+		vector<CachedShape>				mCachedShapes;
 	};
 
 	IceWindow*	Jolt_InitGUI(IceWidget* parent, PintGUIHelper& helper);
