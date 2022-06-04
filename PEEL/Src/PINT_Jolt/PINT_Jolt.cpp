@@ -80,6 +80,7 @@ A damping of 1 will barely overshoot the target and have almost no oscillation, 
 #include <Jolt/Physics/Constraints/FixedConstraint.h>
 #include <Jolt/Physics/Constraints/DistanceConstraint.h>
 #include <Jolt/Physics/Constraints/SliderConstraint.h>
+#include <Jolt/Physics/Constraints/SixDOFConstraint.h>
 
 #include "..\PINT_Common\PINT_Ice.h"
 //#include "..\PINT_Common\PINT_Common.cpp"
@@ -620,8 +621,8 @@ void JoltPint::GetCaps(PintCaps& caps) const
 	caps.mSupportFixedJoints			= true;
 	caps.mSupportPrismaticJoints		= true;
 	caps.mSupportDistanceJoints			= true;
-/*	caps.mSupportD6Joints				= true;
-	caps.mSupportGearJoints				= true;
+	caps.mSupportD6Joints				= true;
+/*	caps.mSupportGearJoints				= true;
 	caps.mSupportRackJoints				= true;
 	caps.mSupportPortalJoints			= true;
 	caps.mSupportMCArticulations		= false;
@@ -874,10 +875,6 @@ Ref<JPH::Shape> JoltPint::CreateShape(const PINT_SHAPE_CREATE* shape_create)
 		for (CachedShape &S : mCachedShapes)
 			if (S.mRenderer == Renderer && S.mLocalPose.mPos == LocalPose.mPos && S.mLocalPose.mRot == LocalPose.mRot)
 				return S.mShape;
-
-	// In PhysX the collision group is stored in PxFilterData, and thus it's used as a part of the shape identifier (when sharing shapes).
-	// In Jolt it's only used per-body (not per-shape) so we don't actually need it here.
-	const PintCollisionGroup CollisionGroup = 0;
 
 	switch(shape_create->mType)
 	{
@@ -1253,6 +1250,59 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 			settings.mDamping		= 0.0f;
 
 			J = settings.Create(*Actor0, *Actor1);
+		}
+		break;
+
+		case PINT_JOINT_D6:
+		{
+			const PINT_D6_JOINT_CREATE& jc = static_cast<const PINT_D6_JOINT_CREATE&>(desc);
+
+			SixDOFConstraintSettings settings;
+			settings.mSpace = EConstraintSpace::LocalToBodyCOM;
+			settings.mPosition1 = ToVec3(jc.mLocalPivot0.mPos) - Actor0->GetShape()->GetCenterOfMass();
+			settings.mPosition2 = ToVec3(jc.mLocalPivot1.mPos) - Actor1->GetShape()->GetCenterOfMass();
+
+			const Matrix3x3 LocalFrame0 = jc.mLocalPivot0.mRot;
+			const Matrix3x3 LocalFrame1 = jc.mLocalPivot1.mRot;
+			settings.mAxisX1 = ToVec3(LocalFrame0[0]);
+			settings.mAxisX2 = ToVec3(LocalFrame1[0]);
+			settings.mAxisY1 = ToVec3(LocalFrame0[1]);
+			settings.mAxisY2 = ToVec3(LocalFrame1[1]);
+
+			using EAxis = SixDOFConstraintSettings::EAxis;
+			settings.mLimitMin[EAxis::TranslationX] = jc.mLinearLimits.mMin.x;
+			settings.mLimitMin[EAxis::TranslationY] = jc.mLinearLimits.mMin.y;
+			settings.mLimitMin[EAxis::TranslationZ] = jc.mLinearLimits.mMin.z;
+			settings.mLimitMax[EAxis::TranslationX] = jc.mLinearLimits.mMax.x;
+			settings.mLimitMax[EAxis::TranslationY] = jc.mLinearLimits.mMax.y;
+			settings.mLimitMax[EAxis::TranslationZ] = jc.mLinearLimits.mMax.z;
+
+			if (jc.mMinTwist <= jc.mMaxTwist)
+			{
+				settings.mLimitMin[EAxis::RotationX] = jc.mMinTwist;
+				settings.mLimitMax[EAxis::RotationX] = jc.mMaxTwist;
+			}
+			if (jc.mMaxSwingY >= 0.0f)
+			{
+				settings.mLimitMin[EAxis::RotationY] = -jc.mMaxSwingY;
+				settings.mLimitMax[EAxis::RotationY] = jc.mMaxSwingY;
+			}
+			if (jc.mMaxSwingZ >= 0.0f)
+			{
+				settings.mLimitMin[EAxis::RotationZ] = -jc.mMaxSwingZ;
+				settings.mLimitMax[EAxis::RotationZ] = jc.mMaxSwingZ;
+			}
+
+			SixDOFConstraint* NewJoint = static_cast<SixDOFConstraint*>(settings.Create(*Actor0, *Actor1));
+			J = NewJoint;
+
+			// We don't know how this joint is going to be driven yet, tentatively set it to velocity until the call to SetDriveVelocity/SetDrivePosition
+			if(jc.mMotorFlags & PINT_D6_MOTOR_DRIVE_X)
+				NewJoint->SetMotorState(EAxis::TranslationX, EMotorState::Velocity);
+			if(jc.mMotorFlags & PINT_D6_MOTOR_DRIVE_Y)
+				NewJoint->SetMotorState(EAxis::TranslationY, EMotorState::Velocity);
+			if(jc.mMotorFlags & PINT_D6_MOTOR_DRIVE_Z)
+				NewJoint->SetMotorState(EAxis::TranslationZ, EMotorState::Velocity);
 		}
 		break;
 
@@ -1979,7 +2029,7 @@ bool JoltPint::SetDriveEnabled(PintJointHandle handle, bool flag)
 
 bool JoltPint::SetDriveVelocity(PintJointHandle handle, const Point& linear, const Point& angular)
 {
-	Constraint* Joint = reinterpret_cast<Constraint*>(handle);
+	TwoBodyConstraint* Joint = reinterpret_cast<TwoBodyConstraint*>(handle);
 	ASSERT(Joint);
 	const EConstraintSubType JT = Joint->GetSubType();
 	if(JT==EConstraintSubType::Hinge)
@@ -1988,8 +2038,48 @@ bool JoltPint::SetDriveVelocity(PintJointHandle handle, const Point& linear, con
 		// See notes in SharedPhysX::SetDriveVelocity
 		Hinge->SetTargetAngularVelocity(angular.x);
 	}
+	else if (JT==EConstraintSubType::SixDOF)
+	{
+		SixDOFConstraint* D6 = static_cast<SixDOFConstraint*>(Joint);
+		D6->SetTargetVelocityCS(ToVec3(linear));
+		D6->SetTargetAngularVelocityCS(ToVec3(angular));
+
+		// Set the motors that were activated to velocity now
+		using EAxis = SixDOFConstraintSettings::EAxis;
+		for (int Axis = 0; Axis < 6; Axis++)
+			if (D6->GetMotorState((EAxis)Axis) != EMotorState::Off)
+				D6->SetMotorState((EAxis)Axis, EMotorState::Velocity);
+	}
 	else
 		ASSERT(0);
+
+	// Prevent the bodies from going to sleep
+	gPhysicsSystem->GetBodyInterface().ActivateConstraint(Joint);
+	return true;
+}
+
+bool JoltPint::SetDrivePosition(PintJointHandle handle, const PR& pose)
+{ 
+	TwoBodyConstraint* Joint = reinterpret_cast<TwoBodyConstraint*>(handle);
+	ASSERT(Joint);
+	const EConstraintSubType JT = Joint->GetSubType();
+	if (JT==EConstraintSubType::SixDOF)
+	{
+		SixDOFConstraint* D6 = static_cast<SixDOFConstraint*>(Joint);
+		D6->SetTargetPositionCS(ToVec3(pose.mPos));
+		D6->SetTargetOrientationCS(ToJQuat(pose.mRot));
+
+		// Set the motors that were activated to position now
+		using EAxis = SixDOFConstraintSettings::EAxis;
+		for (int Axis = 0; Axis < 6; Axis++)
+			if (D6->GetMotorState((EAxis)Axis) != EMotorState::Off)
+				D6->SetMotorState((EAxis)Axis, EMotorState::Position);
+	}
+	else
+		ASSERT(0);
+	
+	// Prevent the bodies from going to sleep
+	gPhysicsSystem->GetBodyInterface().ActivateConstraint(Joint);
 	return true;
 }
 

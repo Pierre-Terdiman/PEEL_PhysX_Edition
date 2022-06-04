@@ -145,6 +145,7 @@
 
 		virtual	bool					SetDriveEnabled(PintJointHandle handle, bool flag)									override;
 		virtual	bool					SetDriveVelocity(PintJointHandle handle, const Point& linear, const Point& angular)	override;
+		virtual	bool					SetDrivePosition(PintJointHandle handle, const PR& pose)							override;
 
 		virtual	Pint_Scene*				GetSceneAPI()	override	{ return &mSceneAPI;	}
 		virtual	Pint_Actor*				GetActorAPI()	override	{ return &mActorAPI;	}
