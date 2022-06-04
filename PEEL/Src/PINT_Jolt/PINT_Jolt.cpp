@@ -284,7 +284,7 @@ private:
 	using SubGroupID = CollisionGroup::SubGroupID;
 
 public:
-	explicit	MyGroupFilterTable(uint inNumSubGroups = 0) : mNumSubGroups(inNumSubGroups), mPM(null)
+	MyGroupFilterTable()
 	{
 		for(int i=0;i<32;i++)
 			for(int j=0;j<32;j++)
@@ -323,9 +323,8 @@ public:
 	}
 
 private:
-	uint			mNumSubGroups;
 	bool			mMyTable[32][32];
-	PairManager*	mPM;
+	PairManager*	mPM = nullptr;
 };
 
 static Ref<MyGroupFilterTable> gGroupFilter;
@@ -669,7 +668,7 @@ void JoltPint::Init(const PINT_WORLD_CREATE& desc)
 	const int inNumThreads = gNbThreads ? gNbThreads : thread::hardware_concurrency() - 1;
 	gJobSystem = new JobSystemThreadPool(cMaxPhysicsJobs, cMaxPhysicsBarriers, inNumThreads);
 
-	gGroupFilter = new MyGroupFilterTable(32);
+	gGroupFilter = new MyGroupFilterTable();
 
 	// Now we can create the actual physics system.
 	gPhysicsSystem = new PhysicsSystem;
