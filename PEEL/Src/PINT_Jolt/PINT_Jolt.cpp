@@ -1078,7 +1078,7 @@ bool JoltPint::ReleaseObject(PintActorHandle handle)
 	Body* Actor = reinterpret_cast<Body*>(handle);
 	ASSERT(Actor);
 
-	BodyInterface& body_interface = gPhysicsSystem->GetBodyInterfaceNoLock();
+	BodyInterface& body_interface = gPhysicsSystem->GetBodyInterface();
 
 	BodyID ID = Actor->GetID();
 	// Remove the body from the physics system. Note that the body itself keeps all of its state and can be re-added at any time.
