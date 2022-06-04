@@ -22,7 +22,6 @@ Differences with PhysX:
 - linear CCD & speculative contacts can both be enabled at the same time
 - Jolt does support per-joint friction value on regular joints (PhysX only supports it on RC articulation links)
 - no support for springs on (prismatic) limits
-- PhysX's joints use local frames, Jolt does not (pros & cons here) -> JR: This is supported now.
 - shapes with non-idt local poses or with a non-zero COM are a special case (same design as Bullet/Havok), while it's the default in PhysX.
 - number of iterations are per-scene settings in Jolt, per-actor in PhysX
 - supports per-body gravity factor, PhysX doesn't
@@ -37,7 +36,6 @@ TODO:
 - COM shapes
 - more per-test UI
 - vehicles, CCTs
-- cleanup render code
 - prismatic springs
 - finish joints
 - overlaps/sweeps
@@ -1088,56 +1086,6 @@ bool JoltPint::ReleaseObject(PintActorHandle handle)
 	return true;
 }
 
-// TODO: refactor
-static void normalToTangents(const Point& n, Point& t1, Point& t2)
-{
-	const float m_sqrt1_2 = float(0.7071067811865475244008443621048490);
-	if(fabsf(n.z) > m_sqrt1_2)
-	{
-		const float a = n.y*n.y + n.z*n.z;
-		const float k = 1.0f/sqrtf(a);
-		t1 = Point(0,-n.z*k,n.y*k);
-		t2 = Point(a*k,-n.x*t1.z,n.x*t1.y);
-	}
-	else
-	{
-		const float a = n.x*n.x + n.y*n.y;
-		const float k = 1.0f/sqrtf(a);
-		t1 = Point(-n.y*k,n.x*k,0);
-		t2 = Point(-n.z*t1.y,n.z*t1.x,a*k);
-	}
-	t1.Normalize();
-	t2.Normalize();
-}
-
-// TODO: refactor
-/*static JQuat ComputeJointQuat(Body* actor, const Vec3& localAxis)
-{
-	//find 2 orthogonal vectors.
-	//gotta do this in world space, if we choose them
-	//separately in local space they won't match up in worldspace.
-
-	const Vec3 axisw = actor ? actor->GetWorldTransform().Multiply3x3(localAxis).Normalized() : localAxis;
-
-	Point normalw, binormalw;
-	::normalToTangents(ToPoint(axisw), binormalw, normalw);
-
-	const Vec3 localNormal = actor ? actor->GetWorldTransform().Multiply3x3Transposed(ToVec3(normalw)) : ToVec3(normalw);
-
-	const Mat44 rot(Vec4(localAxis, 0.0f), Vec4(localNormal, 0.0f), Vec4(localAxis.Cross(localNormal), 0.0f), Vec4(0.0f, 0.0f, 0.0f, 0.0f));
-	return rot.GetQuaternion().Normalized();
-}*/
-
-static Vec3 ComputeJointWorldSpaceNormal(Body* actor, const Mat44& m, const Vec3& localAxis)
-{
-	const Vec3 axisw = actor ? m.Multiply3x3(localAxis).Normalized() : localAxis;
-
-	Point normalw, binormalw;
-	::normalToTangents(ToPoint(axisw), binormalw, normalw);
-
-	return ToVec3(normalw);
-}
-
 PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 {
 	Body* Actor0 = reinterpret_cast<Body*>(desc.mObject0);
@@ -1148,9 +1096,6 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 	if(!Actor1)
 		Actor1 = &Body::sFixedToWorld;
 
-	const Mat44 M0 = Actor0->GetWorldTransform();
-	const Mat44 M1 = Actor1->GetWorldTransform();
-
 	Constraint* J = null;
 
 	switch(desc.mType)
@@ -1160,12 +1105,11 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 			const PINT_SPHERICAL_JOINT_CREATE& jc = static_cast<const PINT_SPHERICAL_JOINT_CREATE&>(desc);
 
 			PointConstraintSettings settings;
-			settings.mPoint1 = Actor0->GetPosition() + M0.Multiply3x3(ToVec3(jc.mLocalPivot0.mPos));
-			settings.mPoint2 = Actor1->GetPosition() + M1.Multiply3x3(ToVec3(jc.mLocalPivot1.mPos));
+			settings.mSpace = EConstraintSpace::LocalToBodyCOM;
+			settings.mPoint1 = ToVec3(jc.mLocalPivot0.mPos) - Actor0->GetShape()->GetCenterOfMass();
+			settings.mPoint2 = ToVec3(jc.mLocalPivot1.mPos) - Actor1->GetShape()->GetCenterOfMass();
 
 			J = settings.Create(*Actor0, *Actor1);
-
-			gPhysicsSystem->AddConstraint(J);
 		}
 		break;
 
@@ -1174,14 +1118,15 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 			const PINT_HINGE_JOINT_CREATE& jc = static_cast<const PINT_HINGE_JOINT_CREATE&>(desc);
 
 			HingeConstraintSettings settings;
-			settings.mPoint1 = Actor0->GetPosition() + M0.Multiply3x3(ToVec3(jc.mLocalPivot0));
-			settings.mPoint2 = Actor1->GetPosition() + M1.Multiply3x3(ToVec3(jc.mLocalPivot1));
+			settings.mSpace = EConstraintSpace::LocalToBodyCOM;
+			settings.mPoint1 = ToVec3(jc.mLocalPivot0) - Actor0->GetShape()->GetCenterOfMass();
+			settings.mPoint2 = ToVec3(jc.mLocalPivot1) - Actor1->GetShape()->GetCenterOfMass();
 
-			settings.mHingeAxis1 = M0.Multiply3x3(ToVec3(jc.mLocalAxis0));
-			settings.mHingeAxis2 = M1.Multiply3x3(ToVec3(jc.mLocalAxis1));
+			settings.mHingeAxis1 = ToVec3(jc.mLocalAxis0);
+			settings.mHingeAxis2 = ToVec3(jc.mLocalAxis1);
 
-			settings.mNormalAxis1 = ComputeJointWorldSpaceNormal(Actor0, M0, ToVec3(jc.mLocalAxis0));
-			settings.mNormalAxis2 = ComputeJointWorldSpaceNormal(Actor1, M1, ToVec3(jc.mLocalAxis1));
+			settings.mNormalAxis1 = settings.mHingeAxis1.GetNormalizedPerpendicular();
+			settings.mNormalAxis2 = (Actor1->GetInverseCenterOfMassTransform() * Actor0->GetCenterOfMassTransform()).Multiply3x3(settings.mNormalAxis1).Normalized();
 
 			if(IsHingeLimitEnabled(jc.mLimits))
 			{
@@ -1203,8 +1148,6 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 				NewJoint->SetMotorState(EMotorState::Velocity);
 				NewJoint->SetTargetAngularVelocity(jc.mDriveVelocity);
 			}
-
-			gPhysicsSystem->AddConstraint(NewJoint);
 		}
 		break;
 
@@ -1213,21 +1156,16 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 			const PINT_HINGE2_JOINT_CREATE& jc = static_cast<const PINT_HINGE2_JOINT_CREATE&>(desc);
 
 			HingeConstraintSettings settings;
-			settings.mPoint1 = Actor0->GetPosition() + M0.Multiply3x3(ToVec3(jc.mLocalPivot0.mPos));
-			settings.mPoint2 = Actor1->GetPosition() + M1.Multiply3x3(ToVec3(jc.mLocalPivot1.mPos));
+			settings.mSpace = EConstraintSpace::LocalToBodyCOM;
+			settings.mPoint1 = ToVec3(jc.mLocalPivot0.mPos) - Actor0->GetShape()->GetCenterOfMass();
+			settings.mPoint2 = ToVec3(jc.mLocalPivot1.mPos) - Actor1->GetShape()->GetCenterOfMass();
 
 			const Matrix3x3 LocalFrame0 = jc.mLocalPivot0.mRot;
 			const Matrix3x3 LocalFrame1 = jc.mLocalPivot1.mRot;
-
-			//settings.mHingeAxis1 = M0.Multiply3x3(ToVec3(jc.mLocalAxis0));
-			//settings.mHingeAxis2 = M1.Multiply3x3(ToVec3(jc.mLocalAxis1));
-			settings.mHingeAxis1 = M0.Multiply3x3(ToVec3(LocalFrame0[0]));
-			settings.mHingeAxis2 = M1.Multiply3x3(ToVec3(LocalFrame1[0]));
-
-			//settings.mNormalAxis1 = ComputeJointWorldSpaceNormal(Actor0, M0, ToVec3(jc.mLocalAxis0));
-			//settings.mNormalAxis2 = ComputeJointWorldSpaceNormal(Actor1, M1, ToVec3(jc.mLocalAxis1));
-			settings.mNormalAxis1 = M0.Multiply3x3(ToVec3(LocalFrame0[1]));
-			settings.mNormalAxis2 = M1.Multiply3x3(ToVec3(LocalFrame1[1]));
+			settings.mHingeAxis1 = ToVec3(LocalFrame0[0]);
+			settings.mHingeAxis2 = ToVec3(LocalFrame1[0]);
+			settings.mNormalAxis1 = ToVec3(LocalFrame0[1]);
+			settings.mNormalAxis2 = ToVec3(LocalFrame1[1]);
 
 			if(IsHingeLimitEnabled(jc.mLimits))
 			{
@@ -1249,8 +1187,6 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 				NewJoint->SetMotorState(EMotorState::Velocity);
 				NewJoint->SetTargetAngularVelocity(jc.mDriveVelocity);
 			}
-
-			gPhysicsSystem->AddConstraint(NewJoint);
 		}
 		break;
 
@@ -1259,49 +1195,34 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 			const PINT_PRISMATIC_JOINT_CREATE& jc = static_cast<const PINT_PRISMATIC_JOINT_CREATE&>(desc);
 
 			SliderConstraintSettings settings;
-			settings.SetPoint(*Actor0, *Actor1);
+			settings.mSpace = EConstraintSpace::LocalToBodyCOM;
+			settings.mPoint1 = ToVec3(jc.mLocalPivot0.mPos) - Actor0->GetShape()->GetCenterOfMass();
+			settings.mPoint2 = ToVec3(jc.mLocalPivot1.mPos) - Actor1->GetShape()->GetCenterOfMass();
 
 			if(jc.mLocalAxis0.IsNonZero())
 			{
-				settings.mSliderAxis1	= M0.Multiply3x3(ToVec3(jc.mLocalAxis0));
-				settings.mSliderAxis2	= M0.Multiply3x3(ToVec3(jc.mLocalAxis1));
+				settings.mSliderAxis1	= ToVec3(jc.mLocalAxis0);
+				settings.mSliderAxis2	= ToVec3(jc.mLocalAxis1);
 				settings.mNormalAxis1	= settings.mSliderAxis1.GetNormalizedPerpendicular();
-				settings.mNormalAxis2	= settings.mSliderAxis2.GetNormalizedPerpendicular();
+				settings.mNormalAxis2	= (Actor1->GetInverseCenterOfMassTransform() * Actor0->GetCenterOfMassTransform()).Multiply3x3(settings.mNormalAxis1).Normalized();
 			}
 			else
-				ASSERT(0);
-
+			{
+				const Matrix3x3 LocalFrame0 = jc.mLocalPivot0.mRot;
+				const Matrix3x3 LocalFrame1 = jc.mLocalPivot1.mRot;
+				settings.mSliderAxis1 = ToVec3(LocalFrame0[0]);
+				settings.mSliderAxis2 = ToVec3(LocalFrame1[0]);
+				settings.mNormalAxis1 = ToVec3(LocalFrame0[1]);
+				settings.mNormalAxis2 = ToVec3(LocalFrame1[1]);
+			}
+			
 			if(IsPrismaticLimitEnabled(jc.mLimits))
 			{
-				//if(jc.mSpring.mDamping!=0.0f && jc.mSpring.mStiffness!=0.0f)
-				if(1)
-				{
-					settings.mLimitsMin = jc.mLimits.mMinValue;
-					settings.mLimitsMax = jc.mLimits.mMaxValue;
-				}
-				else
-				{
-					// ### Trying to emulate PhysX's soft limits with additional spring constraints but mapping of spring params is unclear
-					//settings.mSliderAxis
-					//	Point::Project
-					DistanceConstraintSettings settings;
-					settings.mPoint1		= Actor0->GetPosition();
-					settings.mPoint2		= Actor1->GetPosition();
-					settings.mFrequency		= jc.mSpring.mStiffness;
-					settings.mDamping		= jc.mSpring.mDamping;
-					const float Mass = 2.5f;
-					settings.mFrequency		= sqrtf(jc.mSpring.mStiffness/Mass);
-					//settings.mFrequency		= 2.5f;
-					//settings.mDamping		= jc.mSpring.mDamping/(2.0f*sqrtf(jc.mSpring.mStiffness*Mass));
-					settings.mDamping		= jc.mSpring.mDamping/(2.0f*Mass*settings.mFrequency);
-					//settings.mDamping		= 0.5f;
-					gPhysicsSystem->AddConstraint(settings.Create(*Actor0, *Actor1));
-				}
+				settings.mLimitsMin = jc.mLimits.mMinValue;
+				settings.mLimitsMax = jc.mLimits.mMaxValue;
 			}
 
 			J = settings.Create(*Actor0, *Actor1);
-
-			gPhysicsSystem->AddConstraint(J);
 		}
 		break;
 
@@ -1310,11 +1231,11 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 			const PINT_FIXED_JOINT_CREATE& jc = static_cast<const PINT_FIXED_JOINT_CREATE&>(desc);
 
 			FixedConstraintSettings settings;
-			settings.SetPoint(*Actor0, *Actor1);
+			settings.mSpace = EConstraintSpace::LocalToBodyCOM;
+			settings.mPoint1 = ToVec3(jc.mLocalPivot0) - Actor0->GetShape()->GetCenterOfMass();
+			settings.mPoint2 = ToVec3(jc.mLocalPivot1) - Actor1->GetShape()->GetCenterOfMass();
 
 			J = settings.Create(*Actor0, *Actor1);
-
-			gPhysicsSystem->AddConstraint(J);
 		}
 		break;
 
@@ -1323,16 +1244,15 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 			const PINT_DISTANCE_JOINT_CREATE& jc = static_cast<const PINT_DISTANCE_JOINT_CREATE&>(desc);
 
 			DistanceConstraintSettings settings;
-			settings.mPoint1		= Actor0->GetPosition() + M0.Multiply3x3(ToVec3(jc.mLocalPivot0));
-			settings.mPoint2		= Actor1->GetPosition() + M1.Multiply3x3(ToVec3(jc.mLocalPivot1));
+			settings.mSpace			= EConstraintSpace::LocalToBodyCOM;
+			settings.mPoint1		= ToVec3(jc.mLocalPivot0) - Actor0->GetShape()->GetCenterOfMass();
+			settings.mPoint2		= ToVec3(jc.mLocalPivot1) - Actor1->GetShape()->GetCenterOfMass();
 			settings.mMinDistance	= jc.mLimits.mMinValue <0.0f ? 0.0f : jc.mLimits.mMinValue;
 			settings.mMaxDistance	= jc.mLimits.mMaxValue <0.0f ? MAX_FLOAT : jc.mLimits.mMaxValue;
 			settings.mFrequency		= 0.0f;
 			settings.mDamping		= 0.0f;
 
 			J = settings.Create(*Actor0, *Actor1);
-
-			gPhysicsSystem->AddConstraint(J);
 		}
 		break;
 
@@ -1340,10 +1260,13 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 			ASSERT(0);
 		break;
 	}
-
-	if(J && gGroupFilter)
+	
+	if (J)
 	{
-		gGroupFilter->DisableJointedBodies(Actor0->GetID().GetIndexAndSequenceNumber(), Actor1->GetID().GetIndexAndSequenceNumber());
+		gPhysicsSystem->AddConstraint(J);
+
+		if(gGroupFilter)
+			gGroupFilter->DisableJointedBodies(Actor0->GetID().GetIndexAndSequenceNumber(), Actor1->GetID().GetIndexAndSequenceNumber());
 	}
 
 	return PintJointHandle(J);
