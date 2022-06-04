@@ -9,8 +9,17 @@
 #ifndef PINT_JOLT_H
 #define PINT_JOLT_H
 
-#include "..\Pint.h"
-#include "..\PINT_Common\PINT_CommonShapes.h"
+	#include "..\Pint.h"
+	#include "..\PINT_Common\PINT_CommonShapes.h"
+	#include <map>
+
+	// The Jolt headers don't include Jolt.h. Always include Jolt.h before including any other Jolt header.
+	// You can use Jolt.h in your precompiled header to speed up compilation.
+	#include <Jolt/Jolt.h>
+
+	#include <Jolt/Physics/Collision/Shape/Shape.h>
+
+	using namespace JPH;
 
 	class Jolt_SceneAPI : public Pint_Scene
 	{
@@ -141,18 +150,12 @@
 //		virtual	Pint_Shape*				GetShapeAPI()	override	{ return &mShapeAPI;	}
 //		virtual	Pint_Joint*				GetJointAPI()	override	{ return &mJointAPI;	}
 
-		struct ActorData
-		{
-			void*	mBody;
-		};
-
 		Jolt_SceneAPI					mSceneAPI;
 		Jolt_ActorAPI					mActorAPI;
 //		Jolt_ShapeAPI					mShapeAPI;
 //		Jolt_JointAPI					mJointAPI;
 
-		PtrContainer					mMeshes;
-		Container						mActors;
+		map<PintShapeRenderer*, Ref<JPH::Shape>> mCachedShapes;
 	};
 
 	IceWindow*	Jolt_InitGUI(IceWidget* parent, PintGUIHelper& helper);

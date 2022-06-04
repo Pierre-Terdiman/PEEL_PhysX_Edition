@@ -53,10 +53,6 @@ A damping of 1 will barely overshoot the target and have almost no oscillation, 
 
 #include "PINT_Jolt.h"
 
-// The Jolt headers don't include Jolt.h. Always include Jolt.h before including any other Jolt header.
-// You can use Jolt.h in your precompiled header to speed up compilation.
-#include <Jolt/Jolt.h>
-
 // Jolt includes
 #include <Jolt/RegisterTypes.h>
 #include <Jolt/Core/TempAllocator.h>
@@ -97,10 +93,6 @@ A damping of 1 will barely overshoot the target and have almost no oscillation, 
 #include <iostream>
 #include <cstdarg>
 #include <thread>
-
-using namespace JPH;
-
-static const udword gNbActorData = sizeof(JoltPint::ActorData)/sizeof(udword);
 
 inline_ Point	ToPoint(const Vec3& p)	{ return Point(p.GetX(), p.GetY(), p.GetZ());	}
 inline_ Vec3	ToVec3(const Point& p)	{ return Vec3(p.x, p.y, p.z);					}
@@ -700,8 +692,6 @@ void JoltPint::Init(const PINT_WORLD_CREATE& desc)
 
 void JoltPint::Close()
 {
-	mActors.Empty();
-
 	DELETESINGLE(gPhysicsSystem);
 	gGroupFilter = nullptr;
 	DELETESINGLE(gJobSystem);
@@ -753,29 +743,34 @@ void JoltPint::Render(PintRender& renderer, PintRenderPass render_pass)
 	if(!gPhysicsSystem)
 		return;
 
-	BodyInterface& body_interface = gPhysicsSystem->GetBodyInterface();
+	const BodyLockInterface &BLI = gPhysicsSystem->GetBodyLockInterfaceNoLock();
 
 	AllHitCollisionCollector<TransformedShapeCollector> Collector;
-	const udword NbActors = mActors.GetNbEntries()/gNbActorData;
-	const JoltPint::ActorData* AD = (const JoltPint::ActorData*)mActors.GetEntries();
-	for(udword i=0;i<NbActors;i++)
+	
+	BodyIDVector BodyIDs;
+	gPhysicsSystem->GetBodies(BodyIDs);
+	for (BodyID ID : BodyIDs)
 	{
-		const Body* Current = reinterpret_cast<const Body*>(AD[i].mBody);
-		if(!renderer.SetCurrentActor(PintActorHandle(Current)))
-			continue;
-
-		// Collect all leaf shapes
-		Collector.Reset();
-		Current->GetShape()->CollectTransformedShapes(AABox(Vec3::sReplicate(-1.0e6f), Vec3::sReplicate(1.0e6f)), Current->GetCenterOfMassPosition(), Current->GetRotation(), JPH::Vec3::sReplicate(1.0f), JPH::SubShapeIDCreator(), Collector, {});
-
-		// Render them
-		for (const TransformedShape& TS : Collector.mHits)
+		BodyLockRead Lock(BLI, ID);
+		if (Lock.SucceededAndIsInBroadPhase())
 		{
-			PintShapeRenderer* Renderer = RetrieveRenderer(*this, TS.mShape, TS.mShape->GetUserData());
-			if(Renderer)
+			const Body* Current = &Lock.GetBody();
+			if(!renderer.SetCurrentActor(PintActorHandle(Current)))
+				continue;
+
+			// Collect all leaf shapes
+			Collector.Reset();
+			Current->GetShape()->CollectTransformedShapes(AABox(Vec3::sReplicate(-1.0e6f), Vec3::sReplicate(1.0e6f)), Current->GetCenterOfMassPosition(), Current->GetRotation(), JPH::Vec3::sReplicate(1.0f), JPH::SubShapeIDCreator(), Collector, {});
+
+			// Render them
+			for (const TransformedShape& TS : Collector.mHits)
 			{
-				const PR Pose(ToPoint(TS.mShapePositionCOM - TS.mShapeRotation * TS.mShape->GetCenterOfMass()), ToIQuat(TS.mShapeRotation));
-				renderer.DrawShape(Renderer, Pose);
+				PintShapeRenderer* Renderer = RetrieveRenderer(*this, TS.mShape, TS.mShape->GetUserData());
+				if(Renderer)
+				{
+					const PR Pose(ToPoint(TS.mShapePositionCOM - TS.mShapeRotation * TS.mShape->GetCenterOfMass()), ToIQuat(TS.mShapeRotation));
+					renderer.DrawShape(Renderer, Pose);
+				}
 			}
 		}
 	}
@@ -868,21 +863,20 @@ static Ref<JPH::Shape> CreateMeshShape(const SurfaceInterface& surface)
 	return settings.Create().Get();
 }
 
-static void CreateShape(Ref<JPH::Shape>& shape, JoltPint& pint, const PINT_SHAPE_CREATE* shape_create)
+static Ref<JPH::Shape> CreateShape(JoltPint& pint, const PINT_SHAPE_CREATE* shape_create)
 {
-	const float inConvexRadius = cDefaultConvexRadius;
-	const PhysicsMaterial* inMaterial = nullptr;
+	Ref<JPH::Shape> shape;
 
 	PintShapeRenderer* Renderer = shape_create->mRenderer;
 
-	/*
-	TODO - reimplement. Currently this does not work as the SharedXXXShapes classes store 32 bit values so we cannot put a pointer in there
-	bool AllowSharing = gAllowShapeSharing;
-	if(shape_create->mSharing==SHAPE_SHARING_YES)
-		AllowSharing = true;
-	else if(shape_create->mSharing==SHAPE_SHARING_NO)
-		AllowSharing = false;
-	*/
+	// Check if we can share the shape
+	bool AllowSharing = shape_create->CanShare(gAllowShapeSharing);
+	if (AllowSharing)
+	{
+		shape = pint.mCachedShapes[Renderer];
+		if (shape != nullptr)
+			return shape;
+	}
 
 	const PR LocalPose(shape_create->mLocalPos, shape_create->mLocalRot);
 
@@ -896,7 +890,7 @@ static void CreateShape(Ref<JPH::Shape>& shape, JoltPint& pint, const PINT_SHAPE
 		{
 			const PINT_SPHERE_CREATE* Create = static_cast<const PINT_SPHERE_CREATE*>(shape_create);
 
-			shape = new SphereShape(Create->mRadius, inMaterial);
+			shape = new SphereShape(Create->mRadius);
 		}
 		break;
 
@@ -904,7 +898,7 @@ static void CreateShape(Ref<JPH::Shape>& shape, JoltPint& pint, const PINT_SHAPE
 		{
 			const PINT_CAPSULE_CREATE* Create = static_cast<const PINT_CAPSULE_CREATE*>(shape_create);
 
-			shape = new CapsuleShape(Create->mHalfHeight, Create->mRadius, inMaterial);
+			shape = new CapsuleShape(Create->mHalfHeight, Create->mRadius);
 		}
 		break;
 
@@ -912,7 +906,7 @@ static void CreateShape(Ref<JPH::Shape>& shape, JoltPint& pint, const PINT_SHAPE
 		{
 			const PINT_CYLINDER_CREATE* Create = static_cast<const PINT_CYLINDER_CREATE*>(shape_create);
 
-			shape = new CylinderShape(Create->mHalfHeight, Create->mRadius, TMin(inConvexRadius, Create->mHalfHeight), inMaterial);
+			shape = new CylinderShape(Create->mHalfHeight, Create->mRadius, TMin(cDefaultConvexRadius, Create->mHalfHeight));
 		}
 		break;
 
@@ -921,7 +915,7 @@ static void CreateShape(Ref<JPH::Shape>& shape, JoltPint& pint, const PINT_SHAPE
 			const PINT_BOX_CREATE* Create = static_cast<const PINT_BOX_CREATE*>(shape_create);
 
 			const Vec3 Extents = ToVec3(Create->mExtents);
-			shape = new BoxShape(Extents, TMin(inConvexRadius, Extents.ReduceMin()), inMaterial);
+			shape = new BoxShape(Extents, TMin(cDefaultConvexRadius, Extents.ReduceMin()));
 		}
 		break;
 
@@ -934,7 +928,7 @@ static void CreateShape(Ref<JPH::Shape>& shape, JoltPint& pint, const PINT_SHAPE
 			for(udword i=0;i<Create->mNbVerts;i++)
 				pts.push_back(ToVec3(Create->mVerts[i]));
 
-			const ConvexHullShapeSettings settings(pts, inConvexRadius, inMaterial);
+			const ConvexHullShapeSettings settings(pts, cDefaultConvexRadius);
 			ConvexHullShapeSettings::ShapeResult r = settings.Create();
 			if(r.IsValid())
 				shape = r.Get();
@@ -983,6 +977,12 @@ static void CreateShape(Ref<JPH::Shape>& shape, JoltPint& pint, const PINT_SHAPE
 	BindRenderer(shape, Renderer);
 
 	SetupOffsetShape(shape, LocalPose);
+
+	// Remember the shape for sharing
+	if (AllowSharing)
+		pint.mCachedShapes[Renderer] = shape;
+
+	return shape;
 }
 
 PintActorHandle JoltPint::CreateObject(const PINT_OBJECT_CREATE& desc)
@@ -1004,20 +1004,19 @@ PintActorHandle JoltPint::CreateObject(const PINT_OBJECT_CREATE& desc)
 	Ref<JPH::Shape> NewShape;
 	if(NbShapes==1)
 	{
-		CreateShape(NewShape, *this, ShapeCreate);
+		NewShape = CreateShape(*this, ShapeCreate);
 	}
 	else
 	{
 		class MyPintShapeEnumerateCallback : public PintShapeEnumerateCallback
 		{
 			public:
-					MyPintShapeEnumerateCallback(JoltPint& pint, PintCollisionGroup collision_group) : mPint(pint), mCollisionGroup(collision_group)	{}
-			virtual	~MyPintShapeEnumerateCallback(){}
+					MyPintShapeEnumerateCallback(JoltPint& pint) : mPint(pint) {}
+			virtual	~MyPintShapeEnumerateCallback() = default;
 
 			virtual	void	ReportShape(const PINT_SHAPE_CREATE& create, udword index, void* user_data)
 			{
-				Ref<JPH::Shape> NewShape;
-				CreateShape(NewShape, mPint, &create);
+				Ref<JPH::Shape> NewShape = CreateShape(mPint, &create);
 
 				if (NewShape->GetSubType() == EShapeSubType::RotatedTranslated)
 				{
@@ -1032,10 +1031,9 @@ PintActorHandle JoltPint::CreateObject(const PINT_OBJECT_CREATE& desc)
 
 			JoltPint&					mPint;
 			StaticCompoundShapeSettings	mCompoundShape;
-			const PintCollisionGroup	mCollisionGroup;
 		};
 
-		MyPintShapeEnumerateCallback CB(*this, desc.mCollisionGroup);
+		MyPintShapeEnumerateCallback CB(*this);
 		desc.GetNbShapes(&CB);
 
 		StaticCompoundShapeSettings::ShapeResult r = CB.mCompoundShape.Create();
@@ -1072,9 +1070,6 @@ PintActorHandle JoltPint::CreateObject(const PINT_OBJECT_CREATE& desc)
 
 		// TODO: keeping the sequence number for now because I didn't bother flushing the map when objects are deleted. A proper implementation would revisit this.
 		NewBody->SetCollisionGroup(CollisionGroup(gGroupFilter, NewBody->GetID().GetIndexAndSequenceNumber(), CollisionGroup::SubGroupID(desc.mCollisionGroup)));
-
-		ActorData* AD = ICE_RESERVE(ActorData, mActors);
-		AD->mBody = NewBody;
 	}
 
 	return PintActorHandle(NewBody);
@@ -1085,30 +1080,15 @@ bool JoltPint::ReleaseObject(PintActorHandle handle)
 	Body* Actor = reinterpret_cast<Body*>(handle);
 	ASSERT(Actor);
 
-	// TODO: optimize this
-	udword NbActors = mActors.GetNbEntries()/gNbActorData;
-	JoltPint::ActorData* AD = (JoltPint::ActorData*)mActors.GetEntries();
-	for(udword i=0;i<NbActors;i++)
-	{
-		if(AD[i].mBody==Actor)
-		{
-			AD[i] = AD[--NbActors];
-			mActors.ForceSize(NbActors*gNbActorData);
+	BodyInterface& body_interface = gPhysicsSystem->GetBodyInterfaceNoLock();
 
-			// TODO: release shared shapes here
+	BodyID ID = Actor->GetID();
+	// Remove the body from the physics system. Note that the body itself keeps all of its state and can be re-added at any time.
+	body_interface.RemoveBody(ID);
+	// Destroy the body. After this the body ID is no longer valid.
+	body_interface.DestroyBody(ID);
 
-			BodyInterface& body_interface = gPhysicsSystem->GetBodyInterface();
-
-			const BodyID& ID = Actor->GetID();
-			// Remove the body from the physics system. Note that the body itself keeps all of its state and can be re-added at any time.
-			body_interface.RemoveBody(ID);
-			// Destroy the body. After this the body ID is no longer valid.
-			body_interface.DestroyBody(ID);
-
-			return true;
-		}
-	}
-	return false;
+	return true;
 }
 
 // TODO: refactor
