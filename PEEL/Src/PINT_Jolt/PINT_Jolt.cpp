@@ -21,7 +21,6 @@ Differences with PhysX:
 - speculative contact distance is a global value, not automatically adjusted at runtime
 - linear CCD & speculative contacts can both be enabled at the same time
 - Jolt does support per-joint friction value on regular joints (PhysX only supports it on RC articulation links)
-- no support for springs on (prismatic) limits
 - shapes with non-idt local poses or with a non-zero COM are a special case (same design as Bullet/Havok), while it's the default in PhysX.
 - number of iterations are per-scene settings in Jolt, per-actor in PhysX
 - supports per-body gravity factor, PhysX doesn't
@@ -82,6 +81,8 @@ A damping of 1 will barely overshoot the target and have almost no oscillation, 
 #include <Jolt/Physics/Constraints/DistanceConstraint.h>
 #include <Jolt/Physics/Constraints/SliderConstraint.h>
 #include <Jolt/Physics/Constraints/SixDOFConstraint.h>
+#include <Jolt/Physics/Constraints/RackAndPinionConstraint.h>
+#include <Jolt/Physics/Constraints/GearConstraint.h>
 
 #include "..\PINT_Common\PINT_Ice.h"
 //#include "..\PINT_Common\PINT_Common.cpp"
@@ -623,9 +624,9 @@ void JoltPint::GetCaps(PintCaps& caps) const
 	caps.mSupportPrismaticJoints		= true;
 	caps.mSupportDistanceJoints			= true;
 	caps.mSupportD6Joints				= true;
-/*	caps.mSupportGearJoints				= true;
+	caps.mSupportGearJoints				= true;
 	caps.mSupportRackJoints				= true;
-	caps.mSupportPortalJoints			= true;
+/*	caps.mSupportPortalJoints			= true;
 	caps.mSupportMCArticulations		= false;
 	caps.mSupportRCArticulations		= true;*/
 
@@ -1247,6 +1248,13 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 				settings.mLimitsMax = jc.mLimits.mMaxValue;
 			}
 
+			if (jc.mSpring.mStiffness > 0.0f)
+			{
+				// TODO: Convert properties
+				settings.mFrequency = 2.0f;
+				settings.mDamping = 1.0f;
+			}
+
 			J = settings.Create(*Actor0, *Actor1);
 		}
 		break;
@@ -1331,6 +1339,36 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 				NewJoint->SetMotorState(EAxis::TranslationY, EMotorState::Velocity);
 			if(jc.mMotorFlags & PINT_D6_MOTOR_DRIVE_Z)
 				NewJoint->SetMotorState(EAxis::TranslationZ, EMotorState::Velocity);
+		}
+		break;
+
+		case PINT_JOINT_RACK_AND_PINION:
+		{
+			const PINT_RACK_AND_PINION_JOINT_CREATE& jc = static_cast<const PINT_RACK_AND_PINION_JOINT_CREATE&>(desc);
+
+			RackAndPinionConstraintSettings settings;
+			settings.mSpace			= EConstraintSpace::LocalToBodyCOM;
+			// TODO: This is very fragile but I have no idea how I'm supposed to get the constraint axis from the creation settings as mLocalPivot0/1 is usually not filled in
+			settings.mHingeAxis		= ((TwoBodyConstraint *)jc.mHinge)->GetConstraintToBody2Matrix().GetAxisX();
+			settings.mSliderAxis	= ((TwoBodyConstraint *)jc.mPrismatic)->GetConstraintToBody2Matrix().GetAxisX();
+			settings.SetRatio(jc.mNbRackTeeth, jc.mRackLength, jc.mNbPinionTeeth);
+
+			J = settings.Create(*Actor0, *Actor1);
+		}
+		break;
+
+		case PINT_JOINT_GEAR:
+		{
+			const PINT_GEAR_JOINT_CREATE& jc = static_cast<const PINT_GEAR_JOINT_CREATE&>(desc);
+
+			GearConstraintSettings settings;
+			settings.mSpace			= EConstraintSpace::LocalToBodyCOM;
+			// TODO: This is very fragile but I have no idea how I'm supposed to get the constraint axis from the creation settings as mLocalPivot0/1 is usually not filled in
+			settings.mHingeAxis1	= ((TwoBodyConstraint *)jc.mHinge0)->GetConstraintToBody2Matrix().GetAxisX();
+			settings.mHingeAxis2	= ((TwoBodyConstraint *)jc.mHinge1)->GetConstraintToBody2Matrix().GetAxisX();
+			settings.mRatio			= 1.0f / jc.mGearRatio;
+
+			J = settings.Create(*Actor0, *Actor1);
 		}
 		break;
 
