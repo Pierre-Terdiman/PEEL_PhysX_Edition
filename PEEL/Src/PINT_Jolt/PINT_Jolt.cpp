@@ -55,8 +55,10 @@ A damping of 1 will barely overshoot the target and have almost no oscillation, 
 #include <Jolt/Core/TempAllocator.h>
 #include <Jolt/Core/JobSystemThreadPool.h>
 #include <Jolt/Core/Factory.h>
+#include <Jolt/Core/StreamWrapper.h>
 #include <Jolt/Physics/PhysicsSettings.h>
 #include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/Physics/PhysicsScene.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Body/BodyActivationListener.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
@@ -91,6 +93,7 @@ A damping of 1 will barely overshoot the target and have almost no oscillation, 
 #include <iostream>
 #include <cstdarg>
 #include <thread>
+#include <fstream>
 
 inline_ Point	ToPoint(const Vec3& p)	{ return Point(p.GetX(), p.GetY(), p.GetZ());	}
 inline_ Vec3	ToVec3(const Point& p)	{ return Vec3(p.x, p.y, p.z);					}
@@ -2291,6 +2294,20 @@ IceWindow* Jolt_InitGUI(IceWidget* parent, PintGUIHelper& helper)
 	gEditBox_Baumgarte					= CreateEditBox(helper, Main, y, "Baumgarte:", helper.Convert(gBaumgarte), EDITBOX_FLOAT_POSITIVE);
 	gEditBox_Friction					= CreateEditBox(helper, Main, y, "Default friction:", helper.Convert(gDefaultFriction), EDITBOX_FLOAT_POSITIVE);
 	gEditBox_Restitution				= CreateEditBox(helper, Main, y, "Default restitution:", helper.Convert(gDefaultRestitution), EDITBOX_FLOAT_POSITIVE);
+
+	auto make_snapshot = [](IceButton& button, void* user_data) { 
+		PhysicsScene Scene;
+		Scene.FromPhysicsSystem(gPhysicsSystem);
+		ofstream Stream;
+		Stream.open("snapshot.bin", ofstream::out | ofstream::binary | ofstream::trunc);
+		if (Stream.is_open()) 
+		{
+			StreamOutWrapper Wrapper(Stream);
+			Scene.SaveBinaryState(Wrapper, true, false);
+		}
+	};
+	helper.CreateButton(Main, 0, 4, y, 130, 20, "Save snapshot.bin", gJoltGUI, make_snapshot, nullptr);
+	y += YStep;
 
 	return Main;
 }
