@@ -924,7 +924,27 @@ Ref<JPH::Shape> JoltPint::CreateShape(const PINT_SHAPE_CREATE* shape_create)
 				shape = r.Get();
 			else
 			{
-				ASSERT(0);
+				// Determine average position
+				Vec3 Avg = Vec3::sZero();
+				for (Vec3 P : pts)
+					Avg += P;
+				Avg = Avg / float(pts.size());
+
+				// Determine radius
+				float RadiusSq = 0.0f;
+				for (Vec3 P : pts)
+					RadiusSq = max(RadiusSq, (P - Avg).LengthSq());
+
+				// We should only take this path for very small hulls that are below the hull tolerance
+				ASSERT(RadiusSq <= Square(settings.mHullTolerance))
+
+				// Hull could not be built, create a sphere instead
+				shape = new SphereShape(sqrt(RadiusSq));
+				if (!Avg.IsNearZero())
+				{
+					RotatedTranslatedShapeSettings sphere_settings(Avg, JQuat::sIdentity(), shape);
+					shape = sphere_settings.Create().Get();
+				}
 			}
 		}
 		break;
