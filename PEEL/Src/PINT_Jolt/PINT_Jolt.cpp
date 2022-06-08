@@ -1346,14 +1346,19 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 		{
 			const PINT_RACK_AND_PINION_JOINT_CREATE& jc = static_cast<const PINT_RACK_AND_PINION_JOINT_CREATE&>(desc);
 
+			TwoBodyConstraint* Hinge = ((TwoBodyConstraint *)jc.mHinge);
+			TwoBodyConstraint* Prismatic = ((TwoBodyConstraint *)jc.mPrismatic);
+
 			RackAndPinionConstraintSettings settings;
 			settings.mSpace			= EConstraintSpace::LocalToBodyCOM;
 			// TODO: This is very fragile but I have no idea how I'm supposed to get the constraint axis from the creation settings as mLocalPivot0/1 is usually not filled in
-			settings.mHingeAxis		= ((TwoBodyConstraint *)jc.mHinge)->GetConstraintToBody2Matrix().GetAxisX();
-			settings.mSliderAxis	= ((TwoBodyConstraint *)jc.mPrismatic)->GetConstraintToBody2Matrix().GetAxisX();
+			settings.mHingeAxis		= Hinge->GetConstraintToBody2Matrix().GetAxisX();
+			settings.mSliderAxis	= Prismatic->GetConstraintToBody2Matrix().GetAxisX();
 			settings.SetRatio(jc.mNbRackTeeth, jc.mRackLength, jc.mNbPinionTeeth);
 
-			J = settings.Create(*Actor0, *Actor1);
+			RackAndPinionConstraint* NewJoint = static_cast<RackAndPinionConstraint*>(settings.Create(*Actor0, *Actor1));
+			NewJoint->SetConstraints(Hinge, Prismatic);
+			J = NewJoint;
 		}
 		break;
 
@@ -1361,14 +1366,19 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 		{
 			const PINT_GEAR_JOINT_CREATE& jc = static_cast<const PINT_GEAR_JOINT_CREATE&>(desc);
 
+			TwoBodyConstraint* Hinge0 = ((TwoBodyConstraint *)jc.mHinge0);
+			TwoBodyConstraint* Hinge1 = ((TwoBodyConstraint *)jc.mHinge1);
+
 			GearConstraintSettings settings;
 			settings.mSpace			= EConstraintSpace::LocalToBodyCOM;
 			// TODO: This is very fragile but I have no idea how I'm supposed to get the constraint axis from the creation settings as mLocalPivot0/1 is usually not filled in
-			settings.mHingeAxis1	= ((TwoBodyConstraint *)jc.mHinge0)->GetConstraintToBody2Matrix().GetAxisX();
-			settings.mHingeAxis2	= ((TwoBodyConstraint *)jc.mHinge1)->GetConstraintToBody2Matrix().GetAxisX();
+			settings.mHingeAxis1	= Hinge0->GetConstraintToBody2Matrix().GetAxisX();
+			settings.mHingeAxis2	= Hinge1->GetConstraintToBody2Matrix().GetAxisX();
 			settings.mRatio			= 1.0f / jc.mGearRatio;
 
-			J = settings.Create(*Actor0, *Actor1);
+			GearConstraint* NewJoint = static_cast<GearConstraint*>(settings.Create(*Actor0, *Actor1));
+			NewJoint->SetConstraints(Hinge0, Hinge1);
+			J = NewJoint;
 		}
 		break;
 
