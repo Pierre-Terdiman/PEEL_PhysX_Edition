@@ -1,0 +1,7 @@
+.vs/
+x64/
+Debug/
+Release/
+/PEEL/Build64/PEEL64_DEBUG_vs2017.exe
+/PEEL/Build64/PINT_Jolt_D.dll
+/PEEL/Src/PINT_Jolt/vs2022/PINT_Jolt.vcxproj.user
