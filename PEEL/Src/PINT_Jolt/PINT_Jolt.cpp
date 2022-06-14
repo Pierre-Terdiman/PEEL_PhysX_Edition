@@ -394,6 +394,60 @@ static MyTempAllocatorImpl* gTempAllocator = null;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+atomic<size_t> gCurrentMemory = 0;
+atomic<size_t> gMaxMemory = 0;
+
+// Add a tag to an allocation to track its size
+static void *TagAllocation(void *inPointer, size_t inAlignment, size_t inSize)
+{
+	// Update current memory consumption
+	size_t CurrentMemory = gCurrentMemory.fetch_add(inSize) + inSize;
+
+	// Update max memory
+	size_t MaxMemory = gMaxMemory;
+	while (MaxMemory < CurrentMemory && !gMaxMemory.compare_exchange_weak(MaxMemory, CurrentMemory)) { };
+
+	// Store size
+	*reinterpret_cast<size_t *>(inPointer) = inSize;
+
+	// Return actual block
+	return reinterpret_cast<uint8*>(inPointer) + inAlignment;
+}
+
+// Remove tag from allocation
+static void *UntagAllocation(void *inPointer, size_t inAlignment)
+{
+	uint8* p = reinterpret_cast<uint8*>(inPointer) - inAlignment;
+
+	// Update current memory
+	gCurrentMemory -= *reinterpret_cast<size_t*>(p);
+
+	return p;
+}
+
+static void *AllocateHook(size_t inSize)
+{
+	return TagAllocation(malloc(inSize + 16), 16, inSize);
+}
+
+static void FreeHook(void *inBlock)
+{
+	free(UntagAllocation(inBlock, 16));
+}
+
+static void *AlignedAllocateHook(size_t inSize, size_t inAlignment)
+{
+	ASSERT(inAlignment <= 64);
+	return TagAllocation(_aligned_malloc(inSize + 64, inAlignment), 64, inSize);
+}
+
+static void AlignedFreeHook(void *inBlock)
+{
+	_aligned_free(UntagAllocation(inBlock, 64));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 Jolt_SceneAPI::Jolt_SceneAPI(Pint& pint) : Pint_Scene(pint)
 {
 }
@@ -649,6 +703,12 @@ void JoltPint::GetCaps(PintCaps& caps) const
 
 void JoltPint::Init(const PINT_WORLD_CREATE& desc)
 {
+	// Override the default allocators to measure memory consumption
+	Allocate = AllocateHook;
+	Free = FreeHook;
+	AlignedAllocate = AlignedAllocateHook;
+	AlignedFree = AlignedFreeHook;
+
 	// Install callbacks
 	Trace = TraceImpl;
 	JPH_IF_ENABLE_ASSERTS(AssertFailed = AssertFailedImpl;)
@@ -708,6 +768,10 @@ void JoltPint::SetGravity(const Point& gravity)
 
 udword JoltPint::Update(float dt)
 {
+	// Reset high watermark for this frame
+	gTempAllocator->mHighWaterMark = gTempAllocator->mTop;
+	gMaxMemory = gCurrentMemory.load();
+
 	if(gPhysicsSystem)
 	{
 		// If you take larger steps than 1 / 60th of a second you need to do multiple collision steps in order to keep the simulation stable. Do 1 collision step per 1 / 60th of a second (round up).
@@ -720,8 +784,8 @@ udword JoltPint::Update(float dt)
 		gPhysicsSystem->Update(dt, cCollisionSteps, cIntegrationSubSteps, gTempAllocator, gJobSystem);
 	}
 
-	// TODO: this is only the per-frame temporary memory, it doesn't take into account the persistent data (bodies, triangle meshes, etc)
-	return gTempAllocator->mHighWaterMark;
+	// Return high watermark for memory consumption
+	return udword(gTempAllocator->mHighWaterMark + gMaxMemory);
 }
 
 Point JoltPint::GetMainColor()
@@ -917,7 +981,7 @@ Ref<JPH::Shape> JoltPint::CreateShape(const PINT_SHAPE_CREATE* shape_create)
 		{
 			const PINT_CONVEX_CREATE* Create = static_cast<const PINT_CONVEX_CREATE*>(shape_create);
 
-			vector<Vec3> pts;
+			Array<Vec3> pts;
 			pts.reserve(Create->mNbVerts);
 			for(udword i=0;i<Create->mNbVerts;i++)
 				pts.push_back(ToVec3(Create->mVerts[i]));
