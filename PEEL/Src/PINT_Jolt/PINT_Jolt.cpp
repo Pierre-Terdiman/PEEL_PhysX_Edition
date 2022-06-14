@@ -8,15 +8,12 @@
 
 #include "stdafx.h"
 
-// Uses Jolt libs from 12/03/2022
-
 /*
 Differences with PhysX:
 - no support for articulations
 - no support for aggregates AFAIK
 - no support for gyroscopic forces AFAIK
 - only one friction parameter (no support for static/dynamic friction)
-- no way to use a custom allocator for now (maybe because it uses std vectors etc)
 - no way to automatically disable collisions between jointed objects
 - speculative contact distance is a global value, not automatically adjusted at runtime
 - linear CCD & speculative contacts can both be enabled at the same time
@@ -29,7 +26,7 @@ Differences with PhysX:
 - there's no separation between convex/mesh objects and shapes in Jolt
 - I think Jolt has zero runtime allocations (JR: actually there is at least 1, but it is very minimal)
 - 4 iterations in Jolt is not enough, some stacks collapse, joints feel too soft (low Baumgarte by default)
-- Jolt uses AVX2/AVX/SSE4, PhysX sticks to SSE2
+- Jolt uses AVX2/AVX/SSE4, PhysX sticks to SSE2 (JR: Jolt supports SSE2 now too)
 
 TODO:
 - more per-test UI
