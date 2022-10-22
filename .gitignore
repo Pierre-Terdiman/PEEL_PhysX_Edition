@@ -1,0 +1,52 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+*.iobj
+*.ipdb
+*.ilk
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+# *.dll
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+# *.exe
+*.out
+*.app
+
+*.ncb
+*.suo
+*.bsc
+*.exp
+*.pdb
+*.sbr
+*.tlog
+*.user
+
+\.vs
+\__tmp__
+*.bak
+
+
+
+
+
+
+
+

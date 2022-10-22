@@ -25,6 +25,4 @@
 
 //#undef null
 
-//#define USE_JOLT_0	// Jolt code from initial PEEL integration, looks like changes aren't backward compatible :(
-#define USE_JOLT_1	// Jolt code from 12/03/2022
 

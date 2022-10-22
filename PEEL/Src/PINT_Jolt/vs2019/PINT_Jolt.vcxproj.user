@@ -5,7 +5,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommand>D:\#Projects\PEEL_Timestamp62\Build64\PEEL64_vs2017.exe</LocalDebuggerCommand>
+    <LocalDebuggerCommand>..\..\Build64\PEEL64_vs2017.exe</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

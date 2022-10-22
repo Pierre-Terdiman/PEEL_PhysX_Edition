@@ -8,7 +8,7 @@
 
 #include "stdafx.h"
 
-// Uses Jolt libs from 12/03/2022
+// PT: updated with Jolt code from 22/10/2022
 
 /*
 Differences with PhysX:
@@ -16,33 +16,27 @@ Differences with PhysX:
 - no support for aggregates AFAIK
 - no support for gyroscopic forces AFAIK
 - only one friction parameter (no support for static/dynamic friction)
-- no way to use a custom allocator for now (maybe because it uses std vectors etc)
 - no way to automatically disable collisions between jointed objects
 - speculative contact distance is a global value, not automatically adjusted at runtime
 - linear CCD & speculative contacts can both be enabled at the same time
 - Jolt does support per-joint friction value on regular joints (PhysX only supports it on RC articulation links)
-- no support for springs on (prismatic) limits
-- PhysX's joints use local frames, Jolt does not (pros & cons here)
 - shapes with non-idt local poses or with a non-zero COM are a special case (same design as Bullet/Havok), while it's the default in PhysX.
 - number of iterations are per-scene settings in Jolt, per-actor in PhysX
 - supports per-body gravity factor, PhysX doesn't
 - collision-groups / sim filtering data is per-shape in PhysX, while it seems per-actor in Jolt
 - hinge limits range is only 2*PI in Jolt, twice that in PhysX
 - there's no separation between convex/mesh objects and shapes in Jolt
-- I think Jolt has zero runtime allocations
+- I think Jolt has zero runtime allocations (JR: actually there is at least 1, but it is very minimal)
 - 4 iterations in Jolt is not enough, some stacks collapse, joints feel too soft (low Baumgarte by default)
-- Jolt uses AVX/SSE4, PhysX sticks to SSE2
+- Jolt uses AVX2/AVX/SSE4, PhysX sticks to SSE2 (JR: Jolt supports SSE2 now too)
 
 TODO:
-- COM shapes
 - more per-test UI
 - vehicles, CCTs
-- cleanup render code
 - prismatic springs
 - finish joints
 - overlaps/sweeps
 - try path constraint
-- heightfields
 - make rectangle selection work with Jolt
 
 "The higher the frequency, the quicker the body will move to its target. If you set a frequency of 1 then it will oscillate 1 time per second around the target position,
@@ -52,41 +46,42 @@ Damping prevents overshoot. A damping of 0 means that the body will oscillate fo
 A damping of 1 will barely overshoot the target and have almost no oscillation, but it will also take slightly longer to reach the target. I would say sensible ranges for frequency are 0.1-20 and for damping 0-1."
 */
 
-//#define USE_AVX	// doesn't seem to make any difference
-
 #include "PINT_Jolt.h"
 
-// The Jolt headers don't include Jolt.h. Always include Jolt.h before including any other Jolt header.
-// You can use Jolt.h in your precompiled header to speed up compilation.
-#include <Jolt.h>
-
 // Jolt includes
-#include <RegisterTypes.h>
-#include <Core/TempAllocator.h>
-#include <Core/JobSystemThreadPool.h>
-#include <Physics/PhysicsSettings.h>
-#include <Physics/PhysicsSystem.h>
-#include <Physics/Body/BodyCreationSettings.h>
-#include <Physics/Body/BodyActivationListener.h>
-#include <Physics/Collision/Shape/BoxShape.h>
-#include <Physics/Collision/Shape/SphereShape.h>
-#include <Physics/Collision/Shape/CapsuleShape.h>
-#include <Physics/Collision/Shape/CylinderShape.h>
-#include <Physics/Collision/Shape/ConvexHullShape.h>
-#include <Physics/Collision/Shape/MeshShape.h>
-#include <Physics/Collision/Shape/RotatedTranslatedShape.h>
-#include <Physics/Collision/Shape/StaticCompoundShape.h>
-#include <Physics/Collision/Shape/OffsetCenterOfMassShape.h>
-#include <Physics/Collision/RayCast.h>
-#include <Physics/Collision/ShapeCast.h>
-#include <Physics/Collision/CastResult.h>
-#include <Physics/Collision/CollisionCollectorImpl.h>
-#include <Physics/Collision/GroupFilterTable.h>
-#include <Physics/Constraints/PointConstraint.h>
-#include <Physics/Constraints/HingeConstraint.h>
-#include <Physics/Constraints/FixedConstraint.h>
-#include <Physics/Constraints/DistanceConstraint.h>
-#include <Physics/Constraints/SliderConstraint.h>
+#include <Jolt/RegisterTypes.h>
+#include <Jolt/Core/TempAllocator.h>
+#include <Jolt/Core/JobSystemThreadPool.h>
+#include <Jolt/Core/Factory.h>
+#include <Jolt/Core/StreamWrapper.h>
+#include <Jolt/Physics/PhysicsSettings.h>
+#include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/Physics/PhysicsScene.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Body/BodyActivationListener.h>
+#include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
+#include <Jolt/Physics/Collision/Shape/CylinderShape.h>
+#include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
+#include <Jolt/Physics/Collision/Shape/MeshShape.h>
+#include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
+#include <Jolt/Physics/Collision/Shape/StaticCompoundShape.h>
+#include <Jolt/Physics/Collision/Shape/OffsetCenterOfMassShape.h>
+#include <Jolt/Physics/Collision/Shape/HeightFieldShape.h>
+#include <Jolt/Physics/Collision/RayCast.h>
+#include <Jolt/Physics/Collision/ShapeCast.h>
+#include <Jolt/Physics/Collision/CastResult.h>
+#include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
+#include <Jolt/Physics/Collision/GroupFilterTable.h>
+#include <Jolt/Physics/Constraints/PointConstraint.h>
+#include <Jolt/Physics/Constraints/HingeConstraint.h>
+#include <Jolt/Physics/Constraints/FixedConstraint.h>
+#include <Jolt/Physics/Constraints/DistanceConstraint.h>
+#include <Jolt/Physics/Constraints/SliderConstraint.h>
+#include <Jolt/Physics/Constraints/SixDOFConstraint.h>
+#include <Jolt/Physics/Constraints/RackAndPinionConstraint.h>
+#include <Jolt/Physics/Constraints/GearConstraint.h>
 
 #include "..\PINT_Common\PINT_Ice.h"
 //#include "..\PINT_Common\PINT_Common.cpp"
@@ -98,10 +93,7 @@ A damping of 1 will barely overshoot the target and have almost no oscillation, 
 #include <iostream>
 #include <cstdarg>
 #include <thread>
-
-using namespace JPH;
-
-static const udword gNbActorData = sizeof(JoltPint::ActorData)/sizeof(udword);
+#include <fstream>
 
 inline_ Point	ToPoint(const Vec3& p)	{ return Point(p.GetX(), p.GetY(), p.GetZ());	}
 inline_ Vec3	ToVec3(const Point& p)	{ return Vec3(p.x, p.y, p.z);					}
@@ -134,14 +126,11 @@ static void TraceImpl(const char *inFMT, ...)
 	#pragma comment(lib, "../../Ice/Lib64/IceImageWork64.lib")
 	#pragma comment(lib, "../../Ice/Lib64/IceGUI64.lib")
 //	#pragma comment(lib, "../../Ice/Lib64/IML64.lib")
+
 	#ifdef _DEBUG
 		#pragma comment(lib, "../../../../PEEL_Externals/Jolt/Lib/x64/Debug/Jolt.lib")
 	#else
-		#ifdef USE_AVX
-			#pragma comment(lib, "../../../../PEEL_Externals/Jolt/Lib/x64/Release/JoltAVX.lib")
-		#else
-			#pragma comment(lib, "../../../../PEEL_Externals/Jolt/Lib/x64/Release/Jolt.lib")
-		#endif
+		#pragma comment(lib, "../../../../PEEL_Externals/Jolt/Lib/x64/Release/Jolt.lib")
 	#endif
 #else
 	#pragma comment(lib, "../../Ice/Lib/IceCore.lib")
@@ -174,13 +163,12 @@ static udword	gMaxBodyPairs				= 65536;	// "This is the max amount of body pairs
 static udword	gMaxContactConstraints		= 65536;	// "This is the maximum size of the contact constraint buffer. If more contacts (collisions between bodies) are detected than this number then these contacts will be ignored and bodies will start
 														// interpenetrating / fall through the world. For a real project use something in the order of 65536."
 static udword	gNbBodyMutexes				= 0;		// "This determines how many mutexes to allocate to protect rigid bodies from concurrent access. Set it to 0 for the default settings."
-// Using 1/4 iterations here following this document: https://jrouwe.nl/jolt/JoltPhysicsMulticoreScaling.pdf
-static udword	gNbPosIter					= 1;		// Default value in Jolt = 2
-static udword	gNbVelIter					= 4;		// Default value in Jolt = 10. "Note that this needs to be >= 2 in order for friction to work (friction is applied using the non-penetration impulse from the previous iteration)"
+static udword	gNbPosIter					= 2;		// Default value in Jolt = 2
+static udword	gNbVelIter					= 10;		// Default value in Jolt = 10. "Note that this needs to be >= 2 in order for friction to work (friction is applied using the non-penetration impulse from the previous iteration)"
 static float	gLinearDamping				= 0.1f;		// Same default value as in PEEL. Jolt default is 0.05.
 static float	gAngularDamping				= 0.05f;	// Same default value as in PEEL.
 static float	gSpeculativeContactDistance	= 0.02f;	// Default value in Jolt
-static float	gMaxPenetrationDistance		= 0.2f;		// Default value in Jolt
+static float	gPenetrationSlop			= 0.02f;	// Default value in Jolt
 static float	gBaumgarte					= 0.2f;		// Default value in Jolt
 static float	gDefaultFriction			= 0.5f;		// Same default value as in PEEL. Default value in Jolt = 0.2
 static float	gDefaultRestitution			= 0.0f;		// Default value in Jolt
@@ -201,229 +189,91 @@ static bool AssertFailedImpl(const char *inExpression, const char *inMessage, co
 
 #endif // JPH_ENABLE_ASSERTS
 
-#ifdef USE_JOLT_0
-
-	// Layer that objects can be in, determines which other objects it can collide with
-	// Typically you at least want to have 1 layer for moving bodies and 1 layer for static bodies, but you can have more
-	// layers if you want. E.g. you could have a layer for high detail collision (which is not used by the physics simulation
-	// but only if you do collision testing).
-	namespace Layers
-	{
-		static constexpr uint8 NON_MOVING = 0;
-		static constexpr uint8 MOVING = 1;
-		static constexpr uint8 NUM_LAYERS = 2;
-	};
-
-	// Function that determines if two object layers can collide
-	static bool MyObjectCanCollide(ObjectLayer inObject1, ObjectLayer inObject2)
-	{
-		switch (inObject1)
-		{
-		case Layers::NON_MOVING:
-			return inObject2 == Layers::MOVING; // Non moving only collides with moving
-		case Layers::MOVING:
-			return true; // Moving collides with everything
-		default:
-			JPH_ASSERT(false);
-			return false;
-		}
-	};
-
-	// Each broadphase layer results in a separate bounding volume tree in the broad phase. You at least want to have
-	// a layer for non-moving and moving objects to avoid having to update a tree full of static objects every frame.
-	// You can have a 1-on-1 mapping between object layers and broadphase layers (like in this case) but if you have
-	// many object layers you'll be creating many broad phase trees, which is not efficient. If you want to fine tune
-	// your broadphase layers define JPH_TRACK_BROADPHASE_STATS and look at the stats reported on the TTY.
-	namespace BroadPhaseLayers
-	{
-		static constexpr BroadPhaseLayer NON_MOVING(0);
-		static constexpr BroadPhaseLayer MOVING(1);
-	};
-
-	// Function that determines if two broadphase layers can collide
-	static bool MyBroadPhaseCanCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2)
-	{
-		switch (inLayer1)
-		{
-		case Layers::NON_MOVING:
-			return inLayer2 == BroadPhaseLayers::MOVING;
-		case Layers::MOVING:
-			return true;	
-		default:
-			JPH_ASSERT(false);
-			return false;
-		}
-	}
-#endif
-
 ////
 
-#ifdef USE_JOLT_1
-	/// Layer that objects can be in, determines which other objects it can collide with
-	namespace Layers
-	{
-		static constexpr uint8 UNUSED1 = 0; // 4 unused values so that broadphase layers values don't match with object layer values (for testing purposes)
-		static constexpr uint8 UNUSED2 = 1;
-		static constexpr uint8 UNUSED3 = 2;
-		static constexpr uint8 UNUSED4 = 3;
-		static constexpr uint8 NON_MOVING = 4;
-		static constexpr uint8 MOVING = 5;
-		static constexpr uint8 DEBRIS = 6; // Example: Debris collides only with NON_MOVING
-		static constexpr uint8 NUM_LAYERS = 7;
-	};
-
-	/// Function that determines if two object layers can collide
-	inline bool MyObjectCanCollide(ObjectLayer inObject1, ObjectLayer inObject2)
-	{
-		switch (inObject1)
-		{
-		case Layers::UNUSED1:
-		case Layers::UNUSED2:
-		case Layers::UNUSED3:
-		case Layers::UNUSED4:
-			return false;
-		case Layers::NON_MOVING:
-			return inObject2 == Layers::MOVING || inObject2 == Layers::DEBRIS;
-		case Layers::MOVING:
-			return inObject2 == Layers::NON_MOVING || inObject2 == Layers::MOVING;
-		case Layers::DEBRIS:
-			return inObject2 == Layers::NON_MOVING;
-		default:
-			JPH_ASSERT(false);
-			return false;
-		}
-	};
-
-	/// Broadphase layers
-	namespace BroadPhaseLayers
-	{
-		static constexpr BroadPhaseLayer NON_MOVING(0);
-		static constexpr BroadPhaseLayer MOVING(1);
-		static constexpr BroadPhaseLayer DEBRIS(2);
-		static constexpr BroadPhaseLayer UNUSED(3);
-		static constexpr uint NUM_LAYERS(4);
-	};
-
-	/// BroadPhaseLayerInterface implementation
-	class BPLayerInterfaceImpl final : public BroadPhaseLayerInterface
-	{
-	public:
-										BPLayerInterfaceImpl()
-		{
-			// Create a mapping table from object to broad phase layer
-			mObjectToBroadPhase[Layers::UNUSED1] = BroadPhaseLayers::UNUSED;
-			mObjectToBroadPhase[Layers::UNUSED2] = BroadPhaseLayers::UNUSED;
-			mObjectToBroadPhase[Layers::UNUSED3] = BroadPhaseLayers::UNUSED;
-			mObjectToBroadPhase[Layers::UNUSED4] = BroadPhaseLayers::UNUSED;
-			mObjectToBroadPhase[Layers::NON_MOVING] = BroadPhaseLayers::NON_MOVING;
-			mObjectToBroadPhase[Layers::MOVING] = BroadPhaseLayers::MOVING;
-			mObjectToBroadPhase[Layers::DEBRIS] = BroadPhaseLayers::DEBRIS;
-		}
-
-		virtual uint					GetNumBroadPhaseLayers() const override
-		{
-			return BroadPhaseLayers::NUM_LAYERS;
-		}
-
-		virtual BroadPhaseLayer			GetBroadPhaseLayer(ObjectLayer inLayer) const override
-		{
-			JPH_ASSERT(inLayer < Layers::NUM_LAYERS);
-			return mObjectToBroadPhase[inLayer];
-		}
-
-	#if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
-		virtual const char *			GetBroadPhaseLayerName(BroadPhaseLayer inLayer) const override
-		{
-			switch ((BroadPhaseLayer::Type)inLayer)
-			{
-			case (BroadPhaseLayer::Type)BroadPhaseLayers::NON_MOVING:	return "NON_MOVING";
-			case (BroadPhaseLayer::Type)BroadPhaseLayers::MOVING:		return "MOVING";
-			case (BroadPhaseLayer::Type)BroadPhaseLayers::DEBRIS:		return "DEBRIS";
-			case (BroadPhaseLayer::Type)BroadPhaseLayers::UNUSED:		return "UNUSED";
-			default:													JPH_ASSERT(false); return "INVALID";
-			}
-		}
-	#endif // JPH_EXTERNAL_PROFILE || JPH_PROFILE_ENABLED
-
-	private:
-		BroadPhaseLayer					mObjectToBroadPhase[Layers::NUM_LAYERS];
-	}gBroadPhaseLayerInterface;
-
-	/// Function that determines if two broadphase layers can collide
-	inline bool MyBroadPhaseCanCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2)
-	{
-		switch (inLayer1)
-		{
-		case Layers::NON_MOVING:
-			return inLayer2 == BroadPhaseLayers::MOVING;
-		case Layers::MOVING:
-			return inLayer2 == BroadPhaseLayers::NON_MOVING || inLayer2 == BroadPhaseLayers::MOVING;
-		case Layers::DEBRIS:
-			return inLayer2 == BroadPhaseLayers::NON_MOVING;
-		case Layers::UNUSED1:
-		case Layers::UNUSED2:
-		case Layers::UNUSED3:
-			return false;			
-		default:
-			JPH_ASSERT(false);
-			return false;
-		}
-	}
-#endif
-
-////
-
-// An example contact listener
-class MyContactListener : public ContactListener
+/// Layer that objects can be in, determines which other objects it can collide with
+namespace Layers
 {
-public:
-	// See: ContactListener
-	virtual ValidateResult	OnContactValidate(const Body &inBody1, const Body &inBody2, const CollideShapeResult &inCollisionResult) override
+	static constexpr uint8 NON_MOVING = 0;
+	static constexpr uint8 MOVING = 1;
+	static constexpr uint8 NUM_LAYERS = 2;
+};
+
+/// Function that determines if two object layers can collide
+inline bool MyObjectCanCollide(ObjectLayer inObject1, ObjectLayer inObject2)
+{
+	switch (inObject1)
 	{
-		cout << "Contact validate callback" << endl;
-
-		// Allows you to ignore a contact before it is created (using layers to not make objects collide is cheaper!)
-		return ValidateResult::AcceptAllContactsForThisBodyPair;
-	}
-
-	virtual void			OnContactAdded(const Body &inBody1, const Body &inBody2, const ContactManifold &inManifold, ContactSettings &ioSettings) override
-	{
-		cout << "A contact was added" << endl;
-	}
-
-	virtual void			OnContactPersisted(const Body &inBody1, const Body &inBody2, const ContactManifold &inManifold, ContactSettings &ioSettings) override
-	{
-		cout << "A contact was persisted" << endl;
-	}
-
-	virtual void			OnContactRemoved(const SubShapeIDPair &inSubShapePair) override
-	{ 
-		cout << "A contact was removed" << endl;
+	case Layers::NON_MOVING:
+		return inObject2 == Layers::MOVING;
+	case Layers::MOVING:
+		return inObject2 == Layers::NON_MOVING || inObject2 == Layers::MOVING;
+	default:
+		JPH_ASSERT(false);
+		return false;
 	}
 };
 
-// An example activation listener
-class MyBodyActivationListener : public BodyActivationListener
+/// Broadphase layers
+namespace BroadPhaseLayers
+{
+	static constexpr BroadPhaseLayer NON_MOVING(0);
+	static constexpr BroadPhaseLayer MOVING(1);
+	static constexpr uint NUM_LAYERS(2);
+};
+
+/// BroadPhaseLayerInterface implementation
+class BPLayerInterfaceImpl final : public BroadPhaseLayerInterface
 {
 public:
-#ifdef USE_JOLT_0
-	virtual void		OnBodyActivated(const BodyID &inBodyID, void *inBodyUserData) override
-#else
-	virtual void		OnBodyActivated(const BodyID &inBodyID, uint64 inBodyUserData) override
-#endif
+									BPLayerInterfaceImpl()
 	{
-		cout << "A body got activated" << endl;
+		// Create a mapping table from object to broad phase layer
+		mObjectToBroadPhase[Layers::NON_MOVING] = BroadPhaseLayers::NON_MOVING;
+		mObjectToBroadPhase[Layers::MOVING] = BroadPhaseLayers::MOVING;
 	}
 
-#ifdef USE_JOLT_0
-	virtual void		OnBodyDeactivated(const BodyID &inBodyID, void *inBodyUserData) override
-#else
-	virtual void		OnBodyDeactivated(const BodyID &inBodyID, uint64 inBodyUserData) override
-#endif
+	virtual uint					GetNumBroadPhaseLayers() const override
 	{
-		cout << "A body went to sleep" << endl;
+		return BroadPhaseLayers::NUM_LAYERS;
 	}
-};
+
+	virtual BroadPhaseLayer			GetBroadPhaseLayer(ObjectLayer inLayer) const override
+	{
+		JPH_ASSERT(inLayer < Layers::NUM_LAYERS);
+		return mObjectToBroadPhase[inLayer];
+	}
+
+#if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
+	virtual const char *			GetBroadPhaseLayerName(BroadPhaseLayer inLayer) const override
+	{
+		switch ((BroadPhaseLayer::Type)inLayer)
+		{
+		case (BroadPhaseLayer::Type)BroadPhaseLayers::NON_MOVING:	return "NON_MOVING";
+		case (BroadPhaseLayer::Type)BroadPhaseLayers::MOVING:		return "MOVING";
+		default:													JPH_ASSERT(false); return "INVALID";
+		}
+	}
+#endif // JPH_EXTERNAL_PROFILE || JPH_PROFILE_ENABLED
+
+private:
+	BroadPhaseLayer					mObjectToBroadPhase[Layers::NUM_LAYERS];
+}gBroadPhaseLayerInterface;
+
+/// Function that determines if two broadphase layers can collide
+inline bool MyBroadPhaseCanCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2)
+{
+	switch (inLayer1)
+	{
+	case Layers::NON_MOVING:
+		return inLayer2 == BroadPhaseLayers::MOVING;
+	case Layers::MOVING:
+		return inLayer2 == BroadPhaseLayers::NON_MOVING || inLayer2 == BroadPhaseLayers::MOVING;
+	default:
+		JPH_ASSERT(false);
+		return false;
+	}
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -437,20 +287,9 @@ private:
 	using GroupID = CollisionGroup::GroupID;
 	using SubGroupID = CollisionGroup::SubGroupID;
 
-/*	int		GetBit(SubGroupID inSubGroup1, SubGroupID inSubGroup2) const
-	{
-		if (inSubGroup1 > inSubGroup2)
-			swap(inSubGroup1, inSubGroup2);
-		JPH_ASSERT(inSubGroup2 < mNumSubGroups);
-		return (inSubGroup2 * (inSubGroup2 - 1)) / 2 + inSubGroup1;
-	}*/
-
 public:
-	explicit	MyGroupFilterTable(uint inNumSubGroups = 0) : mNumSubGroups(inNumSubGroups), mPM(null)
+	MyGroupFilterTable()
 	{
-		// TODO: for some insane reason mTable doesn't work in the pile-of-ragdolls scene. Looks like "group 0" is not handled properly. No time to waste on this.
-//		int table_size = ((inNumSubGroups * (inNumSubGroups - 1)) / 2 + 7) / 8;
-//		mTable.resize(table_size, 0xff);
 		for(int i=0;i<32;i++)
 			for(int j=0;j<32;j++)
 				mMyTable[j][i]=true;
@@ -463,15 +302,11 @@ public:
 
 	void	DisableCollision(SubGroupID inSubGroup1, SubGroupID inSubGroup2)
 	{
-		//int bit = GetBit(inSubGroup1, inSubGroup2);
-		//mTable[bit >> 3] &= (0xff ^ (1 << (bit & 0b111)));
 		mMyTable[inSubGroup1][inSubGroup2] = mMyTable[inSubGroup2][inSubGroup1] = false;
 	}
 
 	void	EnableCollision(SubGroupID inSubGroup1, SubGroupID inSubGroup2)
 	{
-		//int bit = GetBit(inSubGroup1, inSubGroup2);
-		//mTable[bit >> 3] |= 1 << (bit & 0b111);
 		mMyTable[inSubGroup1][inSubGroup2] = mMyTable[inSubGroup2][inSubGroup1] = true;
 	}
 
@@ -482,41 +317,21 @@ public:
 		mPM->AddPair(id0, id1);
 	}
 
-	virtual bool			CanCollide(const CollisionGroup &inGroup1, const CollisionGroup &inGroup2) const override
+	virtual bool	CanCollide(const CollisionGroup &inGroup1, const CollisionGroup &inGroup2) const override
 	{	
 		// Filter bodies connected by a joint
 		if(mPM && mPM->FindPair(inGroup1.GetGroupID(), inGroup2.GetGroupID()))
 			return false;
 
 		return mMyTable[inGroup1.GetSubGroupID()][inGroup2.GetSubGroupID()];
-
-//		int bit = GetBit(inGroup1.GetSubGroupID(), inGroup2.GetSubGroupID());
-//		return (mTable[bit >> 3] & (1 << (bit & 0b111))) != 0;
-
-/*		int bit = GetBit(inGroup1.GetSubGroupID(), inGroup2.GetSubGroupID());
-		bool b = (mTable[bit >> 3] & (1 << (bit & 0b111))) != 0;
-		if(!b)
-		{
-			if(!inGroup1.GetSubGroupID() || !inGroup2.GetSubGroupID())
-			{
-				int stop=1;
-				(void)stop;
-				return true;
-			}
-		}
-
-		return true;*/
 	}
 
 private:
-	uint			mNumSubGroups;
-	//vector<uint8>	mTable;	// wtf doesn't work for group=0 ?
 	bool			mMyTable[32][32];
-	PairManager*	mPM;
+	PairManager*	mPM = nullptr;
 };
 
-static MyGroupFilterTable* gGroupFilter = null;
-//static Ref<GroupFilterTable> gGroupFilter;
+static Ref<MyGroupFilterTable> gGroupFilter;
 
 class MyTempAllocatorImpl final : public TempAllocator
 {
@@ -576,6 +391,60 @@ public:
 };
 
 static MyTempAllocatorImpl* gTempAllocator = null;
+
+///////////////////////////////////////////////////////////////////////////////
+
+atomic<size_t> gCurrentMemory = 0;
+atomic<size_t> gMaxMemory = 0;
+
+// Add a tag to an allocation to track its size
+static void *TagAllocation(void *inPointer, size_t inAlignment, size_t inSize)
+{
+	// Update current memory consumption
+	size_t CurrentMemory = gCurrentMemory.fetch_add(inSize) + inSize;
+
+	// Update max memory
+	size_t MaxMemory = gMaxMemory;
+	while (MaxMemory < CurrentMemory && !gMaxMemory.compare_exchange_weak(MaxMemory, CurrentMemory)) { };
+
+	// Store size
+	*reinterpret_cast<size_t *>(inPointer) = inSize;
+
+	// Return actual block
+	return reinterpret_cast<uint8*>(inPointer) + inAlignment;
+}
+
+// Remove tag from allocation
+static void *UntagAllocation(void *inPointer, size_t inAlignment)
+{
+	uint8* p = reinterpret_cast<uint8*>(inPointer) - inAlignment;
+
+	// Update current memory
+	gCurrentMemory -= *reinterpret_cast<size_t*>(p);
+
+	return p;
+}
+
+static void *AllocateHook(size_t inSize)
+{
+	return TagAllocation(malloc(inSize + 16), 16, inSize);
+}
+
+static void FreeHook(void *inBlock)
+{
+	free(UntagAllocation(inBlock, 16));
+}
+
+static void *AlignedAllocateHook(size_t inSize, size_t inAlignment)
+{
+	ASSERT(inAlignment <= 64);
+	return TagAllocation(_aligned_malloc(inSize + 64, inAlignment), 64, inSize);
+}
+
+static void AlignedFreeHook(void *inBlock)
+{
+	_aligned_free(UntagAllocation(inBlock, 64));
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -777,27 +646,14 @@ const char* JoltPint::GetName() const
 {
 	const int inNumThreads = gNbThreads ? gNbThreads : thread::hardware_concurrency() - 1;
 
-#ifdef USE_JOLT_0
-	#ifdef USE_AVX
-		const char* Name = "Jolt AVX";
-	#else
-		const char* Name = "Jolt";
-	#endif
-#endif
-#ifdef USE_JOLT_1
-	const char* Name = "Jolt_12_03_22";
-#endif
+	const char* Name = "Jolt";
 
 	return _F("%s (%dT)", Name, inNumThreads);
 }
 
 const char* JoltPint::GetUIName() const
 {
-#ifdef USE_AVX
-	return "Jolt AVX";
-#else
 	return "Jolt";
-#endif
 }
 
 void JoltPint::GetCaps(PintCaps& caps) const
@@ -806,9 +662,9 @@ void JoltPint::GetCaps(PintCaps& caps) const
 	caps.mSupportCylinders				= true;
 	caps.mSupportConvexes				= true;
 	caps.mSupportMeshes					= true;
-/*	caps.mSupportDeformableMeshes		= true;
+/*	caps.mSupportDeformableMeshes		= true;*/
 	caps.mSupportHeightfields			= true;
-	caps.mSupportContactNotifications	= true;
+/*	caps.mSupportContactNotifications	= true;
 	caps.mSupportContactModifications	= true;
 	caps.mSupportMassForInertia			= true;*/
 	caps.mSupportKinematics				= true;
@@ -821,10 +677,10 @@ void JoltPint::GetCaps(PintCaps& caps) const
 	caps.mSupportFixedJoints			= true;
 	caps.mSupportPrismaticJoints		= true;
 	caps.mSupportDistanceJoints			= true;
-/*	caps.mSupportD6Joints				= true;
+	caps.mSupportD6Joints				= true;
 	caps.mSupportGearJoints				= true;
 	caps.mSupportRackJoints				= true;
-	caps.mSupportPortalJoints			= true;
+/*	caps.mSupportPortalJoints			= true;
 	caps.mSupportMCArticulations		= false;
 	caps.mSupportRCArticulations		= true;*/
 
@@ -847,9 +703,18 @@ void JoltPint::GetCaps(PintCaps& caps) const
 
 void JoltPint::Init(const PINT_WORLD_CREATE& desc)
 {
+	// Override the default allocators to measure memory consumption
+	Allocate = AllocateHook;
+	Free = FreeHook;
+	AlignedAllocate = AlignedAllocateHook;
+	AlignedFree = AlignedFreeHook;
+
 	// Install callbacks
 	Trace = TraceImpl;
 	JPH_IF_ENABLE_ASSERTS(AssertFailed = AssertFailedImpl;)
+
+	// Create a new factory
+	Factory::sInstance = new Factory;
 
 	// Register all Jolt physics types
 	RegisterTypes();
@@ -867,25 +732,11 @@ void JoltPint::Init(const PINT_WORLD_CREATE& desc)
 	const int inNumThreads = gNbThreads ? gNbThreads : thread::hardware_concurrency() - 1;
 	gJobSystem = new JobSystemThreadPool(cMaxPhysicsJobs, cMaxPhysicsBarriers, inNumThreads);
 
-	// Create mapping table from object layer to broadphase layer
-#ifdef USE_JOLT_0
-	ObjectToBroadPhaseLayer object_to_broadphase;
-	object_to_broadphase.resize(Layers::NUM_LAYERS);
-	object_to_broadphase[Layers::NON_MOVING] = BroadPhaseLayers::NON_MOVING;
-	object_to_broadphase[Layers::MOVING] = BroadPhaseLayers::MOVING;
-#endif
-
-	gGroupFilter = new MyGroupFilterTable(32);
-	//printf("GroupFilter: %d\n", gGroupFilter->GetRefCount());
+	gGroupFilter = new MyGroupFilterTable();
 
 	// Now we can create the actual physics system.
 	gPhysicsSystem = new PhysicsSystem;
-#ifdef USE_JOLT_0
-	gPhysicsSystem->Init(gMaxBodies, gNbBodyMutexes, gMaxBodyPairs, gMaxContactConstraints, object_to_broadphase, MyBroadPhaseCanCollide, MyObjectCanCollide);
-#endif
-#ifdef USE_JOLT_1
 	gPhysicsSystem->Init(gMaxBodies, gNbBodyMutexes, gMaxBodyPairs, gMaxContactConstraints, gBroadPhaseLayerInterface, MyBroadPhaseCanCollide, MyObjectCanCollide);
-#endif
 
 	gPhysicsSystem->SetGravity(ToVec3(desc.mGravity));
 
@@ -894,130 +745,19 @@ void JoltPint::Init(const PINT_WORLD_CREATE& desc)
 	Settings.mNumPositionSteps				= gNbPosIter;
 	Settings.mAllowSleeping					= gAllowSleeping;
 	Settings.mSpeculativeContactDistance	= gSpeculativeContactDistance;
-	Settings.mMaxPenetrationDistance		= gMaxPenetrationDistance;
+	Settings.mPenetrationSlop				= gPenetrationSlop;
 	Settings.mBaumgarte						= gBaumgarte;
 
-/*
-struct PhysicsSettings
-{
-	/// Size of body pairs array, corresponds to the maximum amount of potential body pairs that can be in flight at any time.
-	/// Setting this to a low value will use less memory but slow down simulation as threads may run out of narrow phase work.
-	int			mMaxInFlightBodyPairs = 16384;
-
-	/// How many PhysicsStepListeners to notify in 1 batch
-	int			mStepListenersBatchSize = 8;
-
-	/// How many step listener batches are needed before spawning another job (set to INT_MAX if no parallelism is desired)
-	int			mStepListenerBatchesPerJob = 1;
-
-	/// How much bodies are allowed to sink into eachother (unit: meters)
-	float		mPenetrationSlop = 0.02f;
-
-	/// Fraction of its inner radius a body must move per step to enable casting for the LinearCast motion quality
-	float		mLinearCastThreshold = 0.75f;
-
-	/// Fraction of its inner radius a body may penetrate another body for the LinearCast motion quality
-	float		mLinearCastMaxPenetration = 0.25f;
-
-	/// Max squared distance to use to determine if two points are on the same plane for determining the contact manifold between two shape faces (unit: meter^2)
-	float		mManifoldToleranceSq = 1.0e-6f;
-
-	/// Maximum relative delta position for body pairs to be able to reuse collision results from last frame (units: meter^2)
-	float		mBodyPairCacheMaxDeltaPositionSq = Square(0.001f); ///< 1 mm
-
-	/// Maximum relative delta orientation for body pairs to be able to reuse collision results from last frame, stored as cos(max angle / 2)
-	float		mBodyPairCacheCosMaxDeltaRotationDiv2 = 0.99984769515639123915701155881391f; ///< cos(2 degrees / 2)
-
-	/// Maximum angle between normals that allows manifolds between different sub shapes of the same body pair to be combined
-	float		mContactNormalCosMaxDeltaRotation = 0.99619469809174553229501040247389f; ///< cos(5 degree)
-
-	/// Maximum allowed distance between old and new contact point to preserve contact forces for warm start (units: meter^2)
-	float		mContactPointPreserveLambdaMaxDistSq = Square(0.01f); ///< 1 cm
-
-	/// Minimal velocity needed before a collision can be elastic (unit: m)
-	float		mMinVelocityForRestitution = 1.0f;
-
-	/// Time before object is allowed to go to sleep (unit: seconds)
-	float		mTimeBeforeSleep = 0.5f;
-
-	/// Velocity of points on bounding box of object below which an object can be considered sleeping (unit: m/s)
-	float		mPointVelocitySleepThreshold = 0.03f;
-
-	///@name These variables are mainly for debugging purposes, they allow turning on/off certain subsystems. You probably want to leave them alone.
-	///@{
-
-	/// Whether or not to use warm starting for constraints (initially applying previous frames impulses)
-	bool		mConstraintWarmStart = true;
-
-	/// Whether or not to use the body pair cache, which removes the need for narrow phase collision detection when orientation between two bodies didn't change
-	bool		mUseBodyPairContactCache = true;
-
-	/// Whether or not to reduce manifolds with similar contact normals into one contact manifold
-	bool		mUseManifoldReduction = true;
-
-	/// When false, we prevent collision against non-active (shared) edges. Mainly for debugging the algorithm.
-	bool		mCheckActiveEdges = true;
-
-	///@}
-};
-*/
 	gPhysicsSystem->SetPhysicsSettings(Settings);
-
-
-/*	// A body activation listener gets notified when bodies activate and go to sleep
-	// Note that this is called from a job so whatever you do here needs to be thread safe.
-	// Registering one is entirely optional.
-	MyBodyActivationListener body_activation_listener;
-	physics_system.SetBodyActivationListener(&body_activation_listener);
-
-	// A contact listener gets notified when bodies (are about to) collide, and when they separate again.
-	// Note that this is called from a job so whatever you do here needs to be thread safe.
-	// Registering one is entirely optional.
-	MyContactListener contact_listener;
-	physics_system.SetContactListener(&contact_listener);
-
-	// The main way to interact with the bodies in the physics system is through the body interface. There is a locking and a non-locking
-	// variant of this. We're going to use the locking version (even though we're not planning to access bodies from multiple threads)
-	BodyInterface& body_interface = gPhysicsSystem->GetBodyInterface();
-
-	// Optional step: Before starting the physics simulation you can optimize the broad phase. This improves collision detection performance (it's pointless here because we only have 2 bodies).
-	// You should definitely not call this every frame or when e.g. streaming in a new level section as it is an expensive operation.
-	// Instead insert all new objects in batches instead of 1 at a time to keep the broad phase efficient.
-	physics_system.OptimizeBroadPhase();
-*/
-
-	if(0)
-	{
-		struct Friction
-		{
-			static float CombineFunction(const Body &inBody1, const Body &inBody2)
-			{
-				float f0 = inBody1.GetFriction();
-				float f1 = inBody2.GetFriction();
-				return 1.0f;
-			}
-		};
-		gPhysicsSystem->SetCombineFriction(Friction::CombineFunction);
-	}
 }
 
 void JoltPint::Close()
 {
-	mActors.Empty();
-
 	DELETESINGLE(gPhysicsSystem);
-	//printf("GroupFilter: %d\n", gGroupFilter->GetRefCount());
-	//DELETESINGLE(gGroupFilter);
-	gGroupFilter = null;
+	gGroupFilter = nullptr;
 	DELETESINGLE(gJobSystem);
 	DELETESINGLE(gTempAllocator);
-
-	{
-//		AllocSwitch _;
-
-//		DeleteOwnedObjects<EmbreeMesh>(mMeshes);
-//		DeleteOwnedObjects<EmbreeActor>(mActors);
-	}
+	DELETESINGLE(Factory::sInstance);
 }
 
 void JoltPint::SetGravity(const Point& gravity)
@@ -1028,6 +768,10 @@ void JoltPint::SetGravity(const Point& gravity)
 
 udword JoltPint::Update(float dt)
 {
+	// Reset high watermark for this frame
+	gTempAllocator->mHighWaterMark = gTempAllocator->mTop;
+	gMaxMemory = gCurrentMemory.load();
+
 	if(gPhysicsSystem)
 	{
 		// If you take larger steps than 1 / 60th of a second you need to do multiple collision steps in order to keep the simulation stable. Do 1 collision step per 1 / 60th of a second (round up).
@@ -1040,8 +784,8 @@ udword JoltPint::Update(float dt)
 		gPhysicsSystem->Update(dt, cCollisionSteps, cIntegrationSubSteps, gTempAllocator, gJobSystem);
 	}
 
-	// TODO: this is only the per-frame temporary memory, it doesn't take into account the persistent data (bodies, triangle meshes, etc)
-	return gTempAllocator->mHighWaterMark;
+	// Return high watermark for memory consumption
+	return udword(gTempAllocator->mHighWaterMark + gMaxMemory);
 }
 
 Point JoltPint::GetMainColor()
@@ -1049,33 +793,7 @@ Point JoltPint::GetMainColor()
 	return Point(0.5f, 0.9f, 0.8f);
 }
 
-#ifdef USE_JOLT_0
-static inline_ void BindRenderer(JPH::Shape* shape, udword index, PintShapeRenderer*)
-{
-	shape->SetUserData(index);
-}
-
-static PintShapeRenderer* RetrieveRenderer(const JoltPint& pint, const JPH::Shape* shape, udword index)
-{
-	switch(shape->GetSubType())
-	{
-		case EShapeSubType::Sphere:		{ return pint.mSphereShapes.GetShapes()[index].mRenderer;	}break;
-		case EShapeSubType::Box:		{ return pint.mBoxShapes.GetShapes()[index].mRenderer;		}break;
-		case EShapeSubType::Capsule:	{ return pint.mCapsuleShapes.GetShapes()[index].mRenderer;	}break;
-		case EShapeSubType::Cylinder:	{ return pint.mCylinderShapes.GetShapes()[index].mRenderer;	}break;
-		case EShapeSubType::ConvexHull:	{ return pint.mConvexShapes.GetShapes()[index].mRenderer;	}break;
-		case EShapeSubType::Mesh:		{ return pint.mMeshShapes.GetShapes()[index].mRenderer;		}break;
-
-		default:
-			ASSERT(0);
-		break;
-	};
-	return null;
-}
-#endif
-
-#ifdef USE_JOLT_1
-static inline_ void BindRenderer(JPH::Shape* shape, udword, PintShapeRenderer* renderer)
+static inline_ void BindRenderer(JPH::Shape* shape, PintShapeRenderer* renderer)
 {
 	shape->SetUserData(uint64(renderer));
 }
@@ -1084,129 +802,38 @@ static inline_ PintShapeRenderer* RetrieveRenderer(const JoltPint&, const JPH::S
 {
 	return reinterpret_cast<PintShapeRenderer*>(user_data);
 }
-#endif
 
 void JoltPint::Render(PintRender& renderer, PintRenderPass render_pass)
 {
 	if(!gPhysicsSystem)
 		return;
 
-	BodyInterface& body_interface = gPhysicsSystem->GetBodyInterface();
+	const BodyLockInterface &BLI = gPhysicsSystem->GetBodyLockInterfaceNoLock();
 
-	const udword NbActors = mActors.GetNbEntries()/gNbActorData;
-	const JoltPint::ActorData* AD = (const JoltPint::ActorData*)mActors.GetEntries();
-	for(udword i=0;i<NbActors;i++)
+	AllHitCollisionCollector<TransformedShapeCollector> Collector;
+	
+	BodyIDVector BodyIDs;
+	gPhysicsSystem->GetBodies(BodyIDs);
+	for (BodyID ID : BodyIDs)
 	{
-		const Body* Current = reinterpret_cast<const Body*>(AD[i].mBody);
-		if(!renderer.SetCurrentActor(PintActorHandle(Current)))
-			continue;
-
-		const JPH::Shape* S = Current->GetShape();
-		// TODO: revisit this one
-//		if(!renderer.SetCurrentShape(PintShapeHandle(S)))
-//			continue;
-
-		const Vec3 outPosition = Current->GetPosition();
-		const JQuat outRotation = Current->GetRotation();
-
-		const EShapeType Type = S->GetType();
-		const EShapeSubType SubType = S->GetSubType();
-
-		if(Type==EShapeType::Compound && SubType==EShapeSubType::StaticCompound)
+		BodyLockRead Lock(BLI, ID);
+		if (Lock.SucceededAndIsInBroadPhase())
 		{
-			const StaticCompoundShape* SCS = static_cast<const StaticCompoundShape*>(S);
+			const Body* Current = &Lock.GetBody();
+			if(!renderer.SetCurrentActor(PintActorHandle(Current)))
+				continue;
 
-			const udword NbSubShapes = SCS->GetNumSubShapes();
-			for(udword j=0;j<NbSubShapes;j++)
+			// Collect all leaf shapes
+			Collector.Reset();
+			Current->GetShape()->CollectTransformedShapes(AABox(Vec3::sReplicate(-1.0e6f), Vec3::sReplicate(1.0e6f)), Current->GetCenterOfMassPosition(), Current->GetRotation(), JPH::Vec3::sReplicate(1.0f), JPH::SubShapeIDCreator(), Collector, {});
+
+			// Render them
+			for (const TransformedShape& TS : Collector.mHits)
 			{
-				const StaticCompoundShape::SubShape& SS = SCS->GetSubShape(j);
-
-				const EShapeType Type2 = SS.mShape->GetType();
-				const EShapeSubType SubType2 = SS.mShape->GetSubType();
-				if(Type2==EShapeType::Decorated && SubType2==EShapeSubType::RotatedTranslated)
-				{
-					const JPH::Shape* SSS = SS.mShape;
-
-					const RotatedTranslatedShape* RTS2 = static_cast<const RotatedTranslatedShape*>(SSS);
-
-					const JPH::Shape* InnerShape = RTS2->GetInnerShape();
-					PintShapeRenderer* Renderer = RetrieveRenderer(*this, InnerShape, SSS->GetUserData());
-					if(Renderer)
-					{
-						const PR Pose(ToPoint(outPosition), ToIQuat(outRotation));
-						const PR Pose2(ToPoint(RTS2->GetPosition()), ToIQuat(RTS2->GetRotation()));
-
-						// TODO: isn't there an official way to compute this in Jolt? Looks clumsy.
-						PR Pose3 = Pose2;
-						Pose3 *= Pose;
-
-						renderer.DrawShape(Renderer, Pose3);
-					}
-				}
-				else
-				{
-					//PintShapeRenderer* Renderer = RetrieveRenderer(*this, SS.mShape, SCS->GetSubShapeUserData(j));
-					PintShapeRenderer* Renderer = RetrieveRenderer(*this, SS.mShape, SS.mShape->GetUserData());
-					if(Renderer)
-					{
-						const PR Pose(ToPoint(outPosition), ToIQuat(outRotation));
-						const PR Pose2(ToPoint(SS.GetPositionCOM()), ToIQuat(SS.GetRotation()));
-
-						// TODO: isn't there an official way to compute this in Jolt? Looks clumsy.
-						PR Pose3 = Pose2;
-						Pose3 *= Pose;
-
-						renderer.DrawShape(Renderer, Pose3);
-					}
-				}
-			}
-
-
-		}
-		else
-		{
-			if(Type==EShapeType::Decorated && SubType==EShapeSubType::RotatedTranslated)
-			{
-				const RotatedTranslatedShape* RTS = static_cast<const RotatedTranslatedShape*>(S);
-
-				const JPH::Shape* InnerShape = RTS->GetInnerShape();
-				PintShapeRenderer* Renderer = RetrieveRenderer(*this, InnerShape, S->GetUserData());
+				PintShapeRenderer* Renderer = RetrieveRenderer(*this, TS.mShape, TS.mShape->GetUserData());
 				if(Renderer)
 				{
-					const PR Pose(ToPoint(outPosition), ToIQuat(outRotation));
-					const PR Pose2(ToPoint(RTS->GetPosition()), ToIQuat(RTS->GetRotation()));
-
-					// TODO: isn't there an official way to compute this in Jolt? Looks clumsy.
-					PR Pose3 = Pose2;
-					Pose3 *= Pose;
-
-					renderer.DrawShape(Renderer, Pose3);
-				}
-			}
-/*			else if(Type==EShapeType::Decorated && SubType==EShapeSubType::OffsetCenterOfMass)
-			{
-				const OffsetCenterOfMassShape* RTS = static_cast<const OffsetCenterOfMassShape*>(S);
-
-				const JPH::Shape* InnerShape = RTS->GetInnerShape();
-				PintShapeRenderer* Renderer = RetrieveRenderer(*this, InnerShape, S->GetUserData());
-				if(Renderer)
-				{
-					const PR Pose(ToPoint(outPosition), ToIQuat(outRotation));
-					const PR Pose2(ToPoint(RTS->GetPosition()), ToIQuat(RTS->GetRotation()));
-
-					// TODO: isn't there an official way to compute this in Jolt? Looks clumsy.
-					PR Pose3 = Pose2;
-					Pose3 *= Pose;
-
-					renderer.DrawShape(Renderer, Pose3);
-				}
-			}*/
-			else
-			{
-				PintShapeRenderer* Renderer = RetrieveRenderer(*this, S, S->GetUserData());
-				if(Renderer)
-				{
-					const PR Pose(ToPoint(outPosition), ToIQuat(outRotation));
+					const PR Pose(ToPoint(TS.mShapePositionCOM - TS.mShapeRotation * TS.mShape->GetCenterOfMass()), ToIQuat(TS.mShapeRotation));
 					renderer.DrawShape(Renderer, Pose);
 				}
 			}
@@ -1250,19 +877,10 @@ static void SetupDynamicActorSettings(BodyCreationSettings& settings, const PINT
 	settings.mOverrideMassProperties = EOverrideMassProperties::CalculateInertia;
 	settings.mMassPropertiesOverride.mMass = desc.mMass;
 
-//	ObjectLayer				mObjectLayer = 0;												///< The collision layer this body belongs to (determines if two objects can collide)
-//	CollisionGroup			mCollisionGroup;												///< The collision group this body belongs to (determines if two objects can collide)
-
 	settings.mMaxLinearVelocity = MAX_FLOAT;	// Some PEEL tests require more than Jolt's refault
 	settings.mMaxAngularVelocity = 100.0f;
-	//BodyCreate.mGravityFactor = 
-
-/*
-///@name Mass properties of the body (by default calculated by the shape)
-EOverrideMassProperties	mOverrideMassProperties = EOverrideMassProperties::CalculateMassAndInertia; ///< Determines how mMassPropertiesOverride will be used
-float					mInertiaMultiplier = 1.0f;										///< When calculating the inertia (not when it is provided) the calculated inertia will be multiplied by this value
-MassProperties			mMassPropertiesOverride;										///< Contains replacement mass settings which override the automatically calculated values
-*/
+	settings.mLinearVelocity = ToVec3(desc.mLinearVelocity);
+	settings.mAngularVelocity = ToVec3(desc.mAngularVelocity);
 }
 
 static void SetupOffsetShape(Ref<JPH::Shape>& shape, const PR& local_pose)
@@ -1277,38 +895,9 @@ static void SetupOffsetShape(Ref<JPH::Shape>& shape, const PR& local_pose)
 		else
 			ASSERT(0);
 	}
-
-/*	if(0)
-	{
-		const OffsetCenterOfMassShapeSettings OffCOMSettings(Vec3(-1, 0, 0), shape);
-		const OffsetCenterOfMassShapeSettings::ShapeResult r = OffCOMSettings.Create();
-		if(r.IsValid())
-			shape = r.Get();
-		else
-			ASSERT(0);
-	}*/
-
 }
 
-/*
-This crashes (deletes the shape on return):
-
-	static JPH::Shape* CreateMeshShape(const PintSurfaceInterface& surface)
-
-	Ref<JPH::Shape>& shape;
-	shape = CreateMeshShape(surface);
-
-But this works:
-
-	static void CreateMeshShape(Ref<JPH::Shape>& shape, const PintSurfaceInterface& surface)
-
-	Ref<JPH::Shape>& shape;
-	CreateMeshShape(shape, surface);
-
-This is not cool.
-*/
-
-static void CreateMeshShape(Ref<JPH::Shape>& shape, const PintSurfaceInterface& surface)
+static Ref<JPH::Shape> CreateMeshShape(const SurfaceInterface& surface)
 {
 	VertexList pts;
 	for(udword i=0;i<surface.mNbVerts;i++)
@@ -1333,34 +922,25 @@ static void CreateMeshShape(Ref<JPH::Shape>& shape, const PintSurfaceInterface& 
 		tris.push_back(JPH::IndexedTriangle(VRef0, VRef1, VRef2));
 	}
 
-	//NewSettings = new MeshShapeSettings(pts, tris);
-
 	MeshShapeSettings settings(pts, tris);
 	settings.mMaxTrianglesPerLeaf = 4;
 
-	shape = settings.Create().Get();
+	return settings.Create().Get();
 }
 
-static void CreateShape(Ref<JPH::Shape>& shape, JoltPint& pint, const PINT_SHAPE_CREATE* shape_create)
+Ref<JPH::Shape> JoltPint::CreateShape(const PINT_SHAPE_CREATE* shape_create)
 {
-	const float inConvexRadius = cDefaultConvexRadius;
-	const PhysicsMaterial* inMaterial = nullptr;
+	Ref<JPH::Shape> shape;
 
-	//JPH::Shape* NewShape = null;
-//	ShapeSettings* NewSettings = null;
 	PintShapeRenderer* Renderer = shape_create->mRenderer;
-
-	bool AllowSharing = gAllowShapeSharing;
-	if(shape_create->mSharing==SHAPE_SHARING_YES)
-		AllowSharing = true;
-	else if(shape_create->mSharing==SHAPE_SHARING_NO)
-		AllowSharing = false;
-
 	const PR LocalPose(shape_create->mLocalPos, shape_create->mLocalRot);
 
-	// In PhysX the collision group is stored in PxFilterData, and thus it's used as a part of the shape identifier (when sharing shapes).
-	// In Jolt it's only used per-body (not per-shape) so we don't actually need it here.
-	const PintCollisionGroup CollisionGroup = 0;
+	// Check if we can share the shape
+	bool AllowSharing = shape_create->CanShare(gAllowShapeSharing);
+	if (AllowSharing)
+		for (CachedShape &S : mCachedShapes)
+			if (S.mRenderer == Renderer && S.mLocalPose.mPos == LocalPose.mPos && S.mLocalPose.mRot == LocalPose.mRot)
+				return S.mShape;
 
 	switch(shape_create->mType)
 	{
@@ -1368,15 +948,7 @@ static void CreateShape(Ref<JPH::Shape>& shape, JoltPint& pint, const PINT_SHAPE
 		{
 			const PINT_SPHERE_CREATE* Create = static_cast<const PINT_SPHERE_CREATE*>(shape_create);
 
-			// TODO: why did we use the collision group here already?
-			shape = AllowSharing ? reinterpret_cast<JPH::Shape*>(pint.mSphereShapes.FindShape(Create->mRadius, inMaterial, Renderer, LocalPose, CollisionGroup)) : null;
-			if(!shape)
-			{
-				shape = new SphereShape(Create->mRadius, inMaterial);
-				SetupOffsetShape(shape, LocalPose);
-				const udword Index = pint.mSphereShapes.RegisterShape(Create->mRadius, shape, inMaterial, Renderer, LocalPose, CollisionGroup);
-				BindRenderer(shape, Index, Renderer);
-			}
+			shape = new SphereShape(Create->mRadius);
 		}
 		break;
 
@@ -1384,14 +956,7 @@ static void CreateShape(Ref<JPH::Shape>& shape, JoltPint& pint, const PINT_SHAPE
 		{
 			const PINT_CAPSULE_CREATE* Create = static_cast<const PINT_CAPSULE_CREATE*>(shape_create);
 
-			shape = AllowSharing ? reinterpret_cast<JPH::Shape*>(pint.mCapsuleShapes.FindShape(Create->mRadius, Create->mHalfHeight, inMaterial, Renderer, LocalPose, CollisionGroup)) : null;
-			if(!shape)
-			{
-				shape = new CapsuleShape(Create->mHalfHeight, Create->mRadius, inMaterial);
-				SetupOffsetShape(shape, LocalPose);
-				const udword Index = pint.mCapsuleShapes.RegisterShape(Create->mRadius, Create->mHalfHeight, shape, inMaterial, Renderer, LocalPose, CollisionGroup);
-				BindRenderer(shape, Index, Renderer);
-			}
+			shape = new CapsuleShape(Create->mHalfHeight, Create->mRadius);
 		}
 		break;
 
@@ -1399,14 +964,7 @@ static void CreateShape(Ref<JPH::Shape>& shape, JoltPint& pint, const PINT_SHAPE
 		{
 			const PINT_CYLINDER_CREATE* Create = static_cast<const PINT_CYLINDER_CREATE*>(shape_create);
 
-			shape = AllowSharing ? reinterpret_cast<JPH::Shape*>(pint.mCylinderShapes.FindShape(Create->mRadius, Create->mHalfHeight, inMaterial, Renderer, LocalPose, CollisionGroup)) : null;
-			if(!shape)
-			{
-				shape = new CylinderShape(Create->mHalfHeight, Create->mRadius, TMin(inConvexRadius, Create->mHalfHeight), inMaterial);
-				SetupOffsetShape(shape, LocalPose);
-				const udword Index = pint.mCylinderShapes.RegisterShape(Create->mRadius, Create->mHalfHeight, shape, inMaterial, Renderer, LocalPose, CollisionGroup);
-				BindRenderer(shape, Index, Renderer);
-			}
+			shape = new CylinderShape(Create->mHalfHeight, Create->mRadius, TMin(cDefaultConvexRadius, Create->mHalfHeight));
 		}
 		break;
 
@@ -1414,15 +972,8 @@ static void CreateShape(Ref<JPH::Shape>& shape, JoltPint& pint, const PINT_SHAPE
 		{
 			const PINT_BOX_CREATE* Create = static_cast<const PINT_BOX_CREATE*>(shape_create);
 
-			shape = AllowSharing ? reinterpret_cast<JPH::Shape*>(pint.mBoxShapes.FindShape(Create->mExtents, inMaterial, Renderer, LocalPose, CollisionGroup)) : null;
-			if(!shape)
-			{
-				const Vec3 Extents = ToVec3(Create->mExtents);
-				shape = new BoxShape(Extents, TMin(inConvexRadius, Extents.ReduceMin()), inMaterial);
-				SetupOffsetShape(shape, LocalPose);
-				const udword Index = pint.mBoxShapes.RegisterShape(Create->mExtents, shape, inMaterial, Renderer, LocalPose, CollisionGroup);
-				BindRenderer(shape, Index, Renderer);
-			}
+			const Vec3 Extents = ToVec3(Create->mExtents);
+			shape = new BoxShape(Extents, TMin(cDefaultConvexRadius, Extents.ReduceMin()));
 		}
 		break;
 
@@ -1430,31 +981,38 @@ static void CreateShape(Ref<JPH::Shape>& shape, JoltPint& pint, const PINT_SHAPE
 		{
 			const PINT_CONVEX_CREATE* Create = static_cast<const PINT_CONVEX_CREATE*>(shape_create);
 
-			// TODO: we don't have a mesh ptr here so we rely on the renderer ptr instead. Probably not very reliable.
-			shape = AllowSharing ?  reinterpret_cast<JPH::Shape*>(pint.mConvexShapes.FindShape(null, inMaterial, Renderer, LocalPose, CollisionGroup)) : null;
-			if(!shape)
+			Array<Vec3> pts;
+			pts.reserve(Create->mNbVerts);
+			for(udword i=0;i<Create->mNbVerts;i++)
+				pts.push_back(ToVec3(Create->mVerts[i]));
+
+			const ConvexHullShapeSettings settings(pts, cDefaultConvexRadius);
+			ConvexHullShapeSettings::ShapeResult r = settings.Create();
+			if(r.IsValid())
+				shape = r.Get();
+			else
 			{
-				vector<Vec3> pts;
-				for(udword i=0;i<Create->mNbVerts;i++)
-					pts.push_back(ToVec3(Create->mVerts[i]));
+				// Determine average position
+				Vec3 Avg = Vec3::sZero();
+				for (Vec3 P : pts)
+					Avg += P;
+				Avg = Avg / float(pts.size());
 
-				//NewSettings = new ConvexHullShapeSettings(pts, inConvexRadius, inMaterial);
+				// Determine radius
+				float RadiusSq = 0.0f;
+				for (Vec3 P : pts)
+					RadiusSq = max(RadiusSq, (P - Avg).LengthSq());
 
-				const ConvexHullShapeSettings settings(pts, inConvexRadius, inMaterial);
-				//const ConvexHullShapeSettings settings(pts, 0.0f, inMaterial);
-				//NewShape = settings.Create().Get();
-				ConvexHullShapeSettings::ShapeResult r = settings.Create();
-				if(r.IsValid())
-					shape = r.Get();
-				else
+				// We should only take this path for very small hulls that are below the hull tolerance
+				ASSERT(RadiusSq <= Square(settings.mHullTolerance))
+
+				// Hull could not be built, create a sphere instead
+				shape = new SphereShape(sqrt(RadiusSq));
+				if (!Avg.IsNearZero())
 				{
-					ASSERT(0);
+					RotatedTranslatedShapeSettings sphere_settings(Avg, JQuat::sIdentity(), shape);
+					shape = sphere_settings.Create().Get();
 				}
-
-				SetupOffsetShape(shape, LocalPose);
-
-				const udword Index = pint.mConvexShapes.RegisterShape(null, shape, inMaterial, Renderer, LocalPose, CollisionGroup);
-				BindRenderer(shape, Index, Renderer);
 			}
 		}
 		break;
@@ -1463,19 +1021,7 @@ static void CreateShape(Ref<JPH::Shape>& shape, JoltPint& pint, const PINT_SHAPE
 		{
 			const PINT_MESH_CREATE* Create = static_cast<const PINT_MESH_CREATE*>(shape_create);
 
-			// TODO: we don't have a mesh ptr here so we rely on the renderer ptr instead. Probably not very reliable.
-			shape = AllowSharing ? reinterpret_cast<JPH::Shape*>(pint.mMeshShapes.FindShape(null, inMaterial, Renderer, LocalPose, CollisionGroup)) : null;
-			if(!shape)
-			{
-				const PintSurfaceInterface&	PSI = Create->GetSurface();
-
-				CreateMeshShape(shape, PSI);
-
-				SetupOffsetShape(shape, LocalPose);
-
-				const udword Index = pint.mMeshShapes.RegisterShape(null, shape, inMaterial, Renderer, LocalPose, CollisionGroup);
-				BindRenderer(shape, Index, Renderer);
-			}
+			shape = CreateMeshShape(Create->GetSurface());
 		}
 		break;
 
@@ -1483,38 +1029,38 @@ static void CreateShape(Ref<JPH::Shape>& shape, JoltPint& pint, const PINT_SHAPE
 		{
 			const PINT_MESH_CREATE2* Create = static_cast<const PINT_MESH_CREATE2*>(shape_create);
 
-//			JPH::Shape* S = reinterpret_cast<JPH::Shape*>(Create->mTriangleMesh);
-//			shape = S;
-
-			// TODO: we don't have a mesh ptr here so we rely on the renderer ptr instead. Probably not very reliable.
-			shape = AllowSharing ? reinterpret_cast<JPH::Shape*>(pint.mMeshShapes.FindShape(null, inMaterial, Renderer, LocalPose, CollisionGroup)) : null;
-			if(!shape)
-			{
-				// TODO: revisit this, it's clumsy.
-
-				const IndexedSurface* IS = reinterpret_cast<const IndexedSurface*>(Create->mTriangleMesh);
-
-				PintSurfaceInterface PSI;
-				static_cast<SurfaceInterface&>(PSI) = IS->GetSurfaceInterface();
-				//PSI.Init(IS->GetSurfaceInterface());
-
-				CreateMeshShape(shape, PSI);
-
-				SetupOffsetShape(shape, LocalPose);
-
-				const udword Index = pint.mMeshShapes.RegisterShape(null, shape, inMaterial, Renderer, LocalPose, CollisionGroup);
-				BindRenderer(shape, Index, Renderer);
-			}
-
+			const IndexedSurface* IS = reinterpret_cast<const IndexedSurface*>(Create->mTriangleMesh);
+			shape = CreateMeshShape(IS->GetSurfaceInterface());
 		}
 		break;
 
-//		PINT_SHAPE_HEIGHTFIELD,
+		case PINT_SHAPE_HEIGHTFIELD:
+		{
+			const PINT_HEIGHTFIELD_CREATE* Create = static_cast<const PINT_HEIGHTFIELD_CREATE *>(shape_create);
+
+			const HeightFieldShapeSettings* HF = reinterpret_cast<HeightFieldShapeSettings *>(Create->mHeightfield);
+			ASSERT(HF);
+
+			HeightFieldShapeSettings Copy = *HF;
+			Copy.mScale *= Vec3(Create->mScaleV, 1.0f, Create->mScaleU);
+			shape = Copy.Create().Get();
+		}
+		break;
 
 		default:
 			ASSERT(0);
 		break;
 	};
+
+	BindRenderer(shape, Renderer);
+
+	SetupOffsetShape(shape, LocalPose);
+
+	// Remember the shape for sharing
+	if (AllowSharing)
+		mCachedShapes.push_back({ Renderer, LocalPose, shape });
+
+	return shape;
 }
 
 PintActorHandle JoltPint::CreateObject(const PINT_OBJECT_CREATE& desc)
@@ -1536,44 +1082,47 @@ PintActorHandle JoltPint::CreateObject(const PINT_OBJECT_CREATE& desc)
 	Ref<JPH::Shape> NewShape;
 	if(NbShapes==1)
 	{
-		CreateShape(NewShape, *this, ShapeCreate);
+		NewShape = CreateShape(ShapeCreate);
 	}
 	else
 	{
 		class MyPintShapeEnumerateCallback : public PintShapeEnumerateCallback
 		{
 			public:
-					MyPintShapeEnumerateCallback(JoltPint& pint, PintCollisionGroup collision_group) : mPint(pint), mCollisionGroup(collision_group)	{}
-			virtual	~MyPintShapeEnumerateCallback(){}
+					MyPintShapeEnumerateCallback(JoltPint& pint) : mPint(pint) {}
+			virtual	~MyPintShapeEnumerateCallback() = default;
 
 			virtual	void	ReportShape(const PINT_SHAPE_CREATE& create, udword index, void* user_data)
 			{
-				if(0)
+				Ref<JPH::Shape> NewShape = mPint.CreateShape(&create);
+
+				if (NewShape->GetSubType() == EShapeSubType::RotatedTranslated)
 				{
-					PINT_SHAPE_CREATE& Create = const_cast<PINT_SHAPE_CREATE&>(create);
-					const Point LocalPos = Create.mLocalPos;
-					const IQuat LocalRot = Create.mLocalRot;
-					Create.mLocalPos.Zero();
-					Create.mLocalRot.Identity();
+					RotatedTranslatedShape* RTShape = static_cast<RotatedTranslatedShape*>(NewShape.GetPtr());
+					mCompoundShape.AddShape(RTShape->GetPosition(), RTShape->GetRotation(), RTShape->GetInnerShape());
 				}
-
-				Ref<JPH::Shape> NewShape;
-				CreateShape(NewShape, mPint, &create);
-
-				mCompoundShape.AddShape(Vec3(0.0f, 0.0f, 0.0f), JQuat(0.0f, 0.0f, 0.0f, 1.0f), NewShape);
-				//mCompoundShape.AddShape(ToVec3(LocalPos), ToJQuat(LocalRot), NewShape);
+				else
+				{
+					mCompoundShape.AddShape(Vec3::sZero(), JQuat::sIdentity(), NewShape);
+				}
 			}
 
 			JoltPint&					mPint;
 			StaticCompoundShapeSettings	mCompoundShape;
-			const PintCollisionGroup	mCollisionGroup;
 		};
 
-		MyPintShapeEnumerateCallback CB(*this, desc.mCollisionGroup);
+		MyPintShapeEnumerateCallback CB(*this);
 		desc.GetNbShapes(&CB);
 
 		StaticCompoundShapeSettings::ShapeResult r = CB.mCompoundShape.Create();
 		NewShape = r.Get();
+	}
+
+	// Offset COM if requested
+	if (desc.mCOMLocalOffset.IsNonZero())
+	{
+		OffsetCenterOfMassShapeSettings settings(ToVec3(desc.mCOMLocalOffset), NewShape);
+		NewShape = settings.Create().Get();
 	}
 
 	const Vec3 Pos(ToVec3(desc.mPosition));
@@ -1604,22 +1153,8 @@ PintActorHandle JoltPint::CreateObject(const PINT_OBJECT_CREATE& desc)
 		if(desc.mAddToWorld)
 			body_interface.AddBody(NewBody->GetID(), IsDynamic ? EActivation::Activate : EActivation::DontActivate);
 
-		if(IsDynamic)
-		{
-			NewBody->SetLinearVelocityClamped(ToVec3(desc.mLinearVelocity));
-			NewBody->SetAngularVelocityClamped(ToVec3(desc.mAngularVelocity));
-
-			//const MotionProperties* MP = NewBody->GetMotionProperties();
-			//printf("Mass: %f\n", 1.0f/MP->GetInverseMass());
-		}
-
 		// TODO: keeping the sequence number for now because I didn't bother flushing the map when objects are deleted. A proper implementation would revisit this.
 		NewBody->SetCollisionGroup(CollisionGroup(gGroupFilter, NewBody->GetID().GetIndexAndSequenceNumber(), CollisionGroup::SubGroupID(desc.mCollisionGroup)));
-		//printf("GroupFilter: %d\n", gGroupFilter->GetRefCount());
-
-		ActorData* AD = ICE_RESERVE(ActorData, mActors);
-		AD->mBody = NewBody;
-		//AD->mRenderer = Renderer;
 	}
 
 	return PintActorHandle(NewBody);
@@ -1630,80 +1165,15 @@ bool JoltPint::ReleaseObject(PintActorHandle handle)
 	Body* Actor = reinterpret_cast<Body*>(handle);
 	ASSERT(Actor);
 
-	// TODO: optimize this
-	udword NbActors = mActors.GetNbEntries()/gNbActorData;
-	JoltPint::ActorData* AD = (JoltPint::ActorData*)mActors.GetEntries();
-	for(udword i=0;i<NbActors;i++)
-	{
-		if(AD[i].mBody==Actor)
-		{
-			AD[i] = AD[--NbActors];
-			mActors.ForceSize(NbActors*gNbActorData);
+	BodyInterface& body_interface = gPhysicsSystem->GetBodyInterface();
 
-			// TODO: release shared shapes here
+	BodyID ID = Actor->GetID();
+	// Remove the body from the physics system. Note that the body itself keeps all of its state and can be re-added at any time.
+	body_interface.RemoveBody(ID);
+	// Destroy the body. After this the body ID is no longer valid.
+	body_interface.DestroyBody(ID);
 
-			BodyInterface& body_interface = gPhysicsSystem->GetBodyInterface();
-
-			const BodyID& ID = Actor->GetID();
-			// Remove the body from the physics system. Note that the body itself keeps all of its state and can be re-added at any time.
-			body_interface.RemoveBody(ID);
-			// Destroy the body. After this the body ID is no longer valid.
-			body_interface.DestroyBody(ID);
-
-			return true;
-		}
-	}
-	return false;
-}
-
-// TODO: refactor
-static void normalToTangents(const Point& n, Point& t1, Point& t2)
-{
-	const float m_sqrt1_2 = float(0.7071067811865475244008443621048490);
-	if(fabsf(n.z) > m_sqrt1_2)
-	{
-		const float a = n.y*n.y + n.z*n.z;
-		const float k = 1.0f/sqrtf(a);
-		t1 = Point(0,-n.z*k,n.y*k);
-		t2 = Point(a*k,-n.x*t1.z,n.x*t1.y);
-	}
-	else
-	{
-		const float a = n.x*n.x + n.y*n.y;
-		const float k = 1.0f/sqrtf(a);
-		t1 = Point(-n.y*k,n.x*k,0);
-		t2 = Point(-n.z*t1.y,n.z*t1.x,a*k);
-	}
-	t1.Normalize();
-	t2.Normalize();
-}
-
-// TODO: refactor
-/*static JQuat ComputeJointQuat(Body* actor, const Vec3& localAxis)
-{
-	//find 2 orthogonal vectors.
-	//gotta do this in world space, if we choose them
-	//separately in local space they won't match up in worldspace.
-
-	const Vec3 axisw = actor ? actor->GetWorldTransform().Multiply3x3(localAxis).Normalized() : localAxis;
-
-	Point normalw, binormalw;
-	::normalToTangents(ToPoint(axisw), binormalw, normalw);
-
-	const Vec3 localNormal = actor ? actor->GetWorldTransform().Multiply3x3Transposed(ToVec3(normalw)) : ToVec3(normalw);
-
-	const Mat44 rot(Vec4(localAxis, 0.0f), Vec4(localNormal, 0.0f), Vec4(localAxis.Cross(localNormal), 0.0f), Vec4(0.0f, 0.0f, 0.0f, 0.0f));
-	return rot.GetQuaternion().Normalized();
-}*/
-
-static Vec3 ComputeJointWorldSpaceNormal(Body* actor, const Mat44& m, const Vec3& localAxis)
-{
-	const Vec3 axisw = actor ? m.Multiply3x3(localAxis).Normalized() : localAxis;
-
-	Point normalw, binormalw;
-	::normalToTangents(ToPoint(axisw), binormalw, normalw);
-
-	return ToVec3(normalw);
+	return true;
 }
 
 PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
@@ -1716,9 +1186,6 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 	if(!Actor1)
 		Actor1 = &Body::sFixedToWorld;
 
-	const Mat44 M0 = Actor0->GetWorldTransform();
-	const Mat44 M1 = Actor1->GetWorldTransform();
-
 	Constraint* J = null;
 
 	switch(desc.mType)
@@ -1728,17 +1195,11 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 			const PINT_SPHERICAL_JOINT_CREATE& jc = static_cast<const PINT_SPHERICAL_JOINT_CREATE&>(desc);
 
 			PointConstraintSettings settings;
-#ifdef USE_JOLT_0
-			settings.mCommonPoint = Actor0->GetPosition() + M0.Multiply3x3(ToVec3(jc.mLocalPivot0.mPos));	// ### guess I can't use "local frames" in Jolt
-#endif
-#ifdef USE_JOLT_1
-			settings.mPoint1 = Actor0->GetPosition() + M0.Multiply3x3(ToVec3(jc.mLocalPivot0.mPos));
-			settings.mPoint2 = Actor1->GetPosition() + M1.Multiply3x3(ToVec3(jc.mLocalPivot1.mPos));
-#endif
+			settings.mSpace = EConstraintSpace::LocalToBodyCOM;
+			settings.mPoint1 = ToVec3(jc.mLocalPivot0.mPos) - Actor0->GetShape()->GetCenterOfMass();
+			settings.mPoint2 = ToVec3(jc.mLocalPivot1.mPos) - Actor1->GetShape()->GetCenterOfMass();
 
 			J = settings.Create(*Actor0, *Actor1);
-
-			gPhysicsSystem->AddConstraint(J);
 		}
 		break;
 
@@ -1747,14 +1208,15 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 			const PINT_HINGE_JOINT_CREATE& jc = static_cast<const PINT_HINGE_JOINT_CREATE&>(desc);
 
 			HingeConstraintSettings settings;
-			settings.mPoint1 = Actor0->GetPosition() + M0.Multiply3x3(ToVec3(jc.mLocalPivot0));
-			settings.mPoint2 = Actor1->GetPosition() + M1.Multiply3x3(ToVec3(jc.mLocalPivot1));
+			settings.mSpace = EConstraintSpace::LocalToBodyCOM;
+			settings.mPoint1 = ToVec3(jc.mLocalPivot0) - Actor0->GetShape()->GetCenterOfMass();
+			settings.mPoint2 = ToVec3(jc.mLocalPivot1) - Actor1->GetShape()->GetCenterOfMass();
 
-			settings.mHingeAxis1 = M0.Multiply3x3(ToVec3(jc.mLocalAxis0));
-			settings.mHingeAxis2 = M1.Multiply3x3(ToVec3(jc.mLocalAxis1));
+			settings.mHingeAxis1 = ToVec3(jc.mLocalAxis0);
+			settings.mHingeAxis2 = ToVec3(jc.mLocalAxis1);
 
-			settings.mNormalAxis1 = ComputeJointWorldSpaceNormal(Actor0, M0, ToVec3(jc.mLocalAxis0));
-			settings.mNormalAxis2 = ComputeJointWorldSpaceNormal(Actor1, M1, ToVec3(jc.mLocalAxis1));
+			settings.mNormalAxis1 = settings.mHingeAxis1.GetNormalizedPerpendicular();
+			settings.mNormalAxis2 = (Actor1->GetInverseCenterOfMassTransform() * Actor0->GetCenterOfMassTransform()).Multiply3x3(settings.mNormalAxis1).Normalized();
 
 			if(IsHingeLimitEnabled(jc.mLimits))
 			{
@@ -1776,8 +1238,6 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 				NewJoint->SetMotorState(EMotorState::Velocity);
 				NewJoint->SetTargetAngularVelocity(jc.mDriveVelocity);
 			}
-
-			gPhysicsSystem->AddConstraint(NewJoint);
 		}
 		break;
 
@@ -1786,21 +1246,16 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 			const PINT_HINGE2_JOINT_CREATE& jc = static_cast<const PINT_HINGE2_JOINT_CREATE&>(desc);
 
 			HingeConstraintSettings settings;
-			settings.mPoint1 = Actor0->GetPosition() + M0.Multiply3x3(ToVec3(jc.mLocalPivot0.mPos));
-			settings.mPoint2 = Actor1->GetPosition() + M1.Multiply3x3(ToVec3(jc.mLocalPivot1.mPos));
+			settings.mSpace = EConstraintSpace::LocalToBodyCOM;
+			settings.mPoint1 = ToVec3(jc.mLocalPivot0.mPos) - Actor0->GetShape()->GetCenterOfMass();
+			settings.mPoint2 = ToVec3(jc.mLocalPivot1.mPos) - Actor1->GetShape()->GetCenterOfMass();
 
 			const Matrix3x3 LocalFrame0 = jc.mLocalPivot0.mRot;
 			const Matrix3x3 LocalFrame1 = jc.mLocalPivot1.mRot;
-
-			//settings.mHingeAxis1 = M0.Multiply3x3(ToVec3(jc.mLocalAxis0));
-			//settings.mHingeAxis2 = M1.Multiply3x3(ToVec3(jc.mLocalAxis1));
-			settings.mHingeAxis1 = M0.Multiply3x3(ToVec3(LocalFrame0[0]));
-			settings.mHingeAxis2 = M1.Multiply3x3(ToVec3(LocalFrame1[0]));
-
-			//settings.mNormalAxis1 = ComputeJointWorldSpaceNormal(Actor0, M0, ToVec3(jc.mLocalAxis0));
-			//settings.mNormalAxis2 = ComputeJointWorldSpaceNormal(Actor1, M1, ToVec3(jc.mLocalAxis1));
-			settings.mNormalAxis1 = M0.Multiply3x3(ToVec3(LocalFrame0[1]));
-			settings.mNormalAxis2 = M1.Multiply3x3(ToVec3(LocalFrame1[1]));
+			settings.mHingeAxis1 = ToVec3(LocalFrame0[0]);
+			settings.mHingeAxis2 = ToVec3(LocalFrame1[0]);
+			settings.mNormalAxis1 = ToVec3(LocalFrame0[1]);
+			settings.mNormalAxis2 = ToVec3(LocalFrame1[1]);
 
 			if(IsHingeLimitEnabled(jc.mLimits))
 			{
@@ -1822,8 +1277,6 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 				NewJoint->SetMotorState(EMotorState::Velocity);
 				NewJoint->SetTargetAngularVelocity(jc.mDriveVelocity);
 			}
-
-			gPhysicsSystem->AddConstraint(NewJoint);
 		}
 		break;
 
@@ -1832,55 +1285,41 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 			const PINT_PRISMATIC_JOINT_CREATE& jc = static_cast<const PINT_PRISMATIC_JOINT_CREATE&>(desc);
 
 			SliderConstraintSettings settings;
-#ifdef USE_JOLT_1
-			settings.SetPoint(*Actor0, *Actor1);
-#endif
+			settings.mSpace = EConstraintSpace::LocalToBodyCOM;
+			settings.mPoint1 = ToVec3(jc.mLocalPivot0.mPos) - Actor0->GetShape()->GetCenterOfMass();
+			settings.mPoint2 = ToVec3(jc.mLocalPivot1.mPos) - Actor1->GetShape()->GetCenterOfMass();
+
 			if(jc.mLocalAxis0.IsNonZero())
 			{
-#ifdef USE_JOLT_0
-				settings.mSliderAxis	= M0.Multiply3x3(ToVec3(jc.mLocalAxis0));
-#endif
-#ifdef USE_JOLT_1
-				settings.mSliderAxis1	= M0.Multiply3x3(ToVec3(jc.mLocalAxis0));
-				settings.mSliderAxis2	= M0.Multiply3x3(ToVec3(jc.mLocalAxis1));
+				settings.mSliderAxis1	= ToVec3(jc.mLocalAxis0);
+				settings.mSliderAxis2	= ToVec3(jc.mLocalAxis1);
 				settings.mNormalAxis1	= settings.mSliderAxis1.GetNormalizedPerpendicular();
-				settings.mNormalAxis2	= settings.mSliderAxis2.GetNormalizedPerpendicular();
-#endif
+				settings.mNormalAxis2	= (Actor1->GetInverseCenterOfMassTransform() * Actor0->GetCenterOfMassTransform()).Multiply3x3(settings.mNormalAxis1).Normalized();
 			}
 			else
-				ASSERT(0);
-
+			{
+				const Matrix3x3 LocalFrame0 = jc.mLocalPivot0.mRot;
+				const Matrix3x3 LocalFrame1 = jc.mLocalPivot1.mRot;
+				settings.mSliderAxis1 = ToVec3(LocalFrame0[0]);
+				settings.mSliderAxis2 = ToVec3(LocalFrame1[0]);
+				settings.mNormalAxis1 = ToVec3(LocalFrame0[1]);
+				settings.mNormalAxis2 = ToVec3(LocalFrame1[1]);
+			}
+			
 			if(IsPrismaticLimitEnabled(jc.mLimits))
 			{
-				//if(jc.mSpring.mDamping!=0.0f && jc.mSpring.mStiffness!=0.0f)
-				if(1)
-				{
-					settings.mLimitsMin = jc.mLimits.mMinValue;
-					settings.mLimitsMax = jc.mLimits.mMaxValue;
-				}
-				else
-				{
-					// ### Trying to emulate PhysX's soft limits with additional spring constraints but mapping of spring params is unclear
-					//settings.mSliderAxis
-					//	Point::Project
-					DistanceConstraintSettings settings;
-					settings.mPoint1		= Actor0->GetPosition();
-					settings.mPoint2		= Actor1->GetPosition();
-					settings.mFrequency		= jc.mSpring.mStiffness;
-					settings.mDamping		= jc.mSpring.mDamping;
-					const float Mass = 2.5f;
-					settings.mFrequency		= sqrtf(jc.mSpring.mStiffness/Mass);
-					//settings.mFrequency		= 2.5f;
-					//settings.mDamping		= jc.mSpring.mDamping/(2.0f*sqrtf(jc.mSpring.mStiffness*Mass));
-					settings.mDamping		= jc.mSpring.mDamping/(2.0f*Mass*settings.mFrequency);
-					//settings.mDamping		= 0.5f;
-					gPhysicsSystem->AddConstraint(settings.Create(*Actor0, *Actor1));
-				}
+				settings.mLimitsMin = jc.mLimits.mMinValue;
+				settings.mLimitsMax = jc.mLimits.mMaxValue;
+			}
+
+			if (jc.mSpring.mStiffness > 0.0f)
+			{
+				// TODO: Convert properties
+				settings.mFrequency = 2.0f;
+				settings.mDamping = 1.0f;
 			}
 
 			J = settings.Create(*Actor0, *Actor1);
-
-			gPhysicsSystem->AddConstraint(J);
 		}
 		break;
 
@@ -1889,10 +1328,11 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 			const PINT_FIXED_JOINT_CREATE& jc = static_cast<const PINT_FIXED_JOINT_CREATE&>(desc);
 
 			FixedConstraintSettings settings;
+			settings.mSpace = EConstraintSpace::LocalToBodyCOM;
+			settings.mPoint1 = ToVec3(jc.mLocalPivot0) - Actor0->GetShape()->GetCenterOfMass();
+			settings.mPoint2 = ToVec3(jc.mLocalPivot1) - Actor1->GetShape()->GetCenterOfMass();
 
 			J = settings.Create(*Actor0, *Actor1);
-
-			gPhysicsSystem->AddConstraint(J);
 		}
 		break;
 
@@ -1901,16 +1341,108 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 			const PINT_DISTANCE_JOINT_CREATE& jc = static_cast<const PINT_DISTANCE_JOINT_CREATE&>(desc);
 
 			DistanceConstraintSettings settings;
-			settings.mPoint1		= Actor0->GetPosition() + M0.Multiply3x3(ToVec3(jc.mLocalPivot0));
-			settings.mPoint2		= Actor1->GetPosition() + M1.Multiply3x3(ToVec3(jc.mLocalPivot1));
+			settings.mSpace			= EConstraintSpace::LocalToBodyCOM;
+			settings.mPoint1		= ToVec3(jc.mLocalPivot0) - Actor0->GetShape()->GetCenterOfMass();
+			settings.mPoint2		= ToVec3(jc.mLocalPivot1) - Actor1->GetShape()->GetCenterOfMass();
 			settings.mMinDistance	= jc.mLimits.mMinValue <0.0f ? 0.0f : jc.mLimits.mMinValue;
 			settings.mMaxDistance	= jc.mLimits.mMaxValue <0.0f ? MAX_FLOAT : jc.mLimits.mMaxValue;
 			settings.mFrequency		= 0.0f;
 			settings.mDamping		= 0.0f;
 
 			J = settings.Create(*Actor0, *Actor1);
+		}
+		break;
 
-			gPhysicsSystem->AddConstraint(J);
+		case PINT_JOINT_D6:
+		{
+			const PINT_D6_JOINT_CREATE& jc = static_cast<const PINT_D6_JOINT_CREATE&>(desc);
+
+			SixDOFConstraintSettings settings;
+			settings.mSpace = EConstraintSpace::LocalToBodyCOM;
+			settings.mPosition1 = ToVec3(jc.mLocalPivot0.mPos) - Actor0->GetShape()->GetCenterOfMass();
+			settings.mPosition2 = ToVec3(jc.mLocalPivot1.mPos) - Actor1->GetShape()->GetCenterOfMass();
+
+			const Matrix3x3 LocalFrame0 = jc.mLocalPivot0.mRot;
+			const Matrix3x3 LocalFrame1 = jc.mLocalPivot1.mRot;
+			settings.mAxisX1 = ToVec3(LocalFrame0[0]);
+			settings.mAxisX2 = ToVec3(LocalFrame1[0]);
+			settings.mAxisY1 = ToVec3(LocalFrame0[1]);
+			settings.mAxisY2 = ToVec3(LocalFrame1[1]);
+
+			using EAxis = SixDOFConstraintSettings::EAxis;
+			settings.mLimitMin[EAxis::TranslationX] = jc.mLinearLimits.mMin.x;
+			settings.mLimitMin[EAxis::TranslationY] = jc.mLinearLimits.mMin.y;
+			settings.mLimitMin[EAxis::TranslationZ] = jc.mLinearLimits.mMin.z;
+			settings.mLimitMax[EAxis::TranslationX] = jc.mLinearLimits.mMax.x;
+			settings.mLimitMax[EAxis::TranslationY] = jc.mLinearLimits.mMax.y;
+			settings.mLimitMax[EAxis::TranslationZ] = jc.mLinearLimits.mMax.z;
+
+			if (jc.mMinTwist <= jc.mMaxTwist)
+			{
+				settings.mLimitMin[EAxis::RotationX] = jc.mMinTwist;
+				settings.mLimitMax[EAxis::RotationX] = jc.mMaxTwist;
+			}
+			if (jc.mMaxSwingY >= 0.0f)
+			{
+				settings.mLimitMin[EAxis::RotationY] = -jc.mMaxSwingY;
+				settings.mLimitMax[EAxis::RotationY] = jc.mMaxSwingY;
+			}
+			if (jc.mMaxSwingZ >= 0.0f)
+			{
+				settings.mLimitMin[EAxis::RotationZ] = -jc.mMaxSwingZ;
+				settings.mLimitMax[EAxis::RotationZ] = jc.mMaxSwingZ;
+			}
+
+			SixDOFConstraint* NewJoint = static_cast<SixDOFConstraint*>(settings.Create(*Actor0, *Actor1));
+			J = NewJoint;
+
+			// We don't know how this joint is going to be driven yet, tentatively set it to velocity until the call to SetDriveVelocity/SetDrivePosition
+			if(jc.mMotorFlags & PINT_D6_MOTOR_DRIVE_X)
+				NewJoint->SetMotorState(EAxis::TranslationX, EMotorState::Velocity);
+			if(jc.mMotorFlags & PINT_D6_MOTOR_DRIVE_Y)
+				NewJoint->SetMotorState(EAxis::TranslationY, EMotorState::Velocity);
+			if(jc.mMotorFlags & PINT_D6_MOTOR_DRIVE_Z)
+				NewJoint->SetMotorState(EAxis::TranslationZ, EMotorState::Velocity);
+		}
+		break;
+
+		case PINT_JOINT_RACK_AND_PINION:
+		{
+			const PINT_RACK_AND_PINION_JOINT_CREATE& jc = static_cast<const PINT_RACK_AND_PINION_JOINT_CREATE&>(desc);
+
+			TwoBodyConstraint* Hinge = ((TwoBodyConstraint *)jc.mHinge);
+			TwoBodyConstraint* Prismatic = ((TwoBodyConstraint *)jc.mPrismatic);
+
+			RackAndPinionConstraintSettings settings;
+			settings.mSpace			= EConstraintSpace::LocalToBodyCOM;
+			// TODO: This is very fragile but I have no idea how I'm supposed to get the constraint axis from the creation settings as mLocalPivot0/1 is usually not filled in
+			settings.mHingeAxis		= Hinge->GetConstraintToBody2Matrix().GetAxisX();
+			settings.mSliderAxis	= Prismatic->GetConstraintToBody2Matrix().GetAxisX();
+			settings.SetRatio(jc.mNbRackTeeth, jc.mRackLength, jc.mNbPinionTeeth);
+
+			RackAndPinionConstraint* NewJoint = static_cast<RackAndPinionConstraint*>(settings.Create(*Actor0, *Actor1));
+			NewJoint->SetConstraints(Hinge, Prismatic);
+			J = NewJoint;
+		}
+		break;
+
+		case PINT_JOINT_GEAR:
+		{
+			const PINT_GEAR_JOINT_CREATE& jc = static_cast<const PINT_GEAR_JOINT_CREATE&>(desc);
+
+			TwoBodyConstraint* Hinge0 = ((TwoBodyConstraint *)jc.mHinge0);
+			TwoBodyConstraint* Hinge1 = ((TwoBodyConstraint *)jc.mHinge1);
+
+			GearConstraintSettings settings;
+			settings.mSpace			= EConstraintSpace::LocalToBodyCOM;
+			// TODO: This is very fragile but I have no idea how I'm supposed to get the constraint axis from the creation settings as mLocalPivot0/1 is usually not filled in
+			settings.mHingeAxis1	= Hinge0->GetConstraintToBody2Matrix().GetAxisX();
+			settings.mHingeAxis2	= Hinge1->GetConstraintToBody2Matrix().GetAxisX();
+			settings.mRatio			= 1.0f / jc.mGearRatio;
+
+			GearConstraint* NewJoint = static_cast<GearConstraint*>(settings.Create(*Actor0, *Actor1));
+			NewJoint->SetConstraints(Hinge0, Hinge1);
+			J = NewJoint;
 		}
 		break;
 
@@ -1918,13 +1450,24 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 			ASSERT(0);
 		break;
 	}
-
-	if(J && gGroupFilter)
+	
+	if (J)
 	{
-		gGroupFilter->DisableJointedBodies(Actor0->GetID().GetIndexAndSequenceNumber(), Actor1->GetID().GetIndexAndSequenceNumber());
+		gPhysicsSystem->AddConstraint(J);
+
+		if(gGroupFilter)
+			gGroupFilter->DisableJointedBodies(Actor0->GetID().GetIndexAndSequenceNumber(), Actor1->GetID().GetIndexAndSequenceNumber());
 	}
 
 	return PintJointHandle(J);
+}
+
+bool JoltPint::ReleaseJoint(PintJointHandle handle)
+{
+	Constraint* Joint = reinterpret_cast<Constraint*>(handle);
+	ASSERT(Joint);
+	gPhysicsSystem->RemoveConstraint(Joint);
+	return true;
 }
 
 void JoltPint::SetDisabledGroups(udword nb_groups, const PintDisabledGroups* groups)
@@ -1946,31 +1489,80 @@ PintMeshHandle JoltPint::CreateMeshObject(const PINT_MESH_DATA_CREATE& desc, Pin
 		*index = INVALID_ID;
 
 	return PintMeshHandle(IS);
-
-/*	// AFAIK there's no "mesh object" in Jolt so I'll create a shape instead.
-
-	Ref<JPH::Shape> shape;
-	CreateMeshShape(shape, desc.GetSurface());
-
-	shape->AddRef();
-
-	if(index)
-		*index = INVALID_ID;
-
-	return PintMeshHandle(shape.GetPtr());*/
 }
 
-///////////////////////////////////////////////////////////////////////////////
+bool JoltPint::DeleteMeshObject(PintMeshHandle handle, const PintMeshIndex* index)
+{ 
+	delete reinterpret_cast<IndexedSurface*>(handle);
+	return true;
+}
+
+PintHeightfieldHandle JoltPint::CreateHeightfieldObject(const PINT_HEIGHTFIELD_DATA_CREATE& desc, PintHeightfieldData& data, PintHeightfieldIndex* index)
+{
+	data.mHeightScale = 1.0f;
+	data.mMinHeight = FLT_MAX;
+	data.mMaxHeight = -FLT_MAX;
+
+	HeightFieldShapeSettings* Settings = new HeightFieldShapeSettings;
+	Settings->mSampleCount = max(desc.mNbU, desc.mNbV);
+	Settings->mHeightSamples.resize(Settings->mSampleCount * Settings->mSampleCount);
+	Settings->mScale = Vec3(float(desc.mNbV) / Settings->mSampleCount, 1.0f, float(desc.mNbU) / Settings->mSampleCount); // U and V seem to be Z and X so we have to flip everything
+
+	for (uint Y = 0; Y < Settings->mSampleCount; Y++)
+	{
+		for (uint X = 0; X < Settings->mSampleCount; X++)
+		{
+			// Jolt heightfields need to be square, resample the heightfield if this is not the case
+			float XSF = float(X * desc.mNbU) / Settings->mSampleCount;
+			float YSF = float(Y * desc.mNbV) / Settings->mSampleCount;
+			uint XS = uint(XSF);
+			uint YS = uint(YSF);
+			XSF -= float(XS);
+			YSF -= float(YS);
+			uint XSPlus1 = min(XS + 1, desc.mNbU - 1);
+			uint YSPlus1 = min(YS + 1, desc.mNbV - 1);
+
+			// Multiply by the stride
+			YS *= desc.mNbU;
+			YSPlus1 *= desc.mNbU;
+
+			float *out_sample = Settings->mHeightSamples.data() + X * Settings->mSampleCount + Y;
+			if (desc.mHeights != nullptr)
+			{
+				float v1 = (1.0f - XSF) * desc.mHeights[YS + XS] + XSF * desc.mHeights[YS + XSPlus1];
+				float v2 = (1.0f - XSF) * desc.mHeights[YSPlus1 + XS] + XSF * desc.mHeights[YSPlus1 + XSPlus1];
+				*out_sample = (1.0f - YSF) * v1 + YSF * v2;
+			}
+			else
+				*out_sample = desc.mUniqueValue;
+
+			data.mMinHeight = min(data.mMinHeight, *out_sample);
+			data.mMaxHeight = max(data.mMaxHeight, *out_sample);
+
+			out_sample++;
+		}
+	}
+
+	// The PEEL API expects the shape to start vertically at 0, so we need to offset the shape
+	Settings->mOffset = Vec3(0, -data.mMinHeight, 0);
+
+	Settings->AddRef();
+	return PintHeightfieldHandle(Settings);
+}
+
+bool JoltPint::DeleteHeightfieldObject(PintHeightfieldHandle handle, const PintHeightfieldIndex* index)
+{
+	reinterpret_cast<HeightFieldShapeSettings*>(handle)->Release();
+	return true;
+}
 
 static inline_ void FillResultStruct(const RayCast& raycast, PintRaycastHit& hit, const RayCastResult& result)
 {
-	const Vec3 outPosition = raycast.mOrigin + result.mFraction * raycast.mDirection;
+	const Vec3 outPosition = raycast.GetPointOnRay(result.mFraction);
 
 	hit.mImpact		= ToPoint(outPosition);
-	//hit.mDistance	= result.mFraction;
 	hit.mDistance	= (outPosition - raycast.mOrigin).Length();
 
-	//BodyLockRead lock(gPhysicsSystem->GetBodyLockInterface(), result.mBodyID);
 	BodyLockRead lock(gPhysicsSystem->GetBodyLockInterfaceNoLock(), result.mBodyID);
 	if (lock.Succeeded())
 	{
@@ -2000,10 +1592,8 @@ udword JoltPint::BatchRaycasts(PintSQThreadContext context, udword nb, PintRayca
 	const bool CullBackFaces = gBackfaceCulling;
 
 	const NarrowPhaseQuery& NPQ = gPhysicsSystem->GetNarrowPhaseQuery();
-	//const BodyInterface& BI = gPhysicsSystem->GetBodyInterface();
 
 	RayCastSettings inRayCastSettings;
-	//inRayCastSettings.mBackFaceMode = EBackFaceMode::IgnoreBackFaces;
 
 	udword NbHits = 0;
 	while(nb--)
@@ -2049,7 +1639,6 @@ udword JoltPint::BatchRaycastAny(PintSQThreadContext context, udword nb, PintBoo
 		return 0;
 
 	const NarrowPhaseQuery& NPQ = gPhysicsSystem->GetNarrowPhaseQuery();
-	//const BodyInterface& BI = gPhysicsSystem->GetBodyInterface();
 
 	RayCastSettings inRayCastSettings;
 	inRayCastSettings.mBackFaceMode = gBackfaceCulling ? EBackFaceMode::IgnoreBackFaces : EBackFaceMode::CollideWithBackFaces;
@@ -2101,7 +1690,6 @@ udword JoltPint::BatchBoxSweeps(PintSQThreadContext context, udword nb, PintRayc
 		const Vec4 v2(row2.x, row2.y, row2.z, 0.0f);
 		const Vec4 v3(sweeps->mBox.mCenter.x, sweeps->mBox.mCenter.y, sweeps->mBox.mCenter.z, 1.0f);
 
-		//const ShapeCast shape_cast { normal_sphere, Vec3::sReplicate(1.0f), Mat44::sTranslation(ToVec3(sweeps->mBox.mCenter)), ToVec3(sweeps->mDir * MaxDist) };
 		const ShapeCast shape_cast { &QueryShape, Vec3::sReplicate(1.0f), Mat44(v0,v1,v2,v3), ToVec3(sweeps->mDir * MaxDist) };
 
 		ClosestHitCollisionCollector<CastShapeCollector> collector;
@@ -2110,35 +1698,31 @@ udword JoltPint::BatchBoxSweeps(PintSQThreadContext context, udword nb, PintRayc
 		if(collector.HadHit())
 		{
 			NbHits++;
-//			dest->mDistance = collector.mHit.mFraction * MaxDist;
 
-				//const Vec3 outPosition = ToVec3(sweeps->mBox.mCenter) + collector.mHit.mFraction * shape_cast.mDirection;
-				const Vec3 outPosition = collector.mHit.mContactPointOn2;
+			const Vec3 outPosition = collector.mHit.mContactPointOn2;
 
-				dest->mImpact	= ToPoint(outPosition);
-				dest->mDistance = collector.mHit.mFraction * MaxDist;
+			dest->mImpact	= ToPoint(outPosition);
+			dest->mDistance = collector.mHit.mFraction * MaxDist;
 
-				//BodyLockRead lock(gPhysicsSystem->GetBodyLockInterface(), collector.mHit.mBodyID2);
-				BodyLockRead lock(gPhysicsSystem->GetBodyLockInterfaceNoLock(), collector.mHit.mBodyID2);
-				if (lock.Succeeded())
-				{
-					const Body& hit_body = lock.GetBody();
+			BodyLockRead lock(gPhysicsSystem->GetBodyLockInterfaceNoLock(), collector.mHit.mBodyID2);
+			if (lock.Succeeded())
+			{
+				const Body& hit_body = lock.GetBody();
 
-					const Vec3 normal = hit_body.GetWorldSpaceSurfaceNormal(collector.mHit.mSubShapeID2, outPosition);
-					dest->mNormal			= ToPoint(normal);
+				const Vec3 normal = hit_body.GetWorldSpaceSurfaceNormal(collector.mHit.mSubShapeID2, outPosition);
+				dest->mNormal			= ToPoint(normal);
 
-					dest->mTouchedActor	= PintActorHandle(&hit_body);
-					dest->mTouchedShape	= null;
-				}
-				else
-				{
-					dest->mNormal.Zero();
-					dest->mTouchedActor	= null;
-					dest->mTouchedShape	= null;
-				}
+				dest->mTouchedActor	= PintActorHandle(&hit_body);
+				dest->mTouchedShape	= null;
+			}
+			else
+			{
+				dest->mNormal.Zero();
+				dest->mTouchedActor	= null;
+				dest->mTouchedShape	= null;
+			}
 
-				dest->mTriangleIndex	= INVALID_ID;
-
+			dest->mTriangleIndex	= INVALID_ID;
 		}
 		else
 			dest->SetNoHit();
@@ -2155,39 +1739,7 @@ udword JoltPint::BatchSphereSweeps(PintSQThreadContext context, udword nb, PintR
 {
 	const NarrowPhaseQuery& NPQ = gPhysicsSystem->GetNarrowPhaseQuery();
 
-
-/*
-		{
-			// Create shape cast
-			Ref<Shape> normal_sphere = new SphereShape(1.0f);
-			ShapeCast shape_cast { normal_sphere, Vec3::sReplicate(1.0f), Mat44::sTranslation(Vec3(0, 11, 0)), Vec3(0, 1, 0) };
-
-			// Shape is intersecting at the start
-			AllHitCollisionCollector<CastShapeCollector> collector;
-			c.GetSystem()->GetNarrowPhaseQuery().CastShape(shape_cast, settings, collector);
-			CHECK(collector.mHits.size() == 1);
-			const ShapeCastResult &result = collector.mHits.front();
-			CHECK(result.mBodyID2 == body2.GetID());
-			CHECK_APPROX_EQUAL(result.mFraction, 0.0f);
-			CHECK_APPROX_EQUAL(result.mPenetrationAxis.Normalized(), Vec3(0, -1, 0), 1.0e-3f);
-			CHECK_APPROX_EQUAL(result.mPenetrationDepth, 1.0f, 1.0e-5f);
-			CHECK_APPROX_EQUAL(result.mContactPointOn1, Vec3(0, 10, 0), 1.0e-3f);
-			CHECK_APPROX_EQUAL(result.mContactPointOn2, Vec3(0, 11, 0), 1.0e-3f);
-			CHECK(!result.mIsBackFaceHit);
-		}
-
-*/
-
-
-
-
-
 	ShapeCastSettings settings;
-	//settings.mReturnDeepestPoint = true;
-	//settings.mBackFaceModeTriangles = EBackFaceMode::CollideWithBackFaces;
-	//settings.mBackFaceModeConvex = EBackFaceMode::CollideWithBackFaces;
-	//settings.mCollisionTolerance = 1.0e-5f; // Increased precision
-	//settings.mPenetrationTolerance = 1.0e-5f;
 
 	udword NbHits = 0;
 	while(nb--)
@@ -2203,43 +1755,30 @@ udword JoltPint::BatchSphereSweeps(PintSQThreadContext context, udword nb, PintR
 		if(collector.HadHit())
 		{
 			NbHits++;
-			//FillResultStruct(R, *dest, ioHit);
+			const Vec3 outPosition = collector.mHit.mContactPointOn2;
 
-/*			CHECK(collector.mHit.mBodyID2 == bodies.front()->GetID());
-			CHECK_APPROX_EQUAL(collector.mHit.mFraction, 4.0f / 10.0f);
-			CHECK_APPROX_EQUAL(collector.mHit.mPenetrationAxis.Normalized(), Vec3(1, 0, 0), 2.0e-2f);
-			CHECK_APPROX_EQUAL(collector.mHit.mPenetrationDepth, 0.0f);
-			CHECK_APPROX_EQUAL(collector.mHit.mContactPointOn1, Vec3(0, 0, 0));
-			CHECK_APPROX_EQUAL(collector.mHit.mContactPointOn2, Vec3(0, 0, 0));
-			CHECK(!collector.mHit.mIsBackFaceHit);*/
+			dest->mImpact	= ToPoint(outPosition);
+			dest->mDistance = collector.mHit.mFraction * MaxDist;
 
-//				const Vec3 outPosition = ToVec3(sweeps->mSphere.mCenter) + collector.mHit.mFraction * shape_cast.mDirection;
-				const Vec3 outPosition = collector.mHit.mContactPointOn2;
+			BodyLockRead lock(gPhysicsSystem->GetBodyLockInterfaceNoLock(), collector.mHit.mBodyID2);
+			if (lock.Succeeded())
+			{
+				const Body& hit_body = lock.GetBody();
 
-				dest->mImpact	= ToPoint(outPosition);
-				dest->mDistance = collector.mHit.mFraction * MaxDist;
+				const Vec3 normal = hit_body.GetWorldSpaceSurfaceNormal(collector.mHit.mSubShapeID2, outPosition);
+				dest->mNormal			= ToPoint(normal);
 
-				//BodyLockRead lock(gPhysicsSystem->GetBodyLockInterface(), collector.mHit.mBodyID2);
-				BodyLockRead lock(gPhysicsSystem->GetBodyLockInterfaceNoLock(), collector.mHit.mBodyID2);
-				if (lock.Succeeded())
-				{
-					const Body& hit_body = lock.GetBody();
+				dest->mTouchedActor	= PintActorHandle(&hit_body);
+				dest->mTouchedShape	= null;
+			}
+			else
+			{
+				dest->mNormal.Zero();
+				dest->mTouchedActor	= null;
+				dest->mTouchedShape	= null;
+			}
 
-					const Vec3 normal = hit_body.GetWorldSpaceSurfaceNormal(collector.mHit.mSubShapeID2, outPosition);
-					dest->mNormal			= ToPoint(normal);
-
-					dest->mTouchedActor	= PintActorHandle(&hit_body);
-					dest->mTouchedShape	= null;
-				}
-				else
-				{
-					dest->mNormal.Zero();
-					dest->mTouchedActor	= null;
-					dest->mTouchedShape	= null;
-				}
-
-				dest->mTriangleIndex	= INVALID_ID;
-
+			dest->mTriangleIndex	= INVALID_ID;
 		}
 		else
 			dest->SetNoHit();
@@ -2258,10 +1797,7 @@ static IQuat _ShortestRotation(const Point& v0, const Point& v1)
 	const Point cross = v0^v1;
 
 	IQuat q = d>-1.0f ? IQuat(1.0f + d, cross.x, cross.y, cross.z)
-//					: fabsf(v0.x)<0.1f ? Quat(0.0f, 0.0f, v0.z, -v0.y) : Quat(0.0f, v0.y, -v0.x, 0.0f);
 					: fabsf(v0.x)<0.1f ? IQuat(0.0f, 0.0f, v0.z, -v0.y) : IQuat(0.0f, v0.y, -v0.x, 0.0f);
-//	PxQuat q = d > -1 ? PxQuat(cross.x, cross.y, cross.z, 1 + d) : PxAbs(v0.x) < 0.1f ? PxQuat(0.0f, v0.z, -v0.y, 0.0f)
-//	                                                                                  : PxQuat(v0.y, -v0.x, 0.0f, 0.0f);
 
 	q.Normalize();
 
@@ -2295,34 +1831,30 @@ udword JoltPint::BatchCapsuleSweeps(PintSQThreadContext context, udword nb, Pint
 		if(collector.HadHit())
 		{
 			NbHits++;
-//			dest->mDistance = collector.mHit.mFraction * MaxDist;
+			const Vec3 outPosition = collector.mHit.mContactPointOn2;
 
-				//const Vec3 outPosition = ToVec3(sweeps->mBox.mCenter) + collector.mHit.mFraction * shape_cast.mDirection;
-				const Vec3 outPosition = collector.mHit.mContactPointOn2;
+			dest->mImpact	= ToPoint(outPosition);
+			dest->mDistance = collector.mHit.mFraction * MaxDist;
 
-				dest->mImpact	= ToPoint(outPosition);
-				dest->mDistance = collector.mHit.mFraction * MaxDist;
+			BodyLockRead lock(gPhysicsSystem->GetBodyLockInterfaceNoLock(), collector.mHit.mBodyID2);
+			if (lock.Succeeded())
+			{
+				const Body& hit_body = lock.GetBody();
 
-				//BodyLockRead lock(gPhysicsSystem->GetBodyLockInterface(), collector.mHit.mBodyID2);
-				BodyLockRead lock(gPhysicsSystem->GetBodyLockInterfaceNoLock(), collector.mHit.mBodyID2);
-				if (lock.Succeeded())
-				{
-					const Body& hit_body = lock.GetBody();
+				const Vec3 normal = hit_body.GetWorldSpaceSurfaceNormal(collector.mHit.mSubShapeID2, outPosition);
+				dest->mNormal			= ToPoint(normal);
 
-					const Vec3 normal = hit_body.GetWorldSpaceSurfaceNormal(collector.mHit.mSubShapeID2, outPosition);
-					dest->mNormal			= ToPoint(normal);
+				dest->mTouchedActor	= PintActorHandle(&hit_body);
+				dest->mTouchedShape	= null;
+			}
+			else
+			{
+				dest->mNormal.Zero();
+				dest->mTouchedActor	= null;
+				dest->mTouchedShape	= null;
+			}
 
-					dest->mTouchedActor	= PintActorHandle(&hit_body);
-					dest->mTouchedShape	= null;
-				}
-				else
-				{
-					dest->mNormal.Zero();
-					dest->mTouchedActor	= null;
-					dest->mTouchedShape	= null;
-				}
-
-				dest->mTriangleIndex	= INVALID_ID;
+			dest->mTriangleIndex	= INVALID_ID;
 		}
 		else
 			dest->SetNoHit();
@@ -2632,8 +2164,8 @@ bool JoltPint::SetDriveEnabled(PintJointHandle handle, bool flag)
 {
 	Constraint* Joint = reinterpret_cast<Constraint*>(handle);
 	ASSERT(Joint);
-	const EConstraintType JT = Joint->GetType();
-	if(JT==EConstraintType::Hinge)
+	const EConstraintSubType JT = Joint->GetSubType();
+	if(JT==EConstraintSubType::Hinge)
 	{
 		HingeConstraint* Hinge = static_cast<HingeConstraint*>(Joint);
 		Hinge->SetMotorState(flag ? EMotorState::Velocity : EMotorState::Off);	// ### to refine for position drives
@@ -2645,17 +2177,57 @@ bool JoltPint::SetDriveEnabled(PintJointHandle handle, bool flag)
 
 bool JoltPint::SetDriveVelocity(PintJointHandle handle, const Point& linear, const Point& angular)
 {
-	Constraint* Joint = reinterpret_cast<Constraint*>(handle);
+	TwoBodyConstraint* Joint = reinterpret_cast<TwoBodyConstraint*>(handle);
 	ASSERT(Joint);
-	const EConstraintType JT = Joint->GetType();
-	if(JT==EConstraintType::Hinge)
+	const EConstraintSubType JT = Joint->GetSubType();
+	if(JT==EConstraintSubType::Hinge)
 	{
 		HingeConstraint* Hinge = static_cast<HingeConstraint*>(Joint);
 		// See notes in SharedPhysX::SetDriveVelocity
 		Hinge->SetTargetAngularVelocity(angular.x);
 	}
+	else if (JT==EConstraintSubType::SixDOF)
+	{
+		SixDOFConstraint* D6 = static_cast<SixDOFConstraint*>(Joint);
+		D6->SetTargetVelocityCS(ToVec3(linear));
+		D6->SetTargetAngularVelocityCS(ToVec3(angular));
+
+		// Set the motors that were activated to velocity now
+		using EAxis = SixDOFConstraintSettings::EAxis;
+		for (int Axis = 0; Axis < 6; Axis++)
+			if (D6->GetMotorState((EAxis)Axis) != EMotorState::Off)
+				D6->SetMotorState((EAxis)Axis, EMotorState::Velocity);
+	}
 	else
 		ASSERT(0);
+
+	// Prevent the bodies from going to sleep
+	gPhysicsSystem->GetBodyInterface().ActivateConstraint(Joint);
+	return true;
+}
+
+bool JoltPint::SetDrivePosition(PintJointHandle handle, const PR& pose)
+{ 
+	TwoBodyConstraint* Joint = reinterpret_cast<TwoBodyConstraint*>(handle);
+	ASSERT(Joint);
+	const EConstraintSubType JT = Joint->GetSubType();
+	if (JT==EConstraintSubType::SixDOF)
+	{
+		SixDOFConstraint* D6 = static_cast<SixDOFConstraint*>(Joint);
+		D6->SetTargetPositionCS(ToVec3(pose.mPos));
+		D6->SetTargetOrientationCS(ToJQuat(pose.mRot));
+
+		// Set the motors that were activated to position now
+		using EAxis = SixDOFConstraintSettings::EAxis;
+		for (int Axis = 0; Axis < 6; Axis++)
+			if (D6->GetMotorState((EAxis)Axis) != EMotorState::Off)
+				D6->SetMotorState((EAxis)Axis, EMotorState::Position);
+	}
+	else
+		ASSERT(0);
+	
+	// Prevent the bodies from going to sleep
+	gPhysicsSystem->GetBodyInterface().ActivateConstraint(Joint);
 	return true;
 }
 
@@ -2709,7 +2281,7 @@ static IceEditBox* gEditBox_NbVelIter = null;
 static IceEditBox* gEditBox_LinearDamping = null;
 static IceEditBox* gEditBox_AngularDamping = null;
 static IceEditBox* gEditBox_SpeculativeContactDistance = null;
-static IceEditBox* gEditBox_MaxPenetrationDistance = null;
+static IceEditBox* gEditBox_PenetrationSlop = null;
 static IceEditBox* gEditBox_Baumgarte = null;
 static IceEditBox* gEditBox_Friction = null;
 static IceEditBox* gEditBox_Restitution = null;
@@ -2768,7 +2340,7 @@ static void gJolt_GetOptionsFromGUI(const char* test_name)
 	Common_GetFromEditBox(gLinearDamping, gEditBox_LinearDamping, 0.0f, MAX_FLOAT);
 	Common_GetFromEditBox(gAngularDamping, gEditBox_AngularDamping, 0.0f, MAX_FLOAT);
 	Common_GetFromEditBox(gSpeculativeContactDistance, gEditBox_SpeculativeContactDistance, 0.0f, MAX_FLOAT);
-	Common_GetFromEditBox(gMaxPenetrationDistance, gEditBox_MaxPenetrationDistance, 0.0f, MAX_FLOAT);
+	Common_GetFromEditBox(gPenetrationSlop, gEditBox_PenetrationSlop, 0.0f, MAX_FLOAT);
 	Common_GetFromEditBox(gBaumgarte, gEditBox_Baumgarte, 0.0f, 1.0f);
 	Common_GetFromEditBox(gDefaultFriction, gEditBox_Friction, 0.0f, MAX_FLOAT);
 	Common_GetFromEditBox(gDefaultRestitution, gEditBox_Restitution, 0.0f, MAX_FLOAT);
@@ -2816,7 +2388,6 @@ IceWindow* Jolt_InitGUI(IceWidget* parent, PintGUIHelper& helper)
 	y += YStepCB;
 
 	gCheckBox_BackfaceCulling = helper.CreateCheckBox(Main, JOLT_GUI_BACKFACE_CULLING, 4, y, CheckBoxWidth, 20, "Backface culling (scene queries)", gJoltGUI, gBackfaceCulling, gCheckBoxCallback);
-//	y += YStepCB;
 	y += YStep;
 
 	gEditBox_NbThreads					= CreateEditBox(helper, Main, y, "Nb threads (0==automatic):", _F("%d", gNbThreads), EDITBOX_INTEGER_POSITIVE);
@@ -2831,10 +2402,24 @@ IceWindow* Jolt_InitGUI(IceWidget* parent, PintGUIHelper& helper)
 	gEditBox_LinearDamping				= CreateEditBox(helper, Main, y, "Linear damping:", helper.Convert(gLinearDamping), EDITBOX_FLOAT_POSITIVE);
 	gEditBox_AngularDamping				= CreateEditBox(helper, Main, y, "Angular damping:", helper.Convert(gAngularDamping), EDITBOX_FLOAT_POSITIVE);
 	gEditBox_SpeculativeContactDistance	= CreateEditBox(helper, Main, y, "Speculative contact distance:", helper.Convert(gSpeculativeContactDistance), EDITBOX_FLOAT_POSITIVE);
-	gEditBox_MaxPenetrationDistance		= CreateEditBox(helper, Main, y, "Max penetration distance:", helper.Convert(gMaxPenetrationDistance), EDITBOX_FLOAT_POSITIVE);
+	gEditBox_PenetrationSlop			= CreateEditBox(helper, Main, y, "Max penetration slop:", helper.Convert(gPenetrationSlop), EDITBOX_FLOAT_POSITIVE);
 	gEditBox_Baumgarte					= CreateEditBox(helper, Main, y, "Baumgarte:", helper.Convert(gBaumgarte), EDITBOX_FLOAT_POSITIVE);
 	gEditBox_Friction					= CreateEditBox(helper, Main, y, "Default friction:", helper.Convert(gDefaultFriction), EDITBOX_FLOAT_POSITIVE);
 	gEditBox_Restitution				= CreateEditBox(helper, Main, y, "Default restitution:", helper.Convert(gDefaultRestitution), EDITBOX_FLOAT_POSITIVE);
+
+	auto make_snapshot = [](IceButton& button, void* user_data) { 
+		PhysicsScene Scene;
+		Scene.FromPhysicsSystem(gPhysicsSystem);
+		ofstream Stream;
+		Stream.open("snapshot.bin", ofstream::out | ofstream::binary | ofstream::trunc);
+		if (Stream.is_open()) 
+		{
+			StreamOutWrapper Wrapper(Stream);
+			Scene.SaveBinaryState(Wrapper, true, false);
+		}
+	};
+	helper.CreateButton(Main, 0, 4, y, 130, 20, "Save snapshot.bin", gJoltGUI, make_snapshot, nullptr);
+	y += YStep;
 
 	return Main;
 }
@@ -2858,7 +2443,7 @@ void Jolt_CloseGUI()
 	gEditBox_LinearDamping = null;
 	gEditBox_AngularDamping = null;
 	gEditBox_SpeculativeContactDistance = null;
-	gEditBox_MaxPenetrationDistance = null;
+	gEditBox_PenetrationSlop = null;
 	gEditBox_Baumgarte = null;
 	gEditBox_Friction = null;
 	gEditBox_Restitution = null;
@@ -2897,13 +2482,9 @@ static IceWindow* CreateTabWindow(IceWidget* parent, Widgets& owner)
 	WD.mParent	= parent;
 	WD.mX		= 0;
 	WD.mY		= 0;
-//	WD.mWidth	= WD.mWidth;
-//	WD.mHeight	= TCD.mHeight;
-//	WD.mLabel	= "Tab";
 	WD.mType	= WINDOW_DIALOG;
 	IceWindow* TabWindow = ICE_NEW(IceWindow)(WD);
 	owner.Register(TabWindow);
-//	TabWindow->SetVisible(true);
 	return TabWindow;
 }
 
