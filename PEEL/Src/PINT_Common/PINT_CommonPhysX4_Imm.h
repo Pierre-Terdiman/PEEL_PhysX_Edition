@@ -60,7 +60,7 @@
 				currentPage->currentIndex = 0;
 				return currentPage->allocate(byteSize);
 			}
-			currentPage = PX_PLACEMENT_NEW(PX_ALLOC(sizeof(AllocationPage), PX_DEBUG_EXP("AllocationPage")), AllocationPage)();
+			currentPage = PX_PLACEMENT_NEW(PX_ALLOC(sizeof(AllocationPage), "AllocationPage"), AllocationPage)();
 			mAllocatedBlocks.pushBack(currentPage);
 			mCurrentIndex = mAllocatedBlocks.size();
 
@@ -149,17 +149,10 @@
 		}
 	};
 
-#ifdef PHYSX_NEW_PUBLIC_API
-	PX_FORCE_INLINE uint32_t PxComputeHash(const ActorPair& p)
+	PX_FORCE_INLINE uint32_t _computeHash(const ActorPair& p)
 	{
-		return PxComputeHash(uint64_t(p.mID0)|(uint64_t(p.mID1)<<32));
+		return ps::_computeHash(uint64_t(p.mID0)|(uint64_t(p.mID1)<<32));
 	}
-#else
-	PX_FORCE_INLINE uint32_t hash(const ActorPair& p)
-	{
-		return shdfnd::hash(uint64_t(p.mID0)|(uint64_t(p.mID1)<<32));
-	}
-#endif
 
 	struct MassProps
 	{
@@ -279,11 +272,7 @@
 
 	PX_FORCE_INLINE uint32_t hash(const BPEntryPair& p)
 	{
-#ifdef PHYSX_NEW_PUBLIC_API
-		return PxComputeHash(uint64_t(p.mBPEntry0)|(uint64_t(p.mBPEntry1)<<32));
-#else
-		return shdfnd::hash(uint64_t(p.mBPEntry0)|(uint64_t(p.mBPEntry1)<<32));
-#endif
+		return ps::_computeHash(uint64_t(p.mBPEntry0)|(uint64_t(p.mBPEntry1)<<32));
 	}
 
 	struct ShapePair
@@ -308,17 +297,10 @@
 		}
 	};
 
-#ifdef PHYSX_NEW_PUBLIC_API
-	PX_FORCE_INLINE uint32_t PxComputeHash(const ShapePair& p)
+	PX_FORCE_INLINE uint32_t _computeHash(const ShapePair& p)
 	{
-		return PxComputeHash(uint64_t(p.mID0)|(uint64_t(p.mID1)<<32));
+		return ps::_computeHash(uint64_t(p.mID0)|(uint64_t(p.mID1)<<32));
 	}
-#else
-	PX_FORCE_INLINE uint32_t hash(const ShapePair& p)
-	{
-		return shdfnd::hash(uint64_t(p.mID0)|(uint64_t(p.mID1)<<32));
-	}
-#endif
 
 	struct ImmRaycastHit
 	{
@@ -379,7 +361,6 @@
 																const PxGeometry& geom = shape.mGeom.any();
 																const PxTransform& shapeLocalPose = shape.mLocalPose;
 																const PxTransform shapePose = actorPose * shapeLocalPose;
-
 #ifdef PHYSX_NEW_PUBLIC_API
 																return PxGeometryQuery::raycast(origin, dir, geom, shapePose, dist, flags, maxNbHits, hits, sizeof(PxGeomRaycastHit), PxGeometryQueryFlag::Enum(0));
 //																return PxGeometryQuery::raycastXP(origin, dir, geom, shapePose, dist, flags, maxNbHits, hits, sizeof(PxGeomRaycastHit));
@@ -399,7 +380,6 @@
 																const PxGeometry& geom = shape.mGeom.any();
 																const PxTransform& shapeLocalPose = shape.mLocalPose;
 																const PxTransform shapePose = actorPose * shapeLocalPose;
-
 #ifdef PHYSX_NEW_PUBLIC_API
 																return PxGeometryQuery::overlap(queryVolume, queryPose, geom, shapePose, PxGeometryQueryFlag::Enum(0));
 //																return PxGeometryQuery::overlapXP(queryVolume, queryPose, geom, shapePose);
@@ -419,7 +399,6 @@
 																const PxGeometry& geom = shape.mGeom.any();
 																const PxTransform& shapeLocalPose = shape.mLocalPose;
 																const PxTransform shapePose = actorPose * shapeLocalPose;
-
 #ifdef PHYSX_NEW_PUBLIC_API
 																return PxGeometryQuery::sweep(dir, dist, queryVolume, queryPose, geom, shapePose, hit, flags, 0.0f, PxGeometryQueryFlag::Enum(0));
 #else
@@ -451,7 +430,7 @@
 
 		PX_FORCE_INLINE	ImmediateShape&						getShape(ImmShapeHandle handle)
 															{
-																const PxU32 shapeIndex = PxU32(handle);
+																const PxU32 shapeIndex = PxU32(size_t(handle));
 																PX_ASSERT(shapeIndex<mShapes.size());
 																return mShapes[shapeIndex];
 															}
@@ -475,7 +454,7 @@
 
 		PX_FORCE_INLINE	ImmediateActor&						getActor(ImmActorHandle handle)
 															{
-																const PxU32 actorIndex = PxU32(handle);
+																const PxU32 actorIndex = PxU32(size_t(handle));
 																PX_ASSERT(actorIndex<mActors.size());
 																return mActors[actorIndex];
 															}
@@ -488,14 +467,14 @@
 
 		PX_FORCE_INLINE	const PxTransform&					getActorGlobalPose(ImmActorHandle handle)	const
 															{
-																const PxU32 actorIndex = PxU32(handle);
+																const PxU32 actorIndex = PxU32(size_t(handle));
 																PX_ASSERT(actorIndex<mActorGlobalPoses.size());
 																return mActorGlobalPoses[actorIndex];
 															}
 
 		PX_FORCE_INLINE	void								setActorGlobalPose(ImmActorHandle handle, const PxTransform& pose)
 															{
-																const PxU32 actorIndex = PxU32(handle);
+																const PxU32 actorIndex = PxU32(size_t(handle));
 																PX_ASSERT(actorIndex<mActorGlobalPoses.size());
 																mActorGlobalPoses[actorIndex] = pose;
 															}
@@ -503,22 +482,14 @@
 		PX_FORCE_INLINE	void								disableCollision(ImmActorHandle i, ImmActorHandle j)
 															{
 																if(i>j)
-#ifdef PHYSX_NEW_PUBLIC_API
-																	PxSwap(i, j);
-#else
-																	swap(i, j);
-#endif
+																	TSwap(i, j);
 																mFilteredPairs.insert(ActorPair(i, j));
 															}
 
 		PX_FORCE_INLINE	bool								isCollisionDisabled(ImmActorHandle i, ImmActorHandle j)	const
 															{
 																if(i>j)
-#ifdef PHYSX_NEW_PUBLIC_API
-																	PxSwap(i, j);
-#else
-																	swap(i, j);
-#endif
+																	TSwap(i, j);
 																return mFilteredPairs.contains(ActorPair(i, j));
 															}
 		private:

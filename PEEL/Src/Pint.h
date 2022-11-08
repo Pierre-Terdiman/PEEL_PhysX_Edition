@@ -435,12 +435,13 @@
 
 	struct PINT_MESH_DATA_CREATE// : public Allocateable
 	{
-									PINT_MESH_DATA_CREATE() : mDeformable(false)
+									PINT_MESH_DATA_CREATE() : mDynamic(false), mDeformable(false)
 									{
 									}
 
 									PINT_MESH_DATA_CREATE(const PINT_MESH_DATA_CREATE& desc) :
 										mSurface	(desc.mSurface),
+										mDynamic	(desc.mDynamic),
 										mDeformable	(desc.mDeformable)
 									{
 									}
@@ -468,6 +469,7 @@
 		private:
 		PintSurfaceInterface		mSurface;
 		public:
+		bool						mDynamic;
 		bool						mDeformable;
 	};
 
@@ -1287,6 +1289,7 @@
 		bool	mSupportCylinders;
 		bool	mSupportConvexes;
 		bool	mSupportMeshes;
+		bool	mSupportDynamicMeshes;
 		bool	mSupportDeformableMeshes;
 		bool	mSupportHeightfields;
 		bool	mSupportContactNotifications;

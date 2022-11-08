@@ -1753,3 +1753,179 @@ class SceneRaycastVsStaticHeightfield : public HeightfieldTest
 	}
 
 END_TEST(SceneRaycastVsStaticHeightfield)
+
+///////////////////////////////////////////////////////////////////////////////
+
+#include "PintShapeRenderer.h"
+
+// https://github.com/NVIDIAGameWorks/PhysX/issues/550
+
+static const char* gDesc_RaycastBugGithub550 = "Repro for raycast bug reported on Github.";
+
+class RaycastBugGithub550 : public TestBase
+{
+	PtrContainer	mObjects;
+
+	public:
+							RaycastBugGithub550()		{									}
+	virtual					~RaycastBugGithub550()		{									}
+	virtual	const char*		GetName()			const	{ return "RaycastBugGithub550";		}
+	virtual	const char*		GetDescription()	const	{ return gDesc_RaycastBugGithub550;	}
+	virtual	TestCategory	GetCategory()		const	{ return CATEGORY_RAYCAST;			}
+	virtual	udword			GetProfilingFlags()	const	{ return PROFILING_TEST_UPDATE;		}
+
+	virtual void	GetSceneParams(PINT_WORLD_CREATE& desc)	override
+	{
+		TestBase::GetSceneParams(desc);
+		desc.mCamera[0] = PintCameraPose(Point(84.37f, 45.76f, -20.16f), Point(-0.93f, -0.29f, 0.21f));
+		SetDefEnv(desc, false);
+	}
+
+	virtual bool	CommonSetup()	override
+	{
+		const Point Zero(0.0f, 0.0f, 0.0f);
+		RegisterRaycast(Zero, Zero, 0.0f);
+		return TestBase::CommonSetup();
+	}
+
+	virtual void	CommonRelease()	override
+	{
+		mObjects.Empty();
+		TestBase::CommonRelease();
+	}
+
+	virtual bool	Setup(Pint& pint, const PintCaps& caps)	override
+	{
+		PINT_SPHERE_CREATE SphereDesc(1.0f);
+		SphereDesc.mRenderer	= CreateSphereRenderer(SphereDesc.mRadius);
+
+		PINT_OBJECT_CREATE ObjectDesc(&SphereDesc);
+		ObjectDesc.mMass		= 0.0f;
+		ObjectDesc.mPosition	= Point(0.0f, 10.0f, 0.0f);
+		pint.mUserData = CreatePintObject(pint, ObjectDesc);
+
+		//return Setup_PotPourri_Raycasts(pint, caps, 0.0f, 1, 16, 16);
+
+		float mass = 0.0f;
+		udword nb_layers = 1;
+		udword nb_x = 32;
+		udword nb_y = 32;
+		//bool Setup_PotPourri_Raycasts(Pint& pint, const PintCaps& caps, float mass, udword nb_layers, udword nb_x, udword nb_y)
+		{
+			if(!caps.mSupportRaycasts)
+				return false;
+
+			const float BoxHeight = 4.0f;
+			const float BoxSide = 1.0f;
+			const float BoxDepth = 10.0f;
+
+			const float SphereRadius = 0.5f;
+			const float CapsuleRadius = 0.3f;
+			const float HalfHeight = 0.5f;
+			float yy = CapsuleRadius;
+			BasicRandom Rnd(42);
+
+			PINT_SPHERE_CREATE SphereDesc(SphereRadius);
+			SphereDesc.mRenderer	= CreateSphereRenderer(SphereRadius);
+
+			PINT_BOX_CREATE BoxDesc(CapsuleRadius, CapsuleRadius, CapsuleRadius);
+			BoxDesc.mRenderer	= CreateBoxRenderer(BoxDesc.mExtents);
+
+			PINT_CAPSULE_CREATE CapsuleDesc(CapsuleRadius, HalfHeight);
+			CapsuleDesc.mRenderer	= CreateCapsuleRenderer(CapsuleRadius, HalfHeight*2.0f);
+
+			for(udword k=0;k<nb_layers;k++)
+			{
+				for(udword y=0;y<nb_y;y++)
+				{
+					const float CoeffY = float(nb_y) * 0.5f * ((float(y)/float(nb_y-1)) - 0.5f);
+					for(udword x=0;x<nb_x;x++)
+					{
+						const float CoeffX = float(nb_x) * 0.5f * ((float(x)/float(nb_x-1)) - 0.5f);
+
+						const float RandomX = 4.0f * Rnd.RandomFloat();
+						const float RandomY = 4.0f * Rnd.RandomFloat();
+						const float RandomZ = 4.0f * Rnd.RandomFloat();
+
+						const udword Index = Rnd.Randomize() % 3;
+
+						PINT_OBJECT_CREATE ObjectDesc;
+						if(Index==0)
+							ObjectDesc.SetShape(&SphereDesc);
+						else if(Index==1)
+							ObjectDesc.SetShape(&BoxDesc);
+						else if(Index==2)
+							ObjectDesc.SetShape(&CapsuleDesc);
+						ObjectDesc.mMass		= mass;
+						ObjectDesc.mPosition.x	= RandomX + CoeffX * (BoxDepth - SphereRadius - BoxSide*2.0f);
+						ObjectDesc.mPosition.y	= RandomY + yy;
+						ObjectDesc.mPosition.z	= RandomZ + CoeffY * (BoxDepth - SphereRadius - BoxSide*2.0f);
+
+						UnitRandomQuat(ObjectDesc.mRotation, Rnd);
+
+						PintActorHandle h = CreatePintObject(pint, ObjectDesc);
+						mObjects.AddPtr(h);
+					}
+				}
+				yy += HalfHeight*2.0f*4.0f;
+			}
+			return true;
+		}
+
+	}
+
+//	virtual	void			CommonUpdate(float dt)						= 0;
+	virtual	udword	Update(Pint& pint, float dt)
+	{
+		PintActorHandle h = PintActorHandle(pint.mUserData);
+		if(!h)
+			return 0;
+
+		PR Pose(Idt);
+
+		const float m = 20.0f;
+		const float a = 20.0f;
+		const float s = sinf(mCurrentTime*m) * a;
+		const float c = cosf(mCurrentTime*m) * a;
+		Pose.mPos = Point(s, 30.0f+c, 0.0f);
+		pint.SetWorldTransform(h, Pose);
+
+		{
+			udword Nb = mObjects.GetNbEntries();
+			for(udword i=0;i<Nb;i++)
+			{
+				PintActorHandle h2 = PintActorHandle(mObjects[i]);
+				PR Pose2 = pint.GetWorldTransform(h2);
+
+				const float Coeff = float(i)/float(Nb-1);
+				const float m2 = 0.5f + Coeff*3.0f;
+				const float a2 = 4.0f;
+				const float s2 = sinf(mCurrentTime*m2) * a2;
+				const float c2 = cosf(mCurrentTime*m2) * a2;
+
+				Pose2.mPos += Point(s2*0.1f, 0.0f, c2*0.1f);
+				pint.SetWorldTransform(h2, Pose2);
+			}
+		}
+
+		PintRaycastData* Data = GetRegisteredRaycasts();
+		ASSERT(Data);
+		Data->mDir		= Point(0.0f, 0.0f, 1.0f);
+		Data->mMaxDist	= 100.0f;
+		Data->mOrigin	= Pose.mPos - Data->mDir * Data->mMaxDist*0.5f;
+
+		udword NbHits = DoBatchRaycasts(*this, pint);
+		ASSERT(NbHits==1);
+		return NbHits;
+	}
+
+	virtual	udword	PostUpdate(Pint& pint, float dt)
+	{
+		udword NbHits = DoBatchRaycasts(*this, pint);
+		ASSERT(NbHits==1);
+		return NbHits;
+	}
+
+
+END_TEST(RaycastBugGithub550)
+

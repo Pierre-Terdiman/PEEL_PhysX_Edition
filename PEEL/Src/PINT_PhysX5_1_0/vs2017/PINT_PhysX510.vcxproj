@@ -1,0 +1,467 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Profile|Win32">
+      <Configuration>Profile</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Profile|x64">
+      <Configuration>Profile</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{69BC5020-B5F4-4640-AAB7-3FD949479E3D}</ProjectGuid>
+    <RootNamespace>PINT_PhysX510</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <ProjectName>PINT_PhysX510</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Profile|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>15.0.28307.799</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\..\Ice\APIs\Ice;..\..\..\..\PEEL_Externals\5_1_0\Include;..\..\..\..\PEEL_Externals\5_1_0\Include\extensions;..\..\..\..\PEEL_Externals\5_1_0\Include\geometry;..\..\..\..\PEEL_Externals\5_1_0\Include\foundation;..\..\..\..\PEEL_Externals\5_1_0\Source\foundation\unported;..\..\..\..\PEEL_Externals\5_1_0\Source\foundation\include;..\..\..\..\PEEL_Externals\5_1_0\Source\Common\src;..\..\..\..\PEEL_Externals\5_1_0\Include\common;..\..\..\..\PEEL_Externals\5_1_0\Include\pxtask;..\..\..\..\PEEL_Externals\5_1_0\Include\physxprofilesdk;..\..\..\..\PEEL_Externals\5_1_0\Include\cooking;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\include;..\..\..\..\PEEL_Externals\CL_19759212\GameWorks\Shared\NvFoundation\1.0\trunk\include\stdint;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\foundation\include;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\pvd\include;..\..\..\..\PEEL_Externals\5_1_0\Include\vehicle;..\..\..\..\PEEL_Externals\5_1_0\Source\PhysXGpu\include;..\..\..\..\PEEL_Externals\5_1_0\source\physxextensions\src\serialization\File;..\..\..\..\PEEL_Externals\5_1_0\source\pvd\include\;..\..\..\..\PEEL_Externals\5_1_0\Include\characterkinematic;..\..\..\..\PEEL_Externals\5_1_0\source\geomutils\include;..\..\..\..\PEEL_Externals\5_1_0\source\geomutils\src;..\..\..\..\PEEL_Externals\5_1_0\source\geomutils\src\intersection;..\PINT_PhysX5_1_0;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PINT_PHYSX_EXPORTS;PX_PHYSX_CHARACTER_STATIC_LIB;PX_DEBUG;PX_CHECKED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <ExceptionHandling />
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>.\Debug\$(ProjectName)_D.dll</OutputFile>
+      <DelayLoadDLLs>PhysX_32.dll;PhysXCommon_32.dll;PhysXCooking_32.dll;PhysXFoundation_32.dll;PhysXGpu_32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Message>Copying DLL to Build folder...</Message>
+      <Command>copy .\Debug\PINT_PhysX510_D.dll ..\..\..\Build
+
+copy ..\..\..\..\PEEL_Externals\5_1_0\vc12win32\debug\PhysX_32.dll ..\..\..\Build\PhysXDEBUG_32_5_1_0.dll
+copy ..\..\..\..\PEEL_Externals\5_1_0\vc12win32\debug\PhysXCommon_32.dll ..\..\..\Build\PhysXCommonDEBUG_32_5_1_0.dll
+copy ..\..\..\..\PEEL_Externals\5_1_0\vc12win32\debug\PhysXCooking_32.dll ..\..\..\Build\PhysXCookingDEBUG_32_5_1_0.dll
+copy ..\..\..\..\PEEL_Externals\5_1_0\vc12win32\debug\PhysXGpu_32.dll ..\..\..\Build\PhysXGpuDEBUG_32_5_1_0.dll
+copy ..\..\..\..\PEEL_Externals\5_1_0\vc12win32\debug\PhysXFoundation_32.dll ..\..\..\Build\PhysXFoundationDEBUG_32_5_1_0.dll
+
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\..\Ice\APIs\Ice;..\..\..\..\PEEL_Externals\5_1_0\Include;..\..\..\..\PEEL_Externals\5_1_0\Include\extensions;..\..\..\..\PEEL_Externals\5_1_0\Include\geometry;..\..\..\..\PEEL_Externals\5_1_0\Include\foundation;..\..\..\..\PEEL_Externals\5_1_0\Source\foundation\unported;..\..\..\..\PEEL_Externals\5_1_0\Source\foundation\include;..\..\..\..\PEEL_Externals\5_1_0\Source\Common\src;..\..\..\..\PEEL_Externals\5_1_0\Include\common;..\..\..\..\PEEL_Externals\5_1_0\Include\pxtask;..\..\..\..\PEEL_Externals\5_1_0\Include\physxprofilesdk;..\..\..\..\PEEL_Externals\5_1_0\Include\cooking;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\include;..\..\..\..\PEEL_Externals\CL_19759212\GameWorks\Shared\NvFoundation\1.0\trunk\include\stdint;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\foundation\include;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\pvd\include;..\..\..\..\PEEL_Externals\5_1_0\Include\vehicle;..\..\..\..\PEEL_Externals\5_1_0\Source\PhysXGpu\include;..\..\..\..\PEEL_Externals\5_1_0\source\physxextensions\src\serialization\File;..\..\..\..\PEEL_Externals\5_1_0\source\pvd\include\;..\..\..\..\PEEL_Externals\5_1_0\Include\characterkinematic;..\..\..\..\PEEL_Externals\5_1_0\source\geomutils\include;..\PINT_PhysX5_1_0;..\;..\..\..\..\PEEL_Externals\5_1_0\source\geomutils\src;..\..\..\..\PEEL_Externals\5_1_0\source\geomutils\src\intersection;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PINT_PHYSX_EXPORTS;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <ExceptionHandling />
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>.\Debug\PINT_PhysX510_VS2017_64_D.dll</OutputFile>
+      <DelayLoadDLLs>PhysX_64.dll;PhysXCommon_64.dll;PhysXCooking_64.dll;PhysXFoundation_64.dll;PhysXGpu_64.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Message>Copying DLL to Build folder...</Message>
+      <Command>copy .\Debug\PINT_PhysX510_VS2017_64_D.dll ..\..\..\Build64
+
+copy ..\..\..\..\PEEL_Externals\5_1_0\bin\win.x86_64.vc141.mt\debug\PhysX_64.dll ..\..\..\Build64\PhysXDEBUG_64_5_1_0.dll
+copy ..\..\..\..\PEEL_Externals\5_1_0\bin\win.x86_64.vc141.mt\debug\PhysXCommon_64.dll ..\..\..\Build64\PhysXCommonDEBUG_64_5_1_0.dll
+copy ..\..\..\..\PEEL_Externals\5_1_0\bin\win.x86_64.vc141.mt\debug\PhysXCooking_64.dll ..\..\..\Build64\PhysXCookingDEBUG_64_5_1_0.dll
+copy ..\..\..\..\PEEL_Externals\5_1_0\bin\win.x86_64.vc141.mt\debug\PhysXGpu_64.dll ..\..\..\Build64\PhysXGpuDEBUG_64_5_1_0.dll
+copy ..\..\..\..\PEEL_Externals\5_1_0\bin\win.x86_64.vc141.mt\debug\PhysXFoundation_64.dll ..\..\..\Build64\PhysXFoundationDEBUG_64_5_1_0.dll
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\..\Ice\APIs\Ice;..\..\..\..\PEEL_Externals\5_1_0\Include;..\..\..\..\PEEL_Externals\5_1_0\Include\extensions;..\..\..\..\PEEL_Externals\5_1_0\Include\geometry;..\..\..\..\PEEL_Externals\5_1_0\Include\foundation;..\..\..\..\PEEL_Externals\5_1_0\Source\foundation\unported;..\..\..\..\PEEL_Externals\5_1_0\Source\foundation\include;..\..\..\..\PEEL_Externals\5_1_0\Source\Common\src;..\..\..\..\PEEL_Externals\5_1_0\Include\common;..\..\..\..\PEEL_Externals\5_1_0\Include\pxtask;..\..\..\..\PEEL_Externals\5_1_0\Include\physxprofilesdk;..\..\..\..\PEEL_Externals\5_1_0\Include\cooking;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\include;..\..\..\..\PEEL_Externals\CL_19759212\GameWorks\Shared\NvFoundation\1.0\trunk\include\stdint;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\foundation\include;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\pvd\include;..\..\..\..\PEEL_Externals\5_1_0\Include\vehicle;..\..\..\..\PEEL_Externals\5_1_0\Source\PhysXGpu\include;..\..\..\..\PEEL_Externals\5_1_0\source\physxextensions\src\serialization\File;..\..\..\..\PEEL_Externals\5_1_0\source\pvd\include\;..\..\..\..\PEEL_Externals\5_1_0\Include\characterkinematic;..\..\..\..\PEEL_Externals\5_1_0\source\geomutils\include;..\PINT_PhysX5_1_0;..\;..\..\..\..\PEEL_Externals\5_1_0\source\geomutils\src;..\..\..\..\PEEL_Externals\5_1_0\source\geomutils\src\intersection;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PINT_PHYSX_EXPORTS;PX_PHYSX_CHARACTER_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling />
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <BrowseInformation>true</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>.\Release\$(ProjectName).dll</OutputFile>
+      <DelayLoadDLLs>PhysX_32.dll;PhysXCommon_32.dll;PhysXCooking_32.dll;PhysXFoundation_32.dll;PhysXGpu_32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration />
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Message>Copying DLL to Build folder...</Message>
+      <Command>copy .\Release\PINT_PhysX510.dll ..\..\..\Build
+
+copy ..\..\..\..\PEEL_Externals\5_1_0\vc12win32\release\PhysX_32.dll ..\..\..\Build\PhysX_32_5_1_0.dll
+copy ..\..\..\..\PEEL_Externals\5_1_0\vc12win32\release\PhysXCommon_32.dll ..\..\..\Build\PhysXCommon_32_5_1_0.dll
+copy ..\..\..\..\PEEL_Externals\5_1_0\vc12win32\release\PhysXCooking_32.dll ..\..\..\Build\PhysXCooking_32_5_1_0.dll
+copy ..\..\..\..\PEEL_Externals\5_1_0\vc12win32\release\PhysXGpu_32.dll ..\..\..\Build\PhysXGpu_32_5_1_0.dll
+copy ..\..\..\..\PEEL_Externals\5_1_0\vc12win32\release\PhysXFoundation_32.dll ..\..\..\Build\PhysXFoundation_32_5_1_0.dll
+
+
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\..\Ice\APIs\Ice;..\..\..\..\PEEL_Externals\5_1_0\Include;..\..\..\..\PEEL_Externals\5_1_0\Include\extensions;..\..\..\..\PEEL_Externals\5_1_0\Include\geometry;..\..\..\..\PEEL_Externals\5_1_0\Include\foundation;..\..\..\..\PEEL_Externals\5_1_0\Source\foundation\unported;..\..\..\..\PEEL_Externals\5_1_0\Source\foundation\include;..\..\..\..\PEEL_Externals\5_1_0\Source\Common\src;..\..\..\..\PEEL_Externals\5_1_0\Include\common;..\..\..\..\PEEL_Externals\5_1_0\Include\pxtask;..\..\..\..\PEEL_Externals\5_1_0\Include\physxprofilesdk;..\..\..\..\PEEL_Externals\5_1_0\Include\cooking;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\include;..\..\..\..\PEEL_Externals\CL_19759212\GameWorks\Shared\NvFoundation\1.0\trunk\include\stdint;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\foundation\include;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\pvd\include;..\..\..\..\PEEL_Externals\5_1_0\Include\vehicle;..\..\..\..\PEEL_Externals\5_1_0\Source\PhysXGpu\include;..\..\..\..\PEEL_Externals\5_1_0\source\physxextensions\src\serialization\File;..\..\..\..\PEEL_Externals\5_1_0\source\pvd\include\;..\..\..\..\PEEL_Externals\5_1_0\Include\characterkinematic;..\..\..\..\PEEL_Externals\5_1_0\source\geomutils\include;..\PINT_PhysX5_1_0;..\;..\..\..\..\PEEL_Externals\5_1_0\source\geomutils\src;..\..\..\..\PEEL_Externals\5_1_0\source\geomutils\src\intersection;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PINT_PHYSX_EXPORTS;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling />
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <BrowseInformation>true</BrowseInformation>
+    </ClCompile>
+    <Link>
+      <OutputFile>.\Release\PINT_PhysX510_VS2017_64.dll</OutputFile>
+      <DelayLoadDLLs>PhysX_64.dll;PhysXCommon_64.dll;PhysXCooking_64.dll;PhysXFoundation_64.dll;PhysXGpu_64.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration />
+      <TargetMachine>MachineX64</TargetMachine>
+      <ShowProgress>NotSet</ShowProgress>
+    </Link>
+    <PostBuildEvent>
+      <Message>Copying DLL to Build folder...</Message>
+      <Command>copy .\Release\PINT_PhysX510_VS2017_64.dll ..\..\..\Build64
+
+copy ..\..\..\..\PEEL_Externals\5_1_0\bin\win.x86_64.vc141.mt\release\PhysX_64.dll ..\..\..\Build64\PhysX_64_5_1_0.dll
+copy ..\..\..\..\PEEL_Externals\5_1_0\bin\win.x86_64.vc141.mt\release\PhysXCommon_64.dll ..\..\..\Build64\PhysXCommon_64_5_1_0.dll
+copy ..\..\..\..\PEEL_Externals\5_1_0\bin\win.x86_64.vc141.mt\release\PhysXCooking_64.dll ..\..\..\Build64\PhysXCooking_64_5_1_0.dll
+copy ..\..\..\..\PEEL_Externals\5_1_0\bin\win.x86_64.vc141.mt\release\PhysXGpu_64.dll ..\..\..\Build64\PhysXGpu_64_5_1_0.dll
+copy ..\..\..\..\PEEL_Externals\5_1_0\bin\win.x86_64.vc141.mt\release\PhysXFoundation_64.dll ..\..\..\Build64\PhysXFoundation_64_5_1_0.dll
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\..\Ice\APIs\Ice;..\..\..\..\PEEL_Externals\5_1_0\Include;..\..\..\..\PEEL_Externals\5_1_0\Include\extensions;..\..\..\..\PEEL_Externals\5_1_0\Include\geometry;..\..\..\..\PEEL_Externals\5_1_0\Include\foundation;..\..\..\..\PEEL_Externals\5_1_0\Source\foundation\unported;..\..\..\..\PEEL_Externals\5_1_0\Source\foundation\include;..\..\..\..\PEEL_Externals\5_1_0\Source\Common\src;..\..\..\..\PEEL_Externals\5_1_0\Include\common;..\..\..\..\PEEL_Externals\5_1_0\Include\pxtask;..\..\..\..\PEEL_Externals\5_1_0\Include\physxprofilesdk;..\..\..\..\PEEL_Externals\5_1_0\Include\cooking;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\include;..\..\..\..\PEEL_Externals\CL_19759212\GameWorks\Shared\NvFoundation\1.0\trunk\include\stdint;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\foundation\include;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\pvd\include;..\..\..\..\PEEL_Externals\5_1_0\Include\vehicle;..\..\..\..\PEEL_Externals\VC9;..\..\..\..\PEEL_Externals\5_1_0\Source\PhysXGpu\include;..\..\..\..\PEEL_Externals\5_1_0\source\physxextensions\src\serialization\File;..\..\..\..\PEEL_Externals\5_1_0\source\pvd\include\;..\..\..\..\PEEL_Externals\5_1_0\Include\characterkinematic;..\..\..\..\PEEL_Externals\5_1_0\source\geomutils\include;..\PINT_PhysX5_1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PINT_PHYSX_EXPORTS;PINT_SUPPORT_PVD;PX_PHYSX_CHARACTER_STATIC_LIB;PEEL_PROFILE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling />
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <BrowseInformation>true</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>..\..\Ice\Lib\IceCore.lib;..\..\Ice\Lib\IceMaths.lib;..\..\Ice\Lib\Contact.lib;..\..\Ice\Lib\Meshmerizer.lib;..\..\Ice\Lib\IceImageWork.lib;..\..\Ice\Lib\IceGUI.lib;..\..\Ice\Lib\IML.lib;..\..\..\..\PEEL_Externals\5_1_0\Lib\vc12win32\PhysXPROFILE_x86.lib;..\..\..\..\PEEL_Externals\5_1_0\Lib\vc12win32\PhysXCommonPROFILE_x86.lib;..\..\..\..\PEEL_Externals\5_1_0\Lib\vc12win32\PhysXCookingPROFILE_x86.lib;..\..\..\..\PEEL_Externals\5_1_0\Lib\vc12win32\PhysXVehiclePROFILE_x86.lib;..\..\..\..\PEEL_Externals\5_1_0\Lib\vc12win32\PhysXGpuPROFILE_x86.lib;..\..\..\..\PEEL_Externals\5_1_0\Lib\vc12win32\PhysXFoundationPROFILE_x86.lib;..\..\..\..\PEEL_Externals\5_1_0\Lib\vc12win32\PhysXPvdSDKPROFILE_x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>.\Release\$(ProjectName)_PVD.dll</OutputFile>
+      <DelayLoadDLLs>PhysXPROFILE_x86.dll;PhysXCommonPROFILE_x86.dll;PhysXCookingPROFILE_x86.dll;PhysXFoundationPROFILE_x86.dll;PhysXGpuPROFILE_x86.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration />
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Message>Copying DLL to Build folder...</Message>
+      <Command>copy .\Release\PINT_PhysX510_PVD.dll ..\..\..\Build
+
+copy ..\..\..\..\PEEL_Externals\5_1_0\Bin\vc12win32\PhysXPROFILE_x86.dll ..\..\..\Build\PhysXPROFILE_x86_5_1_0.dll
+copy ..\..\..\..\PEEL_Externals\5_1_0\Bin\vc12win32\PhysXCommonPROFILE_x86.dll ..\..\..\Build\PhysXCommonPROFILE_x86_5_1_0.dll
+copy ..\..\..\..\PEEL_Externals\5_1_0\Bin\vc12win32\PhysXCookingPROFILE_x86.dll ..\..\..\Build\PhysXCookingPROFILE_x86_5_1_0.dll
+copy ..\..\..\..\PEEL_Externals\5_1_0\Bin\vc12win32\PhysXGpuPROFILE_x86.dll ..\..\..\Build\PhysXGpuPROFILE_5_1_x86.dll
+copy ..\..\..\..\PEEL_Externals\5_1_0\Bin\vc12win32\PhysXFoundationPROFILE_x86.dll ..\..\..\Build\PhysXFoundationPROFILE_x86_5_1_0.dll
+
+
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\..\Ice\APIs\Ice;..\..\..\..\PEEL_Externals\5_1_0\Include;..\..\..\..\PEEL_Externals\5_1_0\Include\extensions;..\..\..\..\PEEL_Externals\5_1_0\Include\geometry;..\..\..\..\PEEL_Externals\5_1_0\Include\foundation;..\..\..\..\PEEL_Externals\5_1_0\Source\foundation\unported;..\..\..\..\PEEL_Externals\5_1_0\Source\foundation\include;..\..\..\..\PEEL_Externals\5_1_0\Source\Common\src;..\..\..\..\PEEL_Externals\5_1_0\Include\common;..\..\..\..\PEEL_Externals\5_1_0\Include\pxtask;..\..\..\..\PEEL_Externals\5_1_0\Include\physxprofilesdk;..\..\..\..\PEEL_Externals\5_1_0\Include\cooking;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\include;..\..\..\..\PEEL_Externals\CL_19759212\GameWorks\Shared\NvFoundation\1.0\trunk\include\stdint;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\foundation\include;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\pvd\include;..\..\..\..\PEEL_Externals\5_1_0\Include\vehicle;..\..\..\..\PEEL_Externals\5_1_0\Source\PhysXGpu\include;..\..\..\..\PEEL_Externals\5_1_0\source\physxextensions\src\serialization\File;..\..\..\..\PEEL_Externals\5_1_0\source\pvd\include\;..\..\..\..\PEEL_Externals\5_1_0\Include\characterkinematic;..\..\..\..\PEEL_Externals\5_1_0\source\geomutils\include;..\PINT_PhysX5_1_0;..\;..\..\..\..\PEEL_Externals\5_1_0\source\geomutils\src;..\..\..\..\PEEL_Externals\5_1_0\source\geomutils\src\intersection;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;WIN64;PINT_PHYSX_EXPORTS;PINT_SUPPORT_PVD;PEEL_PROFILE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling />
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <BrowseInformation>true</BrowseInformation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>.\Release\PINT_PhysX510_PVD_VS2017_64.dll</OutputFile>
+      <DelayLoadDLLs>PhysX_64.dll;PhysXCommon_64.dll;PhysXCooking_64.dll;PhysXFoundation_64.dll;PhysXGpu_64.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration />
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Message>Copying DLL to Build folder...</Message>
+      <Command>copy .\Release\PINT_PhysX510_PVD_VS2017_64.dll ..\..\..\Build64
+
+copy ..\..\..\..\PEEL_Externals\5_1_0\bin\win.x86_64.vc141.mt\profile\PhysX_64.dll ..\..\..\Build64\PhysXPROFILE_64_5_1_0.dll
+copy ..\..\..\..\PEEL_Externals\5_1_0\bin\win.x86_64.vc141.mt\profile\PhysXCommon_64.dll ..\..\..\Build64\PhysXCommonPROFILE_64_5_1_0.dll
+copy ..\..\..\..\PEEL_Externals\5_1_0\bin\win.x86_64.vc141.mt\profile\PhysXCooking_64.dll ..\..\..\Build64\PhysXCookingPROFILE_64_5_1_0.dll
+copy ..\..\..\..\PEEL_Externals\5_1_0\bin\win.x86_64.vc141.mt\profile\PhysXGpu_64.dll ..\..\..\Build64\PhysXGpuPROFILE_64_5_1_0.dll
+copy ..\..\..\..\PEEL_Externals\5_1_0\bin\win.x86_64.vc141.mt\profile\PhysXFoundation_64.dll ..\..\..\Build64\PhysXFoundationPROFILE_64_5_1_0.dll
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\PINT_Common\PINT_Common.cpp" />
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3.cpp" />
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_Actor.cpp" />
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_ActorManager.cpp" />
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_Allocator.cpp" />
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_CCT.cpp" />
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_ContactModif.cpp" />
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_ContactNotif.cpp" />
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_DebugViz.cpp" />
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_Error.cpp" />
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_FilterShader.cpp" />
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_Joint.cpp" />
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_Mesh.cpp" />
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_PerTestUI.cpp" />
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_Queries.cpp" />
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_Scene.cpp" />
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_Setup.cpp" />
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_Shape.cpp" />
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_Vehicles.cpp" />
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX4_RCA.cpp" />
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX5_CustomSQ.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX5_Vehicles.cpp" />
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonShapes.cpp" />
+    <ClCompile Include="..\..\PINT_Common\PortalJoint5.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\DelayLoad.cpp" />
+    <ClCompile Include="..\PINT_PhysX510.cpp" />
+    <ClCompile Include="..\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\PINT_Common\PINT_Common.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_Actor.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_ActorManager.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_Allocator.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_Base.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_CCT.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_ContactModif.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_ContactNotif.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_DebugViz.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_Defines.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_Error.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_FilterShader.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_Joint.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_Mesh.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_PerTestUI.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_Queries.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_Scene.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_Setup.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_Shape.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_Vehicles.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX5_CustomSQ.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX5_Vehicles.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonShapes.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_Ice.h" />
+    <ClInclude Include="..\..\PINT_Common\PortalJoint5.h" />
+    <ClInclude Include="..\..\PINT_Common\PxPortalJoint.h" />
+    <ClInclude Include="..\PINT_PhysX510.h" />
+    <ClInclude Include="..\stdafx.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

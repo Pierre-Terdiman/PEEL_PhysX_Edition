@@ -1694,11 +1694,14 @@ chassisMOI.z = 770.0f;*/
 
 //#define DISABLE_WHEELS
 
-PxVehicleDrive4W* SampleVehicle_VehicleManager::create4WVehicle(SharedPhysX_Vehicles& sharedPhysX, PxPhysics& physics, PxCooking& cooking, const PxMaterial& material,
+PxVehicleDrive4W* SampleVehicle_VehicleManager::create4WVehicle(SharedPhysX_Vehicles& sharedPhysX,
+																const PxMaterial& material,
 																PxConvexMesh* chassisConvexMesh, PxConvexMesh** wheelConvexMeshes4,
 																bool useAutoGearFlag, const PINT_VEHICLE_CREATE& desc, bool useSphereWheels)
 {
 	PX_ASSERT(mNumVehicles<MAX_NUM_4W_VEHICLES);
+
+	PxPhysics& physics = *sharedPhysX.GetPhysics();
 
 	PxScene* scene = sharedPhysX.GetScene();
 	ASSERT(scene);
@@ -1951,7 +1954,6 @@ VehicleTest::VehicleTest(SharedPhysX_Vehicles& owner, bool use_sweeps, float swe
 #endif
 
 	mScene = owner.GetScene();
-	PxCooking& cooking = *owner.GetCooking();
 	PxPhysics& physics = *owner.GetPhysics();
 
 	//mChassisMaterial = physics.createMaterial(0.0f, 0.0f, 0.0f);
@@ -2156,12 +2158,9 @@ PxVehicleDrive4W* VehicleTest::CreateVehicle(	VehiclePtrs& vehicle_ptrs,
 												PxConvexMesh* wheel_mesh3, PintShapeRenderer* renderer3,
 												const PINT_VEHICLE_CREATE& desc, bool useSphereWheels)
 {
-	PxCooking& cooking = *mOwner.GetCooking();
-	PxPhysics& physics = *mOwner.GetPhysics();
-
 	PxConvexMesh* wm[4] = { wheel_mesh0, wheel_mesh1, wheel_mesh2, wheel_mesh3 };
 
-	PxVehicleDrive4W* Vehicle4W = mVehicleManager.create4WVehicle(mOwner, physics, cooking, *mChassisMaterial, chassis_mesh, wm, true, desc, useSphereWheels);
+	PxVehicleDrive4W* Vehicle4W = mVehicleManager.create4WVehicle(mOwner, *mChassisMaterial, chassis_mesh, wm, true, desc, useSphereWheels);
 	ASSERT(Vehicle4W);
 
 	PxRigidDynamic* RD = Vehicle4W->getRigidDynamicActor();

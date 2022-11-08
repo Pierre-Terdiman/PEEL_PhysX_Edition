@@ -23,8 +23,8 @@
 				void			ReleaseMeshes();
 
 		private:
-		virtual	PxConvexMesh*	CreatePhysXConvex(udword nb_verts, const Point* verts, PxConvexFlags flags)	= 0;
-		virtual	PxTriangleMesh*	CreatePhysXMesh(const PintSurfaceInterface& surface, bool deformable)		= 0;
+		virtual	PxConvexMesh*	CreatePhysXConvex(udword nb_verts, const Point* verts, PxConvexFlags flags)			= 0;
+		virtual	PxTriangleMesh*	CreatePhysXMesh(const PintSurfaceInterface& surface, bool deformable, bool dynamic)	= 0;
 
 			struct ConvexRender
 			{

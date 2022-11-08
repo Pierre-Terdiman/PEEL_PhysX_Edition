@@ -23,22 +23,7 @@
 #include "PINT_CommonPhysX3_Joint.h"
 #include "PINT_CommonPhysX3_Mesh.h"
 #include "PINT_CommonPhysX3_FilterShader.h"
-
-#ifdef PHYSX_NEW_PUBLIC_API
-	#include "foundation/PxHashMap.h"
-	#include "foundation/PxHashSet.h"
-	#include "foundation/PxArray.h"
-	namespace ps = physx;
-	#define _hashset	physx::PxHashSet
-	#define _array		physx::PxArray
-#else
-	#include "PsHashMap.h"
-	#include "PsHashSet.h"
-	#include "PsArray.h"
-	namespace ps = physx::shdfnd;
-	#define _hashset	ps::HashSet
-	#define _array		ps::Array
-#endif
+#include "PINT_CommonPhysX_FoundationAPI.h"
 
 #ifdef PHYSX_SUPPORT_CHARACTERS2
 	#include "PINT_CommonPhysX3_CCT.h"
@@ -150,16 +135,18 @@
 			if(index==0)
 				return "Single threaded";
 			if(index==1)
-				return "1 main + 2 worker threads";
+				return "1 main + 1 worker thread";
 			if(index==2)
-				return "1 main + 3 worker threads";
+				return "1 main + 2 worker threads";
 			if(index==3)
-				return "1 main + 4 worker threads";
+				return "1 main + 3 worker threads";
 			if(index==4)
-				return "1 main + 8 worker threads";
+				return "1 main + 4 worker threads";
 			if(index==5)
-				return "1 main + 12 worker threads";
+				return "1 main + 8 worker threads";
 			if(index==6)
+				return "1 main + 12 worker threads";
+			if(index==7)
 				return "1 main + 15 worker threads";
 			return null;
 		}
@@ -168,13 +155,17 @@
 		{
 			if(nb_threads==0 || nb_threads==1)
 				return 0;
+			/*if(nb_threads==0)
+				return 0;
+			if(nb_threads==1)
+				return 1;*/
 			if(nb_threads==2)
-				return 2;
+				return 2+1;
 			if(nb_threads<=4)
-				return 3;
+				return 3+1;
 			if(nb_threads<=8)
-				return 4;
-			return 4;	// Limited to 8 threads for now
+				return 4+1;
+			return 4+1;	// Limited to 8 threads for now
 		}
 
 		inline_	udword	ThreadIndexToNbThreads(udword index)	const
@@ -182,16 +173,18 @@
 			if(index==0)
 				return 0;
 			if(index==1)
-				return 2;
+				return 1;
 			if(index==2)
-				return 3;
+				return 2;
 			if(index==3)
-				return 4;
+				return 3;
 			if(index==4)
-				return 8;
+				return 4;
 			if(index==5)
-				return 12;
+				return 8;
 			if(index==6)
+				return 12;
+			if(index==7)
 				return 15;
 			return null;
 		}
@@ -270,7 +263,9 @@
 		bool							mDisableStrongFriction;
 		bool							mEnableOneDirFriction;
 		bool							mEnableTwoDirFriction;
+#if PHYSX_SUPPORT_ADAPTIVE_FORCE
 		bool							mAdaptiveForce;
+#endif
 #if PHYSX_SUPPORT_STABILIZATION_FLAG
 		bool							mStabilization;
 #endif
@@ -622,14 +617,18 @@
 												ASSERT(status);
 											}
 
-		inline_	PxPhysics*					GetPhysics()			{ return mPhysics;			}
-		inline_	PxCooking*					GetCooking()			{ return mCooking;			}
-		inline_	PxScene*					GetScene()				{ return mScene;			}
-		inline_	PxMaterial*					GetDefaultMaterial()	{ return mDefaultMaterial;	}
-		inline_	ActorManager&				GetActorManager()		{ return mActorManager;		}
-		inline_	const EditableParams&		GetParams()	const		{ return mParams;			}
+		inline_	PxPhysics*					GetPhysics()				{ return mPhysics;			}
+#if PHYSX_SUPPORT_IMMEDIATE_COOKING
+		inline_	const PxCookingParams&		GetCooking()		const	{ return mCookingParams;				}
+#else
+		inline_	PxCooking&					GetCooking()				{ ASSERT(mCooking)	return *mCooking;	}
+#endif
+		inline_	PxScene*					GetScene()					{ return mScene;			}
+		inline_	PxMaterial*					GetDefaultMaterial()		{ return mDefaultMaterial;	}
+		inline_	ActorManager&				GetActorManager()			{ return mActorManager;		}
+		inline_	const EditableParams&		GetParams()	const			{ return mParams;			}
 
-//		inline_	Strings&					GetNames()				{ return mNames;			}
+//		inline_	Strings&					GetNames()					{ return mNames;			}
 				void						SetActorName(PxRigidActor* actor, const char* name)	{ SetNameT<PxRigidActor>(actor, name);	}
 				void						SetShapeName(PxShape* shape, const char* name)		{ SetNameT<PxShape>(shape, name);		}
 				void						SetJointName(PxJoint* joint, const char* name)		{ SetNameT<PxJoint>(joint, name);		}
@@ -640,7 +639,11 @@
 				PxFoundation*				mFoundation;
 				PxPhysics*					mPhysics;
 				PxScene*					mScene;
+#if PHYSX_SUPPORT_IMMEDIATE_COOKING
+				PxCookingParams				mCookingParams;
+#else
 				PxCooking*					mCooking;
+#endif
 				PxMaterial*					mDefaultMaterial;
 #ifdef PHYSX_SUPPORT_CHARACTERS
 				PxControllerManager*		mControllerManager;
@@ -679,8 +682,8 @@
 				PxMaterial*					CreateMaterial(const PINT_MATERIAL_CREATE& desc);
 //				PxConvexMesh*				CreateConvexMesh(const Point* verts, udword vertCount, PxConvexFlags flags, PintShapeRenderer* renderer);
 		// MeshManager
-		virtual	PxConvexMesh*				CreatePhysXConvex(udword nb_verts, const Point* verts, PxConvexFlags flags)	override;
-		virtual	PxTriangleMesh*				CreatePhysXMesh(const PintSurfaceInterface& surface, bool deformable)		override;
+		virtual	PxConvexMesh*				CreatePhysXConvex(udword nb_verts, const Point* verts, PxConvexFlags flags)			override;
+		virtual	PxTriangleMesh*				CreatePhysXMesh(const PintSurfaceInterface& surface, bool deformable, bool dynamic)	override;
 		//~MeshManager
 //				PxTriangleMesh*				CreateTriangleMesh(const SurfaceInterface& surface, PintShapeRenderer* renderer, bool deformable);
 

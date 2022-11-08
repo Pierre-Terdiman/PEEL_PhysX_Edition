@@ -9,6 +9,14 @@
 #include "stdafx.h"
 #include "PINT_CommonPhysX3_Allocator.h"
 
+//#define USE_SPY_PROFILER_IN_ALLOCATOR
+#ifdef USE_SPY_PROFILER_IN_ALLOCATOR
+	#include "..\Spy\SpyClient.h"
+	#define SPY_ZONE(Label)	Spy::Zone __SpyZone(Label);
+#else
+	#define SPY_ZONE(Label)
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 PEEL_PhysX3_AllocatorCallback::PEEL_PhysX3_AllocatorCallback() :
@@ -54,10 +62,12 @@ static int atomicAdd(volatile int* val, int delta)
 PX_COMPILE_TIME_ASSERT(sizeof(PEEL_PhysX3_AllocatorCallback::Header)<=32);
 void* PEEL_PhysX3_AllocatorCallback::allocate(size_t size, const char* typeName, const char* filename, int line)
 {
+	SPY_ZONE("PhysX allocate")
+
 	char* memory = (char*)_aligned_malloc(size+32, 16);
 	Header* H = (Header*)memory;
 	H->mMagic		= 0x12345678;
-	H->mSize		= size;
+	H->mSize		= udword(size);
 	H->mType		= typeName;
 	H->mFilename	= filename;
 	H->mLine		= line;
@@ -68,7 +78,7 @@ void* PEEL_PhysX3_AllocatorCallback::allocate(size_t size, const char* typeName,
 	atomicIncrement((int*)&mNbAllocs);
 //	mNbAllocs++;
 
-	atomicAdd((int*)&mCurrentMemory, size);
+	atomicAdd((int*)&mCurrentMemory, int(size));
 //	mCurrentMemory+=size;
 
 	return memory + 32;
@@ -76,6 +86,8 @@ void* PEEL_PhysX3_AllocatorCallback::allocate(size_t size, const char* typeName,
 
 void PEEL_PhysX3_AllocatorCallback::deallocate(void* ptr)
 {
+	SPY_ZONE("PhysX deallocate")
+
 	if(!ptr)
 		return;
 

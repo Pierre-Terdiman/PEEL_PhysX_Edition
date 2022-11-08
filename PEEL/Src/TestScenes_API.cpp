@@ -645,7 +645,7 @@ START_TEST(DynamicMesh, CATEGORY_API, gDesc_DynamicMesh)
 
 	virtual bool	Setup(Pint& pint, const PintCaps& caps)
 	{
-		if(!caps.mSupportMeshes)
+		if(!caps.mSupportRigidBodySimulation || !caps.mSupportDynamicMeshes)
 			return false;
 
 //		return CreateMeshesFromRegisteredSurfaces(pint, caps, *this, null, null, "Mesh");
@@ -660,6 +660,7 @@ START_TEST(DynamicMesh, CATEGORY_API, gDesc_DynamicMesh)
 		PINT_MESH_CREATE MeshDesc;
 		MeshDesc.SetSurfaceData(IS->GetSurfaceInterface());
 		MeshDesc.mRenderer	= Renderer;
+		MeshDesc.mDynamic	= true;
 
 		PINT_OBJECT_CREATE ObjectDesc(&MeshDesc);
 		ObjectDesc.mMass		= 1.0f;

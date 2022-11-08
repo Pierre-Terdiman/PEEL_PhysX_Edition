@@ -16,28 +16,7 @@
 #include "PxPhysicsAPI.h"
 #include "PxImmediateMode.h"
 
-#ifdef PHYSX_NEW_PUBLIC_API
-	#include "foundation/PxArray.h"
-	#include "foundation/PxHashSet.h"
-	#include "foundation/PxHashMap.h"
-	namespace ps = physx;
-	#define _hashmap	physx::PxHashMap
-	#define _hashset	physx::PxHashSet
-	#define _array		physx::PxArray
-	using namespace physx;
-	using namespace immediate;
-#else
-	#include "PsArray.h"
-	#include "PsHashSet.h"
-	#include "PsHashMap.h"
-	namespace ps = physx::shdfnd;
-	#define _hashmap	ps::HashMap
-	#define _hashset	ps::HashSet
-	#define _array		ps::Array
-	using namespace physx;
-	using namespace shdfnd;
-	using namespace immediate;
-#endif
+#include "..\PINT_Common\PINT_CommonPhysX_FoundationAPI.h"
 
 //#include "Extensions\ExtConstraintHelper.h"
 
@@ -46,6 +25,9 @@
 #include "..\PINT_Common\PINT_CommonPhysX3_Error.h"
 #include "..\PINT_Common\PINT_CommonPhysX3_Allocator.h"
 #include "..\PINT_Common\PINT_CommonPhysX3_Base.h"
+
+using namespace physx;
+using namespace immediate;
 
 /*
 PEEL Plugin TODO:
@@ -80,7 +62,114 @@ createContactConstraints: 6723
 solveAndIntegrate: 4042
 */
 
+// TODO: move to separate file & share
+#ifdef IMM_NEEDS_PX_PHYSICS
+	class MemoryOutputStream : public PxOutputStream
+	{
+	public:
+						MemoryOutputStream(PEEL_PhysX3_AllocatorCallback* allocator=null);
+	virtual				~MemoryOutputStream();
 
+			PxU32		write(const void* src, PxU32 count);
+
+			PxU32		getSize()	const	{	return mSize; }
+			PxU8*		getData()	const	{	return mData; }
+	private:
+			PEEL_PhysX3_AllocatorCallback*	mCallback;
+			PxU8*		mData;
+			PxU32		mSize;
+			PxU32		mCapacity;
+	};
+
+	class MemoryInputData : public PxInputData
+	{
+	public:
+						MemoryInputData(PxU8* data, PxU32 length);
+
+			PxU32		read(void* dest, PxU32 count);
+			PxU32		getLength() const;
+			void		seek(PxU32 pos);
+			PxU32		tell() const;
+
+	private:
+			PxU32		mSize;
+			const PxU8*	mData;
+			PxU32		mPos;
+	};
+
+MemoryOutputStream::MemoryOutputStream(PEEL_PhysX3_AllocatorCallback* allocator) :
+	mCallback	(allocator),
+	mData		(NULL),
+	mSize		(0),
+	mCapacity	(0)
+{
+}
+
+MemoryOutputStream::~MemoryOutputStream()
+{
+	if(mData)
+	{
+		if(mCallback)	mCallback->deallocate(mData);
+		else			delete[] mData;
+	}
+}
+
+PxU32 MemoryOutputStream::write(const void* src, PxU32 size)
+{
+	const PxU32 expectedSize = mSize + size;
+	if(expectedSize > mCapacity)
+	{
+//		mCapacity = expectedSize + 4096;
+		mCapacity = NextPowerOfTwo(expectedSize);
+		PxU8* newData = mCallback ? (PxU8*)mCallback->allocate(mCapacity, null, null, 0) : new PxU8[mCapacity];
+		PX_ASSERT(newData!=NULL);
+
+		if(newData)
+		{
+			memcpy(newData, mData, mSize);
+			if(mCallback)	mCallback->deallocate(mData);
+			else			delete[] mData;
+		}
+		mData = newData;
+	}
+	memcpy(mData+mSize, src, size);
+	mSize += size;
+	return size;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+MemoryInputData::MemoryInputData(PxU8* data, PxU32 length) :
+	mSize	(length),
+	mData	(data),
+	mPos	(0)
+{
+}
+
+PxU32 MemoryInputData::read(void* dest, PxU32 count)
+{
+	PxU32 length = PxMin<PxU32>(count, mSize-mPos);
+	memcpy(dest, mData+mPos, length);
+	mPos += length;
+	return length;
+}
+
+PxU32 MemoryInputData::getLength() const
+{
+	return mSize;
+}
+
+void MemoryInputData::seek(PxU32 offset)
+{
+	mPos = PxMin<PxU32>(mSize, offset);
+}
+
+PxU32 MemoryInputData::tell() const
+{
+	return mPos;
+}
+
+#endif
 
 #include "..\PINT_Common\PINT_CommonPhysX4_Imm.h"
 
@@ -127,12 +216,12 @@ enum DebugViz
 
 static PX_FORCE_INLINE ImmActorHandle PintHandleToImmHandle(PintActorHandle handle)
 {
-	return ImmActorHandle(PxU32(handle)-1);
+	return ImmActorHandle(size_t(handle)-1);
 }
 
 static PX_FORCE_INLINE PintActorHandle ImmHandleToPintHandle(ImmActorHandle handle)
 {
-	return PintActorHandle(PxU32(handle)+1);	//###TODO: revisit this
+	return PintActorHandle(size_t(handle)+1);	//###TODO: revisit this
 }
 
 /*static Dy::ArticulationV* createImmediateArticulation(bool fixBase, Array<Dy::ArticulationV*>& articulations)
@@ -269,12 +358,14 @@ static ImmediateScene* gScene = null;	//#####
 
 ///////////////////////////////////////////////////////////////////////////////
 
-PhysXImm::PhysXImm(bool use_cooking) :
+PhysXImm::PhysXImm() :
 	mActorAPI	(*this),
 	mScene		(null),
 	mFoundation	(null),
-	mCooking	(null),
-	mUseCooking	(use_cooking)
+	mCooking	(null)
+#ifdef IMM_NEEDS_PX_PHYSICS
+	,mPhysics	(null)
+#endif
 {
 }
 
@@ -285,6 +376,8 @@ PhysXImm::~PhysXImm()
 void PhysXImm::GetCaps(PintCaps& caps) const
 {
 	caps.mSupportRigidBodySimulation = true;
+	caps.mSupportConvexes = true;
+	caps.mSupportMeshes = true;
 	caps.mSupportSphericalJoints = true;
 	caps.mSupportRCArticulations = true;
 	caps.mSupportCollisionGroups = true;
@@ -299,12 +392,19 @@ void PhysXImm::Init(const PINT_WORLD_CREATE& desc)
 
 	mFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, *gDefaultAllocator, *gDefaultErrorCallback);
 
+	PxTolerancesScale scale;
+#ifdef IMM_NEEDS_PX_PHYSICS
+	{
+		ASSERT(!mPhysics);
+		mPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *mFoundation, scale);
+		ASSERT(mPhysics);
+	}
+#endif
+
 	PxRegisterImmediateArticulations();
 
-	if(mUseCooking)
 	{
 		ASSERT(!mCooking);
-		PxTolerancesScale scale;
 		PxCookingParams Params(scale);
 		Params.midphaseDesc.setToDefault(PxMeshMidPhase::eBVH34);
 		Params.midphaseDesc.mBVH34Desc.numPrimsPerLeaf = 4;
@@ -336,6 +436,9 @@ void PhysXImm::Close()
 #endif
 	gScene = null;
 	SAFE_RELEASE(mCooking);
+#ifdef IMM_NEEDS_PX_PHYSICS
+	SAFE_RELEASE(mPhysics);
+#endif
 	SAFE_RELEASE(mFoundation);
 	DELETESINGLE(gDefaultErrorCallback);
 	DELETESINGLE(gDefaultAllocator);
@@ -358,56 +461,56 @@ udword PhysXImm::Update(float dt)
 		mScene->updateArticulations(dt, gGravity, gNbIterPos);
 		time = __rdtsc() - time;
 		if(printTimings)
-			printf("updateArticulations: %d           \n", time/1024);
+			printf("updateArticulations: %d           \n", PxU32(time/1024));
 	}
 	{
 		unsigned long long time = __rdtsc();
 		mScene->updateBounds(gBoundsInflation);
 		time = __rdtsc() - time;
 		if(printTimings)
-			printf("updateBounds: %d           \n", time/1024);
+			printf("updateBounds: %d           \n", PxU32(time/1024));
 	}
 	{
 		unsigned long long time = __rdtsc();
 		mScene->broadPhase();
 		time = __rdtsc() - time;
 		if(printTimings)
-			printf("broadPhase: %d           \n", time/1024);
+			printf("broadPhase: %d           \n", PxU32(time/1024));
 	}
 	{
 		unsigned long long time = __rdtsc();
 		mScene->narrowPhase(gContactDistance, gMeshContactMargin, gToleranceLength, gStaticFriction, gDynamicFriction, gRestitution);
 		time = __rdtsc() - time;
 		if(printTimings)
-			printf("narrowPhase: %d           \n", time/1024);
+			printf("narrowPhase: %d           \n", PxU32(time/1024));
 	}
 	{
 		unsigned long long time = __rdtsc();
 		mScene->buildSolverBodyData(dt, gGravity, gMaxDepenetrationVelocity, gMaxContactImpulse, gLinearDamping, gAngularDamping, gMaxLinearVelocity, gMaxAngularVelocity);
 		time = __rdtsc() - time;
 		if(printTimings)
-			printf("buildSolverBodyData: %d           \n", time/1024);
+			printf("buildSolverBodyData: %d           \n", PxU32(time/1024));
 	}
 	{
 		unsigned long long time = __rdtsc();
 		mScene->buildSolverConstraintDesc();
 		time = __rdtsc() - time;
 		if(printTimings)
-			printf("buildSolverConstraintDesc: %d           \n", time/1024);
+			printf("buildSolverConstraintDesc: %d           \n", PxU32(time/1024));
 	}
 	{
 		unsigned long long time = __rdtsc();
 		mScene->createContactConstraints(dt, invDt, gBounceThreshold, gFrictionOffsetThreshold, gCorrelationDistance, 1.0f, gNbIterPos);
 		time = __rdtsc() - time;
 		if(printTimings)
-			printf("createContactConstraints: %d           \n", time/1024);
+			printf("createContactConstraints: %d           \n", PxU32(time/1024));
 	}
 	{
 		unsigned long long time = __rdtsc();
 		mScene->solveAndIntegrate(dt, gNbIterPos, gNbIterVel);
 		time = __rdtsc() - time;
 		if(printTimings)
-			printf("solveAndIntegrate: %d           \n", time/1024);
+			printf("solveAndIntegrate: %d           \n", PxU32(time/1024));
 	}
 
 	return gDefaultAllocator->mCurrentMemory;
@@ -473,7 +576,7 @@ void PhysXImm::Render(PintRender& renderer, PintRenderPass render_pass)
 			if(CurrentShape.mUserData)
 			{
 				PintShapeRenderer* renderer = reinterpret_cast<PintShapeRenderer*>(CurrentShape.mUserData);
-				renderer->Render(IcePose);
+				renderer->_Render(IcePose);
 			}
 			else
 				ASSERT(0);
@@ -556,7 +659,17 @@ PxConvexMesh* PhysXImm::CreatePhysXConvex(udword nb_verts, const Point* verts, P
 	ConvexDesc.points.stride	= sizeof(PxVec3);
 	ConvexDesc.points.data		= verts;
 	ConvexDesc.flags			= flags;
+
+#ifdef IMM_NEEDS_PX_PHYSICS
+	MemoryOutputStream buf;
+	if(!mCooking->cookConvexMesh(ConvexDesc, buf))
+		return null;
+
+	MemoryInputData input(buf.getData(), buf.getSize());
+	return mPhysics->createConvexMesh(input);
+#else
 	return mCooking->createConvexMesh(ConvexDesc, mCooking->getStandaloneInsertionCallback());
+#endif
 }
 
 PxTriangleMesh* PhysXImm::CreatePhysXMesh(const PintSurfaceInterface& surface, bool deformable)
@@ -571,7 +684,124 @@ PxTriangleMesh* PhysXImm::CreatePhysXMesh(const PintSurfaceInterface& surface, b
 	MeshDesc.triangles.count	= surface.mNbFaces;
 	MeshDesc.triangles.stride	= sizeof(udword)*3;
 	MeshDesc.triangles.data		= surface.mDFaces;
+#ifdef IMM_NEEDS_PX_PHYSICS
+	MemoryOutputStream buf;
+	if(!mCooking->cookTriangleMesh(MeshDesc, buf))
+		return null;
+
+	MemoryInputData input(buf.getData(), buf.getSize());
+	return mPhysics->createTriangleMesh(input);
+#else
 	return mCooking->createTriangleMesh(MeshDesc, mCooking->getStandaloneInsertionCallback());
+#endif
+}
+
+	struct LocalShapeCreationParams
+	{
+//		const char*			mForcedName;
+//		PxRigidActor*		mActor;
+//		PintCollisionGroup	mGroup;
+//		bool				mIsDynamic;
+		udword				mShapeIndex;
+		ImmShapeHandle		mShapes[16];
+		PxMassProperties	mMassProperties[16];
+		PxTransform			mLocalPoses[16];
+	};
+
+/*
+	LocalShapeCreationParams Params;
+	Params.mForcedName	= forced_name;
+	Params.mActor		= actor;
+	Params.mGroup		= group;
+	Params.mIsDynamic	= actor->getConcreteType()==PxConcreteType::eRIGID_DYNAMIC;
+
+	desc.GetNbShapes(this, &Params);
+*/
+
+void PhysXImm::ReportShape(const PINT_SHAPE_CREATE& create, udword index, void* user_data)
+{
+	ASSERT(user_data);
+	LocalShapeCreationParams* Params = reinterpret_cast<LocalShapeCreationParams*>(user_data);
+
+	udword ShapeIndex = Params->mShapeIndex;
+
+	PxTransform LocalPose(ToPxVec3(create.mLocalPos), ToPxQuat(create.mLocalRot));
+
+/*	PxMaterial* ShapeMaterial = mDefaultMaterial;
+	if(create.mMaterial)
+	{
+		ShapeMaterial = CreateMaterial(*create.mMaterial);
+		ASSERT(ShapeMaterial);
+	}
+
+	PxShape* shape = null;*/
+	if(create.mType==PINT_SHAPE_SPHERE)
+	{
+		const PINT_SPHERE_CREATE* SphereCreate = static_cast<const PINT_SPHERE_CREATE*>(&create);
+
+		const PxSphereGeometry sphereGeom(SphereCreate->mRadius);
+		//h = CreateActor(desc, sphereGeom, pose, CurrentShape);
+
+		Params->mLocalPoses[ShapeIndex] = LocalPose;
+		Params->mMassProperties[ShapeIndex] = PxMassProperties(sphereGeom);
+		Params->mShapes[ShapeIndex++] = mScene->createShape(sphereGeom, LocalPose, create.mRenderer);
+	}
+	else if(create.mType==PINT_SHAPE_BOX)
+	{
+		const PINT_BOX_CREATE* BoxCreate = static_cast<const PINT_BOX_CREATE*>(&create);
+//			shape = CreateBoxShape(CurrentShape, actor, PxBoxGeometry(ToPxVec3(BoxCreate->mExtents)), *ShapeMaterial, LocalPose, desc.mCollisionGroup);
+//			ASSERT(0);
+
+		const PxBoxGeometry BoxGeom(ToPxVec3(BoxCreate->mExtents));
+//			h = CreateActor(desc, BoxGeom, pose, CurrentShape);
+		Params->mLocalPoses[ShapeIndex] = LocalPose;
+		Params->mMassProperties[ShapeIndex] = PxMassProperties(BoxGeom);
+		Params->mShapes[ShapeIndex++] = mScene->createShape(BoxGeom, LocalPose, create.mRenderer);
+	}
+	else if(create.mType==PINT_SHAPE_CAPSULE)
+	{
+		const PINT_CAPSULE_CREATE* CapsuleCreate = static_cast<const PINT_CAPSULE_CREATE*>(&create);
+
+		const PxCapsuleGeometry CapsuleGeom(CapsuleCreate->mRadius, CapsuleCreate->mHalfHeight);
+		//h = CreateActor(desc, CapsuleGeom, pose, CurrentShape);
+
+		const PxQuat q = PxShortestRotation(PxVec3(1.0f, 0.0f, 0.0f), PxVec3(0.0f, 1.0f, 0.0f));
+		LocalPose.q *= q;
+
+		Params->mLocalPoses[ShapeIndex] = LocalPose;
+		Params->mMassProperties[ShapeIndex] = PxMassProperties(CapsuleGeom);
+		Params->mShapes[ShapeIndex++] = mScene->createShape(CapsuleGeom, LocalPose, create.mRenderer);
+	}
+	else if(create.mType==PINT_SHAPE_CONVEX)
+	{
+		const PINT_CONVEX_CREATE* ConvexCreate = static_cast<const PINT_CONVEX_CREATE*>(&create);
+
+		const bool share_meshes = true;
+		PxConvexMesh* ConvexMesh = CreateConvexMesh(ConvexCreate->mVerts, ConvexCreate->mNbVerts, PxConvexFlag::eCOMPUTE_CONVEX, create.mRenderer, share_meshes);
+
+		const PxConvexMeshGeometry ConvexGeom(ConvexMesh);
+
+		Params->mLocalPoses[ShapeIndex] = LocalPose;
+		Params->mMassProperties[ShapeIndex] = PxMassProperties(ConvexGeom);
+		Params->mShapes[ShapeIndex++] = mScene->createShape(ConvexGeom, LocalPose, create.mRenderer);
+	}
+	else if(create.mType==PINT_SHAPE_MESH)
+	{
+		const PINT_MESH_CREATE* MeshCreate = static_cast<const PINT_MESH_CREATE*>(&create);
+
+		const bool share_meshes = true;
+		const bool dynamic = false;
+		PxTriangleMesh* TriangleMesh = CreateTriangleMesh(MeshCreate->GetSurface(), create.mRenderer, MeshCreate->mDeformable, share_meshes, dynamic);
+
+		const PxTriangleMeshGeometry MeshGeom(TriangleMesh);
+
+		Params->mLocalPoses[ShapeIndex] = LocalPose;
+		Params->mMassProperties[ShapeIndex] = PxMassProperties(MeshGeom);
+		Params->mShapes[ShapeIndex++] = mScene->createShape(MeshGeom, LocalPose, create.mRenderer);
+	}
+	else ASSERT(0);
+
+	Params->mShapeIndex = ShapeIndex;
 }
 
 PintActorHandle PhysXImm::CreateObject(const PINT_OBJECT_CREATE& desc)
@@ -584,6 +814,14 @@ PintActorHandle PhysXImm::CreateObject(const PINT_OBJECT_CREATE& desc)
 
 	const PxTransform pose(ToPxVec3(desc.mPosition), ToPxQuat(desc.mRotation));
 	ASSERT(pose.isValid());
+
+
+		LocalShapeCreationParams Params;
+		Params.mShapeIndex = 0;
+
+		desc.GetNbShapes(this, &Params);
+
+#ifdef REMOVED
 
 	udword ShapeIndex = 0;
 	ImmShapeHandle Shapes[16];
@@ -674,8 +912,8 @@ PintActorHandle PhysXImm::CreateObject(const PINT_OBJECT_CREATE& desc)
 		CurrentShape = CurrentShape->mNext;
 		//ASSERT(!CurrentShape);
 	}
-
-	PX_ASSERT(ShapeIndex==NbShapes);
+#endif
+	PX_ASSERT(Params.mShapeIndex==NbShapes);
 
 	ImmActorHandle h;
 	if(desc.mMass!=0.0f)
@@ -683,7 +921,7 @@ PintActorHandle PhysXImm::CreateObject(const PINT_OBJECT_CREATE& desc)
 //		MassProps massProps;
 //		imm_computeMassProps(massProps, geom, desc.mMass);
 
-		PxMassProperties inertia = PxMassProperties::sum(MassProperties, LocalPoses, NbShapes);
+		PxMassProperties inertia = PxMassProperties::sum(Params.mMassProperties, Params.mLocalPoses, NbShapes);
 
 		inertia = inertia * (desc.mMass/inertia.mass);
 
@@ -703,11 +941,11 @@ PintActorHandle PhysXImm::CreateObject(const PINT_OBJECT_CREATE& desc)
 //props.mInvInertia = PxVec3(1.0f);
 
 
-		h = mScene->createActor(NbShapes, Shapes, pose, desc.mCollisionGroup, &props, NULL);
+		h = mScene->createActor(NbShapes, Params.mShapes, pose, desc.mCollisionGroup, &props, NULL);
 	}
 	else
 	{
-		h = mScene->createActor(NbShapes, Shapes, pose, desc.mCollisionGroup, NULL, NULL);
+		h = mScene->createActor(NbShapes, Params.mShapes, pose, desc.mCollisionGroup, NULL, NULL);
 	}
 
 	SetupActor(desc, mScene, h);
@@ -731,7 +969,7 @@ PintJointHandle PhysXImm::CreateJoint(const PINT_JOINT_CREATE& desc)
 		{
 			const PINT_SPHERICAL_JOINT_CREATE& jc = static_cast<const PINT_SPHERICAL_JOINT_CREATE&>(desc);
 			mScene->createSphericalJoint(	id0, id1,
-											PxTransform(ToPxVec3(jc.mLocalPivot0)), PxTransform(ToPxVec3(jc.mLocalPivot1)),
+											PxTransform(ToPxVec3(jc.mLocalPivot0.mPos)), PxTransform(ToPxVec3(jc.mLocalPivot1.mPos)),
 											&mScene->getActorGlobalPose(id0), &mScene->getActorGlobalPose(id1));
 		}
 		break;
@@ -762,8 +1000,10 @@ PintActorHandle PhysXImm::CreateRCArticulatedObject(const PINT_OBJECT_CREATE& oc
 	if(!NbShapes)
 		return null;
 
-	//
+	ASSERT(0);
 
+	//
+#ifdef REMOVED
 	udword ShapeIndex = 0;
 	ImmShapeHandle Shapes[16];
 	PxMassProperties MassProperties[16];
@@ -904,6 +1144,8 @@ PintActorHandle PhysXImm::CreateRCArticulatedObject(const PINT_OBJECT_CREATE& oc
 	SetupActor(oc, mScene, linkID);
 
 	return ImmHandleToPintHandle(linkID);
+#endif
+	return null;
 }
 
 static PX_FORCE_INLINE ImmediateActor& getActor(PintActorHandle handle)

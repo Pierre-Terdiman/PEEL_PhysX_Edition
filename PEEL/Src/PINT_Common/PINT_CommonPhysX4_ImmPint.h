@@ -29,10 +29,10 @@
 		virtual	float			GetMass(PintActorHandle handle)	const;
 	};
 
-	class PhysXImm : public Pint, public MeshManager
+	class PhysXImm : public Pint, public MeshManager, public PintShapeEnumerateCallback
 	{
 		public:
-								PhysXImm(bool use_cooking=false);
+								PhysXImm();
 		virtual					~PhysXImm();
 
 		// Pint
@@ -73,11 +73,17 @@
 		virtual	PxTriangleMesh*	CreatePhysXMesh(const PintSurfaceInterface& surface, bool deformable);
 		//~MeshManager
 
+		// PintShapeEnumerateCallback
+		virtual	void			ReportShape(const PINT_SHAPE_CREATE& create, udword index, void* user_data)	override;
+		//~PintShapeEnumerateCallback
+
 				PhysXImmActor	mActorAPI;
 				ImmediateScene*	mScene;
 				PxFoundation*	mFoundation;
 				PxCooking*		mCooking;
-				const bool		mUseCooking;
+#ifdef IMM_NEEDS_PX_PHYSICS
+				PxPhysics*		mPhysics;
+#endif
 
 		private:
 	};

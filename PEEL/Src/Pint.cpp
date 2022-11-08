@@ -37,7 +37,12 @@ PintCaps::PintCaps() :
 	// These are typically defined by a set of vertices and a set of triangle indices.
 	mSupportMeshes				(false),
 
-	// True for libraries supporting deformable triangles meshes.
+	// True for libraries supporting dynamic triangles meshes, i.e. rigid body simulation
+	// and contact generation on triangle mesh shapes.
+	mSupportDynamicMeshes		(false),
+
+	// True for libraries supporting deformable triangles meshes. This is not the same as
+	// a dynamic mesh, as this can be supported for static meshes like terrains.
 	mSupportDeformableMeshes	(false),
 
 	// True for libraries supporting heightfields.

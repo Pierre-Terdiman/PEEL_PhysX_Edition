@@ -65,7 +65,9 @@ void SetupSceneDesc(PxSceneDesc& sceneDesc, const PINT_WORLD_CREATE& desc, const
 //	sceneDesc.maxNbContactDataBlocks	= PX_MAX_U32;
 
 	SetSceneFlag(sceneDesc, PxSceneFlag::eENABLE_PCM,				mParams.mPCM);
+#if PHYSX_SUPPORT_ADAPTIVE_FORCE
 	SetSceneFlag(sceneDesc, PxSceneFlag::eADAPTIVE_FORCE,			mParams.mAdaptiveForce);
+#endif
 	SetSceneFlag(sceneDesc, PxSceneFlag::eENABLE_STABILIZATION,		mParams.mStabilization);
 	SetSceneFlag(sceneDesc, PxSceneFlag::eENABLE_ACTIVE_ACTORS,		mParams.mEnableActiveTransforms);
 	SetSceneFlag(sceneDesc, PxSceneFlag::eDISABLE_CONTACT_CACHE,	!mParams.mEnableContactCache);
@@ -180,8 +182,13 @@ void SetupBroadphase(const PINT_WORLD_CREATE& desc, const EditableParams& params
 		for(PxU32 i=0;i<nbRegions;i++)
 		{
 			PxBroadPhaseRegion region;
+#if PHYSX_SUPPORT_PX_BROADPHASE_PABP
+			region.mBounds = regions[i];
+			region.mUserData = reinterpret_cast<void*>(size_t(i));
+#else
 			region.bounds = regions[i];
 			region.userData = reinterpret_cast<void*>(size_t(i));
+#endif
 			scene->addBroadPhaseRegion(region);
 		}
 

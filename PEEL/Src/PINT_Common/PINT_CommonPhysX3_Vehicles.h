@@ -155,10 +155,9 @@
 		void shutdown();
 
 		//Create a vehicle ready to drive.
-		PxVehicleDrive4W* create4WVehicle
-			(SharedPhysX_Vehicles& sharedPhysX, PxPhysics& physics, PxCooking& cooking, const PxMaterial& material,
-			 PxConvexMesh* chassisConvexMesh, PxConvexMesh** wheelConvexMeshes4,
-			 bool useAutoGearFlag, const PINT_VEHICLE_CREATE& desc, bool useSphereWheels);
+		PxVehicleDrive4W* create4WVehicle(SharedPhysX_Vehicles& sharedPhysX, const PxMaterial& material,
+										PxConvexMesh* chassisConvexMesh, PxConvexMesh** wheelConvexMeshes4,
+										bool useAutoGearFlag, const PINT_VEHICLE_CREATE& desc, bool useSphereWheels);
 
 		PX_FORCE_INLINE	PxU32						getNbVehicles()					const	{ return mNumVehicles;		}
 		PX_FORCE_INLINE	PxVehicleWheels*			getVehicle(const PxU32 i)				{ return mVehicles[i];		}

@@ -107,8 +107,8 @@ static void SetupJoint(PINT_JOINT_CREATE* create, const JointChunk& chunk, PtrCo
 	create->mObject0	= null;
 	create->mObject1	= null;
 
-	create->mObject0	= PintActorHandle(chunk.mObject0);
-	create->mObject1	= PintActorHandle(chunk.mObject1);
+	create->mObject0	= PintActorHandle(size_t(chunk.mObject0));
+	create->mObject1	= PintActorHandle(size_t(chunk.mObject1));
 
 	const bool ValidActor0 = chunk.mObject0<nb_actors || chunk.mObject0==INVALID_ID;
 	const bool ValidActor1 = chunk.mObject1<nb_actors || chunk.mObject1==INVALID_ID;
@@ -305,7 +305,7 @@ void ZCB2Factory::NewUnknownChunk(udword type, const char* name, const VirtualFi
 			if(Chunk.mMeshID!=INVALID_ID)
 			{
 				ASSERT(Chunk.mMeshID<mMeshObjects.GetNbEntries());
-				Create->mTriangleMesh = PintMeshHandle(Chunk.mMeshID);
+				Create->mTriangleMesh = PintMeshHandle(size_t(Chunk.mMeshID));
 			}
 			if(mCustomize)
 				mCustomize->CustomizeShape(*Create);
@@ -538,8 +538,8 @@ void ZCB2Factory::NewUnknownChunk(udword type, const char* name, const VirtualFi
 			Chunk.Import(file);
 
 			PINT_GEAR_JOINT_CREATE* Create = ICE_NEW(PINT_GEAR_JOINT_CREATE);
-			Create->mHinge0			= PintJointHandle(Chunk.mHinge0);
-			Create->mHinge1			= PintJointHandle(Chunk.mHinge1);
+			Create->mHinge0			= PintJointHandle(size_t(Chunk.mHinge0));
+			Create->mHinge1			= PintJointHandle(size_t(Chunk.mHinge1));
 			Create->mLocalPivot0	= Chunk.mLocalPivot0;
 			Create->mLocalPivot1	= Chunk.mLocalPivot1;
 			Create->mGearRatio		= Chunk.mGearRatio;
@@ -558,8 +558,8 @@ void ZCB2Factory::NewUnknownChunk(udword type, const char* name, const VirtualFi
 			Chunk.Import(file);
 
 			PINT_RACK_AND_PINION_JOINT_CREATE* Create = ICE_NEW(PINT_RACK_AND_PINION_JOINT_CREATE);
-			Create->mHinge			= PintJointHandle(Chunk.mHinge);
-			Create->mPrismatic		= PintJointHandle(Chunk.mPrismatic);
+			Create->mHinge			= PintJointHandle(size_t(Chunk.mHinge));
+			Create->mPrismatic		= PintJointHandle(size_t(Chunk.mPrismatic));
 			Create->mLocalPivot0	= Chunk.mLocalPivot0;
 			Create->mLocalPivot1	= Chunk.mLocalPivot1;
 			Create->mNbRackTeeth	= Chunk.mNbRackTeeth;

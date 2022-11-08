@@ -445,11 +445,11 @@ END_TEST(CCDTest_AngularCCD)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static const char* gDesc_CCDTest_LimitsOfSpeculativeContacts = "CCD: this test shows the limitation of speculative contacts. With regular CCD or raycast CCD \
+static const char* gDesc_CCDTest_GhostContacts = "CCD: this test shows the limitation of speculative contacts. With regular CCD or raycast CCD \
 the box is stopped by the static obstacle and does not interact with the objects behind it. With speculative contacts the box is still stopped by the wall, \
-but it still interacts with the objects behind.";
+but with some implementations it still interacts with the objects behind.";
 
-START_CCD_TEST(CCDTest_LimitsOfSpeculativeContacts, gDesc_CCDTest_LimitsOfSpeculativeContacts)
+START_CCD_TEST(CCDTest_GhostContacts, gDesc_CCDTest_GhostContacts)
 
 	virtual void	GetSceneParams(PINT_WORLD_CREATE& desc)
 	{
@@ -492,14 +492,116 @@ START_CCD_TEST(CCDTest_LimitsOfSpeculativeContacts, gDesc_CCDTest_LimitsOfSpecul
 		return true;
 	}
 
-END_TEST(CCDTest_LimitsOfSpeculativeContacts)
+END_TEST(CCDTest_GhostContacts)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static const char* gDesc_CCDTest_LimitsOfSpeculativeContacts2 = "CCD: a single dynamic convex thrown with linear velocity 1500 against a complex static mesh. This shows \
+static bool CreateBoxStackWithHole(Pint& pint, const PintCaps& caps, const udword nb_stacks, udword nb_base_boxes)
+{
+	if(!caps.mSupportRigidBodySimulation)
+		return false;
+
+	const float BoxExtent = 1.0f;
+
+	PINT_BOX_CREATE BoxDesc;
+	BoxDesc.mExtents	= Point(BoxExtent, BoxExtent, BoxExtent);
+	BoxDesc.mRenderer = CreateBoxRenderer(BoxDesc.mExtents);
+
+	PINT_OBJECT_CREATE ObjectDesc;
+	ObjectDesc.SetShape(&BoxDesc);
+	ObjectDesc.mMass	= 1.0f;
+//	ObjectDesc.mMass	= 0.5f;
+
+	udword ID = 0;
+	const udword NbStacks = nb_stacks;
+	for(udword j=0;j<NbStacks;j++)
+	{
+		const float CoeffZ = NbStacks==1 ? 0.0f : float(j) - float(NbStacks)*0.5f;
+		udword NbBoxes = nb_base_boxes;
+		float BoxPosY = BoxExtent;
+		while(NbBoxes)
+		{
+			for(udword i=0;i<NbBoxes;i++)
+			{
+		//		const float CoeffX = float(i)/float(NbBoxes-1);
+				const float CoeffX = float(i) - float(NbBoxes)*0.5f;
+
+		//		ObjectDesc.mPosition.x	= (CoeffX-0.5f) * BoxExtent * 2.0f;
+				ObjectDesc.mPosition.x	= CoeffX * BoxExtent * 2.0f;
+				ObjectDesc.mPosition.y	= BoxPosY;
+				ObjectDesc.mPosition.z	= CoeffZ * BoxExtent * 4.0f;
+
+				//ObjectDesc.mPosition.z += (UnitRandomFloat()-0.5f)*0.01f;
+
+				bool CreateObject = true;
+				if(ID==112 || ID==97 || ID==98 || ID==81 || ID==82|| ID==83)
+					CreateObject = false;
+
+				ObjectDesc.mName	= _F("%d", ID++);
+				
+				if(CreateObject)
+				{
+					const PintActorHandle Handle = CreatePintObject(pint, ObjectDesc);
+					ASSERT(Handle);
+				}
+			}
+
+			NbBoxes--;
+			BoxPosY += BoxExtent*2.0f;
+		}
+	}
+	return true;
+}
+
+static const char* gDesc_CCDTest_GhostContacts2 = "CCD: this test shows the limitation of speculative contacts. With regular CCD or raycast CCD \
+the box goes through the hole in the stack. With speculative contacts the box can still interact with objects it should not touch, and the stack \
+explodes.";
+
+START_CCD_TEST(CCDTest_GhostContacts2, gDesc_CCDTest_GhostContacts2)
+
+	virtual void	GetSceneParams(PINT_WORLD_CREATE& desc)
+	{
+		TestBase::GetSceneParams(desc);
+		desc.mCamera[0] = PintCameraPose(Point(34.33f, 19.74f, 37.69f), Point(-0.65f, -0.09f, -0.76f));
+		SetDefEnv(desc, true);
+	}
+
+	virtual bool	Setup(Pint& pint, const PintCaps& caps)
+	{
+		if(!caps.mSupportRigidBodySimulation)
+			return false;
+		
+		CreateBoxStackWithHole(pint, caps, 1, 20);
+
+		// Create a fast moving box that goes through the hole in the stack
+		{
+			const Point Extents(1.0f, 1.0f, 1.0f);
+			PINT_BOX_CREATE BoxDesc(Extents);
+			BoxDesc.mRenderer	= CreateBoxRenderer(Extents);
+
+			PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
+			ObjectDesc.mMass			= 1.0f;
+			ObjectDesc.mPosition		= Point(0.0f, 10.0f, 110.0f+16.0f);
+			ObjectDesc.mLinearVelocity	= Point(0.0f, 0.0f, -1500.0f);
+			CreatePintObject(pint, ObjectDesc);
+		}
+		return true;
+	}
+
+END_TEST(CCDTest_GhostContacts2)
+
+///////////////////////////////////////////////////////////////////////////////
+
+static const char* gDesc_CCDTest_ObjectVsComplexMesh = "CCD: a single dynamic convex thrown with linear velocity 1500 against a complex static mesh. This shows \
 potential performance issues with speculative contacts when large velocities and complex triangle meshes are involved.";
 
-START_CCD_TEST(CCDTest_LimitsOfSpeculativeContacts2, gDesc_CCDTest_LimitsOfSpeculativeContacts2)
+static const udword gMaxCount = 4;
+//static const udword gMaxCount = 2;
+//static const udword gMaxCount = 1;
+
+START_CCD_TEST(CCDTest_ObjectVsComplexMesh, gDesc_CCDTest_ObjectVsComplexMesh)
+
+	udword	mCount;
 
 	virtual void	GetSceneParams(PINT_WORLD_CREATE& desc)
 	{
@@ -513,6 +615,8 @@ START_CCD_TEST(CCDTest_LimitsOfSpeculativeContacts2, gDesc_CCDTest_LimitsOfSpecu
 		TestBase::CommonSetup();
 
 		LoadMeshesFromFile_(*this, "Bunny.bin", null, false, 3);
+
+		mCount = gMaxCount;
 		return true;
 	}
 
@@ -528,15 +632,39 @@ START_CCD_TEST(CCDTest_LimitsOfSpeculativeContacts2, gDesc_CCDTest_LimitsOfSpecu
 		PINT_BOX_CREATE BoxDesc(Extents);
 		BoxDesc.mRenderer	= CreateBoxRenderer(Extents);
 
-			PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
+		PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
 		ObjectDesc.mMass			= 1.0f;
 		ObjectDesc.mPosition		= Point(0.0f, 10.0f, 50.0f);
 		ObjectDesc.mLinearVelocity	= Point(0.0f, 0.0f, -1500.0f);
-		CreatePintObject(pint, ObjectDesc);
+		pint.mUserData = CreatePintObject(pint, ObjectDesc);
 		return true;
 	}
 
-END_TEST(CCDTest_LimitsOfSpeculativeContacts2)
+	virtual	void	CommonUpdate(float dt)
+	{
+		mCount--;
+		if(!mCount)
+			mCount = gMaxCount;
+	}
+
+	virtual	udword		Update(Pint& pint, float dt)
+	{
+		if(pint.mUserData && mCount==gMaxCount)
+		{
+			PR Pose(Idt);
+			Pose.mPos	= Point(0.0f, 10.0f, 15.0f);
+
+			const Point LinVel(0.0f, 0.0f, -1500.0f);
+
+			const PintActorHandle handle = PintActorHandle(pint.mUserData);
+			pint.SetWorldTransform(handle, Pose);
+			pint.SetLinearVelocity(handle, LinVel);
+		}
+
+		return 0;
+	}
+
+END_TEST(CCDTest_ObjectVsComplexMesh)
 
 ///////////////////////////////////////////////////////////////////////////////
 

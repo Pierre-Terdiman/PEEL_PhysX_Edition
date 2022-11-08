@@ -1270,3 +1270,190 @@ END_TEST(InternalFaces)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+/*static*/ void DecomposeMeshWithHACD(Pint& pint, udword nb, const Point* pos, const SurfaceInterface& surface, bool dynamic, bool use_render_mesh);
+
+static void ExportBin(const WavefrontMesh* mesh, const char* filename)
+{
+/*
+	BIN format:
+	nb_meshes			4 bytes
+
+	for each mesh
+		collidable		4 bytes
+		renderable		4 bytes
+		nb_verts		4 bytes
+		nb_tris			4 bytes
+		vertices		nb_verts*sizeof(float)*3 bytes
+		indices			nb_tris*sizeof(int)*3 bytes
+*/
+	const udword NbMesh = 1;
+	const udword Collidable = 1;
+	const udword Renderable = 1;
+	const udword NbVerts	= mesh->GetNbVerts();
+	const udword NbFaces	= mesh->GetNbTris();
+
+	FILE* fp = fopen(filename, "wb");
+	fwrite(&NbMesh, sizeof(udword), 1, fp);
+	fwrite(&Collidable, sizeof(udword), 1, fp);
+	fwrite(&Renderable, sizeof(udword), 1, fp);
+	fwrite(&NbVerts, sizeof(udword), 1, fp);
+	fwrite(&NbFaces, sizeof(udword), 1, fp);
+	fwrite(mesh->GetVerts(), NbVerts*sizeof(float)*3, 1, fp);
+	fwrite(mesh->GetIndices(), NbFaces*sizeof(udword)*3, 1, fp);
+	fclose(fp);
+}
+
+static const char* gDesc_NutAndBolt = "Nut & bolt.";
+
+static const float gSceneScale = 0.5f;
+
+START_TEST(NutAndBolt, CATEGORY_CONTACT_GENERATION, gDesc_NutAndBolt)
+
+	WavefrontDatabase	mOBJ;
+
+/*	virtual	float	GetRenderData(Point& center)	const
+	{
+		center = gOffset;
+		return -1.0f;
+	}*/
+
+	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
+	{
+		TestBase::GetSceneParams(desc);
+		desc.mCamera[0] = PintCameraPose(Point(-0.30f, 1.13f, 1.10f), Point(0.25f, -0.46f, -0.85f));
+		//desc.mGravity	= Point(0.0f, -1.0f, 0.0f);
+		SetDefEnv(desc, false);
+		SetDefEnv(desc, true);
+	}
+
+	virtual bool	CommonSetup()
+	{
+		WavefrontLoaderParams Params;
+		Params.mScale = 100.0f*gSceneScale;
+		Params.mTransform.RotX(-HALFPI);
+		//Params.mTransform.SetTrans(0.0f, 0.5f, 0.0f);
+		Params.mMergeMeshes = true;
+
+//		bool status = LoadObj("nut_m4_loose.obj", Params, mOBJ);
+//		bool status2 = LoadObj("bolt_m4_loose.obj", Params, mOBJ);
+
+		if(1)
+		{
+			//bool status = LoadObj("nut_m4_tight.obj", Params, mOBJ);
+			bool status = LoadObj("nut_m4.obj", Params, mOBJ);
+			//bool status2 = LoadObj("bolt_m4_tight.obj", Params, mOBJ);
+			bool status2 = LoadObj("bolt_m4_loose.obj", Params, mOBJ);
+		}
+
+		if(0)
+		{
+			bool status = LoadObj("nut_m16_tight.obj", Params, mOBJ);
+			bool status2 = LoadObj("bolt_m16_tight.obj", Params, mOBJ);
+		}
+		return TestBase::CommonSetup();
+	}
+
+	virtual	void	CommonRelease()
+	{
+		mOBJ.Release();
+		TestBase::CommonRelease();
+	}
+
+	virtual bool	Setup(Pint& pint, const PintCaps& caps)
+	{
+		if(!caps.mSupportRigidBodySimulation || !caps.mSupportDynamicMeshes)
+			return false;
+
+		const udword NbMeshes = mOBJ.mMeshes.GetNbEntries();
+
+		if(0)
+		{
+			// Export to bin for debugging
+			ASSERT(NbMeshes==2);
+			const WavefrontMesh* Nut = (const WavefrontMesh*)mOBJ.mMeshes[0];
+			ExportBin(Nut, "d:/tmp/nut_m4.bin");
+			const WavefrontMesh* Bolt = (const WavefrontMesh*)mOBJ.mMeshes[1];
+			//ExportBin(Bolt, "d:/tmp/bolt_m4_tight.bin");
+			ExportBin(Bolt, "d:/tmp/bolt_m4_loose.bin");
+			return true;
+		}
+
+		for(udword i=0;i<NbMeshes;i++)
+		{
+			const WavefrontMesh* Part = (const WavefrontMesh*)mOBJ.mMeshes[i];
+
+			if(0)
+			{
+				const bool IsDynamic = i==0;
+
+				SurfaceInterface SI;
+				SI.mNbVerts	= Part->GetNbVerts();
+				SI.mVerts	= Part->GetVerts();
+				SI.mNbFaces	= Part->GetNbTris();
+				SI.mDFaces	= Part->GetIndices();
+				DecomposeMeshWithHACD(pint, 1, &Part->mPos, SI, IsDynamic, false);
+			}
+			else
+			{
+				PINT_MATERIAL_CREATE Material(0.0f, 0.1f, 0.0f);
+
+				PINT_MESH_CREATE MeshCreate;
+				MeshCreate.SetSurfaceData(Part->GetNbVerts(), Part->GetVerts(), Part->GetNbTris(), Part->GetIndices(), null);
+				MeshCreate.mRenderer = CreateMeshRenderer(MeshCreate.GetSurface());
+				MeshCreate.mMaterial = &Material;
+				MeshCreate.mDynamic	= true;
+
+				if(0 && i==0)
+				{
+					const float Radius = 0.002f*gSceneScale;
+					PintShapeRenderer* R = CreateSphereRenderer(Radius);
+
+					PINT_BOX_CREATE BoxCreate(Point(0.01f, 0.01f, 0.01f));
+					BoxCreate.mMaterial	= &Material;
+					BoxCreate.mRenderer	= MeshCreate.mRenderer;
+
+					const udword NbSpheres = Part->GetNbVerts();
+					PINT_SPHERE_CREATE* SphereCreate = ICE_NEW(PINT_SPHERE_CREATE)[NbSpheres];
+					for(udword j=0;j<NbSpheres;j++)
+					{
+						SphereCreate[j].mLocalPos	= Part->GetVerts()[j];
+						SphereCreate[j].mRadius		= Radius;
+						SphereCreate[j].mRenderer	= R;
+						SphereCreate[j].mMaterial	= &Material;
+						if(j!=NbSpheres-1)
+							SphereCreate[j].SetNext(&SphereCreate[j+1]);
+						//else
+						//	SphereCreate[j].mNext	= &BoxCreate;
+					}
+
+				PINT_OBJECT_CREATE ObjectDesc(SphereCreate);
+				ObjectDesc.mMass		= i==0 ? 1.0f : 0.0f;
+	//				ObjectDesc.mPosition	= Point(float(i)*3.0f, 0.0f, 0.0f);
+				ObjectDesc.mPosition	= Part->mPos;
+	//			if(i==0)
+					ObjectDesc.mPosition.y += 1.7f*gSceneScale;
+				CreatePintObject(pint, ObjectDesc);
+
+				}
+				else
+				{
+
+				PINT_OBJECT_CREATE ObjectDesc(&MeshCreate);
+				ObjectDesc.mMass		= i==0 ? 1.0f : 0.0f;
+				//ObjectDesc.mMass		= 1.0f;
+	//				ObjectDesc.mPosition	= Point(float(i)*3.0f, 0.0f, 0.0f);
+				ObjectDesc.mPosition	= Part->mPos;
+				if(i==0)
+					ObjectDesc.mPosition.y += 1.8f*gSceneScale;
+				CreatePintObject(pint, ObjectDesc);
+
+				}
+			}
+		}
+		return true;
+	}
+
+END_TEST(NutAndBolt)
+
+///////////////////////////////////////////////////////////////////////////////
+

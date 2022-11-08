@@ -375,7 +375,7 @@ bool RenderDataChunkCollection::Import(const VirtualFile& file)
 	for(udword i=0;i<NbChunks;i++)
 	{
 		const udword ID = file.ReadDword();
-		mRenderDataChunks.AddPtr((void*)ID);
+		mRenderDataChunks.AddPtr(reinterpret_cast<void*>(size_t(ID)));
 	}
 
 	udword* dst = mLocalPoses.Reserve(NbChunks*7);
@@ -677,7 +677,7 @@ void ZCB2FactoryEx::NewUnknownChunk(udword type, const char* name, const Virtual
 
 			for(udword i=0;i<Nb;i++)
 			{
-				const udword ID = udword(Chunk.mRenderDataChunks[i]);
+				const udword ID = udword(size_t(Chunk.mRenderDataChunks[i]));
 				PintShapeRenderer* r = GetShapeRenderer(ID);
 
 				RC->AddRenderer(r, LocalPoses[i]);

@@ -19,6 +19,153 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static const char* gDesc_ZigZagBug = "Zig-zag bug repro.";
+
+START_SQ_TEST(ZigZagBug, CATEGORY_SWEEP, gDesc_ZigZagBug)
+
+	virtual void	GetSceneParams(PINT_WORLD_CREATE& desc)
+	{
+		TestBase::GetSceneParams(desc);
+		SetDefEnv(desc, false);
+
+		//const char* Filename = FindPEELFile("ZigZagyThing_triangulated.zb2");
+		const char* Filename = FindPEELFile("ZigZagBug.zb2");
+		if(Filename)
+		{
+			bool status = ImportZB2File(desc, Filename);
+		}
+		desc.mCamera[0] = PintCameraPose(Point(-0.24f, 4.00f, 2.79f), Point(0.05f, -0.77f, -0.64f));
+	}
+
+	virtual bool	CommonSetup()
+	{
+		const Point Dir(0.0f, -1.0f, 0.0f);
+		const float CapsuleRadius = 0.5f;
+		//const float HalfHeight = 0.5f;
+		const float HalfHeight = 0.0f;
+
+		//const Point Pos(22.76f, 4.433f, -21.43f);
+		//const Point Pos(22.7555f, 4.433f, -21.43088f);
+
+		const Point Pos(0.0f, 4.433f, 0.0f);
+		const Point P0 = Pos + Point(0.0f, -HalfHeight, 0.0f);
+		const Point P1 = Pos + Point(0.0f, HalfHeight, 0.0f);
+		RegisterCapsuleSweep(LSS(Segment(P0, P1), CapsuleRadius), Dir, gSQMaxDist);
+
+		return TestBase::CommonSetup();
+	}
+
+	virtual bool	Setup(Pint& pint, const PintCaps& caps)
+	{
+		if(!caps.mSupportCapsuleSweeps || !mZB2Factory)
+			return false;
+
+		return CreateZB2Scene(pint, caps);
+	}
+
+	virtual udword	Update(Pint& pint, float dt)
+	{
+		return DoBatchCapsuleSweeps(*this, pint);
+	}
+
+END_TEST(ZigZagBug)
+
+START_SQ_TEST(ZigZagBug2, CATEGORY_SWEEP, gDesc_ZigZagBug)
+
+	virtual void	GetSceneParams(PINT_WORLD_CREATE& desc)
+	{
+		TestBase::GetSceneParams(desc);
+		SetDefEnv(desc, false);
+
+		desc.mCamera[0] = PintCameraPose(Point(-0.24f, 4.00f, 2.79f), Point(0.05f, -0.77f, -0.64f));
+	}
+
+	virtual bool	CommonSetup()
+	{
+		const Point Dir(0.0f, -1.0f, 0.0f);
+		const float CapsuleRadius = 0.5f;
+		//const float HalfHeight = 0.5f;
+		const float HalfHeight = 0.0f;
+
+		//const Point Pos(22.76f, 4.433f, -21.43f);
+		//const Point Pos(22.7555f, 4.433f, -21.43088f);
+
+		const Point Pos(0.0f, 4.433f, 0.0f);
+		const Point P0 = Pos + Point(0.0f, -HalfHeight, 0.0f);
+		const Point P1 = Pos + Point(0.0f, HalfHeight, 0.0f);
+		RegisterCapsuleSweep(LSS(Segment(P0, P1), CapsuleRadius), Dir, gSQMaxDist);
+
+		return TestBase::CommonSetup();
+	}
+
+	virtual bool	Setup(Pint& pint, const PintCaps& caps)
+	{
+		if(!caps.mSupportCapsuleSweeps)
+			return false;
+
+		const float Verts[] = 
+		{
+			8, 0, 0, 8, 0, -4,
+			8, 0.25, 0, 8, 0.25, -4,
+			0, 0, -4, 0, 0, 0,
+			0, 0.25, -4, 0, 0.25, 0,
+			0.5, 0, 0, 0.5, 0.75, 0,
+			1, 0, 0, 1, 0.25, 0,
+			0.5, 0.75, -4, 0.5, 0, -4,
+			1, 0.25, -4, 1, 0, -4,
+			7, 0, 0, 7.5, 0, 0,
+			7.5, 0.75, 0, 7, 0.25, 0,
+			7.5, 0.75, -4, 7, 0, -4,
+			7, 0.25, -4, 7.5, 0, -4,
+			1.5, 0, 0, 1.5, 0.75, 0,
+			2, 0, 0, 2, 0.25, 0,
+			1.5, 0.75, -4, 1.5, 0, -4,
+			2, 0.25, -4, 2, 0, -4,
+			3, 0, 0, 3.5, 0, 0,
+			3.5, 0.75, 0, 3, 0.25, 0,
+			4, 0, 0, 4, 0.25, 0,
+			3.5, 0.75, -4, 3, 0, -4,
+			3, 0.25, -4, 3.5, 0, -4,
+			4, 0.25, -4, 4, 0, -4,
+			5, 0, 0, 5.5, 0, 0,
+			5.5, 0.75, 0, 5, 0.25, 0,
+			6, 0, 0, 6, 0.25, 0,
+			5.5, 0.75, -4, 5, 0, -4,
+			5, 0.25, -4, 5.5, 0, -4,
+			6, 0.25, -4, 6, 0, -4,
+			6.5, 0, 0, 6.5, 0.75, 0,
+			6.5, 0.75, -4, 6.5, 0, -4,
+			4.5, 0, 0, 4.5, 0.75, 0,
+			4.5, 0.75, -4, 4.5, 0, -4,
+			2.5, 0, 0, 2.5, 0.75, 0,
+			2.5, 0.75, -4, 2.5, 0, -4
+		};
+		const udword Indices[] = { 22, 58, 57 };
+
+		const udword NbVerts = sizeof(Verts)/(sizeof(Verts[0])*3);
+
+		const SurfaceInterface SI(NbVerts, (const Point*)Verts, 1, Indices, null);
+
+		PINT_MESH_CREATE MeshDesc;
+		MeshDesc.SetSurfaceData(SI);
+		MeshDesc.mRenderer	= CreateMeshRenderer(MeshDesc.GetSurface());
+
+		PINT_OBJECT_CREATE ObjectDesc(&MeshDesc);
+		ObjectDesc.mPosition	= Point(-6.827755f, 0.0f, 4.382126f);
+		ObjectDesc.mMass		= 0.0f;
+		CreatePintObject(pint, ObjectDesc);
+		return true;
+	}
+
+	virtual udword	Update(Pint& pint, float dt)
+	{
+		return DoBatchCapsuleSweeps(*this, pint);
+	}
+
+END_TEST(ZigZagBug2)
+
+///////////////////////////////////////////////////////////////////////////////
+
 class SceneSweepVsShapes : public TestBase
 {
 	public:

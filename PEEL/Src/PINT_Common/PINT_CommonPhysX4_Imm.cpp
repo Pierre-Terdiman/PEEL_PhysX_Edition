@@ -9,34 +9,13 @@
 #include "stdafx.h"
 
 #include "..\PINT_Common\PINT_Common.h"
-
-#ifdef PHYSX_NEW_PUBLIC_API
-	#include "foundation/PxArray.h"
-	#include "foundation/PxHashSet.h"
-	#include "foundation/PxHashMap.h"
-	namespace ps = physx;
-	#define _hashmap	physx::PxHashMap
-	#define _hashset	physx::PxHashSet
-	#define _array		physx::PxArray
-	using namespace physx;
-	using namespace immediate;
-#else
-	#include "PsArray.h"
-	#include "PsHashSet.h"
-	#include "PsHashMap.h"
-	namespace ps = physx::shdfnd;
-	#define _hashmap	ps::HashMap
-	#define _hashset	ps::HashSet
-	#define _array		ps::Array
-	using namespace physx;
-	using namespace shdfnd;
-	using namespace immediate;
-#endif
-
-
+#include "..\PINT_Common\PINT_CommonPhysX_FoundationAPI.h"
 #include "..\PINT_Common\PINT_CommonPhysX4_Imm.h"
 
 #include "solver/PxSolverDefs.h"
+
+using namespace physx;
+using namespace immediate;
 
 #define SHAPE_CENTRIC
 
@@ -95,13 +74,8 @@ ImmediateScene::~ImmediateScene()
 {
 	reset();
 
-#ifdef PHYSX_NEW_PUBLIC_API
-	PX_DELETE(mConstraintAllocator);
-	PX_DELETE(mCacheAllocator);
-#else
-	PX_DELETE_AND_RESET(mConstraintAllocator);
-	PX_DELETE_AND_RESET(mCacheAllocator);
-#endif
+	DELETESINGLE(mConstraintAllocator);
+	DELETESINGLE(mCacheAllocator);
 }
 
 void ImmediateScene::reset()
@@ -144,7 +118,7 @@ void ImmediateScene::reset()
 
 ImmShapeHandle ImmediateScene::createShape(const PxGeometry& geometry, const PxTransform& localPose, void* userData)
 {
-	const ImmShapeHandle shapeHandle = ImmShapeHandle(mShapes.size());
+	const ImmShapeHandle shapeHandle = ImmShapeHandle(size_t(mShapes.size()));
 	mShapes.pushBack(ImmediateShape(geometry, localPose, userData));
 	return shapeHandle;
 }
@@ -309,7 +283,7 @@ ImmActorHandle ImmediateScene::createActor(PxU32 nbShapes, const ImmShapeHandle*
 #ifndef SHAPE_CENTRIC
 	mBounds.pushBack(PxBounds3());
 #endif
-	return ImmActorHandle(id);
+	return ImmActorHandle(size_t(id));
 }
 
 Dy::ArticulationV* ImmediateScene::createArticulation(bool fixBase)
@@ -438,7 +412,7 @@ void ImmediateScene::updateBounds(float boundsInflation)
 		for(PxU32 j=0;j<nbShapes;j++)
 		{
 			const ImmShapeHandle shapeHandle = mActors[i].mShapeHandle[j];
-			const PxU32 shapeIndex = PxU32(shapeHandle);
+			const PxU32 shapeIndex = PxU32(size_t(shapeHandle));
 			const ImmediateShape& currentShape = mShapes[shapeIndex];
 			const PxGeometry& currentGeom = currentShape.mGeom.any();
 			const PxTransform& shapeLocalPose = currentShape.mLocalPose;
@@ -446,12 +420,16 @@ void ImmediateScene::updateBounds(float boundsInflation)
 
 #ifdef SHAPE_CENTRIC
 			PxBounds3 bounds;
+	#ifdef PHYSX_SUPPORT_PX_GEOMETRY_QUERY_FLAGS
 //			Local::computeShapeBounds(bounds, currentGeom, currentPose, boundsInflation);
 			PxGeometryQuery::computeGeomBounds(bounds, currentGeom, currentPose, boundsInflation, 1.0f, PxGeometryQueryFlag::Enum(0));
 //			Local::computeShapeBounds(mShapeBounds[k++], currentGeom, currentPose, boundsInflation);
+	#else
+			bounds = PxGeometryQuery::getWorldBounds(currentGeom, currentPose, 1.0f + boundsInflation);
+	#endif
 			mShapeBounds.pushBack(bounds);
 
-			mBPEntries.pushBack(BPEntry(ImmActorHandle(i), shapeHandle));
+			mBPEntries.pushBack(BPEntry(ImmActorHandle(size_t(i)), shapeHandle));
 #else
 			Local::computeShapeBounds(mBounds[i], currentGeom, currentPose, boundsInflation);
 #endif
@@ -508,11 +486,7 @@ void ImmediateScene::broadPhase()
 			{
 				//#### TODO: fix this!!!!!!!!!
 				// ### doesn't work with shared shapes, and also shape ptrs should be sorted
-#ifdef PHYSX_NEW_PUBLIC_API
-				const PxHashMap<ShapePair, PersistentContactPair>::Entry* e = mPersistentPairs.find(ShapePair(entry0.mShape, entry1.mShape));
-#else
-				const HashMap<ShapePair, PersistentContactPair>::Entry* e = mPersistentPairs.find(ShapePair(entry0.mShape, entry1.mShape));
-#endif
+				const _hashmap<ShapePair, PersistentContactPair>::Entry* e = mPersistentPairs.find(ShapePair(entry0.mShape, entry1.mShape));
 				if(e)
 				{
 					PersistentContactPair& persistentData = const_cast<PersistentContactPair&>(e->second);
@@ -674,14 +648,14 @@ void ImmediateScene::narrowPhase(float contactDistance, float meshContactMargin,
 		const ImmShapeHandle shape0 = bpEntry0.mShape;
 		const ImmShapeHandle shape1 = bpEntry1.mShape;
 
-		const ImmediateShape& currentShape0 = mShapes[PxU32(shape0)];
-		const ImmediateShape& currentShape1 = mShapes[PxU32(shape1)];
+		const ImmediateShape& currentShape0 = mShapes[PxU32(size_t(shape0))];
+		const ImmediateShape& currentShape1 = mShapes[PxU32(size_t(shape1))];
 
 		const PxGeometry* pxGeom0 = &currentShape0.mGeom.any();
 		const PxGeometry* pxGeom1 = &currentShape1.mGeom.any();
 
-		const PxU32 id0 = PxU32(actor0);
-		const PxU32 id1 = PxU32(actor1);
+		const PxU32 id0 = PxU32(size_t(actor0));
+		const PxU32 id1 = PxU32(size_t(actor1));
 
 		const PxTransform tr0 = mActorGlobalPoses[id0] * currentShape0.mLocalPose;
 		const PxTransform tr1 = mActorGlobalPoses[id1] * currentShape1.mLocalPose;
@@ -827,10 +801,10 @@ static PX_FORCE_INLINE void setupBodyPtr(PxSolverConstraintDesc& desc, PxSolverB
 template<class T, const bool aorb>
 static void setupConstraintDesc(PxSolverConstraintDesc& desc, const ImmediateActor* actors, T* solverBodies, ImmActorHandle handle)
 {
-	const PxU32 id = PxU32(handle);	//###TODO: revisit this
+	const PxU32 id = PxU32(size_t(handle));	//###TODO: revisit this
 
 	if(!aorb)
-		desc.bodyADataIndex	= id;	//### wrong in snippet
+		desc.bodyADataIndex	= id;
 	else
 		desc.bodyBDataIndex	= id;
 
@@ -840,12 +814,12 @@ static void setupConstraintDesc(PxSolverConstraintDesc& desc, const ImmediateAct
 		if(!aorb)
 		{
 			desc.articulationA	= PxGetLinkArticulation(link);
-			desc.linkIndexA		= PxU16(PxGetLinkIndex(link));
+			desc.linkIndexA		= PxU16(PxGetLinkIndex(link));	// ### PxTo8
 		}
 		else
 		{
 			desc.articulationB	= PxGetLinkArticulation(link);
-			desc.linkIndexB		= PxU16(PxGetLinkIndex(link));
+			desc.linkIndexB		= PxU16(PxGetLinkIndex(link));	// ### PxTo8
 		}
 	}
 	else
@@ -996,7 +970,7 @@ static void setupDescTGS(PxTGSSolverContactDesc& contactDesc, const ImmediateAct
 	const PxTGSSolverBodyData*& data = aorb ? contactDesc.bodyData1 : contactDesc.bodyData0;
 	const PxTGSSolverBodyTxInertia*& txI = aorb ? contactDesc.body1TxI : contactDesc.body0TxI;
 
-	const PxU32 id = PxU32(handle);	//###TODO: revisit this
+	const PxU32 id = PxU32(size_t(handle));	//###TODO: revisit this
 
 	Dy::ArticulationLinkHandle link = actors[id].mLink;
 	if(link)
@@ -1027,7 +1001,7 @@ static void setupDescPGS(PxSolverContactDesc& contactDesc, const ImmediateActor*
 	PxSolverConstraintPrepDescBase::BodyState& bodyState = aorb ? contactDesc.bodyState1 : contactDesc.bodyState0;
 	const PxSolverBodyData*& data = aorb ? contactDesc.data1 : contactDesc.data0;
 
-	const PxU32 id = PxU32(handle);	//###TODO: revisit this
+	const PxU32 id = PxU32(size_t(handle));	//###TODO: revisit this
 
 	Dy::ArticulationLinkHandle link = actors[id].mLink;
 	if(link)

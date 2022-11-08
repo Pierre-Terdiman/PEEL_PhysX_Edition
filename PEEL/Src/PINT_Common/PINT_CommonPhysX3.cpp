@@ -477,8 +477,8 @@ PintJointHandle SharedPhysX::CreateJoint(PxPhysics& physics, const PINT_JOINT_CR
 
 			if(0)
 			{
-				printf("mObject0: %d\n", jc.mObject0);
-				printf("mObject1: %d\n", jc.mObject1);
+				printf("mObject0: %p\n", jc.mObject0);
+				printf("mObject1: %p\n", jc.mObject1);
 				printf("mLocalPivot0: %f %f %f\n", jc.mLocalPivot0.mPos.x, jc.mLocalPivot0.mPos.y, jc.mLocalPivot0.mPos.z);
 				printf("mLocalPivot1: %f %f %f\n", jc.mLocalPivot1.mPos.x, jc.mLocalPivot1.mPos.y, jc.mLocalPivot1.mPos.z);		
 			}
@@ -1291,7 +1291,11 @@ SharedPhysX::SharedPhysX(const EditableParams& params) :
 	mFoundation				(null),
 	mPhysics				(null),
 	mScene					(null),
+#if PHYSX_SUPPORT_IMMEDIATE_COOKING
+	mCookingParams			(PxTolerancesScale()),
+#else
 	mCooking				(null),
+#endif
 	mDefaultMaterial		(null),
 #ifdef PHYSX_SUPPORT_CHARACTERS
 	mControllerManager		(null),
@@ -1338,7 +1342,9 @@ SharedPhysX::~SharedPhysX()
 	ASSERT(!mInvisibles);
 #endif
 	ASSERT(!mFoundation);
+#if !PHYSX_SUPPORT_IMMEDIATE_COOKING
 	ASSERT(!mCooking);
+#endif
 	ASSERT(!mDefaultMaterial);
 #ifdef PHYSX_SUPPORT_CHARACTERS
 	ASSERT(!mControllerManager);
@@ -1401,6 +1407,15 @@ static RaycastCCDManager* gRaycastCCDManager = null;
 
 void SharedPhysX::InitCommon()
 {
+/*	for(PxU32 i=0;i<64000;i++)
+	{
+		const float staticFriction = UnitRandomFloat();
+		const float dynamicFriction = UnitRandomFloat();
+		const float restitution = UnitRandomFloat();
+		const PINT_MATERIAL_CREATE Desc(staticFriction, dynamicFriction, restitution);
+		CreateMaterial(Desc);
+	}*/
+
 	// Create default material
 	{
 		const PINT_MATERIAL_CREATE Desc(mParams.mDefaultStaticFriction, mParams.mDefaultDynamicFriction, 0.0f);
@@ -1461,7 +1476,9 @@ void SharedPhysX::CloseCommon()
 #ifndef IS_PHYSX_3_2
 void SharedPhysX::CreateCooking(const PxTolerancesScale& scale, PxMeshPreprocessingFlags mesh_preprocess_params)
 {
+#if !PHYSX_SUPPORT_IMMEDIATE_COOKING
 	ASSERT(!mCooking);
+#endif
 	PxCookingParams Params(scale);
 #if PHYSX_SUPPORT_PX_MESH_MIDPHASE
 	#if PHYSX_SUPPORT_PX_MESH_MIDPHASE2
@@ -1536,12 +1553,16 @@ void SharedPhysX::CreateCooking(const PxTolerancesScale& scale, PxMeshPreprocess
 
 	//printf("Params.meshPreprocessParams: %d\n", Params.meshPreprocessParams);
 
-#ifdef USE_LOAD_LIBRARY
-	mCooking = (func2)(PX_PHYSICS_VERSION, *mFoundation, Params);
+#if PHYSX_SUPPORT_IMMEDIATE_COOKING
+	mCookingParams = Params;
 #else
-	mCooking = PxCreateCooking(PX_PHYSICS_VERSION, *mFoundation, Params);
+	#ifdef USE_LOAD_LIBRARY
+		mCooking = (func2)(PX_PHYSICS_VERSION, *mFoundation, Params);
+	#else
+		mCooking = PxCreateCooking(PX_PHYSICS_VERSION, *mFoundation, Params);
+	#endif
+		ASSERT(mCooking);
 #endif
-	ASSERT(mCooking);
 }
 #endif
 
@@ -1664,6 +1685,14 @@ void SharedPhysX::SetupDynamic(PxRigidDynamic& rigidDynamic, const PINT_OBJECT_C
 	if(mParams.mEnableContactNotif)
 		rigidDynamic.setContactReportThreshold(mParams.mContactNotifThreshold);
 #endif
+
+/*	if(0 && desc.mName && strstr(desc.mName, "wheel")!=null)
+	{
+		printf("Found wheel: %s\n", desc.mName);
+		rigidDynamic.setContactSlopCoefficient(0.05f);
+		//rigidDynamic.setContactSlopCoefficient(0.5f);
+		//rigidDynamic.setContactSlopCoefficient(5.0f);
+	}*/
 }
 
 void SharedPhysX::ApplyLocalTorques()
@@ -1876,7 +1905,11 @@ PintActorHandle SharedPhysX::CreateObject(const PINT_OBJECT_CREATE& desc)
 			bvhDesc.bounds.data		= bounds;
 			bvhDesc.bounds.stride	= sizeof(PxBounds3);
 
+	#if PHYSX_SUPPORT_IMMEDIATE_COOKING
+			PxBVH* bvh = PxCreateBVH(bvhDesc, mPhysics->getPhysicsInsertionCallback());
+	#else
 			PxBVH* bvh = mCooking->createBVH(bvhDesc, mPhysics->getPhysicsInsertionCallback());
+	#endif
 
 			PX_FREE(bounds);
 
@@ -1910,6 +1943,7 @@ bool SharedPhysX::ReleaseObject(PintActorHandle handle)
 	if(RigidActor)
 	{
 #if PHYSX_SUPPORT_RAYCAST_CCD
+	#if PHYSX_SUPPORT_RAYCAST_CCD_UNREGISTER
 		if(gRaycastCCDManager)
 		{
 			// ### not great, to revisit
@@ -1920,11 +1954,10 @@ bool SharedPhysX::ReleaseObject(PintActorHandle handle)
 				PxShape* S;
 				Dyna->getShapes(&S, 1);
 
-	#if PHYSX_SUPPORT_RAYCAST_CCD_UNREGISTER
 				gRaycastCCDManager->unregisterRaycastCCDObject(Dyna, S);
-	#endif
 			}
 		}
+	#endif
 #endif
 
 		RemoveActor(RigidActor);
@@ -2103,6 +2136,25 @@ void SharedPhysX::SetWorldTransform(PintActorHandle handle, const PR& pose)
 		RigidActor->setGlobalPose(Pose);
 //		mScene->resetFiltering(*RigidActor);
 		mActorManager.UpdateTimestamp();
+#if PHYSX_SUPPORT_RAYCAST_CCD
+		// Need to reset the witness point in raycast CCD manager
+	#if PHYSX_SUPPORT_RAYCAST_CCD_UNREGISTER
+		if(gRaycastCCDManager)
+		{
+			// ### not great, to revisit
+			if(RigidActor->getConcreteType()==PxConcreteType::eRIGID_DYNAMIC)
+			{
+				PxRigidDynamic* Dyna = static_cast<PxRigidDynamic*>(RigidActor);
+
+				PxShape* S;
+				Dyna->getShapes(&S, 1);
+
+				gRaycastCCDManager->unregisterRaycastCCDObject(Dyna, S);
+				gRaycastCCDManager->registerRaycastCCDObject(Dyna, S);
+			}
+		}
+	#endif
+#endif
 	}
 	else
 	{
@@ -2527,10 +2579,15 @@ bool SharedPhysX::EnableKinematic(PintActorHandle handle, bool flag)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static PxConvexMesh* CreatePhysXConvex(PxPhysics* physics, PxCooking* cooking, udword nb_verts, const Point* verts, PxConvexFlags flags)
+static PxConvexMesh* CreatePhysXConvex(PxPhysics* physics,
+#if PHYSX_SUPPORT_IMMEDIATE_COOKING
+	const PxCookingParams& cookingParams,
+#else
+	PxCooking& cooking,
+#endif
+	udword nb_verts, const Point* verts, PxConvexFlags flags)
 {
 	ASSERT(physics);
-	ASSERT(cooking);
 
 	PxConvexMeshDesc ConvexDesc;
 	ConvexDesc.points.count		= nb_verts;
@@ -2540,12 +2597,12 @@ static PxConvexMesh* CreatePhysXConvex(PxPhysics* physics, PxCooking* cooking, u
 
 	PxConvexMesh* NewConvex;
 #if PHYSX_SUPPORT_INSERTION_CALLBACK
-	if(1)
-	{
-		NewConvex = cooking->createConvexMesh(ConvexDesc, physics->getPhysicsInsertionCallback());
-	}
-	else
-#endif
+	#if PHYSX_SUPPORT_IMMEDIATE_COOKING
+		NewConvex = PxCreateConvexMesh(cookingParams, ConvexDesc, physics->getPhysicsInsertionCallback());
+	#else
+		NewConvex = cooking.createConvexMesh(ConvexDesc, physics->getPhysicsInsertionCallback());
+	#endif
+#else
 	{
 		MemoryOutputStream buf;
 		if(!cooking->cookConvexMesh(ConvexDesc, buf))
@@ -2555,17 +2612,18 @@ static PxConvexMesh* CreatePhysXConvex(PxPhysics* physics, PxCooking* cooking, u
 		NewConvex = physics->createConvexMesh(input);
 	//	printf("3.4 convex: %d vertices\n", NewConvex->getNbVertices());
 	}
+#endif
 	return NewConvex;
 }
 
 PxConvexMesh* SharedPhysX::CreatePhysXConvex(udword nb_verts, const Point* verts, PxConvexFlags flags)
 {
-	return ::CreatePhysXConvex(mPhysics, mCooking, nb_verts, verts, flags);
+	return ::CreatePhysXConvex(mPhysics, GetCooking(), nb_verts, verts, flags);
 }
 
 PintConvexHandle SharedPhysX::CreateConvexObject(const PINT_CONVEX_DATA_CREATE& desc, PintConvexIndex* index)
 {
-	PxConvexMesh* ConvexMesh = ::CreatePhysXConvex(mPhysics, mCooking, desc.mNbVerts, desc.mVerts, mParams.GetConvexFlags());
+	PxConvexMesh* ConvexMesh = ::CreatePhysXConvex(mPhysics, GetCooking(), desc.mNbVerts, desc.mVerts, mParams.GetConvexFlags());
 
 	const udword Index = mConvexObjects.AddObject(ConvexMesh);
 	if(index)
@@ -2585,36 +2643,55 @@ bool SharedPhysX::DeleteConvexObject(PintConvexHandle handle, const PintConvexIn
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static PxTriangleMesh* CreatePhysXMesh(PxPhysics* physics, PxCooking* cooking, const PintSurfaceInterface& surface, bool deformable)
+static PxTriangleMesh* CreatePhysXMesh(PxPhysics* physics,
+#if PHYSX_SUPPORT_IMMEDIATE_COOKING
+	const PxCookingParams& cookingParams,
+#else
+	PxCooking& cooking,
+#endif
+	const PintSurfaceInterface& surface, bool deformable, bool dynamic)
 {
 	ASSERT(physics);
-	ASSERT(cooking);
 
 //		PxCookingParams Params = cooking->getParams();
 //		Params.midphaseDesc.mBVH34Desc.quantized = false;
 //		cooking->setParams(Params);
 
 #if PHYSX_SUPPORT_DEFORMABLE_MESHES
-	PxMeshPreprocessingFlags SavedFlags;
-	#if PHYSX_SUPPORT_QUANTIZED_TREE_OPTION
-	bool SavedQ;
+	#if PHYSX_SUPPORT_IMMEDIATE_COOKING
+		PxCookingParams Params = cookingParams;
+		if(deformable)
+		{
+			Params.midphaseDesc.mBVH34Desc.quantized = false;
+			PxU32 newValue = PxU32(Params.meshPreprocessParams);
+			newValue &= ~PxMeshPreprocessingFlag::eWELD_VERTICES;
+			newValue |= PxMeshPreprocessingFlag::eDISABLE_CLEAN_MESH;
+			newValue |= PxMeshPreprocessingFlag::eDISABLE_ACTIVE_EDGES_PRECOMPUTE;
+			Params.meshPreprocessParams = PxMeshPreprocessingFlag::Enum(newValue);
+	//		printf("Params.meshPreprocessParams: %d\n", Params.meshPreprocessParams);
+		}
+	#else
+		PxMeshPreprocessingFlags SavedFlags;
+		#if PHYSX_SUPPORT_QUANTIZED_TREE_OPTION
+		bool SavedQ;
+		#endif
+		if(deformable)
+		{
+			PxCookingParams Params = cooking.getParams();
+			SavedFlags = Params.meshPreprocessParams;
+		#if PHYSX_SUPPORT_QUANTIZED_TREE_OPTION
+			SavedQ = Params.midphaseDesc.mBVH34Desc.quantized;
+			Params.midphaseDesc.mBVH34Desc.quantized = false;
+		#endif
+			PxU32 newValue = PxU32(Params.meshPreprocessParams);
+			newValue &= ~PxMeshPreprocessingFlag::eWELD_VERTICES;
+			newValue |= PxMeshPreprocessingFlag::eDISABLE_CLEAN_MESH;
+			newValue |= PxMeshPreprocessingFlag::eDISABLE_ACTIVE_EDGES_PRECOMPUTE;
+			Params.meshPreprocessParams = PxMeshPreprocessingFlag::Enum(newValue);
+			cooking.setParams(Params);
+	//		printf("Params.meshPreprocessParams: %d\n", Params.meshPreprocessParams);
+		}
 	#endif
-	if(deformable)
-	{
-		PxCookingParams Params = cooking->getParams();
-		SavedFlags = Params.meshPreprocessParams;
-	#if PHYSX_SUPPORT_QUANTIZED_TREE_OPTION
-		SavedQ = Params.midphaseDesc.mBVH34Desc.quantized;
-		Params.midphaseDesc.mBVH34Desc.quantized = false;
-	#endif
-		PxU32 newValue = PxU32(Params.meshPreprocessParams);
-		newValue &= ~PxMeshPreprocessingFlag::eWELD_VERTICES;
-		newValue |= PxMeshPreprocessingFlag::eDISABLE_CLEAN_MESH;
-		newValue |= PxMeshPreprocessingFlag::eDISABLE_ACTIVE_EDGES_PRECOMPUTE;
-		Params.meshPreprocessParams = PxMeshPreprocessingFlag::Enum(newValue);
-		cooking->setParams(Params);
-//		printf("Params.meshPreprocessParams: %d\n", Params.meshPreprocessParams);
-	}
 #endif
 
 	PxTriangleMeshDesc MeshDesc;
@@ -2626,6 +2703,29 @@ static PxTriangleMesh* CreatePhysXMesh(PxPhysics* physics, PxCooking* cooking, c
 	MeshDesc.triangles.data		= surface.mDFaces;
 //	MeshDesc.flags				= PxMeshFlag::eFLIPNORMALS;
 //	MeshDesc.flags				= 0;
+
+#if PHYSX_SUPPORT_DYNAMIC_MESHES
+	PxSDFDesc sdfDesc;
+	if(dynamic)
+	{
+		const_cast<PxCookingParams&>(cookingParams).meshPreprocessParams |= PxMeshPreprocessingFlag::eENABLE_INERTIA;
+
+		//sdfDesc.spacing = 0.05f;
+		sdfDesc.spacing = 0.005f;
+		//sdfDesc.spacing = 0.0025f;
+		//sdfDesc.spacing = 0.001f;
+		//sdfDesc.spacing = 0.0005f;
+		sdfDesc.subgridSize = 6;
+		sdfDesc.bitsPerSubgridPixel = PxSdfBitsPerSubgridPixel::e16_BIT_PER_PIXEL;
+		sdfDesc.numThreadsForSdfConstruction = 16;
+
+		MeshDesc.sdfDesc = &sdfDesc;
+	}
+	else
+	{
+		const_cast<PxCookingParams&>(cookingParams).meshPreprocessParams.clear(PxMeshPreprocessingFlag::eENABLE_INERTIA);
+	}
+#endif
 
 	if(0)
 	{
@@ -2657,15 +2757,17 @@ static PxTriangleMesh* CreatePhysXMesh(PxPhysics* physics, PxCooking* cooking, c
 
 	PxTriangleMesh* NewMesh = null;
 #if PHYSX_SUPPORT_INSERTION_CALLBACK
-	if(1)
 	{
 //		udword NbAllocs = gDefaultAllocator->mTotalNbAllocs;
-		NewMesh = cooking->createTriangleMesh(MeshDesc, physics->getPhysicsInsertionCallback());
+	#if PHYSX_SUPPORT_IMMEDIATE_COOKING
+		NewMesh = PxCreateTriangleMesh(Params, MeshDesc, physics->getPhysicsInsertionCallback());
+	#else
+		NewMesh = cooking.createTriangleMesh(MeshDesc, physics->getPhysicsInsertionCallback());
+	#endif
 //		NbAllocs = gDefaultAllocator->mTotalNbAllocs - NbAllocs;
 //		printf("NbAllocs: %d\n", NbAllocs);
 	}
-	else
-#endif
+#else
 	{
 //		printf("PhysX 3.3: cooking mesh: %d verts, %d faces\n", surface.mNbVerts, surface.mNbFaces);
 
@@ -2687,22 +2789,25 @@ static PxTriangleMesh* CreatePhysXMesh(PxPhysics* physics, PxCooking* cooking, c
 			//	printf("Done.\n");
 		}
 	}
+#endif
 
 //	printf("gDefaultAllocator->mCurrentMemory: %d\n", gDefaultAllocator->mCurrentMemory);
 //	printf("gDefaultAllocator->mNbAllocs: %d\n", gDefaultAllocator->mNbAllocs);
 //	gDefaultAllocator->mLog = false;
 
 #if PHYSX_SUPPORT_DEFORMABLE_MESHES
+	#if !PHYSX_SUPPORT_IMMEDIATE_COOKING
 	if(deformable)
 	{
-		PxCookingParams Params = cooking->getParams();
+		PxCookingParams Params = cooking.getParams();
 	#if PHYSX_SUPPORT_QUANTIZED_TREE_OPTION
 		Params.midphaseDesc.mBVH34Desc.quantized = SavedQ;
 	#endif
 		Params.meshPreprocessParams = SavedFlags;
-		cooking->setParams(Params);
+		cooking.setParams(Params);
 //		printf("Params.meshPreprocessParams: %d\n", Params.meshPreprocessParams);
 	}
+	#endif
 #endif
 
 	return NewMesh;
@@ -2710,7 +2815,7 @@ static PxTriangleMesh* CreatePhysXMesh(PxPhysics* physics, PxCooking* cooking, c
 
 PintMeshHandle SharedPhysX::CreateMeshObject(const PINT_MESH_DATA_CREATE& desc, PintMeshIndex* index)
 {
-	PxTriangleMesh* TriangleMesh = CreatePhysXMesh(desc.GetSurface(), desc.mDeformable);
+	PxTriangleMesh* TriangleMesh = CreatePhysXMesh(desc.GetSurface(), desc.mDeformable, desc.mDynamic);
 
 	const udword Index = mMeshObjects.AddObject(TriangleMesh);
 	if(index)
@@ -2728,9 +2833,9 @@ bool SharedPhysX::DeleteMeshObject(PintMeshHandle handle, const PintMeshIndex* i
 	return true;
 }
 
-PxTriangleMesh* SharedPhysX::CreatePhysXMesh(const PintSurfaceInterface& surface, bool deformable)
+PxTriangleMesh* SharedPhysX::CreatePhysXMesh(const PintSurfaceInterface& surface, bool deformable, bool dynamic)
 {
-	return ::CreatePhysXMesh(mPhysics, mCooking, surface, deformable);
+	return ::CreatePhysXMesh(mPhysics, GetCooking(), surface, deformable, dynamic);
 }
 
 /*PxTriangleMesh* SharedPhysX::CreateTriangleMesh(const SurfaceInterface& surface, PintShapeRenderer* renderer, bool deformable)
@@ -2765,7 +2870,9 @@ PxTriangleMesh* SharedPhysX::CreatePhysXMesh(const PintSurfaceInterface& surface
 PintHeightfieldHandle SharedPhysX::CreateHeightfieldObject(const PINT_HEIGHTFIELD_DATA_CREATE& desc, PintHeightfieldData& data, PintHeightfieldIndex* index)
 {
 	ASSERT(mPhysics);
+#if !PHYSX_SUPPORT_IMMEDIATE_COOKING
 	ASSERT(mCooking);
+#endif
 
 	// Questionable PhysX design here: "row" is along X !
 
@@ -2836,7 +2943,11 @@ PintHeightfieldHandle SharedPhysX::CreateHeightfieldObject(const PINT_HEIGHTFIEL
 	hfDesc.thickness		= 0.0f;
 	#endif
 
+	#if PHYSX_SUPPORT_IMMEDIATE_COOKING
+	PxHeightField* HF = PxCreateHeightField(hfDesc, mPhysics->getPhysicsInsertionCallback());
+	#else
 	PxHeightField* HF = mCooking->createHeightField(hfDesc, mPhysics->getPhysicsInsertionCallback());
+	#endif
 
 	DELETEARRAY(samples);
 
@@ -3186,7 +3297,6 @@ const PxCustomGeometry CustomGeom(*cb);
 	{
 		const PINT_CONVEX_CREATE& ConvexCreate = static_cast<const PINT_CONVEX_CREATE&>(create);
 
-		ASSERT(mCooking);
 //			PxConvexMesh* ConvexMesh = CreateConvexMesh(ConvexCreate.mVerts, ConvexCreate.mNbVerts, PxConvexFlag::eCOMPUTE_CONVEX|PxConvexFlag::eINFLATE_CONVEX, create.mRenderer);
 //			PxConvexMesh* ConvexMesh = CreateConvexMesh(ConvexCreate.mVerts, ConvexCreate.mNbVerts, PxConvexFlag::eCOMPUTE_CONVEX, create.mRenderer);
 		PxConvexMesh* ConvexMesh = CreateConvexMesh(ConvexCreate.mVerts, ConvexCreate.mNbVerts, mParams.GetConvexFlags(), create.mRenderer, mParams.mShareMeshData);
@@ -3205,7 +3315,6 @@ const PxCustomGeometry CustomGeom(*cb);
 	{
 		const PINT_MESH_CREATE& MeshCreate = static_cast<const PINT_MESH_CREATE&>(create);
 
-		ASSERT(mCooking);
 		PxTriangleMesh* TriangleMesh = CreateTriangleMesh(MeshCreate.GetSurface(), create.mRenderer, MeshCreate.mDeformable, mParams.mShareMeshData, Params->mIsDynamic);
 		ASSERT(TriangleMesh);
 
@@ -3285,7 +3394,12 @@ PintAggregateHandle SharedPhysX::CreateAggregate(udword max_size, bool enable_se
 {
 	ASSERT(mPhysics);
 	// TODO: where are these released?
+/*#if PHYSX_SUPPORT_GPU_AGGREGATES
+	// Assumes single-shape actors to avoid updating the PEEL API for now
+	PxAggregate* Aggregate = mPhysics->createAggregate(max_size, max_size, enable_self_collision);
+#else*/
 	PxAggregate* Aggregate = mPhysics->createAggregate(max_size, enable_self_collision);
+//#endif
 	return PintAggregateHandle(Aggregate);
 }
 
@@ -3295,13 +3409,13 @@ bool SharedPhysX::AddToAggregate(PintActorHandle object, PintAggregateHandle agg
 	if(!Actor)
 		return false;
 
-	PxAggregate* Aggregate = (PxAggregate*)aggregate;
+	PxAggregate* Aggregate = reinterpret_cast<PxAggregate*>(aggregate);
 	return Aggregate->addActor(*Actor);
 }
 
 bool SharedPhysX::AddAggregateToScene(PintAggregateHandle aggregate)
 {
-	PxAggregate* Aggregate = (PxAggregate*)aggregate;
+	PxAggregate* Aggregate = reinterpret_cast<PxAggregate*>(aggregate);
 	mScene->addAggregate(*Aggregate);
 
 	const udword NbActors = Aggregate->getNbActors();
@@ -4072,11 +4186,19 @@ void SharedPhysX::RenderDebugData(PintRender& renderer)
 		{
 			PxBroadPhaseRegionInfo Region;
 			mScene->getBroadPhaseRegions(&Region, 1, i);
+	#if PHYSX_SUPPORT_PX_BROADPHASE_PABP
+			if(Region.mActive)
+	#else
 			if(Region.active)
+	#endif
 			{
+	#if PHYSX_SUPPORT_PX_BROADPHASE_PABP
+				const Point m = ToPoint(Region.mRegion.mBounds.minimum);
+				const Point M = ToPoint(Region.mRegion.mBounds.maximum);
+	#else
 				const Point m = ToPoint(Region.region.bounds.minimum);
 				const Point M = ToPoint(Region.region.bounds.maximum);
-
+	#endif
 				AABB Bounds;
 				Bounds.SetMinMax(m, M);
 
@@ -4182,7 +4304,9 @@ enum PhysXGUIElement
 	PHYSX_GUI_TIGHT_CONVEX_BOUNDS,
 #endif
 	PHYSX_GUI_PCM,
+#if PHYSX_SUPPORT_ADAPTIVE_FORCE
 	PHYSX_GUI_ADAPTIVE_FORCE,
+#endif
 #if PHYSX_SUPPORT_STABILIZATION_FLAG
 	PHYSX_GUI_STABILIZATION,
 #endif
@@ -4292,10 +4416,14 @@ EditableParams::EditableParams() :
 	mScratchSize				(0),
 #endif
 #if PHYSX_SUPPORT_PX_BROADPHASE_TYPE
-	#if PHYSX_SUPPORT_PX_BROADPHASE_ABP
-	mBroadPhaseType				(PxBroadPhaseType::eABP),
+	#if PHYSX_SUPPORT_PX_BROADPHASE_PABP
+		mBroadPhaseType			(PxBroadPhaseType::ePABP),
 	#else
-	mBroadPhaseType				(PxBroadPhaseType::eSAP),
+		#if PHYSX_SUPPORT_PX_BROADPHASE_ABP
+		mBroadPhaseType			(PxBroadPhaseType::eABP),
+		#else
+		mBroadPhaseType			(PxBroadPhaseType::eSAP),
+		#endif
 	#endif
 	mMBPSubdivLevel				(4),
 	mMBPRange					(1000.0f),
@@ -4361,7 +4489,9 @@ EditableParams::EditableParams() :
 	mDisableStrongFriction		(false),
 	mEnableOneDirFriction		(false),
 	mEnableTwoDirFriction		(false),
+#if PHYSX_SUPPORT_ADAPTIVE_FORCE
 	mAdaptiveForce				(false),
+#endif
 #if PHYSX_SUPPORT_STABILIZATION_FLAG
 	mStabilization				(true),
 #endif
@@ -5150,9 +5280,11 @@ static void gCheckBoxCallback(const IceCheckBox& check_box, bool checked, void* 
 		case PHYSX_GUI_PCM:
 			gParams.mPCM = checked;
 			break;
+#if PHYSX_SUPPORT_ADAPTIVE_FORCE
 		case PHYSX_GUI_ADAPTIVE_FORCE:
 			gParams.mAdaptiveForce = checked;
 			break;
+#endif
 #if PHYSX_SUPPORT_STABILIZATION_FLAG
 		case PHYSX_GUI_STABILIZATION:
 			gParams.mStabilization = checked;
@@ -5300,7 +5432,7 @@ static udword GetNumberOfLogicalThreads()
 #if (_WIN32_WINNT >= 0x0601)
 	udword groups = GetActiveProcessorGroupCount();
 	udword totalProcessors = 0;
-	for(udword i=0; i<groups; i++) 
+	for(uword i=0; i<groups; i++) 
 		totalProcessors += udword(GetActiveProcessorCount(i));
 	return totalProcessors;
 #else
@@ -5419,6 +5551,7 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 
 			gPhysXUI->mComboBox_NbThreads = CreateComboBox<IceComboBox>(TabWindow, PHYSX_GUI_NB_THREADS, 4+OffsetX, y, 150, 20, "Num threads", gPhysXUI->mPhysXGUI, null);
 			gPhysXUI->mComboBox_NbThreads->Add("Single threaded");
+			gPhysXUI->mComboBox_NbThreads->Add("1 main + 1 worker thread");
 			gPhysXUI->mComboBox_NbThreads->Add("1 main + 2 worker threads");
 			gPhysXUI->mComboBox_NbThreads->Add("1 main + 3 worker threads");
 			gPhysXUI->mComboBox_NbThreads->Add("1 main + 4 worker threads");
@@ -5449,6 +5582,9 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 			gPhysXUI->mComboBox_BroadPhase->Add("eMBP");
 	#if PHYSX_SUPPORT_PX_BROADPHASE_ABP
 			gPhysXUI->mComboBox_BroadPhase->Add("eABP");
+	#endif
+	#if PHYSX_SUPPORT_PX_BROADPHASE_PABP
+			gPhysXUI->mComboBox_BroadPhase->Add("ePABP");
 	#endif
 			gPhysXUI->mComboBox_BroadPhase->Select(gParams.mBroadPhaseType);
 			y += YStep;
@@ -5700,8 +5836,10 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 			gPhysXUI->mCheckBox_Sleeping = helper.CreateCheckBox(TabWindow, PHYSX_GUI_ENABLE_SLEEPING, 4, y, CheckBoxWidth, 20, "Enable sleeping", gPhysXUI->mPhysXGUI, gParams.mEnableSleeping, gCheckBoxCallback);
 			y += YStepCB;
 
+#if PHYSX_SUPPORT_ADAPTIVE_FORCE
 			helper.CreateCheckBox(TabWindow, PHYSX_GUI_ADAPTIVE_FORCE, 4, y, CheckBoxWidth, 20, "Adaptive force", gPhysXUI->mPhysXGUI, gParams.mAdaptiveForce, gCheckBoxCallback);
 			y += YStepCB;
+#endif
 
 #if PHYSX_SUPPORT_STABILIZATION_FLAG
 			gPhysXUI->mCheckBox_Stabilization = helper.CreateCheckBox(TabWindow, PHYSX_GUI_STABILIZATION, 4, y, CheckBoxWidth, 20, "Stabilization", gPhysXUI->mPhysXGUI, gParams.mStabilization, gCheckBoxCallback);

@@ -83,7 +83,7 @@ PxTriangleMesh* MeshManager::CreateTriangleMesh(const PintSurfaceInterface& surf
 		}
 	}
 
-	PxTriangleMesh* NewMesh = CreatePhysXMesh(surface, deformable);
+	PxTriangleMesh* NewMesh = CreatePhysXMesh(surface, deformable, dynamic);
 
 #ifdef PHYSX_SUPPORT_PMAP_XP
 	//if(dynamic)
@@ -113,7 +113,7 @@ udword MeshObjectManager::AddObject(void* object)
 	else
 	{
 		Index = mFirstFree;
-		mFirstFree = udword(mObjects[Index]);
+		mFirstFree = udword(size_t(mObjects[Index]));
 		mObjects[Index] = object;
 	}
 
@@ -138,7 +138,7 @@ bool MeshObjectManager::DeleteObject(void* object, const udword* index)
 	if(object && mObjects[Index]!=object)
 		return false;
 
-	mObjects[Index] = reinterpret_cast<void*>(mFirstFree);
+	mObjects[Index] = reinterpret_cast<void*>(size_t(mFirstFree));
 	mFirstFree = Index;
 	return true;
 }

@@ -101,7 +101,7 @@ static void CreateImplicitShapeRenderers(ZCB2Factory* factory)
 					{
 						printf(".....creating mesh2 shape renderer\n");
 						const PINT_MESH_CREATE2* ShapeCreate = static_cast<const PINT_MESH_CREATE2*>(CurrentShape);
-						const udword MeshID = udword(ShapeCreate->mTriangleMesh);	//### I think this is converted to a pointer when creating the zb2 scene later?
+						const udword MeshID = udword(size_t(ShapeCreate->mTriangleMesh));	//### I think this is converted to a pointer when creating the zb2 scene later?
 						ASSERT(MeshID<mNbMeshes);
 						if(mMeshRenderers[MeshID])
 						{
@@ -411,8 +411,8 @@ bool CreateZB2Scene(Pint& pint, const PintCaps& caps, ZCB2Factory* factory, ZB2C
 					CreatedJoints[i] = pint.CreateJoint(*Create);
 
 					// Restore indices for next Pint plugin
-					gjc->mHinge0 = PintJointHandle(JointID0);
-					gjc->mHinge1 = PintJointHandle(JointID1);
+					gjc->mHinge0 = PintJointHandle(size_t(JointID0));
+					gjc->mHinge1 = PintJointHandle(size_t(JointID1));
 				}
 				else if(Create->mType==PINT_JOINT_RACK_AND_PINION)
 				{
@@ -431,8 +431,8 @@ bool CreateZB2Scene(Pint& pint, const PintCaps& caps, ZCB2Factory* factory, ZB2C
 					CreatedJoints[i] = pint.CreateJoint(*Create);
 
 					// Restore indices for next Pint plugin
-					rpjc->mHinge = PintJointHandle(JointID0);
-					rpjc->mPrismatic = PintJointHandle(JointID1);
+					rpjc->mHinge = PintJointHandle(size_t(JointID0));
+					rpjc->mPrismatic = PintJointHandle(size_t(JointID1));
 				}
 				else
 				{
@@ -442,8 +442,8 @@ bool CreateZB2Scene(Pint& pint, const PintCaps& caps, ZCB2Factory* factory, ZB2C
 				ASSERT(Created.mData.mJoints[i]);
 
 				// Restore indices for next Pint plugin
-				Create->mObject0 = PintActorHandle(ID0);
-				Create->mObject1 = PintActorHandle(ID1);
+				Create->mObject0 = PintActorHandle(size_t(ID0));
+				Create->mObject1 = PintActorHandle(size_t(ID1));
 			}
 			else
 				//Created.Joints[i] = null;

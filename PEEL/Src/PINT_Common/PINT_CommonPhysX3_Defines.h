@@ -25,8 +25,14 @@
 #ifndef PHYSX_SUPPORT_PX_BROADPHASE_ABP
 	#error Mandatory define missing: PHYSX_SUPPORT_PX_BROADPHASE_ABP
 #endif
+#ifndef PHYSX_SUPPORT_PX_BROADPHASE_PABP
+	#error Mandatory define missing: PHYSX_SUPPORT_PX_BROADPHASE_PABP
+#endif
 
 // Actors/Rigid bodies
+#ifndef PHYSX_SUPPORT_ADAPTIVE_FORCE
+	#error Mandatory define missing: PHYSX_SUPPORT_ADAPTIVE_FORCE
+#endif
 #ifndef PHYSX_SUPPORT_MAX_DEPEN_VELOCITY
 	#error Mandatory define missing: PHYSX_SUPPORT_MAX_DEPEN_VELOCITY
 #endif
@@ -50,6 +56,11 @@
 #endif
 #ifndef PHYSX_SUPPORT_GYROSCOPIC_FORCES
 	#error Mandatory define missing: PHYSX_SUPPORT_GYROSCOPIC_FORCES
+#endif
+
+// Aggregates
+#ifndef PHYSX_SUPPORT_GPU_AGGREGATES
+	#error Mandatory define missing: PHYSX_SUPPORT_GPU_AGGREGATES
 #endif
 
 // Shapes
@@ -103,6 +114,9 @@
 #endif
 
 // Meshes
+#ifndef PHYSX_SUPPORT_DYNAMIC_MESHES
+	#error Mandatory define missing: PHYSX_SUPPORT_DYNAMIC_MESHES
+#endif
 #ifndef PHYSX_SUPPORT_DEFORMABLE_MESHES
 	#error Mandatory define missing: PHYSX_SUPPORT_DEFORMABLE_MESHES
 #endif
@@ -128,6 +142,9 @@
 #endif
 #ifndef PHYSX_SUPPORT_DISABLE_ACTIVE_EDGES_PRECOMPUTE
 	#error Mandatory define missing: PHYSX_SUPPORT_DISABLE_ACTIVE_EDGES_PRECOMPUTE
+#endif
+#ifndef PHYSX_SUPPORT_IMMEDIATE_COOKING
+	#error Mandatory define missing: PHYSX_SUPPORT_IMMEDIATE_COOKING
 #endif
 
 // Vehicles

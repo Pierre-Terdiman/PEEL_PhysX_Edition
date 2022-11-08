@@ -44,7 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\Ice\APIs\Ice\#Plugins\FlexineSDK&quot;;..\Ice\APIs\Ice;..\HACD;..\Glut\include;..\..\..\PEEL_Externals;..\DevIL\include;..\foundation;..\foundation\include;..\;..\..\Private\NVD"
+				AdditionalIncludeDirectories="&quot;..\Ice\APIs\Ice\#Plugins\FlexineSDK&quot;;..\Ice\APIs\Ice;..\HACD;..\Glut\include;..\..\..\PEEL_Externals;..\DevIL\include;..\foundation;..\foundation\include;..\;..\..\Private\NVD;..\..\..\PEEL_Externals\VC9"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;GLUT_NO_LIB_PRAGMA;PX_PHYSX_STATIC_LIB"
 				MinimalRebuild="true"
 				ExceptionHandling="0"
@@ -216,7 +216,7 @@
 				OmitFramePointers="true"
 				EnableFiberSafeOptimizations="false"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="&quot;..\Ice\APIs\Ice\#Plugins\FlexineSDK&quot;;..\Ice\APIs\Ice;..\HACD;..\Spy;..\Glut\include;..\..\..\PEEL_Externals;..\DevIL\include;..\foundation;..\foundation\include;..\;..\..\Private\NVD"
+				AdditionalIncludeDirectories="&quot;..\Ice\APIs\Ice\#Plugins\FlexineSDK&quot;;..\Ice\APIs\Ice;..\HACD;..\Spy;..\Glut\include;..\..\..\PEEL_Externals;..\DevIL\include;..\foundation;..\foundation\include;..\;..\..\Private\NVD;..\..\..\PEEL_Externals\VC9"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;GLUT_NO_LIB_PRAGMA;PX_PHYSX_STATIC_LIB"
 				StringPooling="true"
 				ExceptionHandling="0"
