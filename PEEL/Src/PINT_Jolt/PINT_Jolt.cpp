@@ -199,20 +199,24 @@ namespace Layers
 	static constexpr uint8 NUM_LAYERS = 2;
 };
 
-/// Function that determines if two object layers can collide
-inline bool MyObjectCanCollide(ObjectLayer inObject1, ObjectLayer inObject2)
+/// Class that determines if two object layers can collide
+class ObjectLayerPairFilterImpl : public ObjectLayerPairFilter
 {
-	switch (inObject1)
+public:
+	virtual bool					ShouldCollide(ObjectLayer inObject1, ObjectLayer inObject2) const override
 	{
-	case Layers::NON_MOVING:
-		return inObject2 == Layers::MOVING;
-	case Layers::MOVING:
-		return inObject2 == Layers::NON_MOVING || inObject2 == Layers::MOVING;
-	default:
-		JPH_ASSERT(false);
-		return false;
+		switch (inObject1)
+		{
+		case Layers::NON_MOVING:
+			return inObject2 == Layers::MOVING;
+		case Layers::MOVING:
+			return inObject2 == Layers::NON_MOVING || inObject2 == Layers::MOVING;
+		default:
+			JPH_ASSERT(false);
+			return false;
+		}
 	}
-};
+} gObjectLayerPairFilter;
 
 /// Broadphase layers
 namespace BroadPhaseLayers
@@ -260,20 +264,24 @@ private:
 	BroadPhaseLayer					mObjectToBroadPhase[Layers::NUM_LAYERS];
 }gBroadPhaseLayerInterface;
 
-/// Function that determines if two broadphase layers can collide
-inline bool MyBroadPhaseCanCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2)
+/// Class that determines if an object layer can collide with a broadphase layer
+class ObjectVsBroadPhaseLayerFilterImpl : public ObjectVsBroadPhaseLayerFilter
 {
-	switch (inLayer1)
+public:
+	virtual bool					ShouldCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const override
 	{
-	case Layers::NON_MOVING:
-		return inLayer2 == BroadPhaseLayers::MOVING;
-	case Layers::MOVING:
-		return inLayer2 == BroadPhaseLayers::NON_MOVING || inLayer2 == BroadPhaseLayers::MOVING;
-	default:
-		JPH_ASSERT(false);
-		return false;
+		switch (inLayer1)
+		{
+		case Layers::NON_MOVING:
+			return inLayer2 == BroadPhaseLayers::MOVING;
+		case Layers::MOVING:
+			return inLayer2 == BroadPhaseLayers::NON_MOVING || inLayer2 == BroadPhaseLayers::MOVING;
+		default:
+			JPH_ASSERT(false);
+			return false;
+		}
 	}
-}
+} gObjectVsBroadPhseLayerFilter;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -736,7 +744,7 @@ void JoltPint::Init(const PINT_WORLD_CREATE& desc)
 
 	// Now we can create the actual physics system.
 	gPhysicsSystem = new PhysicsSystem;
-	gPhysicsSystem->Init(gMaxBodies, gNbBodyMutexes, gMaxBodyPairs, gMaxContactConstraints, gBroadPhaseLayerInterface, MyBroadPhaseCanCollide, MyObjectCanCollide);
+	gPhysicsSystem->Init(gMaxBodies, gNbBodyMutexes, gMaxBodyPairs, gMaxContactConstraints, gBroadPhaseLayerInterface, gObjectVsBroadPhseLayerFilter, gObjectLayerPairFilter);
 
 	gPhysicsSystem->SetGravity(ToVec3(desc.mGravity));
 
@@ -1556,7 +1564,7 @@ bool JoltPint::DeleteHeightfieldObject(PintHeightfieldHandle handle, const PintH
 	return true;
 }
 
-static inline_ void FillResultStruct(const RayCast& raycast, PintRaycastHit& hit, const RayCastResult& result)
+static inline_ void FillResultStruct(const RRayCast& raycast, PintRaycastHit& hit, const RayCastResult& result)
 {
 	const Vec3 outPosition = raycast.GetPointOnRay(result.mFraction);
 
@@ -1598,7 +1606,7 @@ udword JoltPint::BatchRaycasts(PintSQThreadContext context, udword nb, PintRayca
 	udword NbHits = 0;
 	while(nb--)
 	{
-		RayCast R;
+		RRayCast R;
 		R.mOrigin = ToVec3(raycasts->mOrigin);
 		R.mDirection = ToVec3(raycasts->mDir) * raycasts->mMaxDist;
 
@@ -1646,7 +1654,7 @@ udword JoltPint::BatchRaycastAny(PintSQThreadContext context, udword nb, PintBoo
 	udword NbHits = 0;
 	while(nb--)
 	{
-		RayCast R;
+		RRayCast R;
 		R.mOrigin = ToVec3(raycasts->mOrigin);
 		R.mDirection = ToVec3(raycasts->mDir) * raycasts->mMaxDist;
 
@@ -1690,10 +1698,10 @@ udword JoltPint::BatchBoxSweeps(PintSQThreadContext context, udword nb, PintRayc
 		const Vec4 v2(row2.x, row2.y, row2.z, 0.0f);
 		const Vec4 v3(sweeps->mBox.mCenter.x, sweeps->mBox.mCenter.y, sweeps->mBox.mCenter.z, 1.0f);
 
-		const ShapeCast shape_cast { &QueryShape, Vec3::sReplicate(1.0f), Mat44(v0,v1,v2,v3), ToVec3(sweeps->mDir * MaxDist) };
+		const RShapeCast shape_cast { &QueryShape, Vec3::sReplicate(1.0f), Mat44(v0,v1,v2,v3), ToVec3(sweeps->mDir * MaxDist) };
 
 		ClosestHitCollisionCollector<CastShapeCollector> collector;
-		NPQ.CastShape(shape_cast, settings, collector);
+		NPQ.CastShape(shape_cast, settings, RVec3::sZero(), collector);
 
 		if(collector.HadHit())
 		{
@@ -1747,10 +1755,10 @@ udword JoltPint::BatchSphereSweeps(PintSQThreadContext context, udword nb, PintR
 		const float MaxDist = sweeps->mMaxDist < 5000.0f ? sweeps->mMaxDist : 5000.0f;
 
 		const SphereShape QueryShape(sweeps->mSphere.mRadius);
-		const ShapeCast shape_cast { &QueryShape, Vec3::sReplicate(1.0f), Mat44::sTranslation(ToVec3(sweeps->mSphere.mCenter)), ToVec3(sweeps->mDir * MaxDist) };
+		const RShapeCast shape_cast { &QueryShape, Vec3::sReplicate(1.0f), Mat44::sTranslation(ToVec3(sweeps->mSphere.mCenter)), ToVec3(sweeps->mDir * MaxDist) };
 
 		ClosestHitCollisionCollector<CastShapeCollector> collector;
-		NPQ.CastShape(shape_cast, settings, collector);
+		NPQ.CastShape(shape_cast, settings, RVec3::sZero(), collector);
 
 		if(collector.HadHit())
 		{
@@ -1823,10 +1831,10 @@ udword JoltPint::BatchCapsuleSweeps(PintSQThreadContext context, udword nb, Pint
 
 		const CapsuleShape QueryShape(M*0.5f, sweeps->mCapsule.mRadius);
 
-		const ShapeCast shape_cast { &QueryShape, Vec3::sReplicate(1.0f), Mat44::sRotationTranslation(ToJQuat(q), ToVec3(Center)), ToVec3(sweeps->mDir * MaxDist) };
+		const RShapeCast shape_cast { &QueryShape, Vec3::sReplicate(1.0f), Mat44::sRotationTranslation(ToJQuat(q), ToVec3(Center)), ToVec3(sweeps->mDir * MaxDist) };
 
 		ClosestHitCollisionCollector<CastShapeCollector> collector;
-		NPQ.CastShape(shape_cast, settings, collector);
+		NPQ.CastShape(shape_cast, settings, RVec3::sZero(), collector);
 
 		if(collector.HadHit())
 		{
@@ -1938,7 +1946,7 @@ udword JoltPint::BatchSphereOverlapAny(PintSQThreadContext context, udword nb, P
 		const SphereShape QueryShape(overlaps->mSphere.mRadius);
 
 		AnyHitCollisionCollector<CollideShapeCollector> collector;
-		NPQ.CollideShape(&QueryShape, Vec3::sReplicate(1.0f), Mat44::sTranslation(ToVec3(overlaps->mSphere.mCenter)), settings, collector);
+		NPQ.CollideShape(&QueryShape, Vec3::sReplicate(1.0f), Mat44::sTranslation(ToVec3(overlaps->mSphere.mCenter)), settings, RVec3::sZero(), collector);
 
 		if(collector.HadHit())
 		{
@@ -1970,7 +1978,7 @@ udword JoltPint::BatchSphereOverlapObjects(PintSQThreadContext context, udword n
 		const SphereShape QueryShape(overlaps->mSphere.mRadius);
 
 		AllHitCollisionCollector<CollideShapeCollector> collector;
-		NPQ.CollideShape(&QueryShape, Vec3::sReplicate(1.0f), Mat44::sTranslation(ToVec3(overlaps->mSphere.mCenter)), settings, collector);
+		NPQ.CollideShape(&QueryShape, Vec3::sReplicate(1.0f), Mat44::sTranslation(ToVec3(overlaps->mSphere.mCenter)), settings, RVec3::sZero(), collector);
 
 		const udword Nb = udword(collector.mHits.size());
 		NbHits += Nb;
