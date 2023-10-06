@@ -19,6 +19,7 @@
 
 	#include <Jolt/Physics/Collision/Shape/Shape.h>
 
+	using namespace std;
 	using namespace JPH;
 
 	class Jolt_SceneAPI : public Pint_Scene
