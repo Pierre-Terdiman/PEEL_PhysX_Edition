@@ -783,13 +783,10 @@ udword JoltPint::Update(float dt)
 	if(gPhysicsSystem)
 	{
 		// If you take larger steps than 1 / 60th of a second you need to do multiple collision steps in order to keep the simulation stable. Do 1 collision step per 1 / 60th of a second (round up).
-		const int cCollisionSteps = 1;
-
-		// If you want more accurate step results you can do multiple sub steps within a collision step. Usually you would set this to 1.
-		const int cIntegrationSubSteps = gNbSubsteps;
+		const int cCollisionSteps = gNbSubsteps;
 
 		// Step the world
-		gPhysicsSystem->Update(dt, cCollisionSteps, cIntegrationSubSteps, gTempAllocator, gJobSystem);
+		gPhysicsSystem->Update(dt, cCollisionSteps, gTempAllocator, gJobSystem);
 	}
 
 	// Return high watermark for memory consumption
@@ -1322,9 +1319,9 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 
 			if (jc.mSpring.mStiffness > 0.0f)
 			{
-				// TODO: Convert properties
-				settings.mFrequency = 2.0f;
-				settings.mDamping = 1.0f;
+				settings.mLimitsSpringSettings.mMode = ESpringMode::StiffnessAndDamping;
+				settings.mLimitsSpringSettings.mStiffness = jc.mSpring.mStiffness;
+				settings.mLimitsSpringSettings.mDamping = jc.mSpring.mDamping;
 			}
 
 			J = settings.Create(*Actor0, *Actor1);
@@ -1354,8 +1351,8 @@ PintJointHandle JoltPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 			settings.mPoint2		= ToVec3(jc.mLocalPivot1) - Actor1->GetShape()->GetCenterOfMass();
 			settings.mMinDistance	= jc.mLimits.mMinValue <0.0f ? 0.0f : jc.mLimits.mMinValue;
 			settings.mMaxDistance	= jc.mLimits.mMaxValue <0.0f ? MAX_FLOAT : jc.mLimits.mMaxValue;
-			settings.mFrequency		= 0.0f;
-			settings.mDamping		= 0.0f;
+			settings.mLimitsSpringSettings.mFrequency = 0.0f;
+			settings.mLimitsSpringSettings.mDamping = 0.0f;
 
 			J = settings.Create(*Actor0, *Actor1);
 		}
