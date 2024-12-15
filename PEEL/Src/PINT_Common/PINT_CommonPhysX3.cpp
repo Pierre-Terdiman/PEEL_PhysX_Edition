@@ -4347,6 +4347,9 @@ enum PhysXGUIElement
 #if PHYSX_SUPPORT_PX_BROADPHASE_TYPE
 	PHYSX_GUI_BROAD_PHASE,
 #endif
+#if PHYSX_SUPPORT_CPU_DISPATCHER_MODE
+	PHYSX_GUI_CPU_DISPATCHER,
+#endif
 	PHYSX_GUI_SCRATCH_BUFFER,
 	//
 //	PHYSX_GUI_NUM_16K_CONTACT_DATA_BLOCKS,
@@ -4427,6 +4430,9 @@ EditableParams::EditableParams() :
 	#endif
 	mMBPSubdivLevel				(4),
 	mMBPRange					(1000.0f),
+#endif
+#if PHYSX_SUPPORT_CPU_DISPATCHER_MODE
+	mCPUDispatcherMode			(PxDefaultCpuDispatcherWaitForWorkMode::eWAIT_FOR_WORK),
 #endif
 	mEnableCCD					(false),
 #if PHYSX_SUPPORT_ANGULAR_CCD
@@ -4664,6 +4670,9 @@ const EditableParams& PhysX3::GetEditableParams()
 		EditBoxPtr		mEditBox_MBPSubdivLevel;
 		EditBoxPtr		mEditBox_MBPRange;
 #endif
+#if PHYSX_SUPPORT_CPU_DISPATCHER_MODE
+		ComboBoxPtr		mComboBox_CPUDispatcher;
+#endif
 #if PHYSX_SUPPORT_PX_MESH_MIDPHASE
 		ComboBoxPtr		mComboBox_MidPhase;
 #endif
@@ -4879,6 +4888,14 @@ void PhysX3::GetOptionsFromGUI(const char* test_name)
 	{
 		const udword Index = gPhysXUI->mComboBox_BroadPhase->GetSelectedIndex();
 		gParams.mBroadPhaseType = PxBroadPhaseType::Enum(Index);
+	}
+#endif
+
+#if PHYSX_SUPPORT_CPU_DISPATCHER_MODE
+	if(gPhysXUI->mComboBox_CPUDispatcher)
+	{
+		const udword Index = gPhysXUI->mComboBox_CPUDispatcher->GetSelectedIndex();
+		gParams.mCPUDispatcherMode = PxDefaultCpuDispatcherWaitForWorkMode::Enum(Index);
 	}
 #endif
 
@@ -5482,7 +5499,7 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 	const sdword YStart = 4;
 	sdword y = YStart;
 
-	const sdword OffsetX = 90;
+	const sdword OffsetX = 110;
 	const sdword LabelOffsetY = 2;
 
 	const sdword EditBoxWidth = 60;
@@ -5589,7 +5606,17 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 			gPhysXUI->mComboBox_BroadPhase->Select(gParams.mBroadPhaseType);
 			y += YStep;
 #endif
+
+#if PHYSX_SUPPORT_CPU_DISPATCHER_MODE
+			helper.CreateLabel(TabWindow, 4, y+LabelOffsetY, 110, 20, "CPU dispatcher mode:", gPhysXUI->mPhysXGUI);
+			gPhysXUI->mComboBox_CPUDispatcher = CreateComboBox<IceComboBox>(TabWindow, PHYSX_GUI_CPU_DISPATCHER, 4+OffsetX, y, 150, 20, "CPU dispatcher:", gPhysXUI->mPhysXGUI, null);
+			gPhysXUI->mComboBox_CPUDispatcher->Add("eWAIT_FOR_WORK");
+			gPhysXUI->mComboBox_CPUDispatcher->Add("eYIELD_THREAD");
+			gPhysXUI->mComboBox_CPUDispatcher->Add("eYIELD_PROCESSOR");
+			gPhysXUI->mComboBox_CPUDispatcher->Select(gParams.mCPUDispatcherMode);
 			y += YStep;
+#endif
+//			y += YStep;
 
 			{
 				gPhysXUI->mCheckBox_CCD = helper.CreateCheckBox(TabWindow, PHYSX_GUI_ENABLE_CCD, 4, y, CheckBoxWidth, 20, "Enable CCD", gPhysXUI->mPhysXGUI, gParams.mEnableCCD, gCheckBoxCallback);
@@ -5690,9 +5717,9 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 			const udword x3 = 200;
 			y += YStep;
 
-			static const char* ConfigDesc0 = "4 solver iterations, single-threaded,\nno substeps, sleeping disabled.";
-			static const char* ConfigDesc1 = "4 solver iterations, multi-threaded,\nno substeps, sleeping enabled.";
-			static const char* ConfigDesc2 = "32 solver iterations, multi-threaded,\n2 substeps, sleeping enabled.";
+			static const char* ConfigDesc0 = "4 solver iterations, single-threaded,\nno substeps, sleeping disabled,\ngentle dispatcher.";
+			static const char* ConfigDesc1 = "4 solver iterations, multi-threaded,\nno substeps, sleeping enabled,\naggressive dispatcher.";
+			static const char* ConfigDesc2 = "32 solver iterations, multi-threaded,\n2 substeps, sleeping enabled,\naggressive dispatcher.";
 
 			class ConfigComboBox : public IceComboBox
 			{
@@ -5722,6 +5749,10 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 //											gParams.mTGS = false;
 //											gPhysXUI->mCheckBox_TGS->SetChecked(gParams.mTGS);
 #endif
+#if PHYSX_SUPPORT_CPU_DISPATCHER_MODE
+											gParams.mCPUDispatcherMode = PxDefaultCpuDispatcherWaitForWorkMode::eWAIT_FOR_WORK;
+											gPhysXUI->mComboBox_CPUDispatcher->Select(gParams.mCPUDispatcherMode);
+#endif
 											gPhysXUI->mEditBox_ConfigDesc->SetMultilineText(ConfigDesc0);
 										}
 										else if(SelectedIndex==1)
@@ -5736,6 +5767,10 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 //											gParams.mTGS = false;
 //											gPhysXUI->mCheckBox_TGS->SetChecked(gParams.mTGS);
 #endif
+#if PHYSX_SUPPORT_CPU_DISPATCHER_MODE
+											gParams.mCPUDispatcherMode = PxDefaultCpuDispatcherWaitForWorkMode::eYIELD_THREAD;
+											gPhysXUI->mComboBox_CPUDispatcher->Select(gParams.mCPUDispatcherMode);
+#endif
 											gPhysXUI->mEditBox_ConfigDesc->SetMultilineText(ConfigDesc1);
 										}
 										else if(SelectedIndex==2)
@@ -5749,6 +5784,10 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 #if PHYSX_SUPPORT_TGS
 //											gParams.mTGS = true;
 //											gPhysXUI->mCheckBox_TGS->SetChecked(gParams.mTGS);
+#endif
+#if PHYSX_SUPPORT_CPU_DISPATCHER_MODE
+											gParams.mCPUDispatcherMode = PxDefaultCpuDispatcherWaitForWorkMode::eYIELD_THREAD;
+											gPhysXUI->mComboBox_CPUDispatcher->Select(gParams.mCPUDispatcherMode);
 #endif
 											gPhysXUI->mEditBox_ConfigDesc->SetMultilineText(ConfigDesc2);
 										}

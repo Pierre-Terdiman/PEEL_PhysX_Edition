@@ -415,13 +415,17 @@ void PhysX::Init(const PINT_WORLD_CREATE& desc)
 
 	bool status = PxInitExtensions(*mPhysics, gVisualDebugger);
 	ASSERT(status);
-//	gDefaultCPUDispatcher = PxDefaultCpuDispatcherCreate(mParams.ThreadIndexToNbThreads(mParams.mNbThreadsIndex), null);
-	gDefaultCPUDispatcher = PxDefaultCpuDispatcherCreate(mParams.ThreadIndexToNbThreads(mParams.mNbThreadsIndex), null, PxDefaultCpuDispatcherWaitForWorkMode::eYIELD_THREAD);
+#if PHYSX_SUPPORT_CPU_DISPATCHER_MODE
+	const PxDefaultCpuDispatcherWaitForWorkMode::Enum mode = PxDefaultCpuDispatcherWaitForWorkMode::Enum(mParams.mCPUDispatcherMode);
+	gDefaultCPUDispatcher = PxDefaultCpuDispatcherCreate(mParams.ThreadIndexToNbThreads(mParams.mNbThreadsIndex), null, mode, mode==PxDefaultCpuDispatcherWaitForWorkMode::eYIELD_PROCESSOR ? 8 : 0);
+#else
+	gDefaultCPUDispatcher = PxDefaultCpuDispatcherCreate(mParams.ThreadIndexToNbThreads(mParams.mNbThreadsIndex), null);
+//	gDefaultCPUDispatcher = PxDefaultCpuDispatcherCreate(mParams.ThreadIndexToNbThreads(mParams.mNbThreadsIndex), null, PxDefaultCpuDispatcherWaitForWorkMode::eYIELD_THREAD);
 //	gDefaultCPUDispatcher = PxDefaultCpuDispatcherCreate(16, null);
 
-//	gDispatcher = PxDefaultCpuDispatcherCreate(inNumThreads, NULL, PxDefaultCpuDispatcherWaitForWorkMode::eYIELD_THREAD);
-//	gDispatcher = PxDefaultCpuDispatcherCreate(inNumThreads, NULL, PxDefaultCpuDispatcherWaitForWorkMode::eYIELD_PROCESSOR, 8);
-
+//	gDispatcher = PxDefaultCpuDispatcherCreate(inNumThreads, null, PxDefaultCpuDispatcherWaitForWorkMode::eYIELD_THREAD);
+//	gDispatcher = PxDefaultCpuDispatcherCreate(inNumThreads, null, PxDefaultCpuDispatcherWaitForWorkMode::eYIELD_PROCESSOR, 8);
+#endif
 
 	CreateCooking(scale, PxMeshPreprocessingFlag::eWELD_VERTICES);
 

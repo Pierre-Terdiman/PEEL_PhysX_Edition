@@ -197,6 +197,9 @@
 		udword							mMBPSubdivLevel;
 		float							mMBPRange;
 #endif
+#if PHYSX_SUPPORT_CPU_DISPATCHER_MODE
+		PxDefaultCpuDispatcherWaitForWorkMode::Enum		mCPUDispatcherMode;
+#endif
 		bool							mEnableCCD;
 #if PHYSX_SUPPORT_ANGULAR_CCD
 		bool							mEnableAngularCCD;

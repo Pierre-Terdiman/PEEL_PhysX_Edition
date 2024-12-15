@@ -28,6 +28,9 @@
 #ifndef PHYSX_SUPPORT_PX_BROADPHASE_PABP
 	#error Mandatory define missing: PHYSX_SUPPORT_PX_BROADPHASE_PABP
 #endif
+#ifndef PHYSX_SUPPORT_CPU_DISPATCHER_MODE
+	#error Mandatory define missing: PHYSX_SUPPORT_CPU_DISPATCHER_MODE
+#endif
 
 // Actors/Rigid bodies
 #ifndef PHYSX_SUPPORT_ADAPTIVE_FORCE
