@@ -38,6 +38,7 @@
 *.sbr
 *.tlog
 *.user
+*.idb
 
 \.vs
 \__tmp__
