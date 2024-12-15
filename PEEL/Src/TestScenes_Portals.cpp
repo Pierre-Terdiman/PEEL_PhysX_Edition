@@ -460,19 +460,19 @@ class PortalJointFinal : public PortalJointBase, public PintContactModifyCallbac
 	PintActorHandle		mH0;
 	PintActorHandle		mH1;
 
-	virtual	bool	PrepContactModify(Pint& pint, udword nb_contacts, PintActorHandle h0, PintActorHandle h1, PintShapeHandle s0, PintShapeHandle s1)
+	virtual	bool	PrepContactModify(Pint& pint, udword nb_contacts, PintActorHandle h0, PintActorHandle h1, PintShapeHandle s0, PintShapeHandle s1)	override
 	{
 		mH0 = h0;
 		mH1 = h1;
 		return true;
 	}
 
-	virtual	ContactModif	ModifyDelayedContact(Pint& pint, const PR& pose0, const PR& pose1, Point& p, Point& n, float& s, udword feature0, udword feature1, udword index)
+	virtual	ContactModif	ModifyDelayedContact(Pint& pint, const PR& pose0, const PR& pose1, Point& p, Point& n, float& s, udword feature0, udword feature1, udword index)	override
 	{
 		return CONTACT_IGNORE;
 	}
 
-	virtual	ContactModif	ModifyContact(Pint& pint, const PR& pose0, const PR& pose1, Point& p, Point& n, float& s, udword feature0, udword feature1)
+	virtual	ContactModif	ModifyContact(Pint& pint, const PR& pose0, const PR& pose1, Point& p, Point& n, float& s, udword feature0, udword feature1)	override
 	{
 		if(		mH0 == mPortalGeomHandle0 || mH0 == mPortalGeomHandle1
 			||	mH1 == mPortalGeomHandle0 || mH1 == mPortalGeomHandle1)

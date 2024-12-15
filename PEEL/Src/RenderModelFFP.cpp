@@ -96,11 +96,6 @@ bool RenderModel_FFP::HasSpecialGroundPlane() const
 	return false;
 }
 
-/*bool RenderModel_FFP::NeedsVertexNormals() const
-{
-	return true;
-}*/
-
 void RenderModel_FFP::SetGroundPlane(bool b)
 {
 }

@@ -23,7 +23,6 @@
 		virtual	bool				Close()	override;
 		virtual	IceWindow*			InitGUI(IceWidget* parent, Widgets* owner, PintGUIHelper& helper)	override;
 		virtual	bool				HasSpecialGroundPlane()	const	override;
-//			virtual	bool				NeedsVertexNormals()	const;
 		virtual	void				SetGroundPlane(bool b)	override;
 		virtual	void				InitScene(const Point& center, float size)	override;
 		virtual	void				SetupCamera()	override;
@@ -49,14 +48,14 @@
 	{
 		public:
 									RenderModel_SimpleShaderType1() : RenderModel_SimpleShader(true)	{}
-		virtual	const char*			GetUIName()		const	{ return "Simple shader type 1";	}
+		virtual	const char*			GetUIName()		const	override	{ return "Simple shader type 1";	}
 	};
 
 	class RenderModel_SimpleShaderType2 : public RenderModel_SimpleShader
 	{
 		public:
 									RenderModel_SimpleShaderType2() : RenderModel_SimpleShader(false)	{}
-		virtual	const char*			GetUIName()		const	{ return "Simple shader type 2";	}
+		virtual	const char*			GetUIName()		const	override	{ return "Simple shader type 2";	}
 	};
 
 #endif

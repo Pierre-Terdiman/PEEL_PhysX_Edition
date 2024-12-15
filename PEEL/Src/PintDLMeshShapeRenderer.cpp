@@ -176,8 +176,11 @@ void ActiveEdgesRenderer::CreateDL(const SurfaceInterface& surface)
 
 							//OutputSegment(p0, m0, Right, 0.4f);
 							//OutputSegment(m0, p1, Right, 0.4f);
-							OutputSegment(p0, m0, Right, gChaoticEdgesCoeff);
-							OutputSegment(m0, p1, Right, gChaoticEdgesCoeff);
+							for(udword n=0;n<2;n++)
+							{
+								OutputSegment(p0, m0, Right, gChaoticEdgesCoeff);
+								OutputSegment(m0, p1, Right, gChaoticEdgesCoeff);
+							}
 						}
 						else
 						{

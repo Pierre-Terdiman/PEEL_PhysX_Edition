@@ -281,7 +281,7 @@ class DeformableTerrain : public ContactNotifyTest, public PintContactModifyCall
 	bool		mModifyContacts;
 	Container	mVertexIndices;
 
-	virtual	bool	PrepContactModify(Pint& pint, udword nb_contacts, PintActorHandle h0, PintActorHandle h1, PintShapeHandle s0, PintShapeHandle s1)
+	virtual	bool	PrepContactModify(Pint& pint, udword nb_contacts, PintActorHandle h0, PintActorHandle h1, PintShapeHandle s0, PintShapeHandle s1)	override
 	{
 		ASSERT(gUseContactModif);
 		const PintData* PD = reinterpret_cast<const PintData*>(pint.mUserData);
@@ -289,13 +289,13 @@ class DeformableTerrain : public ContactNotifyTest, public PintContactModifyCall
 		return true;
 	}
 
-	virtual	ContactModif	ModifyDelayedContact(Pint& pint, const PR& pose0, const PR& pose1, Point& p, Point& n, float& s, udword feature0, udword feature1, udword index)
+	virtual	ContactModif	ModifyDelayedContact(Pint& pint, const PR& pose0, const PR& pose1, Point& p, Point& n, float& s, udword feature0, udword feature1, udword index)	override
 	{
 		ASSERT(gUseContactModif);
 		return CONTACT_IGNORE;
 	}
 
-	virtual	ContactModif	ModifyContact(Pint& pint, const PR& pose0, const PR& pose1, Point& p, Point& n, float& s, udword feature0, udword feature1)
+	virtual	ContactModif	ModifyContact(Pint& pint, const PR& pose0, const PR& pose1, Point& p, Point& n, float& s, udword feature0, udword feature1)	override
 	{
 		ASSERT(gUseContactModif);
 		const PintData* PD = reinterpret_cast<const PintData*>(pint.mUserData);

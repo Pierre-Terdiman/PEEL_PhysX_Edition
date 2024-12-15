@@ -147,7 +147,7 @@
 
 		inline_	Widgets&		GetUIElements()							{ return mUIElems;				}
 		inline_	void			RegisterUIElement(IceWidget* widget)	{ mUIElems.Register(widget);	}
-				void			AddResetButton(IceWindow* parent, sdword x, sdword y, sdword width);
+				void			AddResetButton(IceWindow* parent, sdword x, sdword y, sdword width, const char* title = "Reset test");
 		private:
 				Widgets			mUIElems;
 		public:
@@ -286,9 +286,9 @@
 				PtrContainer			mRenderers;
 				PtrContainer			mTestData;
 		public:
-		inline_	void					SetDefEnv(PINT_WORLD_CREATE& desc, bool b)
+		inline_	void					SetDefEnv(PINT_WORLD_CREATE& desc, bool createDefaultEnvironment)
 										{
-											desc.mCreateDefaultEnvironment = b;
+											desc.mCreateDefaultEnvironment = createDefaultEnvironment;
 										}
 		protected:
 				IceTabControl*			CreateOverrideTabControl(const char* name, udword extra_size);

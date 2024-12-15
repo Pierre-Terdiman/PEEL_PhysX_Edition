@@ -33,7 +33,7 @@
 		
 		private:
 				float	mCamModelView[16];
-				float	mCamProj[16];
+//				float	mCamProj[16];
 		const	bool	mNeedsVertexNormals;
 	};
 

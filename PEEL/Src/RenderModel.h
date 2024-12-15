@@ -29,7 +29,6 @@
 		virtual	IceWindow*			InitGUI(IceWidget* parent, Widgets* owner, PintGUIHelper& helper)							= 0;
 
 		virtual	bool				HasSpecialGroundPlane()	const																= 0;
-//		virtual	bool				NeedsVertexNormals()	const																= 0;
 		virtual	void				SetGroundPlane(bool b)																		= 0;
 		virtual	void				InitScene(const Point& center, float size)													= 0;
 		virtual	void				SetupCamera()																				= 0;
@@ -47,6 +46,12 @@
 
 		// WIP
 		virtual	void				SetupCurrentModelMatrix(const float* m)														{}
+
+		virtual	bool				SupportsMSAA()																		const	{ return true;	}
+		virtual	bool				SupportsWireframeOverlay()															const	{ return true;	}
+		virtual	bool				SupportsScreenQuad()																const	{ return true;	}
+
+		virtual	void				Resize(udword width, udword height)															{}
 	};
 
 	enum RenderModelType

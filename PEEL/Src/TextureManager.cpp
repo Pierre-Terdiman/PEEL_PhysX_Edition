@@ -37,7 +37,7 @@ ManagedTexture::~ManagedTexture()
 {
 	DELETESINGLE(mSource);
 	GLTexture::ReleaseTexture(mGLID);
-	mGLID = 0;
+	ASSERT(mGLID==0);
 	mExportID = INVALID_ID;
 	mWidth = mHeight = 0;
 }

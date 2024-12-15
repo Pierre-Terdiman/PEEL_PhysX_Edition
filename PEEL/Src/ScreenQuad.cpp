@@ -35,10 +35,15 @@ ShaderBasedScreenQuad::~ShaderBasedScreenQuad()
 
 void Draw2DScreenQuad(udword screen_width, udword screen_height)
 {
-	const Point p0b(-1.0f, -1.0f, 0.0f);
-	const Point p1b(-1.0f,  1.0f, 0.0f);
-	const Point p2b( 1.0f,  1.0f, 0.0f);
-	const Point p3b( 1.0f, -1.0f, 0.0f);
+	//screen_width/=2;
+	//screen_height/=2;
+	//const float v = 0.5f;
+
+	const float v = 1.0f;
+	const Point p0b(-v, -v, 0.0f);
+	const Point p1b(-v,  v, 0.0f);
+	const Point p2b( v,  v, 0.0f);
+	const Point p3b( v, -v, 0.0f);
 
 	const Point c0 = ComputeWorldRay(0, screen_height-1);
 	const Point c1 = ComputeWorldRay(0, 0);

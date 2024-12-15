@@ -14,9 +14,60 @@
 #include "CameraManager.h"
 #include "Tool.h"
 
+namespace
+{
+	struct ParseContext;
+
+	struct AutomatedTest
+	{
+		void	Init(PhysicsTest* test)
+		{
+			mTest				= test;
+			mNbFrames			= INVALID_ID;
+			mSoundPos			= INVALID_ID;
+			mNextCameraPos		= INVALID_ID;
+			mWireframeOverlay	= true;
+			mTool				= INVALID_ID;
+			mSubScene			= null;
+			mOverride.Init();
+		}
+
+		PhysicsTest*	mTest;
+		udword			mNbFrames;
+		udword			mSoundPos;
+		udword			mNextCameraPos;
+		udword			mWireframeOverlay;
+		udword			mTool;
+		String*			mSubScene;
+		PintOverride	mOverride;
+	};
+
+	class AutomatedTests : public Allocateable
+	{
+		public:
+							AutomatedTests(const ParseContext&);
+							~AutomatedTests();
+
+			bool			IsValid()			const;
+			AutomatedTest*	GetCurrentTest()	const;
+			AutomatedTest*	SelectNextTest();
+
+			Container		mTests;
+			//StringTable		mStrings;
+			udword			mDefaultNbFrames;
+			udword			mIndex;
+			bool			mRendering;
+			bool			mRandomizeOrder;
+			bool			mTrashCache;
+			bool			mVSync;
+			bool			mSaveExcelFile;
+	};
+}
+
 CHECK_CONTAINER_ITEM(AutomatedTest)
 
 static AutomatedTests* gAutomatedTests = null;
+static FILE* gAccumExcelFile = null;
 
 AutomatedTests* GetAutomatedTests()
 {
@@ -28,33 +79,38 @@ void ReleaseAutomatedTests()
 	DELETESINGLE(gAutomatedTests);
 }
 
-struct ParseContext
+namespace
 {
-	ParseContext() :
-		mCurrentTest	(null),
-		mNbFrames		(0),
-		mRendering		(false),
-		mRandomizeOrder	(false),
-		mTrashCache		(false),
-		mSaveExcelFile	(true)
+	struct ParseContext
 	{
-	}
+		ParseContext() :
+			mCurrentTest	(null),
+			mNbFrames		(0),
+			mRendering		(false),
+			mRandomizeOrder	(false),
+			mTrashCache		(false),
+			mVSync			(true),
+			mSaveExcelFile	(true)
+		{
+		}
 
-	inline_	AutomatedTest*	AllocateNewTest(PhysicsTest* test)
-	{
-		AutomatedTest* AT = ICE_RESERVE(AutomatedTest, mTests);
-		AT->Init(test);
-		return AT;
-	}
+		inline_	AutomatedTest*	AllocateNewTest(PhysicsTest* test)
+		{
+			AutomatedTest* AT = ICE_RESERVE(AutomatedTest, mTests);
+			AT->Init(test);
+			return AT;
+		}
 
-	AutomatedTest*	mCurrentTest;
-	Container		mTests;
-	udword			mNbFrames;
-	bool			mRendering;
-	bool			mRandomizeOrder;
-	bool			mTrashCache;
-	bool			mSaveExcelFile;
-};
+		AutomatedTest*	mCurrentTest;
+		Container		mTests;
+		udword			mNbFrames;
+		bool			mRendering;
+		bool			mRandomizeOrder;
+		bool			mTrashCache;
+		bool			mVSync;
+		bool			mSaveExcelFile;
+	};
+}
 
 AutomatedTests::AutomatedTests(const ParseContext& ctx) :
 	mTests			(ctx.mTests),
@@ -63,6 +119,7 @@ AutomatedTests::AutomatedTests(const ParseContext& ctx) :
 	mRendering		(ctx.mRendering),
 	mRandomizeOrder	(ctx.mRandomizeOrder),
 	mTrashCache		(ctx.mTrashCache),
+	mVSync			(ctx.mVSync),
 	mSaveExcelFile	(ctx.mSaveExcelFile)
 {
 }
@@ -122,6 +179,17 @@ static PhysicsTest* FindTest(const char* name)
 	return null;
 }
 
+static void HandleBooleanParameter(const ParameterBlock& pb, bool& b)
+{
+	ASSERT(pb.GetNbParams()==2);
+	if(pb[1]=="true")
+		b = true;
+	else if(pb[1]=="false")
+		b = false;
+	else
+		ASSERT(0);
+}
+
 static bool gParseCallback(const char* command, const ParameterBlock& pb, size_t context, void* user_data, const ParameterBlock* cmd)
 {
 	ParseContext* Context = reinterpret_cast<ParseContext*>(user_data);
@@ -136,7 +204,7 @@ static bool gParseCallback(const char* command, const ParameterBlock& pb, size_t
 		{
 			AutomatedTest* AT = Context->AllocateNewTest(Test);
 			if(pb.GetNbParams()==3)
-				AT->mNbFrames = (sdword)pb[2];
+				AT->mNbFrames = sdword(pb[2]);
 			else
 				AT->mNbFrames = 0;
 			Context->mCurrentTest = AT;
@@ -151,22 +219,22 @@ static bool gParseCallback(const char* command, const ParameterBlock& pb, size_t
 		else
 		{
 			AutomatedTest* AT = Context->AllocateNewTest(Test);
-			AT->mSoundPos = (sdword)pb[2];
+			AT->mSoundPos = sdword(pb[2]);
 			Context->mCurrentTest = AT;
 		}
 	}
 	else if(pb.GetNbParams()==3 && pb[0]=="Music")
 	{
-		StartSound(pb[1], (sdword)pb[2]);
+		StartSound(pb[1], sdword(pb[2]));
 	}
 	else if(pb.GetNbParams()==2 && pb[0]=="NbFrames")
 	{
-		Context->mNbFrames = (sdword)pb[1];
+		Context->mNbFrames = sdword(pb[1]);
 	}
 	else if(pb.GetNbParams()==2 && pb[0]=="NextCamera")
 	{
 		if(Context->mCurrentTest)
-			Context->mCurrentTest->mNextCameraPos = (sdword)pb[1];
+			Context->mCurrentTest->mNextCameraPos = sdword(pb[1]);
 		else
 			OutputConsoleError("Script error: NextCamera command: no current test available.\n");
 	}
@@ -180,7 +248,7 @@ static bool gParseCallback(const char* command, const ParameterBlock& pb, size_t
 	else if(pb.GetNbParams()==2 && pb[0]=="WireframeOverlay")
 	{
 		if(Context->mCurrentTest)
-			Context->mCurrentTest->mWireframeOverlay = (sdword)pb[1];
+			Context->mCurrentTest->mWireframeOverlay = sdword(pb[1]);
 		else
 			OutputConsoleError("Script error: WireframeOverlay command: no current test available.\n");
 	}
@@ -198,37 +266,73 @@ static bool gParseCallback(const char* command, const ParameterBlock& pb, size_t
 	}
 	else if(pb.GetNbParams()==2 && pb[0]=="Rendering")
 	{
-		if(pb[1]=="true")
-			Context->mRendering = true;
-		else if(pb[1]=="false")
-			Context->mRendering = false;
+		HandleBooleanParameter(pb, Context->mRendering);
 	}
 	else if(pb.GetNbParams()==2 && pb[0]=="RandomizeOrder")
 	{
-		if(pb[1]=="true")
-			Context->mRandomizeOrder = true;
-		else if(pb[1]=="false")
-			Context->mRandomizeOrder = false;
+		HandleBooleanParameter(pb, Context->mRandomizeOrder);
 	}
 	else if(pb.GetNbParams()==2 && pb[0]=="TrashCache")
 	{
-		if(pb[1]=="true")
-			Context->mTrashCache = true;
-		else if(pb[1]=="false")
-			Context->mTrashCache = false;
+		HandleBooleanParameter(pb, Context->mTrashCache);
 	}
-	else if(pb.GetNbParams()==2 && pb[0]=="SaveExcelFile")
+	else if(pb.GetNbParams()==2 && pb[0]=="VSync")
 	{
-		if(pb[1]=="true")
-			Context->mSaveExcelFile = true;
-		else if(pb[1]=="false")
-			Context->mSaveExcelFile = false;
+		HandleBooleanParameter(pb, Context->mVSync);
+	}
+	else if(pb.GetNbParams()==2 && pb[0]=="SaveExcelFile")	// Save Excel file after each test
+	{
+		HandleBooleanParameter(pb, Context->mSaveExcelFile);
+	}
+	else if(pb.GetNbParams()==2 && pb[0]=="AccumExcelFile")	// Accumulate results in single Excel file
+	{
+		const char* AccumName = pb[1];
+		const char* Filename = GetFilenameForExport("csv", "csv.txt", AccumName);
+		gAccumExcelFile = fopen(Filename, "w");
+		fprintf_s(gAccumExcelFile, "%s:\n\n", AccumName);
+	}
+	else if(pb.GetNbParams()==2 && pb[0]=="NbPosIter")
+	{
+		if(Context->mCurrentTest)
+			Context->mCurrentTest->mOverride.mNbIter = udword(sdword(pb[1]));
+		else
+			OutputConsoleError("Script error: NbPosIter command: no current test available.\n");
+	}
+	else if(pb.GetNbParams()==2 && pb[0]=="Sleeping")
+	{
+		if(Context->mCurrentTest)
+			Context->mCurrentTest->mOverride.mSleeping = sdword(pb[1]);
+		else
+			OutputConsoleError("Script error: NbPosIter command: no current test available.\n");
+	}
+	else if(pb.GetNbParams()==2 && pb[0]=="UseGPU")
+	{
+		if(Context->mCurrentTest)
+			Context->mCurrentTest->mOverride.mUseGPU = sdword(pb[1]);
+		else
+			OutputConsoleError("Script error: NbPosIter command: no current test available.\n");
 	}
 	else
 	{
 		OutputConsoleError(_F("Unknown command in script:\n%s\n", command));
 	}
 	return true;
+}
+
+// Hardcoded & experimental - only for scripts at the moment
+void SetupOverride(PINT_WORLD_CREATE& desc)
+{
+	desc.mOverride = null;
+
+	AutomatedTests* AutoTests = gAutomatedTests;
+	if(!AutoTests)
+		return;
+
+	AutomatedTest* CurrentTest = AutoTests->GetCurrentTest();
+	if(!CurrentTest)
+		return;
+
+	desc.mOverride	= &CurrentTest->mOverride;
 }
 
 static void StartAutomatedTest(const AutomatedTest& test)
@@ -268,9 +372,7 @@ void RunScript(const char* filename)
 		if(Parser.Execute(filename))
 		{
 			if(Context.mNbFrames && Context.mTests.GetNbEntries())
-			{
 				gAutomatedTests = ICE_NEW(AutomatedTests)(Context);
-			}
 		}
 	}
 
@@ -280,6 +382,7 @@ void RunScript(const char* filename)
 		EnableRendering(AutoTests->mRendering);
 		SetRandomizeOrder(AutoTests->mRandomizeOrder);
 		SetTrashCache(AutoTests->mTrashCache);
+		SetVSync(AutoTests->mVSync);
 
 		AutomatedTest* Test = AutoTests->GetCurrentTest();
 		StartAutomatedTest(*Test);
@@ -293,19 +396,18 @@ void StartTest(const char* name)
 }
 
 void TestCSVExport();
+void AccumCSVExport(FILE* globalFile, udword divider, const char* name);
+
 void UpdateAutomatedTests(udword frame_nb, bool menu_is_visible)
 {
 	if(gWantedTest)
 	{
 		PhysicsTest* t = FindTest(gWantedTest);
 		if(!t)
-		{
 			OutputConsoleError(_F("Unknown test: %s\n", gWantedTest));
-		}
 		else
-		{
 			ActivateTest(t);
-		}
+
 		gWantedTest = null;
 	}
 
@@ -319,9 +421,7 @@ void UpdateAutomatedTests(udword frame_nb, bool menu_is_visible)
 
 	const udword SoundPos = GetSoundPos();
 	if(SoundPos>CurrentTest->mNextCameraPos)
-	{
 		GetCamera().SelectNextCamera();
-	}
 
 	const udword Limit = MAX(CurrentTest->mNbFrames, AutoTests->mDefaultNbFrames);
 	if(frame_nb>Limit || menu_is_visible || SoundPos>CurrentTest->mSoundPos)
@@ -329,12 +429,23 @@ void UpdateAutomatedTests(udword frame_nb, bool menu_is_visible)
 		if(AutoTests->mSaveExcelFile)
 			TestCSVExport();
 
+		if(gAccumExcelFile)
+		{
+			const char* tag = CurrentTest->mOverride.mUseGPU == 1 ? "GPU" : "CPU";
+			AccumCSVExport(gAccumExcelFile, 1, _F("NbPosIter = %d (%s)", CurrentTest->mOverride.mNbIter, tag));
+		}
+
 		AutomatedTest* NextTest = AutoTests->SelectNextTest();
 		if(NextTest)
 		{
 			StartAutomatedTest(*NextTest);
 		}
 		else
+		{
+			if(gAccumExcelFile)
+				fclose(gAccumExcelFile);
+
 			exit(0);
+		}
 	}
 }

@@ -37,6 +37,7 @@
 		SHAPE_RENDERER_TRANSPARENT					= (1<<2),	// ### maybe we'll need a pipeline ID instead, like in ICE
 		SHAPE_RENDERER_USES_EXPLICIT_VERTEX_NORMALS	= (1<<3),
 //		SHAPE_RENDERER_USES_BATCHING				= (1<<4),	// Skips per-shape SetupMaterial / SetupGeometry calls
+		SHAPE_RENDERER_NO_SHADOWS					= (1<<5),
 	};
 
 	class PintShapeRenderer	: public Allocateable
@@ -92,6 +93,7 @@
 
 		inline_	udword					_CanBeShared()				const	{ return mBaseFlags & SHAPE_RENDERER_CAN_BE_SHARED;					}
 		inline_	udword					_UseExplicitVertexNormals()	const	{ return mBaseFlags & SHAPE_RENDERER_USES_EXPLICIT_VERTEX_NORMALS;	}
+		inline_	udword					_DisableShadows()			const	{ return mBaseFlags & SHAPE_RENDERER_NO_SHADOWS;					}
 
 				RenderDataChunk*		mRenderSource;	// Experimental.
 				udword					mBaseFlags;

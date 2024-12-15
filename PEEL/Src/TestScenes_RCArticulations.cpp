@@ -754,6 +754,169 @@ END_TEST(ScissorLift)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static void createMotorizedArm(Pint& pint, float x, float y, float z, udword nb_links, PintActorHandle* handles, bool use_aggregates)
+{
+//const PintDisabledGroups DG(1, 1);
+//pint.SetDisabledGroups(1, &DG);
+//		const float Size = 50.0f;
+
+	const PintArticHandle RCA = pint.CreateRCArticulation(PINT_RC_ARTICULATION_CREATE(true));
+//	const PintArticHandle RCA = 0;
+
+	const float ex = 1.0f;
+	const float ey = 1.0f;
+	float ez = 1.0f;
+
+	// First we create a static anchor object
+
+	PintActorHandle box0;
+	{
+		const Point Extents(ex, ey, ez);
+//		const Point StaticPos(x+float(xxx-15)*Size, y, z+float(yyy-15)*Size);
+		const Point StaticPos(x, y, z);
+
+		PINT_BOX_CREATE BoxDesc(Extents);
+		BoxDesc.mRenderer = CreateBoxRenderer(Extents);
+
+		PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
+		ObjectDesc.mPosition	= StaticPos;
+//		ObjectDesc.mCollisionGroup = 1;
+		if(RCA)
+		{
+			ObjectDesc.mMass	= 1.0f;
+			PINT_RC_ARTICULATED_BODY_CREATE ArticulatedDesc;
+			box0 = pint.CreateRCArticulatedObject(ObjectDesc, ArticulatedDesc, RCA);
+		}
+		else
+		{
+			ObjectDesc.mMass	= 0.0f;
+			box0 = CreatePintObject(pint, ObjectDesc);
+		}
+	}
+
+	// Then we create a number of rotating links
+
+	const float growth = 1.5f;
+//	float velocity = 0.25f;
+	float velocity = 1.0f;
+
+	const udword Nb = nb_links;
+
+	for(udword i=0;i<Nb;i++)
+	{
+		x += ex*2.0f;
+		z += ez;
+
+		const Point localAnchor0(ex, 0.0f, ez);
+
+		ez *= growth;
+		z += ez;
+		PintActorHandle box1;
+		{
+			const Point Extents(ex, ey, ez);
+			const Point DynamicPos(x, y, z);
+//			const Point DynamicPos(x+float(xxx-15)*Size, y, z+float(yyy-15)*Size);
+
+			PINT_BOX_CREATE BoxDesc(Extents);
+			BoxDesc.mRenderer = CreateBoxRenderer(Extents);
+
+//				box1 = CreateSimpleObject(pint, &BoxDesc, float(i)+1.0f, DynamicPos);
+			PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
+			ObjectDesc.mPosition	= DynamicPos;
+			ObjectDesc.mMass		= float(i)+1.0f;
+//		ObjectDesc.mCollisionGroup = 1;
+
+			if(RCA)
+			{
+//				PINT_RC_ARTICULATED_BODY_CREATE ArticulatedDesc;
+//				box0 = pint.CreateRCArticulatedObject(ObjectDesc, ArticulatedDesc, RCA);
+
+				PINT_RC_ARTICULATED_BODY_CREATE ArticulatedDesc;
+				ArticulatedDesc.mJointType	= PINT_JOINT_HINGE;
+				ArticulatedDesc.mAxisIndex	= X_;
+/*					if(SetupLimits)
+				{
+					ArticulatedDesc.mMinLimit	= -PI;
+					ArticulatedDesc.mMaxLimit	= angle;
+				}
+				else*/
+				{
+					ArticulatedDesc.mMinLimit	= PI;
+					ArticulatedDesc.mMaxLimit	= -PI;
+				}
+				ArticulatedDesc.mParent		= box0;
+
+/*					ArticulatedDesc.mLocalPivot0.mPos	= TransformInv(pint, currLeft, leftAnchorLocation);
+				ArticulatedDesc.mLocalPivot0.mRot	= leftParentRot;
+				ArticulatedDesc.mLocalPivot1.mPos	= Point(0.f, 0.f, -1.f);
+				ArticulatedDesc.mLocalPivot1.mRot	= rightRot;*/
+
+				ArticulatedDesc.mLocalPivot0.mPos	= localAnchor0;
+				ArticulatedDesc.mLocalPivot1.mPos	= Point(-ex, 0.0f, -ez);
+//					ArticulatedDesc.mLocalAxis0		= Point(1.0f, 0.0f, 0.0f);
+//					ArticulatedDesc.mLocalAxis1		= Point(1.0f, 0.0f, 0.0f);
+
+				ArticulatedDesc.mUseMotor			= true;
+//					ArticulatedDesc.mMotor.mStiffness	= 1000.0f;
+//					ArticulatedDesc.mMotor.mDamping		= 100.0f;
+				ArticulatedDesc.mTargetVel			= velocity;
+				//TODO: revisit these
+				ArticulatedDesc.mMotor.mStiffness	= 0.0f;
+				ArticulatedDesc.mMotor.mDamping		= 10000.0f;
+				ArticulatedDesc.mFrictionCoeff		= 0.0f;
+
+
+				box1 = pint.CreateRCArticulatedObject(ObjectDesc, ArticulatedDesc, RCA);
+			}
+			else
+			{
+				box1 = CreatePintObject(pint, ObjectDesc);
+			}
+
+			if(handles)
+				handles[i] = box1;
+		}
+
+		if(!RCA)
+		{
+			PINT_HINGE_JOINT_CREATE Desc;
+			Desc.mObject0		= box0;
+			Desc.mObject1		= box1;
+			Desc.mLocalPivot0	= localAnchor0;
+			Desc.mLocalPivot1	= Point(-ex, 0.0f, -ez);
+			Desc.mLocalAxis0	= Point(1.0f, 0.0f, 0.0f);
+			Desc.mLocalAxis1	= Point(1.0f, 0.0f, 0.0f);
+
+			if(1)
+			{
+				Desc.mUseMotor		= true;
+				Desc.mDriveVelocity	= velocity;
+			}
+
+			PintJointHandle JointHandle = pint.CreateJoint(Desc);
+			ASSERT(JointHandle);
+		}
+
+		box0 = box1;
+
+//		velocity *= 2.0f;
+	}
+
+	if(RCA)
+	{
+		if(!use_aggregates)
+		{
+			pint.AddRCArticulationToScene(RCA);
+		}
+		else
+		{
+			PintAggregateHandle	Aggregate = pint.CreateAggregate(128, false);
+			pint.AddRCArticulationToAggregate(RCA, Aggregate);
+			pint.AddAggregateToScene(Aggregate);
+		}
+	}
+}
+
 static const char* gDesc_MotorizedHinges = "Motorized hinges test scene from APE.";
 
 START_TEST(MotorizedHinges, CATEGORY_RCARTICULATIONS, gDesc_MotorizedHinges)
@@ -782,177 +945,90 @@ START_TEST(MotorizedHinges, CATEGORY_RCARTICULATIONS, gDesc_MotorizedHinges)
 		if(!caps.mSupportRCArticulations || !caps.mSupportRigidBodySimulation)
 			return false;
 
-//const PintDisabledGroups DG(1, 1);
-//pint.SetDisabledGroups(1, &DG);
-//		const float Size = 50.0f;
+		PintActorHandle* Handles = (PintActorHandle*)ICE_ALLOC(sizeof(PintActorHandle)*5);
+		pint.mUserData = Handles;
 
-//		for(sdword yyy=0;yyy<50;yyy++)
-		{
-//			for(sdword xxx=0;xxx<50;xxx++)
-			{
-				const PintArticHandle RCA = pint.CreateRCArticulation(PINT_RC_ARTICULATION_CREATE(true));
-//				const PintArticHandle RCA = 0;
+		createMotorizedArm(pint, 0.0f, 1.0f, 0.0f, 5, Handles, false);
 
-				const float ex = 1.0f;
-				const float ey = 1.0f;
-				float ez = 1.0f;
-
-				float x = 0.0f;
-				float y = 1.0f;
-				float z = 0.0f;
-
-				// First we create a static anchor object
-
-				PintActorHandle box0;
-				{
-					const Point Extents(ex, ey, ez);
-//					const Point StaticPos(x+float(xxx-15)*Size, y, z+float(yyy-15)*Size);
-					const Point StaticPos(x, y, z);
-
-					PINT_BOX_CREATE BoxDesc(Extents);
-					BoxDesc.mRenderer = CreateBoxRenderer(Extents);
-
-					PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
-					ObjectDesc.mPosition	= StaticPos;
-//		ObjectDesc.mCollisionGroup = 1;
-					if(RCA)
-					{
-						ObjectDesc.mMass	= 1.0f;
-						PINT_RC_ARTICULATED_BODY_CREATE ArticulatedDesc;
-						box0 = pint.CreateRCArticulatedObject(ObjectDesc, ArticulatedDesc, RCA);
-					}
-					else
-					{
-						ObjectDesc.mMass	= 0.0f;
-						box0 = CreatePintObject(pint, ObjectDesc);
-					}
-				}
-
-				// Then we create a number of rotating links
-
-				const float growth = 1.5f;
-			//	float velocity = 0.25f;
-				float velocity = 1.0f;
-
-				const udword Nb = 5;
-				PintActorHandle* Handles = (PintActorHandle*)ICE_ALLOC(sizeof(PintActorHandle)*Nb);
-				pint.mUserData = Handles;
-
-				for(udword i=0;i<Nb;i++)
-				{
-					x += ex*2.0f;
-					z += ez;
-
-					const Point localAnchor0(ex, 0.0f, ez);
-
-					ez *= growth;
-					z += ez;
-					PintActorHandle box1;
-					{
-						const Point Extents(ex, ey, ez);
-						const Point DynamicPos(x, y, z);
-//						const Point DynamicPos(x+float(xxx-15)*Size, y, z+float(yyy-15)*Size);
-
-						PINT_BOX_CREATE BoxDesc(Extents);
-						BoxDesc.mRenderer = CreateBoxRenderer(Extents);
-
-		//				box1 = CreateSimpleObject(pint, &BoxDesc, float(i)+1.0f, DynamicPos);
-						PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
-						ObjectDesc.mPosition	= DynamicPos;
-						ObjectDesc.mMass		= float(i)+1.0f;
-//		ObjectDesc.mCollisionGroup = 1;
-
-						if(RCA)
-						{
-		//					PINT_RC_ARTICULATED_BODY_CREATE ArticulatedDesc;
-		//					box0 = pint.CreateRCArticulatedObject(ObjectDesc, ArticulatedDesc, RCA);
-
-							PINT_RC_ARTICULATED_BODY_CREATE ArticulatedDesc;
-							ArticulatedDesc.mJointType	= PINT_JOINT_HINGE;
-							ArticulatedDesc.mAxisIndex	= X_;
-		/*					if(SetupLimits)
-							{
-								ArticulatedDesc.mMinLimit	= -PI;
-								ArticulatedDesc.mMaxLimit	= angle;
-							}
-							else*/
-							{
-								ArticulatedDesc.mMinLimit	= PI;
-								ArticulatedDesc.mMaxLimit	= -PI;
-							}
-							ArticulatedDesc.mParent		= box0;
-
-		/*					ArticulatedDesc.mLocalPivot0.mPos	= TransformInv(pint, currLeft, leftAnchorLocation);
-							ArticulatedDesc.mLocalPivot0.mRot	= leftParentRot;
-							ArticulatedDesc.mLocalPivot1.mPos	= Point(0.f, 0.f, -1.f);
-							ArticulatedDesc.mLocalPivot1.mRot	= rightRot;*/
-
-							ArticulatedDesc.mLocalPivot0.mPos	= localAnchor0;
-							ArticulatedDesc.mLocalPivot1.mPos	= Point(-ex, 0.0f, -ez);
-		//					ArticulatedDesc.mLocalAxis0		= Point(1.0f, 0.0f, 0.0f);
-		//					ArticulatedDesc.mLocalAxis1		= Point(1.0f, 0.0f, 0.0f);
-
-							ArticulatedDesc.mUseMotor			= true;
-		//					ArticulatedDesc.mMotor.mStiffness	= 1000.0f;
-		//					ArticulatedDesc.mMotor.mDamping		= 100.0f;
-							ArticulatedDesc.mTargetVel			= velocity;
-							//TODO: revisit these
-							ArticulatedDesc.mMotor.mStiffness	= 0.0f;
-							ArticulatedDesc.mMotor.mDamping		= 10000.0f;
-							ArticulatedDesc.mFrictionCoeff		= 0.0f;
-
-
-							box1 = pint.CreateRCArticulatedObject(ObjectDesc, ArticulatedDesc, RCA);
-						}
-						else
-						{
-							box1 = CreatePintObject(pint, ObjectDesc);
-						}
-
-						Handles[i] = box1;
-					}
-
-					if(!RCA)
-					{
-						PINT_HINGE_JOINT_CREATE Desc;
-						Desc.mObject0		= box0;
-						Desc.mObject1		= box1;
-						Desc.mLocalPivot0	= localAnchor0;
-						Desc.mLocalPivot1	= Point(-ex, 0.0f, -ez);
-						Desc.mLocalAxis0	= Point(1.0f, 0.0f, 0.0f);
-						Desc.mLocalAxis1	= Point(1.0f, 0.0f, 0.0f);
-
-						if(1)
-						{
-							Desc.mUseMotor		= true;
-							Desc.mDriveVelocity	= velocity;
-						}
-
-						PintJointHandle JointHandle = pint.CreateJoint(Desc);
-						ASSERT(JointHandle);
-					}
-
-					box0 = box1;
-
-		//			velocity *= 2.0f;
-				}
-
-				if(RCA)
-					pint.AddRCArticulationToScene(RCA);
-			}
-		}
 		return true;
 	}
 
-/*	virtual	float		DrawDebugText(Pint& pint, GLFontRenderer& renderer, float y, float text_scale)
+	virtual	float		DrawDebugText(Pint& pint, GLFontRenderer& renderer, float y, float text_scale)
 	{
 		const PintActorHandle* Handles = (const PintActorHandle*)pint.mUserData;
 		for(udword i=0;i<5;i++)
 			y = PrintAngularVelocity(pint, renderer, Handles[i], y, text_scale);
 		return y;
-	}*/
+	}
 
 END_TEST(MotorizedHinges)
+
+///////////////////////////////////////////////////////////////////////////////
+
+/*static const char* gDesc_MotorizedHingesExt = "Extended motorized hinges test scene.";
+
+START_TEST(MotorizedHingesExt, CATEGORY_RCARTICULATIONS, gDesc_MotorizedHingesExt)
+
+	virtual	float	GetRenderData(Point& center)	const	{ return 10000.0f;	}
+
+	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
+	{
+		TestBase::GetSceneParams(desc);
+		desc.mCamera[0] = PintCameraPose(Point(4.25f, 12.43f, 41.98f), Point(0.01f, -0.37f, -0.93f));
+		desc.mGravity.Zero();
+		SetDefEnv(desc, false);
+	}
+
+	virtual bool	Setup(Pint& pint, const PintCaps& caps)
+	{
+		if(!caps.mSupportRCArticulations || !caps.mSupportRigidBodySimulation)
+			return false;
+
+		createMotorizedArm(pint, 0.0f, 1.0f, 0.0f, 16, null, false);
+
+		return true;
+	}
+
+END_TEST(MotorizedHingesExt)*/
+
+///////////////////////////////////////////////////////////////////////////////
+
+static const char* gDesc_MotorizedHingesBenchmark = "Motorized hinges benchmark.";
+
+START_TEST(MotorizedHingesBenchmark, CATEGORY_RCARTICULATIONS, gDesc_MotorizedHingesBenchmark)
+
+	virtual	float	GetRenderData(Point& center)	const	{ return 10000.0f;	}
+
+	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
+	{
+		TestBase::GetSceneParams(desc);
+		desc.mCamera[0] = PintCameraPose(Point(-31.40f, 536.55f, 900.20f), Point(0.41f, -0.80f, -0.45f));
+		desc.mGravity.Zero();
+		SetDefEnv(desc, false);
+	}
+
+	virtual bool	Setup(Pint& pint, const PintCaps& caps)
+	{
+		if(!caps.mSupportRCArticulations || !caps.mSupportRigidBodySimulation)
+			return false;
+
+		const udword Nb = 64;
+
+		const float ScaleX = 20.0f;
+		const float ScaleZ = 30.0f;
+		for(udword j=0;j<Nb;j++)
+		{
+			for(udword i=0;i<Nb;i++)
+			{
+				createMotorizedArm(pint, float(i)*ScaleX, 0.0f, float(j)*ScaleZ, 5, null, false);
+				//createMotorizedArm(pint, float(i)*ScaleX, 0.0f, float(j)*ScaleZ, 5, null, true);
+			}
+		}
+
+		return true;
+	}
+
+END_TEST(MotorizedHingesBenchmark)
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1373,6 +1449,11 @@ START_TEST(MujocoHumanoid, CATEGORY_RCARTICULATIONS, gDesc_MujocoHumanoid)
 		if(!caps.mSupportRCArticulations || !caps.mSupportRigidBodySimulation || !caps.mSupportCompounds)
 			return false;
 
+		return CreateHumanoid(pint, caps, Point(0.0f, 0.0f, 0.0f));
+	}
+
+	bool CreateHumanoid(Pint& pint, const PintCaps& caps, const Point& offset)
+	{
 		const bool FixedBase = mCheckBox_FixedBase ? mCheckBox_FixedBase->IsChecked() : false;
 		const PintArticHandle RCA = pint.CreateRCArticulation(PINT_RC_ARTICULATION_CREATE(FixedBase));
 
@@ -1401,7 +1482,7 @@ Point torsoPos;
 			headDesc.SetNext(&uwaistDesc);
 
 			PINT_OBJECT_CREATE ObjectDesc;
-			SetupLink(ObjectDesc, "torso", Point(0.0f, 0.0f, 1.4f), &torso1Desc, 8.3f);
+			SetupLink(ObjectDesc, "torso", offset + Point(0.0f, 0.0f, 1.4f), &torso1Desc, 8.3f);
 
 			if(RCA)
 			{
@@ -2076,4 +2157,3 @@ left_footPos = ObjectDesc.mPosition;
 END_TEST(MujocoHumanoid)
 
 ///////////////////////////////////////////////////////////////////////////////
-

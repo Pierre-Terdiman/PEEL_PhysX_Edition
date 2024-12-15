@@ -24,9 +24,7 @@
 
 	#define PEEL_USE_MSAA
 
-#ifndef _WIN64
 	// Use SPY or not. SPY is a custom profiler.
 	//#define PEEL_USE_SPY
-#endif
 
 #endif

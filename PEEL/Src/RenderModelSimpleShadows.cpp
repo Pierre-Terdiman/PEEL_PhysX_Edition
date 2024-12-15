@@ -17,7 +17,6 @@
 #include "TextureManager.h"
 #include "Pint.h"
 #include "PEEL.h"
-#include "GUI_Helpers.h"
 #include "Scattering.h"
 #include "DefaultEnv.h"
 #include "PintRenderState.h"
@@ -162,12 +161,6 @@ bool RenderModel_SimpleShadows::HasSpecialGroundPlane() const
 {
 	return true;
 }
-
-/*bool RenderModel_SimpleShadows::NeedsVertexNormals() const
-{
-//	return false;
-	return true;
-}*/
 
 void RenderModel_SimpleShadows::SetGroundPlane(bool b)
 {
@@ -710,6 +703,8 @@ PintShapeRenderer* RenderModel_SimpleShadows::_CreateColorShapeRenderer(PintShap
 
 // UI stuff
 
+#include "GUI_Helpers.h"
+
 static const sdword OffsetX = 90;
 static const sdword EditBoxWidth = 60;
 static const sdword LabelOffsetY = 2;
@@ -718,28 +713,30 @@ IceWindow* RenderModel_SimpleShadows::InitGUI(IceWidget* parent, Widgets* owner,
 {
 	sdword y = 4;
 
-	class LocalComboBox : public IceComboBox
 	{
-		public:
-						LocalComboBox(const ComboBoxDesc& desc) : IceComboBox(desc){}
-
-		virtual	void	OnComboBoxEvent(ComboBoxEvent event)
+		class LocalComboBox : public IceComboBox
 		{
-			if(event==CBE_SELECTION_CHANGED)
-			{
-				const udword Index = GetSelectedIndex();
-				gNumShadows = Index;
-			}
-		}
-	};
+			public:
+							LocalComboBox(const ComboBoxDesc& desc) : IceComboBox(desc){}
 
-	helper.CreateLabel(parent, 4, y+LabelOffsetY, 90, 20, "Shadows:", owner);
-	IceComboBox* CB = CreateComboBox<LocalComboBox>(parent, 0, 94, y, 150, 20, "Shadows", owner, null/*gTooltip_*/);
-	CB->Add("No shadows");
-	CB->Add("1 shadow");
-	CB->Add("2 shadows");
-	CB->Add("3 shadows");
-	CB->Select(3);
+			virtual	void	OnComboBoxEvent(ComboBoxEvent event)
+			{
+				if(event==CBE_SELECTION_CHANGED)
+				{
+					const udword Index = GetSelectedIndex();
+					gNumShadows = Index;
+				}
+			}
+		};
+
+		helper.CreateLabel(parent, 4, y+LabelOffsetY, 90, 20, "Shadows:", owner);
+		IceComboBox* CB = CreateComboBox<LocalComboBox>(parent, 0, 94, y, 150, 20, "Shadows", owner, null/*gTooltip_*/);
+		CB->Add("No shadows");
+		CB->Add("1 shadow");
+		CB->Add("2 shadows");
+		CB->Add("3 shadows");
+		CB->Select(3);
+	}
 
 	y += YStep;
 

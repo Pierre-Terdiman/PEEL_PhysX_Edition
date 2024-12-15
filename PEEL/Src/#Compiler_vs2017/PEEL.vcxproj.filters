@@ -733,6 +733,15 @@
     <ClCompile Include="..\MeshCleaner.cpp">
       <Filter>Source Files\Main\Support</Filter>
     </ClCompile>
+    <ClCompile Include="..\DisplayMessage.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GL_MSAA.cpp">
+      <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLScreenshot.cpp">
+      <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\LegoLib\LegoLib.h">
@@ -1515,6 +1524,15 @@
     </ClInclude>
     <ClInclude Include="..\MeshCleaner.h">
       <Filter>Source Files\Main\Support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DisplayMessage.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GL_MSAA.h">
+      <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GLScreenshot.h">
+      <Filter>Source Files\Main\Support\OpenGL</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

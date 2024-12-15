@@ -494,19 +494,20 @@ class ContactModify : public ContactNotifyTest, public PintContactModifyCallback
 	}
 
 	PintShapeHandle	mS1;
-	virtual	bool	PrepContactModify(Pint& pint, udword nb_contacts, PintActorHandle h0, PintActorHandle h1, PintShapeHandle s0, PintShapeHandle s1)
+	// PintContactModifyCallback
+	virtual	bool	PrepContactModify(Pint& pint, udword nb_contacts, PintActorHandle h0, PintActorHandle h1, PintShapeHandle s0, PintShapeHandle s1)	override
 	{
 //		printf("PrepContactModify: %d\n", nb_contacts);
 		mS1 = s1;
 		return true;
 	}
 
-	virtual	ContactModif	ModifyDelayedContact(Pint& pint, const PR& pose0, const PR& pose1, Point& p, Point& n, float& s, udword feature0, udword feature1, udword index)
+	virtual	ContactModif	ModifyDelayedContact(Pint& pint, const PR& pose0, const PR& pose1, Point& p, Point& n, float& s, udword feature0, udword feature1, udword index)	override
 	{
 		return CONTACT_IGNORE;
 	}
 
-	virtual	ContactModif	ModifyContact(Pint& pint, const PR& pose0, const PR& pose1, Point& p, Point& n, float& s, udword feature0, udword feature1)
+	virtual	ContactModif	ModifyContact(Pint& pint, const PR& pose0, const PR& pose1, Point& p, Point& n, float& s, udword feature0, udword feature1)	override
 	{
 		mContacts.AddVertex(p);
 		mContacts.AddVertex(p+n);
@@ -528,6 +529,7 @@ class ContactModify : public ContactNotifyTest, public PintContactModifyCallback
 
 		return CONTACT_AS_IS;
 	}
+	//~PintContactModifyCallback
 
 END_TEST(ContactModify)
 
@@ -684,7 +686,7 @@ static const char* gDesc_Heightfield = "Heightfield.";
 class Heightfield : public HeightfieldTest
 {
 	public:
-								Heightfield() : HeightfieldTest(64, 32)	{							}
+								Heightfield() : HeightfieldTest(128, 128)	{							}
 	virtual						~Heightfield()							{							}
 	virtual	const char*			GetName()						const	{ return "Heightfield";		}
 	virtual	const char*			GetDescription()				const	{ return gDesc_Heightfield;	}
@@ -714,10 +716,17 @@ class Heightfield : public HeightfieldTest
 			return false;
 
 		{
-			PINT_SPHERE_CREATE Create(1.0f);
+			PINT_SPHERE_CREATE Create(0.1f);
 			Create.mRenderer	= CreateSphereRenderer(Create.mRadius);
-			PintActorHandle ShapeHandle = CreateDynamicObject(pint, &Create, Point(0.0f, 2.0f, 0.0f));
+			PintActorHandle ShapeHandle = CreateDynamicObject(pint, &Create, Point(0.0f, 1.0f, 0.0f));
 			//PintActorHandle ShapeHandle = CreateDynamicObject(pint, &Create, Point(15.0f, 2.0f, 15.0f));
+			ASSERT(ShapeHandle);
+		}
+
+		{
+			PINT_BOX_CREATE Create(0.1f, 0.05f, 0.1f);
+			Create.mRenderer	= CreateBoxRenderer(Create.mExtents);
+			PintActorHandle ShapeHandle = CreateDynamicObject(pint, &Create, Point(1.0f, 1.5f, 0.0f));
 			ASSERT(ShapeHandle);
 		}
 

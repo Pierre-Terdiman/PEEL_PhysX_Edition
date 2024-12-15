@@ -76,9 +76,13 @@ void GLTexture::UpdateTexture(GLuint texId, udword width, udword height, const R
     glBindTexture( GL_TEXTURE_2D, 0);
 }
 
-void GLTexture::ReleaseTexture(GLuint texId)
+void GLTexture::ReleaseTexture(GLuint& texId)
 {
-	glDeleteTextures(1, &texId);
+	if(texId)
+	{
+		glDeleteTextures(1, &texId);
+		texId = 0;
+	}
 }
 
 extern udword gScreenWidth;
@@ -162,3 +166,21 @@ udword CreateTexture(udword width, udword height, const RGBAPixel* pixels)
 	return TextureID;
 }
 */
+
+void GLTexture::ReleaseFramebuffer(GLuint& id)
+{
+	if(id)
+	{
+		glDeleteFramebuffers(1, &id);
+		id = 0;
+	}
+}
+
+void GLTexture::ReleaseRenderbuffer(GLuint& id)
+{
+	if(id)
+	{
+		glDeleteRenderbuffers(1, &id);
+		id = 0;
+	}
+}

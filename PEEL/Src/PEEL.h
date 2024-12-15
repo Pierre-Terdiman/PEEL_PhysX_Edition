@@ -29,7 +29,7 @@
 	DefaultControlInterface&	GetDefaultControlInterface();
 	void						SetDefaultControlInterface();
 
-	const char*					GetFilenameForExport(const char* extension, const char* target=null);
+	const char*					GetFilenameForExport(const char* extension, const char* target=null, const char* explicit_name=null);
 	float						GetPickingDistance();
 
 	class Pint;
@@ -48,6 +48,7 @@
 	void						ActivateTest(PhysicsTest* test=null);
 	void						SetRandomizeOrder(bool b);
 	void						SetTrashCache(bool b);
+	void						SetVSync(bool b);
 
 	void						UpdateToolComboBox();
 

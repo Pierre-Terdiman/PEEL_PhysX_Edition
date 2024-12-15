@@ -59,6 +59,7 @@
 #include "Grid.h"
 #include "RoundCorners.h"
 #include "DisplayTexture.h"
+#include "DisplayMessage.h"
 #include "Devil.h"
 #include "DefaultEnv.h"
 #include "Terrain.h"
@@ -68,13 +69,23 @@
 #include "SupportFile.h"
 #include "GLScaledCylinder.h"
 #include "GLTexture.h"
+#include "GL_MSAA.h"
+#include "GLScreenshot.h"
 
 #ifdef PEEL_USE_SPY
-	#ifdef _DEBUG
-		//#pragma comment(lib, "Spy/SpyClient_D.lib")
-		#pragma comment(lib, "../Spy/SpyClient.lib")
+	#ifdef _WIN64
+		#ifdef _DEBUG
+			#pragma comment(lib, "../Spy/Win64/SpyClient_D.lib")
+		#else
+			#pragma comment(lib, "../Spy/Win64/SpyClient.lib")
+		#endif
 	#else
-		#pragma comment(lib, "../Spy/SpyClient.lib")
+		#ifdef _DEBUG
+			//#pragma comment(lib, "Spy/SpyClient_D.lib")
+			#pragma comment(lib, "../Spy/Win32/SpyClient.lib")
+		#else
+			#pragma comment(lib, "../Spy/Win32/SpyClient.lib")
+		#endif
 	#endif
 #endif
 
@@ -123,6 +134,8 @@ HWND GetWindowHandle()
 	return gWindowHandle;
 }
 
+static	bool				gTakeScreenshot = false;
+
 static	bool				gFog = false;
 static	bool				gAutoCameraMove = false;
 static	bool				gPaused = false;
@@ -142,9 +155,6 @@ static	bool				gTrashCache = false;
 static	bool				gEnableVSync = true;
 static	bool				gCommaSeparator = false;
 static	bool				gDisplayInfoMessages = false;
-static	bool				gDisplayMessage = false;
-static	float				gDisplayMessageDelay = 0.0f;
-static	udword				gDisplayMessageType = 0;
 
 static	bool				gUseFatFrames = false;
 static	bool				gSymmetricFrames = false;
@@ -155,6 +165,11 @@ bool UseFatFrames()				{ return gUseFatFrames;		}
 
 void SetRandomizeOrder(bool b)	{ gRandomizeOrder = b;	}
 void SetTrashCache(bool b)		{ gTrashCache = b;		}
+void SetVSync(bool b)
+{
+	gEnableVSync = b;
+	GL_SelectVSYNC(b);
+}
 
 static bool gBlitToScreen = true;
 //static	float				gRTDistance = MAX_FLOAT;	// Test how different engines react to "infinite" rays
@@ -194,9 +209,13 @@ enum RaytracingResolution
 };
 static	RaytracingResolution	gRaytracingResolution = RT_WINDOW_128;
 
+#ifdef PEEL_USE_MSAA
+extern udword gMSAA_Index;
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
-static	IceWindow*			gToolOptions[TOOL_COUNT] = {};
+static	IceWindow*	gToolOptions[TOOL_COUNT] = {};
 IceWindow*	GetToolOptionWindow(udword i)	{ return gToolOptions[i];	}
 	
 /*	static	udword				gRenderModelIndex = 0;*/
@@ -248,14 +267,6 @@ static	Point	gWireColor(0.0f, 0.0f, 0.0f);
 Point	gPlaneColor(0.5f, 0.5f, 0.5f);
 		udword	gBatchSize = 10000;
 		bool	gWireframePass = false;
-
-#ifdef PEEL_USE_MSAA
-	static int g_msaaSamples = 0;
-	static udword gMSAA_Index = 0;
-	/*static*/ GLuint g_msaaFbo = 0;
-	static GLuint g_msaaColorBuf = 0;
-	static GLuint g_msaaDepthBuf = 0;
-#endif
 
 static	IceWindow*		gRenderModelOptions[RENDER_MODEL_COUNT] = {};
 static	RenderModel*	gRenderModel[RENDER_MODEL_COUNT] = {};
@@ -372,111 +383,7 @@ static FPS						gFPS;
 
 /*static*/ udword				gFrameNb = 0;
 
-static void StartFrame_MSAA()
-{
-	SPY_ZONE("StartFrame MSAA")
-
-#ifdef PEEL_USE_MSAA
-	if(g_msaaSamples)
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER_EXT, g_msaaFbo);
-#endif
-}
-
-static void EndFrame_MSAA()
-{
-	SPY_ZONE("EndFrame MSAA")
-
-#ifdef PEEL_USE_MSAA
-	if(g_msaaFbo && g_msaaSamples)
-	{
-		glBindFramebuffer(GL_READ_FRAMEBUFFER_EXT, g_msaaFbo);
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER_EXT, 0);
-		glBlitFramebuffer(0, 0, gScreenWidth, gScreenHeight, 0, 0, gScreenWidth, gScreenHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-	}
-#endif
-}
-
-static void Release_MSAA()
-{
-#ifdef PEEL_USE_MSAA
-	if(g_msaaFbo)
-	{
-		glDeleteFramebuffers(1, &g_msaaFbo);
-		g_msaaFbo = 0;
-	}
-	if(g_msaaColorBuf)
-	{
-		glDeleteRenderbuffers(1, &g_msaaColorBuf);
-		g_msaaColorBuf = 0;
-	}
-	if(g_msaaDepthBuf)
-	{
-		glDeleteRenderbuffers(1, &g_msaaDepthBuf);
-		g_msaaDepthBuf = 0;
-	}
-#endif
-}
-
-static void Resize_MSAA()
-{
-#ifdef PEEL_USE_MSAA
-	if(g_msaaSamples)
-	{
-		const int width = gScreenWidth;
-		const int height = gScreenHeight;
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		Release_MSAA();
-
-		int samples;
-//		glGetIntegerv(GL_MAX_SAMPLES_EXT, &samples);
-//		printf("%d max samples for MSAA\n");
-		samples = g_msaaSamples;
-
-		glGenFramebuffers(1, &g_msaaFbo);
-		glBindFramebuffer(GL_FRAMEBUFFER, g_msaaFbo);
-
-		glGenRenderbuffers(1, &g_msaaColorBuf);
-		glBindRenderbuffer(GL_RENDERBUFFER, g_msaaColorBuf);
-		glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_RGBA8, width, height);
-
-		glGenRenderbuffers(1, &g_msaaDepthBuf);
-		glBindRenderbuffer(GL_RENDERBUFFER, g_msaaDepthBuf);
-		glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_DEPTH_COMPONENT, width, height);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, g_msaaDepthBuf);
-
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, g_msaaColorBuf);
-
-		glCheckFramebufferStatus(GL_FRAMEBUFFER);
-
-		glEnable(GL_MULTISAMPLE);
-	}
-#endif
-}
-
-static void Select_MSAA(udword index)
-{
-#ifdef PEEL_USE_MSAA
-	if(index==gMSAA_Index)
-		return;
-	gMSAA_Index = index;
-	Release_MSAA();
-	if(index==0)
-		g_msaaSamples = 0;
-	else if(index==1)
-		g_msaaSamples = 2;
-	else if(index==2)
-		g_msaaSamples = 4;
-	else if(index==3)
-		g_msaaSamples = 8;
-	else if(index==4)
-		g_msaaSamples = 16;
-	Resize_MSAA();
-#endif
-}
-
-const char* GetFilenameForExport(const char* extension, const char* target)
+const char* GetFilenameForExport(const char* extension, const char* target, const char* explicit_name)
 {
 	String Path = ".\\";
 
@@ -490,14 +397,26 @@ const char* GetFilenameForExport(const char* extension, const char* target)
 	}
 
 	if(!gRunningTest)
-		return _F("%sexported.%s", Path.Get(), extension);
+	{
+		if(explicit_name)
+			return _F("%s%s.%s", Path.Get(), explicit_name, extension);
+		else
+			return _F("%sexported.%s", Path.Get(), extension);
+	}
 
 	const char* Filename;
-	const char* SubName = gRunningTest->GetSubName();
-	if(SubName)
-		Filename = _F("%s%s_%s.%s", Path.Get(), gRunningTest->GetName(), SubName, extension);
+	if(explicit_name)
+	{
+		Filename = _F("%s%s.%s", Path.Get(), explicit_name, extension);
+	}
 	else
-		Filename = _F("%s%s.%s", Path.Get(), gRunningTest->GetName(), extension);
+	{
+		const char* SubName = gRunningTest->GetSubName();
+		if(SubName)
+			Filename = _F("%s%s_%s.%s", Path.Get(), gRunningTest->GetName(), SubName, extension);
+		else
+			Filename = _F("%s%s.%s", Path.Get(), gRunningTest->GetName(), extension);
+	}
 	return Filename;
 }
 
@@ -578,6 +497,8 @@ static PintPlugin* LoadPlugIn(const char* filename)
 	return (func)();
 }
 
+void SetupOverride(PINT_WORLD_CREATE& desc);
+
 static bool InitAll(PhysicsTest* test)
 {
 	const Point GravityFromUI = UI_GetGravity();
@@ -585,6 +506,7 @@ static bool InitAll(PhysicsTest* test)
 	PINT_WORLD_CREATE Desc;
 //	Desc.mGravity	= gDefaultGravity;
 	Desc.mGravity	= GravityFromUI;
+	SetupOverride(Desc);
 
 	if(test)
 	{
@@ -788,8 +710,7 @@ static void ResetTimers()
 #ifdef PEEL_PUBLIC_BUILD
 		if(gCandidateTest->IsPrivate())
 		{
-			gDisplayMessage = true;
-			gDisplayMessageType = 1;
+			StartDisplayMessage(PRIVATE_BUILD);
 		}
 		else
 #endif
@@ -968,6 +889,10 @@ static void KeyboardCallback(unsigned char key, int x, int y, bool down)
 		case 's':
 		case 'S':
 			TestCSVExport();
+			break;
+		case 't':
+		case 'T':
+			gTakeScreenshot = true;
 			break;
 		case 'w':
 		case 'W':
@@ -1184,20 +1109,8 @@ static void PrintTimings()
 		}
 	}
 
-	if(gDisplayMessage)
-	{
-		gDisplayMessage = false;
-		gDisplayMessageDelay = 1.0f;
-	}
-	if(gDisplayMessageDelay>0.0f)
-	{
-		y -= TextScale * 2.0f;
-		gTexter.setColor(1.0f, 0.0f, 0.0f, 1.0f);
-		if(gDisplayMessageType==0)
-			gTexter.print(0.0f, y, TextScale, "Saving results...");
-		else
-			gTexter.print(0.0f, y, TextScale, "This private test is disabled in public builds.");
-	}
+	y = DisplayMessage(gTexter, y, TextScale);
+
 	gTexter.setColor(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
@@ -1590,6 +1503,14 @@ void SetRectangleSelection(sdword x0, sdword x1, sdword y0, sdword y1)
 	gRectSelY1 = y1;
 }
 
+void RenderScreenQuad()
+{
+	SPY_ZONE("ScreenQuadMode shader")
+	ScreenQuadMode*	SQM = GetCurrentScreenQuadMode();
+	if(SQM)
+		SQM->Apply(gScreenWidth, gScreenHeight);
+}
+
 static udword gLastTime = 0;
 //extern udword gNbRenderedVerts;
 static void RenderCallback()
@@ -1659,19 +1580,16 @@ static void RenderCallback()
 	udword ElapsedTime = CurrentTime - gLastTime;
 	gLastTime = CurrentTime;
 	const float Delta = float(ElapsedTime)*0.001f;
-	if(gDisplayMessageDelay>0.0f)
-	{
-		gDisplayMessageDelay -= Delta;
-		if(gDisplayMessageDelay<0.0f)
-			gDisplayMessageDelay = 0.0f;
-	}
+	UpdateDisplayMessage(Delta);
 
 	if(!gMenuIsVisible)
 	{
 		SPY_ZONE("Simulate")
 
+		const float dt = gTimestep;
+
 		for(udword i=0;i<gNbSimulateCallsPerFrame;i++)
-			Simulate(gTimestep, gProfilingUnits, gUserProfilingMode, gRunningTest, gNbEngines , gEngines, gRandomizeOrder, gPaused, gTrashCache);
+			Simulate(dt, gProfilingUnits, gUserProfilingMode, gRunningTest, gNbEngines , gEngines, gRandomizeOrder, gPaused, gTrashCache);
 	}
 
 //	RunRaytractingTest();
@@ -1693,7 +1611,9 @@ static void RenderCallback()
 			MoveCameraLeft(Delta);
 	}
 
-	StartFrame_MSAA();
+	const bool renderModelMSAA = gCurrentRenderModel->SupportsMSAA();
+	if(renderModelMSAA)
+		StartFrame_MSAA();
 
 	if(gMenuIsVisible)
 	{
@@ -1703,10 +1623,8 @@ static void RenderCallback()
 	}
 	else
 	{
-		SPY_ZONE("ScreenQuadMode shader")
-		ScreenQuadMode*	SQM = GetCurrentScreenQuadMode();
-		if(SQM)
-			SQM->Apply(gScreenWidth, gScreenHeight);
+		if(gCurrentRenderModel->SupportsScreenQuad())
+			RenderScreenQuad();
 	}
 
 	// This position is better for object placement tool (or is it really?)
@@ -1741,8 +1659,11 @@ static void RenderCallback()
 
 			DrawTestDebugInfo();
 
-		// Render wireframe overlay first, to avoid issues with transparent objects
-		RenderWireframeOverlay();
+		if(gCurrentRenderModel->SupportsWireframeOverlay())
+		{
+			// Render wireframe overlay first, to avoid issues with transparent objects
+			RenderWireframeOverlay();
+		}
 		{
 			glLineWidth(0.5f);
 			SetUserDefinedPolygonMode();
@@ -1838,7 +1759,10 @@ static void RenderCallback()
 		glDisable(GL_TEXTURE_2D);
 	}
 
-	EndFrame_MSAA();
+	if(renderModelMSAA)
+		EndFrame_MSAA();
+
+	//SaveScreenshotToFile("d:/screenshot.tga", gScreenWidth, gScreenHeight, true);
 
 	if(!gMenuIsVisible && gRoundCorners)
 		DrawRoundCorners(gScreenWidth, gScreenHeight, gRoundCornersSize);
@@ -1879,7 +1803,7 @@ static void RenderCallback()
 							if(CurrentWidth!=gWidth || CurrentHeight!=gHeight)
 							{
 								GLTexture::ReleaseTexture(gTexID);
-								gTexID = 0;
+								ASSERT(gTexID==0);
 							}
 						}
 
@@ -2018,6 +1942,18 @@ static void RenderCallback()
 			glutxSwapBuffers();
 		}
 
+	//SaveScreenshotToFile("d:/screenshot.tga", gScreenWidth, gScreenHeight, false);
+		if(gTakeScreenshot)
+		{
+			gTakeScreenshot = false;
+			const char* Filename = GetFilenameForExport("tga", "screenshots.txt");
+			if(Filename)
+			{
+				SaveScreenshotToFile(Filename, gScreenWidth, gScreenHeight, false);
+				StartDisplayMessage(SAVING_SCREENSHOT);
+			}
+		}
+
 		{
 			SPY_ZONE("glutxReportErrors")
 			glutxReportErrors();
@@ -2053,6 +1989,8 @@ static void ReshapeCallback(int width, int height)
 	gScreenWidth = width;
 	gScreenHeight = height;
 	Resize_MSAA();
+	if(gCurrentRenderModel)
+		gCurrentRenderModel->Resize(width, height);
 }
 
 static void IdleCallback()
@@ -2196,6 +2134,7 @@ static char* gFolders[] = {
 	"../Media/NutsAndBolts/%s",
 	"../Media/Zcb/%s",
 	"../Excel/%s",
+	"../Screenshots/%s",
 //	"../build/%s",
 //	"../build/Customers/%s",
 //	"../build/Data/%s",
@@ -4009,7 +3948,7 @@ static void CreateRenderTab(IceWindow* tab)
 //		y += YStep;
 	}
 
-	const udword Height = 200;
+	const udword Height = 270;
 	y += YStep*2;
 	const sdword x = 16;
 
@@ -4019,7 +3958,7 @@ static void CreateRenderTab(IceWindow* tab)
 		WD.mParent	= tab;
 		WD.mX		= x;
 		WD.mY		= y+20;
-		WD.mWidth	= 320;
+		WD.mWidth	= 420;
 		WD.mHeight	= Height;
 		WD.mType	= WINDOW_DIALOG;
 //		WD.mStyle	= WSTYLE_STATIC_EDGES;
@@ -4034,7 +3973,7 @@ static void CreateRenderTab(IceWindow* tab)
 	}
 
 	{
-		IceEditBox* tmp = gGUIHelper.CreateEditBox(tab, MAIN_GUI_DUMMY, 4, y, 350, 230, "===== Render model options =====", gMainGUI, EDITBOX_TEXT, null);
+		IceEditBox* tmp = gGUIHelper.CreateEditBox(tab, MAIN_GUI_DUMMY, 4, y, 450, 300, "===== Render model options =====", gMainGUI, EDITBOX_TEXT, null);
 		tmp->SetReadOnly(true);
 	}
 
@@ -4553,6 +4492,32 @@ void TestCSVExport()
 	}
 
 	fclose(globalFile);
-	gDisplayMessage = true;
-	gDisplayMessageType = 0;
+
+	StartDisplayMessage(SAVING_RESULTS);
 }
+
+void AccumCSVExport(FILE* globalFile, udword divider, const char* name)
+{
+	const udword NbFrames = gFrameNb<=MAX_NB_RECORDED_FRAMES ? gFrameNb : MAX_NB_RECORDED_FRAMES;
+
+	for(udword b=0;b<gNbEngines;b++)
+	{
+		if(!gEngines[b].mEnabled || !gEngines[b].mSupportsCurrentTest || !(gEngines[b].mEngine->GetFlags() & PINT_IS_ACTIVE))
+			continue;
+
+		if(gCommaSeparator)
+			fprintf_s(globalFile, "%s, ", name);
+		else
+			fprintf_s(globalFile, "%s; ", name);
+
+		for(udword i=0;i<NbFrames;i++)
+		{
+			if(gCommaSeparator)
+				fprintf_s(globalFile, "%d, ", gEngines[b].mTiming.mRecorded[i].mUsedMemory/divider);
+			else
+				fprintf_s(globalFile, "%d; ", gEngines[b].mTiming.mRecorded[i].mUsedMemory/divider);
+		}
+		fprintf_s(globalFile, "\n");
+	}
+}
+

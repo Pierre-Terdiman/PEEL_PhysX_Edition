@@ -244,11 +244,12 @@ START_CYLINDER_TEST(CylinderStack, CATEGORY_BEHAVIOR, gDesc_CylinderStack)
 		{
 			for(udword i=0;i<Nb;i++)
 			{
+				const Point Pos(OffsetX + float(i)*Radius*2.2f, Altitude, 0.0f);
 				if(!caps.mSupportCylinders || UseConvexes)
 				{
 					PINT_CONVEX_CREATE ConvexCreate(mCylinder.mNbVerts, mCylinder.mVerts);
 					ConvexCreate.mRenderer	= GetRegisteredRenderers()[0];
-					PintActorHandle Handle = CreateDynamicObject(pint, &ConvexCreate, Point(OffsetX + float(i)*Radius*2.2f, Altitude, 0.0f), &R);
+					PintActorHandle Handle = CreateDynamicObject(pint, &ConvexCreate, Pos, &R);
 					ASSERT(Handle);
 				}
 				else
@@ -256,7 +257,7 @@ START_CYLINDER_TEST(CylinderStack, CATEGORY_BEHAVIOR, gDesc_CylinderStack)
 					PINT_CYLINDER_CREATE CylinderCreate(mCylinder.mRadius, mCylinder.mHalfHeight);
 					CylinderCreate.mRenderer	= GetRegisteredRenderers()[1];
 //					const Quat Q = ShortestRotation(Point(0.0f, 1.0f, 0.0f), Point(0.0f, 0.0f, 1.0f));
-					PintActorHandle Handle = CreateDynamicObject(pint, &CylinderCreate, Point(OffsetX + float(i)*Radius*2.2f, Altitude, 0.0f)/*, &R*/);
+					PintActorHandle Handle = CreateDynamicObject(pint, &CylinderCreate, Pos/*, &R*/);
 					ASSERT(Handle);
 				}
 			}
@@ -353,5 +354,100 @@ START_CYLINDER_TEST(CDStack, CATEGORY_BEHAVIOR, gDesc_CDStack)
 	}
 
 END_TEST(CDStack)
+
+///////////////////////////////////////////////////////////////////////////////
+
+static const char* gDesc_CylinderPile = "Pile of cylinders.";
+
+START_CYLINDER_TEST(CylinderPile, CATEGORY_BEHAVIOR, gDesc_CylinderPile)
+
+	CylinderMesh mCylinder;
+
+	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
+	{
+		TestBase::GetSceneParams(desc);
+		desc.mCamera[0] = PintCameraPose(Point(51.26f, 32.58f, 68.67f), Point(-0.58f, -0.43f, -0.69f));
+		SetDefEnv(desc, true);
+	}
+
+	virtual	bool	CommonSetup()
+	{
+		const float HalfHeight = 1.0f;
+		const float Radius = 1.0f;
+		const udword NbCirclePts = GetInt(60, mEditBox_CylinderTess);
+		mCylinder.Generate(NbCirclePts, Radius, HalfHeight);
+		RegisterRenderer(CreateConvexRenderer(mCylinder.mNbVerts, mCylinder.mVerts));
+
+		RegisterRenderer(CreateCylinderRenderer(Radius, HalfHeight*2.0f));
+
+		return TestBase::CommonSetup();
+	}
+
+	virtual	void	CommonRelease()
+	{
+		mCylinder.Reset();
+		TestBase::CommonRelease();
+	}
+
+	virtual bool	Setup(Pint& pint, const PintCaps& caps)
+	{
+		if(!CylinderTest::Setup(pint, caps))
+			return false;
+
+		const bool UseConvexes = mCheckBox_UseConvexesForAll ? mCheckBox_UseConvexesForAll->IsChecked() : false;
+
+		Matrix3x3 M;
+		M.RotX(HALFPI);
+		const Quat R = M;
+
+		udword Nb = 32;
+
+		BasicRandom Rnd(42);
+
+		const float Radius = mCylinder.mRadius;
+		const float HalfHeight = mCylinder.mHalfHeight;
+		float Altitude = mCylinder.mRadius * 2.0f;
+		const float Scale = Radius*2.2f;
+		const float Range = float(Nb) * Scale;
+		for(udword k=0;k<4;k++)
+		{
+			for(udword j=0;j<Nb;j++)
+			{
+				//const float CoeffZ = float(j)/float(Nb-1);
+				for(udword i=0;i<Nb;i++)
+				{
+					//const float CoeffX = float(i)/float(Nb-1);
+
+					Quat Q;
+					Q.p.x = Rnd.RandomFloat();
+					Q.p.y = Rnd.RandomFloat();
+					Q.p.z = Rnd.RandomFloat();
+					Q.w = Rnd.RandomFloat();
+					Q.Normalize();
+
+					const Point Pos(float(i)*Scale - Range*0.5f, Altitude, float(j)*Scale - Range*0.5f);
+					if(!caps.mSupportCylinders || UseConvexes)
+					{
+						PINT_CONVEX_CREATE ConvexCreate(mCylinder.mNbVerts, mCylinder.mVerts);
+						ConvexCreate.mRenderer	= GetRegisteredRenderers()[0];
+						const Quat Rot = Q*R;
+						PintActorHandle Handle = CreateDynamicObject(pint, &ConvexCreate, Pos, &Rot);
+						ASSERT(Handle);
+					}
+					else
+					{
+						PINT_CYLINDER_CREATE CylinderCreate(mCylinder.mRadius, mCylinder.mHalfHeight);
+						CylinderCreate.mRenderer	= GetRegisteredRenderers()[1];
+						PintActorHandle Handle = CreateDynamicObject(pint, &CylinderCreate, Pos, &Q);
+						ASSERT(Handle);
+					}
+				}
+			}
+			Altitude += 2.0f;
+		}
+		return true;
+	}
+
+END_TEST(CylinderPile)
 
 ///////////////////////////////////////////////////////////////////////////////

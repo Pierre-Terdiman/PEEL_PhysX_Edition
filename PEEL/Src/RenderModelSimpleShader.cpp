@@ -49,11 +49,6 @@ bool RenderModel_SimpleShader::HasSpecialGroundPlane() const
 	return false;
 }
 
-/*bool RenderModel_SimpleShader::NeedsVertexNormals() const
-{
-	return mNeedsVertexNormals;
-}*/
-
 void RenderModel_SimpleShader::SetGroundPlane(bool b)
 {
 }

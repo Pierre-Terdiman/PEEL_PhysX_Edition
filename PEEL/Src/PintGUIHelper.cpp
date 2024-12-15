@@ -19,6 +19,8 @@ class GUIHelper : public PintGUIHelper
 	virtual	IceCheckBox*	CreateCheckBox	(IceWidget* parent, udword id,	sdword x, sdword y, sdword width, sdword height, const char* label, Widgets* owner, bool state, CBCallback callback, const char* tooltip=null);
 	virtual	IceEditBox*		CreateEditBox	(IceWidget* parent, udword id,	sdword x, sdword y, sdword width, sdword height, const char* label, Widgets* owner, EditBoxFilter filter, EBCallback callback, const char* tooltip=null);
 	virtual	IceButton*		CreateButton	(IceWidget* parent, udword id,	sdword x, sdword y, sdword width, sdword height, const char* label, Widgets* owner, BCallback callback, void* user_data, const char* tooltip=null);
+
+//	virtual	IceCheckBox*	CreateCheckBox	(IceWidget* parent, udword id,	sdword x, sdword y, sdword width, sdword height, const char* label, Widgets* owner, bool state, bool* mirror, const char* tooltip=null);
 };
 
 static GUIHelper gGUIHelper;
@@ -76,7 +78,7 @@ IceLabel* GUI_CreateLabel(IceWidget* parent, sdword x, sdword y, sdword width, s
 	return Label;
 }
 
-IceCheckBox* GUI_CreateCheckBox(IceWidget* parent, udword id, sdword x, sdword y, sdword width, sdword height, const char* label, Widgets* owner, bool state, CBCallback callback, const char* tooltip)
+IceCheckBox* GUI_CreateCheckBox(IceWidget* parent, udword id, sdword x, sdword y, sdword width, sdword height, const char* label, Widgets* owner, bool state, CBCallback callback, const char* tooltip/*, bool* mirror*/)
 {
 	CheckBoxDesc CBD;
 	CBD.mID			= id;
@@ -88,6 +90,7 @@ IceCheckBox* GUI_CreateCheckBox(IceWidget* parent, udword id, sdword x, sdword y
 	CBD.mLabel		= label;
 	CBD.mChecked	= state;
 	CBD.mCallback	= callback;
+	//CBD.mMirror		= mirror;
 	IceCheckBox* CB = ICE_NEW(IceCheckBox)(CBD);
 	CB->SetVisible(true);
 	if(owner)
@@ -165,3 +168,8 @@ IceButton* GUIHelper::CreateButton(IceWidget* parent, udword id, sdword x, sdwor
 {
 	return GUI_CreateButton(parent, id, x, y, width, height, label, owner, callback, user_data, tooltip);
 }
+
+/*IceCheckBox* GUIHelper::CreateCheckBox(IceWidget* parent, udword id, sdword x, sdword y, sdword width, sdword height, const char* label, Widgets* owner, bool state, bool* mirror, const char* tooltip)
+{
+	return GUI_CreateCheckBox(parent, id, x, y, width, height, label, owner, state, null, tooltip, mirror);
+}*/

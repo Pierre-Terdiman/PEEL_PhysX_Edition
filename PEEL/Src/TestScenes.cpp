@@ -96,7 +96,7 @@ void PhysicsTest::CloseUI()
 	mUIElems.Release();
 }
 
-void PhysicsTest::AddResetButton(IceWindow* parent, sdword x, sdword y, sdword width)
+void PhysicsTest::AddResetButton(IceWindow* parent, sdword x, sdword y, sdword width, const char* title)
 {
 	ButtonDesc BD;
 	BD.mID			= 0;
@@ -105,7 +105,7 @@ void PhysicsTest::AddResetButton(IceWindow* parent, sdword x, sdword y, sdword w
 	BD.mY			= y;
 	BD.mWidth		= width;
 	BD.mHeight		= 20;
-	BD.mLabel		= "Reset test";
+	BD.mLabel		= title;
 	IceButton* IB = ICE_NEW(ResetButton)(*this, BD);
 	RegisterUIElement(IB);
 	IB->SetVisible(true);

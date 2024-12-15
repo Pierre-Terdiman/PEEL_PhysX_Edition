@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "RenderTarget.h"
 #include "TextureManager.h"
+#include "GLTexture.h"
 
 PEEL::RenderTarget::RenderTarget(udword width, udword height) : mFBO(null), mColorTexId(0), mDepthTexId(0), mWidth(width), mHeight(height), mColorTexture(null), mDepthTexture(null)
 {
@@ -9,16 +10,9 @@ PEEL::RenderTarget::RenderTarget(udword width, udword height) : mFBO(null), mCol
 
 void PEEL::RenderTarget::Clear()
 {
-	if(mColorTexId > 0)
-	{
-		glDeleteTextures(1, &mColorTexId);
-		mColorTexId = 0;
-	}
-	if(mDepthTexId > 0)
-	{
-		glDeleteTextures(1, &mDepthTexId);
-		mDepthTexId = 0;
-	}
+	GLTexture::ReleaseTexture(mColorTexId);
+	GLTexture::ReleaseTexture(mDepthTexId);
+
 	DELETESINGLE(mFBO);
 }
 

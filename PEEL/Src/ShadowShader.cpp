@@ -9,7 +9,6 @@
 #include "stdafx.h"
 #include "ShadowShader.h"
 #include "ShadowMap.h"
-#include "PxMat44.h"
 #include "GLShader.h"
 #include "Camera.h"
 #include "PEEL.h"

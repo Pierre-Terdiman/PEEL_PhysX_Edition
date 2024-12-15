@@ -496,6 +496,9 @@ bool DefaultRenderer::SetCurrentShape(PintShapeHandle h)
 
 inline_ void DefaultRenderer::ProcessShape(PintShapeRenderer* shape, const PR& pose)
 {
+	if(mPass==PINT_RENDER_PASS_SHADOW && shape->_DisableShadows())
+		return;
+
 	if((shape->mBaseFlags & SHAPE_RENDERER_TRANSPARENT) && mPass!=PINT_RENDER_PASS_SHADOW && mPass!=PINT_RENDER_PASS_WIREFRAME_OVERLAY)
 	{
 		BatchedData* BD = ICE_RESERVE(BatchedData, mTransparentShapes);
@@ -558,6 +561,9 @@ void DefaultRenderer::DrawShape(PintShapeRenderer* shape, const PR& pose)
 
 	SPY_ZONE("DefaultRenderer::DrawShape")
 	ASSERT(shape);
+
+	if(mPass==PINT_RENDER_PASS_SHADOW && shape->_DisableShadows())
+		return;
 
 	if(mHighlightFlags)
 	{

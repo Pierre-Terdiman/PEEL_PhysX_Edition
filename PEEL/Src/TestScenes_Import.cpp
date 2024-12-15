@@ -17,6 +17,7 @@
 #include "GUI_Helpers.h"
 #include "LegoLib\LegoLib.h"
 #include "Loader_Obj.h"
+#include "Loader_Bin.h"
 #include "ZCB\PINT_ZCB2.h"
 
 //	#include "GUI_ActorEdit.h"
@@ -38,6 +39,8 @@ static const char* gDesc_ImportScene = "Import scene from file.";
 
 PhysicsTest* gDragAndDropTest = null;
 const char* gDragAndDropName = null;
+
+static bool gHasBIN = false;
 
 class ImportSceneFromFile : public TestBase
 {
@@ -162,6 +165,20 @@ class ImportSceneFromFile : public TestBase
 			LoadObj(filename, Params, *mOBJ);
 			SetDefEnv(desc, false);
 		}
+		else if(strcmp(Ext, "bin")==0)
+		{
+			Success = true;
+			BinLoaderSettings BLS;
+			LoadBinMeshesFromFile(*this, filename, BLS);
+
+			Point center, extents;
+			GetGlobalBounds(center, extents);
+
+			desc.mCamera[0] = PintCameraPose(center, Point(0.0f, 0.0f, 1.0f));
+			SetDefEnv(desc, false);
+
+			gHasBIN = true;
+		}
 		else
 		{
 			IceCore::MessageBox(0, "Unsupported file format.", "Error", MB_OK);
@@ -228,6 +245,12 @@ class ImportSceneFromFile : public TestBase
 				CreatePintObject(pint, ObjectDesc);
 			}
 			return true;
+		}
+
+		if(gHasBIN)
+		{
+			gHasBIN = false;
+			return CreateMeshesFromRegisteredSurfaces(pint, caps);
 		}
 
 		SetupLego(pint, caps);

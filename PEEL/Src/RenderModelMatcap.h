@@ -24,7 +24,6 @@
 		virtual	bool				Close()				override;
 		virtual	IceWindow*			InitGUI(IceWidget* parent, Widgets* owner, PintGUIHelper& helper)	override;
 		virtual	bool				HasSpecialGroundPlane()	const										override;
-//			virtual	bool				NeedsVertexNormals()	const;
 		virtual	void				SetGroundPlane(bool b)												override;
 		virtual	void				InitScene(const Point& center, float size)							override;
 		virtual	void				SetupCamera()														override;

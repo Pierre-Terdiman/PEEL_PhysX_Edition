@@ -769,6 +769,14 @@
 						Name="OpenGL"
 						>
 						<File
+							RelativePath="..\GL_MSAA.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\GL_MSAA.h"
+							>
+						</File>
+						<File
 							RelativePath="..\GLConvexRenderer.cpp"
 							>
 						</File>
@@ -834,6 +842,14 @@
 						</File>
 						<File
 							RelativePath="..\GLScaledCylinder.h"
+							>
+						</File>
+						<File
+							RelativePath="..\GLScreenshot.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\GLScreenshot.h"
 							>
 						</File>
 						<File
@@ -2816,6 +2832,14 @@
 					</File>
 					<File
 						RelativePath="..\DefaultEnv.h"
+						>
+					</File>
+					<File
+						RelativePath="..\DisplayMessage.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\DisplayMessage.h"
 						>
 					</File>
 					<File

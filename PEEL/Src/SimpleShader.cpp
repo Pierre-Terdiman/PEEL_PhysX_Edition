@@ -22,7 +22,7 @@ SimpleShader::SimpleShader(bool needs_vertex_normals) :
 	for (int i = 0; i < 16; i++)
 	{
 		mCamModelView[i] = i%5 == 0 ? 1.0f : 0.0f;
-		mCamProj[i]      = i%5 == 0 ? 1.0f : 0.0f;
+//		mCamProj[i]      = i%5 == 0 ? 1.0f : 0.0f;
 	}
 }
 
@@ -45,7 +45,7 @@ void SimpleShader::__UpdateCamera(const float* modelView, const float* proj)
 	for (int i = 0; i < 16; i++)
 	{
 		mCamModelView[i] = modelView[i];
-		mCamProj[i] = proj[i];
+//		mCamProj[i] = proj[i];
 	}
 }
 

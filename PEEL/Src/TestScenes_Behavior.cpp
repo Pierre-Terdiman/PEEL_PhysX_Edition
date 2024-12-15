@@ -833,7 +833,7 @@ START_TEST(InitialPenetration, CATEGORY_BEHAVIOR, gDesc_InitialPenetration)
 	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
 	{
 		TestBase::GetSceneParams(desc);
-		desc.mCamera[0] = PintCameraPose(Point(9.25f, 20.56f, 36.44f), Point(-0.15f, -0.23f, -0.96f));
+		desc.mCamera[0] = PintCameraPose(Point(5.50f, 25.10f, 56.43f), Point(-0.15f, -0.23f, -0.96f));
 		SetDefEnv(desc, true);
 	}
 
@@ -846,6 +846,7 @@ START_TEST(InitialPenetration, CATEGORY_BEHAVIOR, gDesc_InitialPenetration)
 		const float BoxExtent = 3.0f*Scale;
 		const float BoxPosY = BoxExtent;
 		const udword NbBoxes = 4;
+		const udword NbSpheres = 4;
 		PintActorHandle H;
 		for(udword i=0;i<NbBoxes;i++)
 		{
@@ -869,6 +870,15 @@ START_TEST(InitialPenetration, CATEGORY_BEHAVIOR, gDesc_InitialPenetration)
 			PINT_SPHERE_CREATE SphereDesc(4.0f*Scale);
 			SphereDesc.mRenderer	= CreateSphereRenderer(SphereDesc.mRadius);
 			H = CreateDynamicObject(pint, &SphereDesc, Point(-15.0f*Scale, 0.0f, 0.0f));
+//			ASSERT(H);
+		}
+
+		for(udword i=0;i<NbSpheres;i++)
+		{
+			const float Coeff = float(i);
+			PINT_SPHERE_CREATE SphereDesc(4.0f*Scale);
+			SphereDesc.mRenderer	= CreateSphereRenderer(SphereDesc.mRadius);
+			H = CreateDynamicObject(pint, &SphereDesc, Point(-30.0f*Scale, Coeff*SphereDesc.mRadius*1.5f, 0.0f));
 //			ASSERT(H);
 		}
 		return true;
@@ -1122,6 +1132,7 @@ START_TEST(Restitution, CATEGORY_BEHAVIOR, gDesc_Restitution)
 			PintActorHandle SphereHandle = CreateDynamicObject(pint, &SphereDesc, Point(x, 20.0f, 0.0f));
 			ASSERT(SphereHandle);
 		}
+
 		return true;
 	}
 

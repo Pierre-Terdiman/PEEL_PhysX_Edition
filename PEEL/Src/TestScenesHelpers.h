@@ -32,6 +32,7 @@
 	PintActorHandle		CreateStaticObject					(Pint& pint, const PINT_SHAPE_CREATE* shape, const Point& pos, const Quat* rot=null, const char* name=null);
 	PintActorHandle		CreateDynamicBox					(Pint& pint, float size_x, float size_y, float size_z, const Point& pos, const Quat* rot=null, const PINT_MATERIAL_CREATE* material=null);
 
+	void				CreateSingleTriangleMesh			(SurfaceManager& test, const Triangle& tri, const PR* pose=null);
 	void				CreateSingleTriangleMesh			(SurfaceManager& test, float scale, Triangle* tri=null, bool reverse_winding=false);
 	bool				CreateBoxStack						(Pint& pint, const PintCaps& caps, const udword nb_stacks, udword nb_base_boxes, bool use_convexes=false);
 	void				CreateBoxContainer					(Pint& pint, float box_height, float box_side, float box_depth);

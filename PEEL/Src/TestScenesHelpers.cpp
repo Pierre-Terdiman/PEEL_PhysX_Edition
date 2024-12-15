@@ -43,6 +43,17 @@ const char* GetFile(const char* filename, udword& size)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void CreateSingleTriangleMesh(SurfaceManager& test, const Triangle& tri, const PR* pose)
+{
+	const IndexedTriangle Indices(0, 1, 2);
+
+	IndexedSurface* IS = ICE_NEW(TrackedIndexedSurface);
+	bool Status = IS->Init(1, 3, tri.mVerts, &Indices);
+	ASSERT(Status);
+
+	test.RegisterSurface(IS, null, pose, null);
+}
+
 void CreateSingleTriangleMesh(SurfaceManager& test, float scale, Triangle* tri, bool reverse_winding)
 {
 	const udword NbFaces = 1;

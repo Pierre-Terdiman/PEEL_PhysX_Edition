@@ -59,6 +59,7 @@ static bool CreateJointedCubes(Pint& pint, const PintCaps& caps, const Point& st
 	ObjectDesc.mMass			= 1.0f;
 	ObjectDesc.mPosition		= DynamicPos;
 	ObjectDesc.mCollisionGroup	= 2;
+//	ObjectDesc.mCOMLocalOffset	= Point(0.0f, -2.0f, 0.0f);
 	const PintActorHandle DynamicObject = CreatePintObject(pint, ObjectDesc);
 
 	PINT_HINGE_JOINT_CREATE Desc;

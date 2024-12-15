@@ -249,7 +249,7 @@ class BoxContainerConfigurable : public TestBase
 	public:
 							BoxContainerConfigurable()	{										}
 	virtual					~BoxContainerConfigurable()	{										}
-	virtual	const char*		GetName()			const	{ return "Box container";				}
+	virtual	const char*		GetName()			const	{ return "BoxContainer";				}
 	virtual	const char*		GetDescription()	const	{ return gDesc_BoxContainerConfigurable;}
 	virtual	TestCategory	GetCategory()		const	{ return CATEGORY_PERFORMANCE;			}
 
@@ -536,6 +536,7 @@ class BoxContainerConfigurable : public TestBase
 			}
 			yy += LayerInc * 2.0f;
 		}
+		//CreateBoxContainer(pint, BoxHeight, BoxSide, BoxDepth);
 		return true;
 	}
 
@@ -607,7 +608,7 @@ START_TEST(Compounds320NotTouching, CATEGORY_PERFORMANCE, gDesc_Compounds320NotT
 				// Aggregates can also be useful a single actor, if it has a lot of shapes
 				PintAggregateHandle Aggregate = null;
 				if(caps.mSupportAggregates)
-					Aggregate = pint.CreateAggregate(1, false);
+					Aggregate = pint.CreateAggregate(NbBoxes, false);
 				ObjectDesc.mAddToWorld	= Aggregate==null;
 
 				const PintActorHandle Handle = CreatePintObject(pint, ObjectDesc);
@@ -686,7 +687,7 @@ START_TEST(Compounds320Touching, CATEGORY_PERFORMANCE, gDesc_Compounds320Touchin
 			// Aggregates can also be useful a single actor, if it has a lot of shapes
 			PintAggregateHandle Aggregate = null;
 			if(caps.mSupportAggregates)
-				Aggregate = pint.CreateAggregate(1, false);
+				Aggregate = pint.CreateAggregate(NbBoxes, false);
 			ObjectDesc.mAddToWorld	= Aggregate==null;
 
 			PintActorHandle Handle = CreatePintObject(pint, ObjectDesc);
@@ -1632,9 +1633,9 @@ START_TEST(FallingSpheres, CATEGORY_PERFORMANCE, gDesc_FallingSpheres)
 
 		const float Altitude = 1.0f;
 		const float Radius = 0.5f;
-		const udword NbX = 100;
-		const udword NbY = 100;
-		return GenerateArrayOfSpheres(pint, Radius, NbX, NbY, Altitude + Radius*2.0f, 60.0f, 60.0f);
+		const udword NbX = 128;
+		const udword NbY = 128;
+		return GenerateArrayOfSpheres(pint, Radius, NbX, NbY, Altitude + Radius*2.0f, 80.0f, 80.0f);
 	}
 
 END_TEST(FallingSpheres)

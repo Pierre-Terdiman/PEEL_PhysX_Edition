@@ -101,6 +101,8 @@ void CreatePEELMenuBar(IceWindow* parent, Widgets& widgets)
 		Menu_File->Add("Save", MENU_SAVE);
 //		Menu_File->SetEnabled(MENU_SAVE, false);
 		Menu_File->AddSeparator();
+		//Menu_File->Add("Save screenshot", MENU_SAVE_SCREENSHOT);
+		Menu_File->AddSeparator();
 		Menu_File->Add("Run script", MENU_RUN_SCRIPT);
 		Menu_File->AddSeparator();
 
@@ -240,6 +242,19 @@ void ProcessMenuEvent(udword menu_item_id)
 		else
 			IceCore::MessageBox(0, "Export only available in editor mode.\n\nEnable the editor checkbox when starting PEEL.", "Feature not available", MB_OK);
 	}
+	/*else if(menu_item_id==MENU_SAVE_SCREENSHOT)
+	{
+		FILESELECTCREATE Create;
+		Create.mFilter			= "TGA Files (*.tga)|*.tga|All Files (*.*)|*.*||";
+		Create.mFileName		= ".\\screenshot.tga";
+		Create.mInitialDir		= "";
+		Create.mCaptionTitle	= "Save screenshot";
+		Create.mDefExt			= "tga";
+
+		String Filename;
+		if(!FileselectSave(Create, Filename, true))
+			return;
+	}*/
 	else if(menu_item_id==MENU_RUN_SCRIPT)
 	{
 		FILESELECTCREATE Create;

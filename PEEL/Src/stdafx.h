@@ -27,6 +27,9 @@
 
 #include ".\PINT_Common\PINT_Ice.h"
 
+// use this one to reduce the amount of visible reinterpret_cast
+#define ICE_ALLOCATE(type, count)	reinterpret_cast<type*>(ICE_ALLOC(count*sizeof(type)))
+
 #include "GL/glew.h"
 #include "GlutX/Include/GlutX.h"
 #include <vector>

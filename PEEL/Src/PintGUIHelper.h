@@ -50,6 +50,8 @@
 		virtual	IceCheckBox*	CreateCheckBox	(IceWidget* parent, udword id,	sdword x, sdword y, sdword width, sdword height, const char* label, Widgets* owner, bool state, CBCallback callback, const char* tooltip=null)	= 0;
 		virtual	IceEditBox*		CreateEditBox	(IceWidget* parent, udword id,	sdword x, sdword y, sdword width, sdword height, const char* label, Widgets* owner, EditBoxFilter filter, EBCallback callback, const char* tooltip=null)	= 0;
 		virtual	IceButton*		CreateButton	(IceWidget* parent, udword id,	sdword x, sdword y, sdword width, sdword height, const char* label, Widgets* owner, BCallback callback, void* user_data, const char* tooltip=null)	= 0;
+
+		//virtual	IceCheckBox*	CreateCheckBox	(IceWidget* parent, udword id,	sdword x, sdword y, sdword width, sdword height, const char* label, Widgets* owner, bool state, bool* mirror, const char* tooltip=null)	= 0;
 	};
 
 	template<class ComboBoxType>

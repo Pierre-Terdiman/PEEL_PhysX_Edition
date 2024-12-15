@@ -3911,8 +3911,6 @@ class RagdollConfigurable : public TestBase
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// TODO: fix this. It doesn't work when multiple engines are selected
-#ifdef REMOVED
 static const char* gDesc_ExplodingRagdoll = "Exploding ragdoll.";
 
 START_TEST(ExplodingRagdoll, CATEGORY_WIP, gDesc_ExplodingRagdoll)
@@ -3921,6 +3919,7 @@ START_TEST(ExplodingRagdoll, CATEGORY_WIP, gDesc_ExplodingRagdoll)
 	{
 		TestBase::GetSceneParams(desc);
 		desc.mCamera[0] = PintCameraPose(Point(6.58f, 1.32f, -14.27f), Point(-0.98f, -0.02f, -0.21f));
+		SetDefEnv(desc, true);
 	}
 
 	virtual bool	Setup(Pint& pint, const PintCaps& caps)
@@ -3935,8 +3934,8 @@ START_TEST(ExplodingRagdoll, CATEGORY_WIP, gDesc_ExplodingRagdoll)
 		const Point Offset(0.0f, 0.0f, 0.0f);
 		RD.Init(pint, Offset, 1, false, 1);
 
-//		pint.mUserData = RD.mBones[0].mBody;
-		pint.mUserData = RD.mBones[1].mBody;
+		pint.mUserData = RD.mBones[0].mBody;
+//		pint.mUserData = RD.mBones[1].mBody;
 
 		return true;
 	}
@@ -3946,20 +3945,20 @@ START_TEST(ExplodingRagdoll, CATEGORY_WIP, gDesc_ExplodingRagdoll)
 		PintActorHandle h = (PintActorHandle)pint.mUserData;
 		if(h)
 		{
-			if(mCurrentTime>4.0f)
+			if(mCurrentTime>3.0f)
 			{
-				mCurrentTime = -FLT_MAX;
+				pint.mUserData = null;
 
 				const PR Pose = pint.GetWorldTransform(h);
 
-				pint.AddWorldImpulseAtWorldPos(h, Point(0.0f, 500.0f, 0.0f), Pose.mPos);
+				//pint.AddWorldImpulseAtWorldPos(h, Point(0.0f, 500.0f, 0.0f), Pose.mPos);
+				pint.AddWorldImpulseAtWorldPos(h, Point(0.0f, -1500.0f, 0.0f), Pose.mPos);
 			}
 		}
 		return TestBase::Update(pint, dt);
 	}
 
 END_TEST(ExplodingRagdoll)
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -6142,7 +6141,7 @@ class LegoTechnicBuggy : public LegoTechnicVehicle
 				{
 					const PintJointHandle CurrentJoint = objects.mJoints[i];
 
-					const PintJoint JT = JointAPI->GetType(CurrentJoint);
+//					const PintJoint JT = JointAPI->GetType(CurrentJoint);
 
 					const char* Name = JointAPI->GetName(CurrentJoint);
 					if(Name)

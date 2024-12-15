@@ -247,6 +247,7 @@
     <ClCompile Include="..\DefaultControlInterface.cpp" />
     <ClCompile Include="..\DefaultEnv.cpp" />
     <ClCompile Include="..\Devil.cpp" />
+    <ClCompile Include="..\DisplayMessage.cpp" />
     <ClCompile Include="..\DisplayTexture.cpp" />
     <ClCompile Include="..\FlatShader.cpp" />
     <ClCompile Include="..\Foundation.cpp" />
@@ -435,9 +436,11 @@
     <ClCompile Include="..\GLRenderHelpers.cpp" />
     <ClCompile Include="..\GLRenderStates.cpp" />
     <ClCompile Include="..\GLScaledCylinder.cpp" />
+    <ClCompile Include="..\GLScreenshot.cpp" />
     <ClCompile Include="..\GLShader.cpp" />
     <ClCompile Include="..\GLTexture.cpp" />
     <ClCompile Include="..\GLVSync.cpp" />
+    <ClCompile Include="..\GL_MSAA.cpp" />
     <ClCompile Include="..\Grid.cpp" />
     <ClCompile Include="..\GUI_ActorEdit.cpp" />
     <ClCompile Include="..\GUI_ActorSelection.cpp" />
@@ -699,6 +702,7 @@
     <ClInclude Include="..\DefaultControlInterface.h" />
     <ClInclude Include="..\DefaultEnv.h" />
     <ClInclude Include="..\Devil.h" />
+    <ClInclude Include="..\DisplayMessage.h" />
     <ClInclude Include="..\DisplayTexture.h" />
     <ClInclude Include="..\FlatShader.h" />
     <CustomBuild Include="..\Foundation.h" />
@@ -797,9 +801,11 @@
     <ClInclude Include="..\GLRenderHelpers.h" />
     <ClInclude Include="..\GLRenderStates.h" />
     <ClInclude Include="..\GLScaledCylinder.h" />
+    <ClInclude Include="..\GLScreenshot.h" />
     <ClInclude Include="..\GLShader.h" />
     <ClInclude Include="..\GLTexture.h" />
     <ClInclude Include="..\GLVSync.h" />
+    <ClInclude Include="..\GL_MSAA.h" />
     <ClInclude Include="..\Grid.h" />
     <ClInclude Include="..\GUI_ActorEdit.h" />
     <ClInclude Include="..\GUI_ActorSelection.h" />
