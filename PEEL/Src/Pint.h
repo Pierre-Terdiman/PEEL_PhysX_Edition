@@ -1736,7 +1736,7 @@
 		virtual	udword			GetNbJoints(PintActorHandle handle)						const	{ mPint.NotImplemented("Pint_Actor::GetNbJoints");			return 0;			}
 		virtual	PintJointHandle	GetJoint(PintActorHandle handle, udword index)			const	{ mPint.NotImplemented("Pint_Actor::GetJoint");				return null;		}
 
-		virtual	bool			GetWorldBounds(PintActorHandle handle, AABB& bounds)	const	{ return mPint.NotImplemented("Pint_Actor::GetBounds");							}
+		virtual	bool			GetWorldBounds(PintActorHandle handle, AABB& bounds)	const	{ return mPint.NotImplemented("Pint_Actor::GetWorldBounds");					}
 
 		virtual	void			WakeUp(PintActorHandle handle)									{ mPint.NotImplemented("Pint_Actor::WakeUp");									}
 
