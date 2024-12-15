@@ -1368,7 +1368,7 @@ void PhysXPlugIn::CloseGUI()												{ PhysX_CloseGUI();						}
 void PhysXPlugIn::Init(const PINT_WORLD_CREATE& desc)						{ PhysX_Init(desc);						}
 void PhysXPlugIn::Close()													{ PhysX_Close();						}
 Pint* PhysXPlugIn::GetPint()												{ return GetPhysX();					}
-const char*	PhysXPlugIn::GetTestGUIName()									{ return "PhysX 5.1i";					}
+const char*	PhysXPlugIn::GetTestGUIName()									{ return "PhysX 5.1.0";					}
 static PhysXPlugIn gPlugIn;
 PintPlugin*	GetPintPlugin()													{ return &gPlugIn;						}
 
