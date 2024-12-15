@@ -39,6 +39,7 @@
 *.tlog
 *.user
 *.idb
+*.htm
 
 \.vs
 \__tmp__
