@@ -174,7 +174,7 @@ GLShader::Data GLShader::CompileMultiFilesShader(udword nb_sources, const char**
 	return data;
 }
 
-bool GLShader::SetUniform1f(GLuint program, const char* name, const float value)
+bool GLShader::SetUniform1f(GLuint program, const char* name, float value)
 {
 	const GLint loc = glGetUniformLocation(program, name);
 	if(loc >= 0)
@@ -218,7 +218,7 @@ bool GLShader::SetUniform4f(GLuint program, const char* name, float val0, float 
 	return false;
 }
 
-bool GLShader::SetUniform1i(GLuint program, const char* name, const sdword value)
+bool GLShader::SetUniform1i(GLuint program, const char* name, sdword value)
 {
 	const GLint loc = glGetUniformLocation(program, name);
 	if(loc >= 0)

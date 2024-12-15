@@ -48,11 +48,11 @@
 		bool	GetCompileError(GLuint shader, bool print_error);
 		void	ReleaseProgram(Data& prg);
 
-		bool	SetUniform1f(GLuint program, const char* name, const float value);
+		bool	SetUniform1f(GLuint program, const char* name, float value);
 		bool	SetUniform2f(GLuint program, const char* name, float val0, float val1);
 		bool	SetUniform3f(GLuint program, const char* name, float val0, float val1, float val2);
 		bool	SetUniform4f(GLuint program, const char* name, float val0, float val1, float val2, float val3);
-		bool	SetUniform1i(GLuint program, const char* name, const sdword value);
+		bool	SetUniform1i(GLuint program, const char* name, sdword value);
 	}
 
 #endif

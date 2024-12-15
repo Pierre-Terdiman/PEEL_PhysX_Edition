@@ -19,12 +19,6 @@
 		virtual			~FlatShader();
 
 				bool	Init();
-
-				void	__UpdateCamera(const float* modelView, const float* proj);
-		
-		private:
-				float	mCamModelView[16];
-				float	mCamProj[16];
 	};
 
 #endif

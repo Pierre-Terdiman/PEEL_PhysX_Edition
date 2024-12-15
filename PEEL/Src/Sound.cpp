@@ -270,7 +270,6 @@ static FMOD_INSTANCE *FMOD_CreateInstance64(char *dllName)
 #endif
 #endif
 
-
 static bool InitFMOD()
 {
 #ifdef PEEL_SOUND

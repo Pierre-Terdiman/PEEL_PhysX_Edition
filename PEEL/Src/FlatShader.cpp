@@ -8,10 +8,7 @@
 
 #include "stdafx.h"
 #include "FlatShader.h"
-#include "PxMat44.h"
 #include "GLShader.h"
-
-using namespace physx;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -37,11 +34,6 @@ void main()
 
 FlatShader::FlatShader()
 {
-	for (int i = 0; i < 16; i++)
-	{
-		mCamModelView[i] = i%5 == 0 ? 1.0f : 0.0f;
-		mCamProj[i]      = i%5 == 0 ? 1.0f : 0.0f;
-	}
 }
 
 FlatShader::~FlatShader()
@@ -55,12 +47,4 @@ bool FlatShader::Init()
 	return LoadShaderCode(vsProg, psProg);
 }
 
-void FlatShader::__UpdateCamera(const float* modelView, const float* proj)
-{
-	for (int i = 0; i < 16; i++)
-	{
-		mCamModelView[i] = modelView[i];
-		mCamProj[i] = proj[i];
-	}
-}
 

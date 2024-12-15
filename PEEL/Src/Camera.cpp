@@ -295,7 +295,6 @@ void SetupProjectionMatrix()
 		glLoadMatrixf(projMat);
 	}
 
-
 	gInvalidPlanes = true;
 }
 
