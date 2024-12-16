@@ -102,7 +102,7 @@ extern String gVehicleFilename;
 
 //static const char* gAppTitle = "PEEL (Physics Engine Evaluation Lab)";
 static const char* gAppTitle = "PEEL (Physics Engine Evaluation Lab) - PhysX Edition";
-static const char* gVersion = "2.0";
+static const char* gVersion = "2.1";
 
 static Point gDefaultGravity(0.0f, -9.81f, 0.0f);
 
