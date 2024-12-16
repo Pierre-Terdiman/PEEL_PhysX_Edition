@@ -142,3 +142,4 @@ bool MeshObjectManager::DeleteObject(void* object, const udword* index)
 	mFirstFree = Index;
 	return true;
 }
+

@@ -50,7 +50,6 @@ bool PhysX_SceneAPI::AddActors(udword nb_actors, const PintActorHandle* actors)
 	return true;
 }
 
-
 void PhysX_SceneAPI::GetActors(Reporter& reporter) const
 {
 	SharedPhysX& physx = static_cast<SharedPhysX&>(mPint);
