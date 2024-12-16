@@ -253,8 +253,8 @@ static PxU32 GearJointSolverPrep(Px1DConstraint* constraints,
 	con.geometricError = -data.error;
 	con.minImpulse = -PX_MAX_F32;
 	con.maxImpulse = PX_MAX_F32;
-	con.velocityTarget = 0.f;
-	con.forInternalUse = 0.f;
+	con.velocityTarget = 0.0f;
+	con.forInternalUse = 0.0f;
 	con.solveHint = 0;
 	con.flags = Px1DConstraintFlag::eOUTPUT_FORCE|Px1DConstraintFlag::eANGULAR_CONSTRAINT;
 	con.mods.bounce.restitution = 0.0f;
