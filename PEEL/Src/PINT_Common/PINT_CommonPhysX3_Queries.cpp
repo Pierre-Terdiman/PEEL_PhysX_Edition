@@ -466,9 +466,17 @@ static inline_ udword _FindTriangles_MeshOverlap(PintSQThreadContext context, Pi
 	if(!meshShape)
 		return 0;
 
+#if PHYSX_SUPPORT_DIRECT_SHAPE_GET_GEOMETRY
+	const PxGeometry& shapeGeom = meshShape->getGeometry();
+	const PxGeometryType::Enum geomType = shapeGeom.getType();
+	if(geomType!=PxGeometryType::eTRIANGLEMESH)
+		return 0;
+	const PxTriangleMeshGeometry& meshGeom = static_cast<const PxTriangleMeshGeometry&>(shapeGeom);
+#else
 	PxTriangleMeshGeometry meshGeom;
 	if(!meshShape->getTriangleMeshGeometry(meshGeom))
 		return 0;
+#endif
 
 #ifdef IS_PHYSX_3_2
 	const PxTransform meshPose = PxShapeExt::getGlobalPose(*meshShape);

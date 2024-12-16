@@ -407,6 +407,8 @@ copy ..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\Bin\vc12win32\PhysXFound
     <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_Shape.cpp" />
     <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX3_Vehicles.cpp" />
     <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX4_RCA.cpp" />
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX_JointUtils.cpp" />
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX_Names.cpp" />
     <ClCompile Include="..\..\PINT_Common\PINT_CommonShapes.cpp" />
     <ClCompile Include="..\..\PINT_Common\PortalJoint.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -824,6 +826,8 @@ copy ..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\Bin\vc12win32\PhysXFound
     <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_Setup.h" />
     <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_Shape.h" />
     <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_Vehicles.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX_JointUtils.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX_Names.h" />
     <ClInclude Include="..\..\PINT_Common\PINT_CommonShapes.h" />
     <ClInclude Include="..\..\PINT_Common\PINT_Ice.h" />
     <ClInclude Include="..\..\PINT_Common\PortalJoint.h" />

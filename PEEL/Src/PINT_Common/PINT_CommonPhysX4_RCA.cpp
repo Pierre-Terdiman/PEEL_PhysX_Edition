@@ -90,7 +90,11 @@ static void SetModeAndLimits(const EditableParams& params, PxArticulationJointRe
 	else if(min_limit<max_limit)
 	{
 		j->setMotion(axis, PxArticulationMotion::eLIMITED);
+#if PHYSX_SUPPORT_RCA_NEW_LIMIT_API
+		j->setLimitParams(axis, PxArticulationLimit(min_limit, max_limit));
+#else
 		j->setLimit(axis, min_limit, max_limit);
+#endif
 	}
 
 #if PHYSX_SUPPORT_RCA_DOF_SCALE
@@ -199,7 +203,11 @@ static void setupJoint(const EditableParams& params, PxArticulationJointReducedC
 #ifdef PHYSX_SUPPORT_OLD_4_0_API
 			j->setDrive(Axis, bc.mMotor.mStiffness, bc.mMotor.mDamping, bc.mMotor.mMaxForce, bc.mMotor.mAccelerationDrive);
 #else
+	#if PHYSX_SUPPORT_RCA_NEW_LIMIT_API
+			j->setDriveParams(Axis, PxArticulationDrive(bc.mMotor.mStiffness, bc.mMotor.mDamping, bc.mMotor.mMaxForce, bc.mMotor.mAccelerationDrive ? PxArticulationDriveType::eACCELERATION : PxArticulationDriveType::eFORCE));
+	#else
 			j->setDrive(Axis, bc.mMotor.mStiffness, bc.mMotor.mDamping, bc.mMotor.mMaxForce, bc.mMotor.mAccelerationDrive ? PxArticulationDriveType::eACCELERATION : PxArticulationDriveType::eFORCE);
+	#endif
 #endif
 			j->setDriveVelocity(Axis, bc.mTargetVel);
 //			j->userData = 0;
@@ -318,20 +326,36 @@ bool SharedPhysX::SetRCADriveEnabled(PintActorHandle handle, bool flag)
 	j->getDrive(Axis, stiffness, damping, maxForce, isAcceleration);
 #else
 	PxArticulationDriveType::Enum driveType;
+	#if PHYSX_SUPPORT_RCA_NEW_LIMIT_API
+	PxArticulationDrive tmp = j->getDriveParams(Axis);
+	stiffness = tmp.stiffness;
+	damping = tmp.damping;
+	maxForce = tmp.maxForce;
+	driveType = tmp.driveType;
+	#else
 	j->getDrive(Axis, stiffness, damping, maxForce, driveType);
+	#endif
 #endif
 	// TODO: hardcoded because gaaaah no userData
 	if(flag)
 #ifdef PHYSX_SUPPORT_OLD_4_0_API
 		j->setDrive(Axis, 0.0f, 1000.0f, FLT_MAX, false);
 #else
+	#if PHYSX_SUPPORT_RCA_NEW_LIMIT_API
+		j->setDriveParams(Axis, PxArticulationDrive(0.0f, 1000.0f, FLT_MAX, PxArticulationDriveType::eFORCE));
+	#else
 		j->setDrive(Axis, 0.0f, 1000.0f, FLT_MAX, PxArticulationDriveType::eFORCE);
+	#endif
 #endif
 	else
 #ifdef PHYSX_SUPPORT_OLD_4_0_API
 		j->setDrive(Axis, 0.0f, 0.0f, maxForce, isAcceleration);
 #else
+		#if PHYSX_SUPPORT_RCA_NEW_LIMIT_API
+		j->setDriveParams(Axis, PxArticulationDrive(0.0f, 0.0f, maxForce, driveType));
+		#else
 		j->setDrive(Axis, 0.0f, 0.0f, maxForce, driveType);
+		#endif
 #endif
 
 //	j->setDriveVelocity(Axis, velocity);

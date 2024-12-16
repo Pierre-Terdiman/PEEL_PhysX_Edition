@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "PortalJoint5.h"
 #include "Extensions\ExtConstraintHelper.h"
 #include "PxPhysics.h"
@@ -34,7 +36,11 @@ static void PortalJointVisualize(PxConstraintVisualizer& viz, const void* consta
 		const PortalJointData& data = *reinterpret_cast<const PortalJointData*>(constantBlock);
 
 		// Visualize joint frames
+#if PHYSX_SUPPORT_JOINT_PXTRANSFORM32
+		PxTransform32 cA2w, cB2w;
+#else
 		PxTransform cA2w, cB2w;
+#endif
 		joint::computeJointFrames(cA2w, cB2w, data, body0Transform, body1Transform);
 		viz.visualizeJointFrames(cA2w, cB2w);
 	}
@@ -52,7 +58,11 @@ static PxU32 PortalJointSolverPrep(Px1DConstraint* constraints,
 {
 	const PortalJointData& data = *reinterpret_cast<const PortalJointData*>(constantBlock);
 
+#if PHYSX_SUPPORT_JOINT_PXTRANSFORM32
+	PxTransform32 cA2w, cB2w;
+#else
 	PxTransform cA2w, cB2w;
+#endif
 	joint::ConstraintHelper ch(constraints, invMassScale, cA2w, cB2w, body0WorldOffset, data, bA2w, bB2w);
 
 	cA2wOut = bA2w.p;
@@ -73,7 +83,7 @@ static PxU32 PortalJointSolverPrep(Px1DConstraint* constraints,
 			c.minImpulse = -PX_MAX_F32;
 			c.maxImpulse = PX_MAX_F32;
 			c.velocityTarget = 0.0f;
-			c.forInternalUse = 0.0f;
+//			c.forInternalUse = 0.0f;
 			c.mods.bounce.restitution = 0.0f;
 			c.mods.bounce.velocityThreshold = 0.0f;
 			return c;
@@ -118,7 +128,11 @@ static PxU32 PortalJointSolverPrep(Px1DConstraint* constraints,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#if PHYSX_SUPPORT_JOINT_PROJECTION
 static PxConstraintShaderTable gPortalJointShaders = { PortalJointSolverPrep, PortalJointProject, PortalJointVisualize, PxConstraintFlag::Enum(0) };
+#else
+static PxConstraintShaderTable gPortalJointShaders = { PortalJointSolverPrep, PortalJointVisualize, PxConstraintFlag::Enum(0) };
+#endif
 
 PxConstraintSolverPrep PortalJoint::getPrep() const { return gPortalJointShaders.solverPrep;  }
 

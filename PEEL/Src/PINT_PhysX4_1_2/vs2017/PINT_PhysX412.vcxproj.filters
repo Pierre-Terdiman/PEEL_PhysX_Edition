@@ -220,6 +220,12 @@
     <ClCompile Include="..\PhysX5\PhysX5_ExtCpuWorkerThread.cpp">
       <Filter>Source Files\PhysX5</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX_JointUtils.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX_Names.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\PINT_PhysX412.h">
@@ -398,6 +404,12 @@
     </ClInclude>
     <ClInclude Include="..\PhysX5\PhysX5_ExtCpuWorkerThread.h">
       <Filter>Source Files\PhysX5</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX_JointUtils.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX_Names.h">
+      <Filter>Source Files\Common</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

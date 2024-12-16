@@ -24,6 +24,7 @@
 #include "PINT_CommonPhysX3_Mesh.h"
 #include "PINT_CommonPhysX3_FilterShader.h"
 #include "PINT_CommonPhysX_FoundationAPI.h"
+#include "PINT_CommonPhysX_Names.h"
 
 #ifdef PHYSX_SUPPORT_CHARACTERS2
 	#include "PINT_CommonPhysX3_CCT.h"
@@ -305,8 +306,12 @@
 		bool							mSQBothSides;
 
 		// Joints
+#if PHYSX_SUPPORT_JOINT_PROJECTION
 		bool							mEnableJointProjection;
+#endif
+#if PHYSX_SUPPORT_JOINT_CONTACT_DISTANCE
 //		bool							mEnableJointContactDistance;
+#endif
 		bool							mUseD6Joint;
 #if PHYSX_SUPPORT_DISABLE_PREPROCESSING
 		bool							mDisablePreprocessing;
@@ -326,7 +331,9 @@
 #ifdef PHYSX_SUPPORT_LINEAR_COEFF
 		float							mLinearCoeff;
 #endif
+#if PHYSX_SUPPORT_JOINT_CONTACT_DISTANCE
 		udword							mLimitsContactDistance;
+#endif
 		// Articulations
 #if PHYSX_SUPPORT_ARTICULATIONS || PHYSX_SUPPORT_RCA
 		bool							mDisableArticulations;
@@ -447,7 +454,8 @@
 #ifndef IS_PHYSX_3_2
 		// PxQueryFilterCallback
 		virtual PxQueryHitType::Enum		preFilter(const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags)	override;
-		virtual PxQueryHitType::Enum		postFilter(const PxFilterData& filterData, const PxQueryHit& hit)													override;
+		virtual PxQueryHitType::Enum		postFilter(const PxFilterData& filterData, const PxQueryHit& hit, const PxShape* shape, const PxRigidActor* actor)	/*override*/;
+		virtual PxQueryHitType::Enum		postFilter(const PxFilterData& filterData, const PxQueryHit& hit)													/*override*/;
 		//~PxQueryFilterCallback
 #endif
 		virtual	void						SetGravity(const Point& gravity)	override;
@@ -631,10 +639,9 @@
 		inline_	ActorManager&				GetActorManager()			{ return mActorManager;		}
 		inline_	const EditableParams&		GetParams()	const			{ return mParams;			}
 
-//		inline_	Strings&					GetNames()					{ return mNames;			}
-				void						SetActorName(PxRigidActor* actor, const char* name)	{ SetNameT<PxRigidActor>(actor, name);	}
-				void						SetShapeName(PxShape* shape, const char* name)		{ SetNameT<PxShape>(shape, name);		}
-				void						SetJointName(PxJoint* joint, const char* name)		{ SetNameT<PxJoint>(joint, name);		}
+				void						SetActorName(PxRigidActor* actor, const char* name)	{ mNames.SetNameT<PxRigidActor>(actor, name);	}
+				void						SetShapeName(PxShape* shape, const char* name)		{ mNames.SetNameT<PxShape>(shape, name);		}
+				void						SetJointName(PxJoint* joint, const char* name)		{ mNames.SetNameT<PxJoint>(joint, name);		}
 
 		protected:
 				void						SharedUpdateFromUI();
@@ -804,23 +811,7 @@
 
 				Vertices					mDebugVizHelper;
 
-				Strings						mNames;
-				template<class T>
-				void						SetNameT(T* obj, const char* name)
-				{
-					if(!obj)
-						return;
-
-					if(name)
-					{
-						// Make the string persistent
-						// TODO: share strings
-						IceCore::String* S = mNames.AddString(name);
-						name = S->Get();	// Replace non-persistent ptr with persistent ptr
-					}
-
-					obj->setName(name);
-				}
+				Names						mNames;
 	};
 
 	template<class T>

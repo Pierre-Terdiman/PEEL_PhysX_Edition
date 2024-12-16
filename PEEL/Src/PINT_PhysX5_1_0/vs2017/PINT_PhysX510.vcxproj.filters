@@ -94,6 +94,12 @@
     <ClCompile Include="..\PINT_PhysX510.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX_JointUtils.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX_Names.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\stdafx.h">
@@ -182,6 +188,12 @@
     </ClInclude>
     <ClInclude Include="..\PINT_PhysX510.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX_JointUtils.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX_Names.h">
+      <Filter>Source Files\Common</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -12,9 +12,9 @@
 //#define USE_SPY_PROFILER_IN_ALLOCATOR
 #ifdef USE_SPY_PROFILER_IN_ALLOCATOR
 	#include "..\Spy\SpyClient.h"
-	#define SPY_ZONE(Label)	Spy::Zone __SpyZone(Label);
+	#define SPY_ALLOCATOR_ZONE(Label)	Spy::Zone __SpyZone(Label);
 #else
-	#define SPY_ZONE(Label)
+	#define SPY_ALLOCATOR_ZONE(Label)
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -49,6 +49,9 @@ static int atomicDecrement(volatile int* val)
 
 static int atomicAdd(volatile int* val, int delta)
 {
+#if PHYSX_IMM_SUPPORT_INTERLOCKED_ADD
+	return (PxI32)InterlockedAdd((volatile LONG*)val, delta);
+#else
 	LONG newValue, oldValue;
 	do
 	{
@@ -57,14 +60,19 @@ static int atomicAdd(volatile int* val, int delta)
 	} while(InterlockedCompareExchange((volatile LONG*)val, newValue, oldValue) != oldValue);
 
 	return newValue;
+#endif
 }
 
 PX_COMPILE_TIME_ASSERT(sizeof(PEEL_PhysX3_AllocatorCallback::Header)<=32);
 void* PEEL_PhysX3_AllocatorCallback::allocate(size_t size, const char* typeName, const char* filename, int line)
 {
-	SPY_ZONE("PhysX allocate")
+	SPY_ALLOCATOR_ZONE("PhysX allocate")
 
 	char* memory = (char*)_aligned_malloc(size+32, 16);
+
+	//ZeroMemory(memory, size+32);
+	//memset(memory, 0xff, size+32);
+
 	Header* H = (Header*)memory;
 	H->mMagic		= 0x12345678;
 	H->mSize		= udword(size);
@@ -86,7 +94,7 @@ void* PEEL_PhysX3_AllocatorCallback::allocate(size_t size, const char* typeName,
 
 void PEEL_PhysX3_AllocatorCallback::deallocate(void* ptr)
 {
-	SPY_ZONE("PhysX deallocate")
+	SPY_ALLOCATOR_ZONE("PhysX deallocate")
 
 	if(!ptr)
 		return;

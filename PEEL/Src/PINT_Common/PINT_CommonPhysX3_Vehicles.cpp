@@ -243,6 +243,12 @@ public:
 		ASSERT(0);
 		return PxQueryHitType::eNONE;
 	}
+	virtual PxQueryHitType::Enum postFilter(const PxFilterData& filterData, const PxQueryHit& hit, const PxShape* shape, const PxRigidActor* actor)
+	{
+		// ### for some reason the post filter isn't called anymore in PhysX 5
+		ASSERT(0);
+		return PxQueryHitType::eBLOCK;
+	}
 }gMyFilter;
 #else
 class MyBatchQuery : public PxBatchQuery, public PxQueryFilterCallback

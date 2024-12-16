@@ -413,11 +413,13 @@ copy ..\..\..\..\PEEL_Externals\5_1_0\bin\win.x86_64.vc141.mt\profile\PhysXFound
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX5_Vehicles.cpp" />
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX_JointUtils.cpp" />
+    <ClCompile Include="..\..\PINT_Common\PINT_CommonPhysX_Names.cpp" />
     <ClCompile Include="..\..\PINT_Common\PINT_CommonShapes.cpp" />
     <ClCompile Include="..\..\PINT_Common\PortalJoint5.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">Use</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\DelayLoad.cpp" />
     <ClCompile Include="..\PINT_PhysX510.cpp" />
@@ -454,6 +456,8 @@ copy ..\..\..\..\PEEL_Externals\5_1_0\bin\win.x86_64.vc141.mt\profile\PhysXFound
     <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX3_Vehicles.h" />
     <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX5_CustomSQ.h" />
     <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX5_Vehicles.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX_JointUtils.h" />
+    <ClInclude Include="..\..\PINT_Common\PINT_CommonPhysX_Names.h" />
     <ClInclude Include="..\..\PINT_Common\PINT_CommonShapes.h" />
     <ClInclude Include="..\..\PINT_Common\PINT_Ice.h" />
     <ClInclude Include="..\..\PINT_Common\PortalJoint5.h" />

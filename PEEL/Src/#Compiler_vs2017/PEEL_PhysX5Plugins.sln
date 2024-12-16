@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28307.1738
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PINT_PhysX510", "..\PINT_PhysX5_1_0\vs2017\PINT_PhysX510.vcxproj", "{69BC5020-B5F4-4640-AAB7-3FD949479E3D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PINT_PhysX542GitHub", "..\PINT_PhysX5_4_2_GitHub\vs2017\PINT_PhysX542GitHub.vcxproj", "{3ACC830F-5972-4ABC-AE10-518FEC9DDE77}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -18,6 +20,12 @@ Global
 		{69BC5020-B5F4-4640-AAB7-3FD949479E3D}.Profile|x64.Build.0 = Profile|x64
 		{69BC5020-B5F4-4640-AAB7-3FD949479E3D}.Release|x64.ActiveCfg = Release|x64
 		{69BC5020-B5F4-4640-AAB7-3FD949479E3D}.Release|x64.Build.0 = Release|x64
+		{3ACC830F-5972-4ABC-AE10-518FEC9DDE77}.Debug|x64.ActiveCfg = Debug|x64
+		{3ACC830F-5972-4ABC-AE10-518FEC9DDE77}.Debug|x64.Build.0 = Debug|x64
+		{3ACC830F-5972-4ABC-AE10-518FEC9DDE77}.Profile|x64.ActiveCfg = Profile|x64
+		{3ACC830F-5972-4ABC-AE10-518FEC9DDE77}.Profile|x64.Build.0 = Profile|x64
+		{3ACC830F-5972-4ABC-AE10-518FEC9DDE77}.Release|x64.ActiveCfg = Release|x64
+		{3ACC830F-5972-4ABC-AE10-518FEC9DDE77}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

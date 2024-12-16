@@ -778,6 +778,22 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\PINT_Common\PINT_CommonPhysX_JointUtils.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\PINT_Common\PINT_CommonPhysX_JointUtils.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\PINT_Common\PINT_CommonPhysX_Names.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\PINT_Common\PINT_CommonPhysX_Names.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\PINT_Common\PINT_CommonShapes.cpp"
 					>
 				</File>

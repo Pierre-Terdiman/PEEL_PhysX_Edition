@@ -475,7 +475,9 @@ void PhysX::Init(const PINT_WORLD_CREATE& desc)
 #endif
 
 			PxCudaContextManagerDesc cudaContextManagerDesc;
+#if PHYSX_SUPPORT_CUDA_GL_INTEROP
 			cudaContextManagerDesc.interopMode = PxCudaInteropMode::OGL_INTEROP;
+#endif
 //printf("Checkpoint 00\n");
 			gCudaContextManager = PxCreateCudaContextManager(*mFoundation, cudaContextManagerDesc, PxGetProfilerCallback());
 //printf("Checkpoint 01\n");

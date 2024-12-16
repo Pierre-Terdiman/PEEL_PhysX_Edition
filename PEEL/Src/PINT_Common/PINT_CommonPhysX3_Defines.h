@@ -31,6 +31,9 @@
 #ifndef PHYSX_SUPPORT_CPU_DISPATCHER_MODE
 	#error Mandatory define missing: PHYSX_SUPPORT_CPU_DISPATCHER_MODE
 #endif
+#ifndef PHYSX_SUPPORT_CUDA_GL_INTEROP
+	#error Mandatory define missing: PHYSX_SUPPORT_CUDA_GL_INTEROP
+#endif
 
 // Actors/Rigid bodies
 #ifndef PHYSX_SUPPORT_ADAPTIVE_FORCE
@@ -82,11 +85,17 @@
 #ifndef PHYSX_SUPPORT_CUSTOM_GEOMETRY
 	#error Mandatory define missing: PHYSX_SUPPORT_CUSTOM_GEOMETRY
 #endif
+#ifndef PHYSX_SUPPORT_CUSTOM_GEOMETRY_PUBLIC_MEMBERS
+	#error Mandatory define missing: PHYSX_SUPPORT_CUSTOM_GEOMETRY_PUBLIC_MEMBERS
+#endif
 #ifndef PHYSX_SUPPORT_HEIGHTFIELDS
 	#error Mandatory define missing: PHYSX_SUPPORT_HEIGHTFIELDS
 #endif
 #ifndef PHYSX_SUPPORT_HEIGHTFIELD_THICKNESS
 	#error Mandatory define missing: PHYSX_SUPPORT_HEIGHTFIELD_THICKNESS
+#endif
+#ifndef PHYSX_SUPPORT_DIRECT_SHAPE_GET_GEOMETRY
+	#error Mandatory define missing: PHYSX_SUPPORT_DIRECT_SHAPE_GET_GEOMETRY
 #endif
 
 // Articulations
@@ -108,6 +117,10 @@
 #ifndef PHYSX_SUPPORT_RCA_ARMATURE
 	#error Mandatory define missing: PHYSX_SUPPORT_RCA_ARMATURE
 #endif
+#ifndef PHYSX_SUPPORT_RCA_NEW_LIMIT_API
+	#error Mandatory define missing: PHYSX_SUPPORT_RCA_NEW_LIMIT_API
+#endif
+
 // Convexes
 #ifndef PHYSX_SUPPORT_USER_DEFINED_GAUSSMAP_LIMIT
 	#error Mandatory define missing: PHYSX_SUPPORT_USER_DEFINED_GAUSSMAP_LIMIT
@@ -197,6 +210,15 @@
 #endif
 #ifndef PHYSX_SUPPORT_NEW_JOINT_TYPES
 	#error Mandatory define missing: PHYSX_SUPPORT_NEW_JOINT_TYPES
+#endif
+#ifndef PHYSX_SUPPORT_JOINT_PROJECTION
+	#error Mandatory define missing: PHYSX_SUPPORT_JOINT_PROJECTION
+#endif
+#ifndef PHYSX_SUPPORT_JOINT_CONTACT_DISTANCE
+	#error Mandatory define missing: PHYSX_SUPPORT_JOINT_CONTACT_DISTANCE
+#endif
+#ifndef PHYSX_SUPPORT_JOINT_PXTRANSFORM32
+	#error Mandatory define missing: PHYSX_SUPPORT_JOINT_PXTRANSFORM32
 #endif
 
 // Scene queries

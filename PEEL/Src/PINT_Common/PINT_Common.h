@@ -26,8 +26,8 @@
 							MyIceAllocator(const char* name);
 		virtual				~MyIceAllocator();
 
-		virtual void*		malloc(size_t size, MemoryType type);
-		virtual void*		mallocDebug(size_t size, const char* filename, udword line, const char* class_name, MemoryType type, bool from_new);
+		virtual void*		malloc(size_t size, IceCore::MemoryType type);
+		virtual void*		mallocDebug(size_t size, const char* filename, udword line, const char* class_name, IceCore::MemoryType type, bool from_new);
 		virtual void*		realloc(void* memory, size_t size);
 		virtual void*		shrink(void* memory, size_t size);
 		virtual void		free(void* memory, bool from_new);

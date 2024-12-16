@@ -40,7 +40,11 @@ PintShape PhysX_ShapeAPI::GetType(PintShapeHandle handle) const
 	PxShape* Shape = reinterpret_cast<PxShape*>(handle);
 	ASSERT(Shape);
 
+#if PHYSX_SUPPORT_DIRECT_SHAPE_GET_GEOMETRY
+	const PxGeometryType::Enum type = Shape->getGeometry().getType();
+#else
 	const PxGeometryType::Enum type = Shape->getGeometryType();
+#endif
 	switch(type)
 	{
 		case PxGeometryType::eSPHERE:		return PINT_SHAPE_SPHERE;
@@ -96,9 +100,17 @@ bool PhysX_ShapeAPI::GetTriangleMeshData(SurfaceInterface& surface, PintShapeHan
 	PxShape* Shape = reinterpret_cast<PxShape*>(handle);
 	ASSERT(Shape);
 
+#if PHYSX_SUPPORT_DIRECT_SHAPE_GET_GEOMETRY
+	const PxGeometry& shapeGeom = Shape->getGeometry();
+	const PxGeometryType::Enum geomType = shapeGeom.getType();
+	if(geomType!=PxGeometryType::eTRIANGLEMESH)
+		return false;
+	const PxTriangleMeshGeometry& meshGeom = static_cast<const PxTriangleMeshGeometry&>(shapeGeom);
+#else
 	PxTriangleMeshGeometry meshGeom;
 	if(!Shape->getTriangleMeshGeometry(meshGeom))
 		return false;
+#endif
 
 	PxTriangleMesh* mesh = meshGeom.triangleMesh;
 	if(!mesh)
@@ -127,9 +139,17 @@ static PxTriangleMesh* GetTriangleIndices(IndexedTriangle& tri, PintShapeHandle 
 	PxShape* Shape = reinterpret_cast<PxShape*>(handle);
 	ASSERT(Shape);
 
+#if PHYSX_SUPPORT_DIRECT_SHAPE_GET_GEOMETRY
+	const PxGeometry& shapeGeom = Shape->getGeometry();
+	const PxGeometryType::Enum geomType = shapeGeom.getType();
+	if(geomType!=PxGeometryType::eTRIANGLEMESH)
+		return null;
+	const PxTriangleMeshGeometry& meshGeom = static_cast<const PxTriangleMeshGeometry&>(shapeGeom);
+#else
 	PxTriangleMeshGeometry meshGeom;
 	if(!Shape->getTriangleMeshGeometry(meshGeom))
 		return null;
+#endif
 
 	PxTriangleMesh* mesh = meshGeom.triangleMesh;
 	if(!mesh)
@@ -190,10 +210,17 @@ bool PhysX_ShapeAPI::FindTouchedTriangles(Container& indices, PintSQThreadContex
 	PxShape* Shape = reinterpret_cast<PxShape*>(handle);
 	ASSERT(Shape);
 
+#if PHYSX_SUPPORT_DIRECT_SHAPE_GET_GEOMETRY
+	const PxGeometry& shapeGeom = Shape->getGeometry();
+	const PxGeometryType::Enum geomType = shapeGeom.getType();
+	if(geomType!=PxGeometryType::eTRIANGLEMESH)
+		return false;
+	const PxTriangleMeshGeometry& meshGeom = static_cast<const PxTriangleMeshGeometry&>(shapeGeom);
+#else
 	PxTriangleMeshGeometry meshGeom;
 	if(!Shape->getTriangleMeshGeometry(meshGeom))
 		return false;
-
+#endif
 	PxTriangleMesh* mesh = meshGeom.triangleMesh;
 	if(!mesh)
 		return false;
@@ -220,10 +247,17 @@ bool PhysX_ShapeAPI::Refit(PintShapeHandle shape, PintActorHandle actor)
 	PxShape* Shape = reinterpret_cast<PxShape*>(shape);
 	ASSERT(Shape);
 
+#if PHYSX_SUPPORT_DIRECT_SHAPE_GET_GEOMETRY
+	const PxGeometry& shapeGeom = Shape->getGeometry();
+	const PxGeometryType::Enum geomType = shapeGeom.getType();
+	if(geomType!=PxGeometryType::eTRIANGLEMESH)
+		return false;
+	const PxTriangleMeshGeometry& meshGeom = static_cast<const PxTriangleMeshGeometry&>(shapeGeom);
+#else
 	PxTriangleMeshGeometry meshGeom;
 	if(!Shape->getTriangleMeshGeometry(meshGeom))
 		return false;
-
+#endif
 	PxTriangleMesh* mesh = meshGeom.triangleMesh;
 	if(!mesh)
 		return false;

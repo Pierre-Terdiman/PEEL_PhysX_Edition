@@ -43,11 +43,14 @@
 		virtual	bool		GetD6DynamicData(PintJointHandle handle, PintD6DynamicData& data)					const	override;
 	};
 
-	void normalToTangents(const PxVec3& n, PxVec3& t1, PxVec3& t2);
 	PxQuat ComputeJointQuat(PxRigidActor* actor, const PxVec3& localAxis);
+#if PHYSX_SUPPORT_JOINT_PROJECTION
 	void SetupD6Projection(PxD6Joint* j, bool enable_projection, float projection_linear_tolerance, float projection_angular_tolerance);
+#endif
 	struct EditableParams;
+#if PHYSX_SUPPORT_JOINT_CONTACT_DISTANCE
 	float GetJointContactDistance(const EditableParams& params);
+#endif
 
 	PxSphericalJoint*	CreateSphericalJoint(const EditableParams& params, PxPhysics& physics, const PINT_SPHERICAL_JOINT_CREATE& jc,	PxRigidActor* actor0, PxRigidActor* actor1, const PxTransform& localFrame0, const PxTransform& localFrame1);
 	PxRevoluteJoint*	CreateRevoluteJoint2(const EditableParams& params, PxPhysics& physics, const PINT_HINGE2_JOINT_CREATE& jc,		PxRigidActor* actor0, PxRigidActor* actor1, const PxTransform& localFrame0, const PxTransform& localFrame1);

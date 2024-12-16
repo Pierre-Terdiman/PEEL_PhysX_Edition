@@ -29,6 +29,7 @@ using namespace physx;
 #define PHYSX_SUPPORT_PX_BROADPHASE_ABP						1
 #define PHYSX_SUPPORT_PX_BROADPHASE_PABP					0
 #define PHYSX_SUPPORT_CPU_DISPATCHER_MODE					0
+#define PHYSX_SUPPORT_CUDA_GL_INTEROP						1
 // Actors/Rigid bodies
 #define PHYSX_SUPPORT_ADAPTIVE_FORCE						1
 #define PHYSX_SUPPORT_MAX_DEPEN_VELOCITY					1
@@ -47,8 +48,10 @@ using namespace physx;
 #define PHYSX_SUPPORT_TORSION_FRICTION						1
 #define PHYSX_SUPPORT_RIGIDACTOREX_CREATE_EXCLUSIVE_SHAPE	1
 #define PHYSX_SUPPORT_CUSTOM_GEOMETRY						0
+#define PHYSX_SUPPORT_CUSTOM_GEOMETRY_PUBLIC_MEMBERS		0
 #define PHYSX_SUPPORT_HEIGHTFIELDS							1
 #define PHYSX_SUPPORT_HEIGHTFIELD_THICKNESS					0
+#define PHYSX_SUPPORT_DIRECT_SHAPE_GET_GEOMETRY				0
 // Articulations
 #define PHYSX_SUPPORT_ARTICULATIONS							1
 #define	PHYSX_SUPPORT_DAMPING_ON_ARTICULATION_LINKS			1
@@ -56,6 +59,7 @@ using namespace physx;
 #define PHYSX_SUPPORT_RCA_CFM_SCALE							0
 #define PHYSX_SUPPORT_RCA_DOF_SCALE							0
 #define PHYSX_SUPPORT_RCA_ARMATURE							0
+#define PHYSX_SUPPORT_RCA_NEW_LIMIT_API						0
 // Convexes
 #define PHYSX_SUPPORT_USER_DEFINED_GAUSSMAP_LIMIT			1
 #define PHYSX_SUPPORT_TIGHT_CONVEX_BOUNDS					1
@@ -89,6 +93,9 @@ using namespace physx;
 #define PHYSX_SUPPORT_RACK_JOINT							1
 #define PHYSX_SUPPORT_CHAIN_JOINT							0
 #define PHYSX_SUPPORT_NEW_JOINT_TYPES						0
+#define PHYSX_SUPPORT_JOINT_PROJECTION						1
+#define PHYSX_SUPPORT_JOINT_CONTACT_DISTANCE				1
+#define PHYSX_SUPPORT_JOINT_PXTRANSFORM32					0
 // Scene queries
 #define PHYSX_SUPPORT_SQ_UPDATE_MODE						1
 #define PHYSX_DEPRECATED_DISTANCE							1
@@ -122,6 +129,7 @@ using namespace physx;
 
 #define PxHashMap	physx::shdfnd::HashMap
 #define PxIdtQuat	PxQuat(PxIdentity)
+#define PHYSX_CREATE_AGGREGATE_PARAMS	max_size, enable_self_collision
 
 typedef PxBVHStructure		PxBVH;
 typedef PxBVHStructureDesc	PxBVHDesc;

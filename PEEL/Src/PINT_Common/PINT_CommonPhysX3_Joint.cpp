@@ -11,6 +11,7 @@
 #include "stdafx.h"
 #include "PINT_CommonPhysX3_Joint.h"
 #include "PINT_CommonPhysX3.h"
+#include "PINT_CommonPhysX_JointUtils.h"
 
 #if PHYSX_SUPPORT_GEAR_JOINT
 	#include "PxGearJoint.h"
@@ -75,8 +76,6 @@ PintJoint PhysX_JointAPI::GetType(PintJointHandle handle) const
 	#endif
 	#if PHYSX_SUPPORT_NEW_JOINT_TYPES
 		case PxJointConcreteType::eGEAR:			return PINT_JOINT_GEAR;
-	#endif
-	#if PHYSX_SUPPORT_NEW_JOINT_TYPES
 		case PxJointConcreteType::eRACK_AND_PINION:	return PINT_JOINT_RACK_AND_PINION;
 	#endif
 #endif
@@ -320,8 +319,9 @@ bool PhysX_JointAPI::SetLimits(PintJointHandle handle, const PintLimits& limits,
 
 	// Contact distance is a nasty parameter that creates annoying issues for no reason so I'll just overwrite it all the time
 	SharedPhysX& physx = static_cast<SharedPhysX&>(mPint);
+#if PHYSX_SUPPORT_JOINT_CONTACT_DISTANCE
 	const float ContactDistance = GetJointContactDistance(physx.GetParams());
-
+#endif
 	switch(GetType(handle))
 	{
 		case PINT_JOINT_SPHERICAL:
@@ -329,7 +329,9 @@ bool PhysX_JointAPI::SetLimits(PintJointHandle handle, const PintLimits& limits,
 			ASSERT(index==0);
 			PxSphericalJoint* SJ = static_cast<PxSphericalJoint*>(Joint);
 			PxJointLimitCone coneLimits = SJ->getLimitCone();		// Fetch current limits to preserve other parameters
+#if PHYSX_SUPPORT_JOINT_CONTACT_DISTANCE
 			coneLimits.PHYSX_CONTACT_DISTANCE = ContactDistance;	// ...except that one
+#endif
 
 			const bool ValidLimits = IsSphericalLimitEnabled(limits);
 			if(ValidLimits)
@@ -354,8 +356,9 @@ bool PhysX_JointAPI::SetLimits(PintJointHandle handle, const PintLimits& limits,
 			ASSERT(index==0);
 			PxRevoluteJoint* RJ = static_cast<PxRevoluteJoint*>(Joint);
 			PxJointAngularLimitPair limit = RJ->getLimit();	// Fetch current limits to preserve other parameters
+#if PHYSX_SUPPORT_JOINT_CONTACT_DISTANCE
 			limit.PHYSX_CONTACT_DISTANCE = ContactDistance;		// ...except that one
-
+#endif
 			const bool ValidLimits = IsHingeLimitEnabled(limits);
 			if(ValidLimits)
 			{
@@ -380,8 +383,9 @@ bool PhysX_JointAPI::SetLimits(PintJointHandle handle, const PintLimits& limits,
 			ASSERT(index==0);
 			PxPrismaticJoint* PJ = static_cast<PxPrismaticJoint*>(Joint);
 			PxJointLinearLimitPair limit = PJ->getLimit();		// Fetch current limits to preserve other parameters
+#if PHYSX_SUPPORT_JOINT_CONTACT_DISTANCE
 			limit.PHYSX_CONTACT_DISTANCE = ContactDistance;		// ...except that one
-
+#endif
 			const bool ValidLimits = IsPrismaticLimitEnabled(limits);
 			if(ValidLimits)
 			{
@@ -446,7 +450,9 @@ bool PhysX_JointAPI::SetLimits(PintJointHandle handle, const PintLimits& limits,
 
 #ifdef NEW_D6_API
 			PxJointLinearLimitPair limit = D6->getLinearLimit(Axis);	// Fetch current limits to preserve other parameters
+#if PHYSX_SUPPORT_JOINT_CONTACT_DISTANCE
 			limit.PHYSX_CONTACT_DISTANCE = ContactDistance;				// ...except that one
+#endif
 			limit.lower = MinLimit;
 			limit.upper = MaxLimit;
 			D6->setLinearLimit(Axis, limit);
@@ -591,55 +597,16 @@ bool PhysX_JointAPI::GetD6DynamicData(PintJointHandle handle, PintD6DynamicData&
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void normalToTangents(const PxVec3& n, PxVec3& t1, PxVec3& t2)
-{
-	const PxReal m_sqrt1_2 = PxReal(0.7071067811865475244008443621048490);
-	if(fabsf(n.z) > m_sqrt1_2)
-	{
-		const PxReal a = n.y*n.y + n.z*n.z;
-		const PxReal k = PxReal(1.0)/PxSqrt(a);
-		t1 = PxVec3(0,-n.z*k,n.y*k);
-		t2 = PxVec3(a*k,-n.x*t1.z,n.x*t1.y);
-	}
-	else 
-	{
-		const PxReal a = n.x*n.x + n.y*n.y;
-		const PxReal k = PxReal(1.0)/PxSqrt(a);
-		t1 = PxVec3(-n.y*k,n.x*k,0);
-		t2 = PxVec3(-n.z*t1.y,n.z*t1.x,a*k);
-	}
-	t1.normalize();
-	t2.normalize();
-}
-
 PxQuat ComputeJointQuat(PxRigidActor* actor, const PxVec3& localAxis)
 {
-//	return PxQuat(PxIdentity);
+	PxTransform pose;
+	if(actor)
+		pose = actor->getGlobalPose();
 
-	//find 2 orthogonal vectors.
-	//gotta do this in world space, if we choose them
-	//separately in local space they won't match up in worldspace.
-	PxVec3 axisw = actor ? actor->getGlobalPose().rotate(localAxis) : localAxis;
-	axisw.normalize();
-
-	PxVec3 normalw, binormalw;
-	::normalToTangents(axisw, binormalw, normalw);
-
-	const PxVec3 localNormal = actor ? actor->getGlobalPose().rotateInv(normalw) : normalw;
-
-	const PxMat33 rot(localAxis, localNormal, localAxis.cross(localNormal));
-	PxQuat q(rot);
-	q.normalize();
-
-/*		if(q.w<0.0f)
-		{
-			printf("Negating quat...\n");
-			q = -q;
-		}*/
-
-	return q;
+	return ComputeJointQuat(actor ? &pose : null, localAxis);
 }
 
+#if PHYSX_SUPPORT_JOINT_PROJECTION
 void SetupD6Projection(PxD6Joint* j, bool enable_projection, float projection_linear_tolerance, float projection_angular_tolerance)
 {
 	if(enable_projection)
@@ -648,7 +615,9 @@ void SetupD6Projection(PxD6Joint* j, bool enable_projection, float projection_li
 		j->setProjectionAngularTolerance(projection_angular_tolerance);
 	}
 }
+#endif
 
+#if PHYSX_SUPPORT_JOINT_CONTACT_DISTANCE
 float GetJointContactDistance(const EditableParams& params)
 {
 	if(params.mLimitsContactDistance==0)
@@ -658,6 +627,7 @@ float GetJointContactDistance(const EditableParams& params)
 	else
 		return 0.0f;
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -706,11 +676,13 @@ PxSphericalJoint* CreateSphericalJoint(const EditableParams& params, PxPhysics& 
 			j->setSphericalJointFlag(PxSphericalJointFlag::eLIMIT_ENABLED, true);
 		}*/
 
+#if PHYSX_SUPPORT_JOINT_PROJECTION
 		if(params.mEnableJointProjection)
 		{
 			// Angular tolerance not used for spherical joints
 			j->setProjectionLinearTolerance(params.mProjectionLinearTolerance);
 		}
+#endif
 	}
 	return j;
 }
@@ -725,11 +697,13 @@ PxFixedJoint* CreateFixedJoint(const EditableParams& params, PxPhysics& physics,
 	ASSERT(j);
 	if(j)
 	{
+#if PHYSX_SUPPORT_JOINT_PROJECTION
 		if(params.mEnableJointProjection)
 		{
 			j->setProjectionLinearTolerance(params.mProjectionLinearTolerance);
 			j->setProjectionAngularTolerance(params.mProjectionAngularTolerance * DEGTORAD);
 		}
+#endif
 	}
 	return j;
 }
@@ -760,21 +734,27 @@ PxPrismaticJoint* CreatePrismaticJoint(const EditableParams& params, PxPhysics& 
 		PxJointLinearLimitPair Limits(MinLimit, MaxLimit, PxSpring(jc.mSpring.mStiffness, jc.mSpring.mDamping));
 		if(jc.mSpring.mStiffness==0.0f && jc.mSpring.mDamping==0.0f)
 		{
+#if PHYSX_SUPPORT_JOINT_CONTACT_DISTANCE
 			const float ContactDistance = GetJointContactDistance(params);
-
+#endif
 			//### these hard joints are better looking against limits but don't support "springs", at least in this form
-			Limits = PxJointLinearLimitPair(PxTolerancesScale(), MinLimit, MaxLimit, ContactDistance);
+			Limits = PxJointLinearLimitPair(PxTolerancesScale(), MinLimit, MaxLimit
+#if PHYSX_SUPPORT_JOINT_CONTACT_DISTANCE
+				, ContactDistance
+#endif
+			);
 		}
 #endif
 		j->setLimit(Limits);
 		j->setPrismaticJointFlag(PxPrismaticJointFlag::eLIMIT_ENABLED, ValidLimits);
 
+#if PHYSX_SUPPORT_JOINT_PROJECTION
 		if(params.mEnableJointProjection)
 		{
 			j->setProjectionLinearTolerance(params.mProjectionLinearTolerance);
 			j->setProjectionAngularTolerance(params.mProjectionAngularTolerance * DEGTORAD);
 		}
-
+#endif
 		//j->setBreakForce(1000.0f, 1000.0f);
 		//j->setConstraintFlags(PxConstraintFlags flags)	= 0;
 	}
@@ -805,11 +785,13 @@ PxDistanceJoint* CreateDistanceJoint(const EditableParams& params, PxPhysics& ph
 
 //		j->setTolerance(0.0f);
 
+#if PHYSX_SUPPORT_JOINT_PROJECTION
 /*		if(params.mEnableJointProjection)
 		{
 			j->setProjectionLinearTolerance(params.mProjectionLinearTolerance);
 			j->setProjectionAngularTolerance(params.mProjectionAngularTolerance * DEGTORAD);
 		}*/
+#endif
 //		j->setTolerance(params.mProjectionLinearTolerance);
 	}
 	return j;
