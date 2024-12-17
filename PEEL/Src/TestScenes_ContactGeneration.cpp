@@ -1303,7 +1303,7 @@ static void ExportBin(const WavefrontMesh* mesh, const char* filename)
 	fclose(fp);
 }
 
-static const char* gDesc_NutAndBolt = "Nut & bolt.";
+static const char* gDesc_NutAndBolt = "Nut & bolt. This is a test for complex mesh-vs-mesh contact generation. Use the mouse to manipulate the object and screw the nut onto the bolt.";
 
 static const float gSceneScale = 0.5f;
 
