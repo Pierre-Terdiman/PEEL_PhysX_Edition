@@ -6,6 +6,8 @@
  */
 ///////////////////////////////////////////////////////////////////////////////
 
+// This one is for the official 5.5.0 GitHub release
+
 #include "stdafx.h"
 #include "PINT_PhysX550GitHub.h"
 #include "..\PINT_Common\PINT_Common.h"
@@ -195,12 +197,12 @@ PhysX::~PhysX()
 const char* PhysX::GetName() const
 {
 	const udword Suffix = mParams.ThreadIndexToNbThreads(mParams.mNbThreadsIndex);
-	return _F("PhysX 5.5.0 (%dT)", Suffix);
+	return _F("PhysX 5.5.0 (GitHub) (%dT)", Suffix);
 }
 
 const char* PhysX::GetUIName() const
 {
-	return "PhysX 5.5.0";
+	return "PhysX 5.5.0 (GitHub)";
 }
 
 void PhysX::GetCaps(PintCaps& caps) const
@@ -486,7 +488,7 @@ void PhysX::Init(const PINT_WORLD_CREATE& desc)
 			if(gCudaContextManager && !gCudaContextManager->contextIsValid())
 			{
 				gCudaContextManager->release();
-				gCudaContextManager = NULL;
+				gCudaContextManager = null;
 			}	
 //			if(gCudaContextManager)
 //				sceneDesc.gpuDispatcher = gCudaContextManager->getGpuDispatcher();	//Set the GPU dispatcher, used by GRB to dispatch CUDA kernels.
@@ -1380,7 +1382,7 @@ void PhysXPlugIn::CloseGUI()												{ PhysX_CloseGUI();						}
 void PhysXPlugIn::Init(const PINT_WORLD_CREATE& desc)						{ PhysX_Init(desc);						}
 void PhysXPlugIn::Close()													{ PhysX_Close();						}
 Pint* PhysXPlugIn::GetPint()												{ return GetPhysX();					}
-const char*	PhysXPlugIn::GetTestGUIName()									{ return "PhysX 5.5.0";					}
+const char*	PhysXPlugIn::GetTestGUIName()									{ return "PhysX 5.5.0 (GitHub)";		}
 static PhysXPlugIn gPlugIn;
 PintPlugin*	GetPintPlugin()													{ return &gPlugIn;						}
 

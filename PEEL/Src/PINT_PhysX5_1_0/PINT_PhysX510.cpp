@@ -486,7 +486,7 @@ void PhysX::Init(const PINT_WORLD_CREATE& desc)
 			if(gCudaContextManager && !gCudaContextManager->contextIsValid())
 			{
 				gCudaContextManager->release();
-				gCudaContextManager = NULL;
+				gCudaContextManager = null;
 			}	
 //			if(gCudaContextManager)
 //				sceneDesc.gpuDispatcher = gCudaContextManager->getGpuDispatcher();	//Set the GPU dispatcher, used by GRB to dispatch CUDA kernels.
