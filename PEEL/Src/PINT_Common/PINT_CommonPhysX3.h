@@ -859,8 +859,8 @@
 		shape.setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, params.mSQFlag);
 		shape.setFlag(PxShapeFlag::eVISUALIZATION, debug_viz_flag);
 //		shape.setFlag(PxShapeFlag::eUSE_SWEPT_BOUNDS, gUseCCD);
-		shape.setContactOffset(params.mContactOffset);
 		shape.setRestOffset(params.mRestOffset);
+		shape.setContactOffset(params.mContactOffset);
 //		const float contactOffset = shape.getContactOffset();	// 0.02
 //		const float restOffset = shape.getRestOffset();		// 0.0
 //		printf("contactOffset: %f\n", contactOffset);
