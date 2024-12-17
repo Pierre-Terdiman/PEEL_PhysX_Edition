@@ -458,16 +458,15 @@ PintJointHandle SharedPhysX::CreateJoint(PxPhysics& physics, const PINT_JOINT_CR
 	const bool use_d6_joint = mParams.mUseD6Joint;
 #if PHYSX_SUPPORT_JOINT_PROJECTION
 	const bool enable_projection = mParams.mEnableJointProjection;
-#endif
 	const float projection_linear_tolerance = mParams.mProjectionLinearTolerance;
 	const float projection_angular_tolerance = mParams.mProjectionAngularTolerance * DEGTORAD;
+//	projection_angular_tolerance *= DEGTORAD;
+#endif
 #if PHYSX_SUPPORT_JOINT_CONTACT_DISTANCE
 	const float ContactDistance = GetJointContactDistance(mParams);
 #endif
-	PxRigidActor* actor0 = (PxRigidActor*)desc.mObject0;
-	PxRigidActor* actor1 = (PxRigidActor*)desc.mObject1;
-
-//	projection_angular_tolerance *= DEGTORAD;
+	PxRigidActor* actor0 = reinterpret_cast<PxRigidActor*>(desc.mObject0);
+	PxRigidActor* actor1 = reinterpret_cast<PxRigidActor*>(desc.mObject1);
 
 	PxJoint* CreatedJoint = null;
 	bool NeedsExtendedLimits = false;
@@ -2380,7 +2379,8 @@ void SharedPhysX::SetWorldAngularVelocity(PintActorHandle handle, const Point& a
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static Point GetLocalVelocity(PintActorHandle handle, bool angular)
+template<const bool angular>
+static Point GetLocalVelocity(PintActorHandle handle)
 {
 	PxRigidBody* RigidBody = PhysX3::GetRigidBody(handle);
 	if(RigidBody)
@@ -2398,12 +2398,12 @@ static Point GetLocalVelocity(PintActorHandle handle, bool angular)
 
 Point SharedPhysX::GetAngularVelocity(PintActorHandle handle)
 {
-	return GetLocalVelocity(handle, true);
+	return GetLocalVelocity<true>(handle);
 }
 
 Point SharedPhysX::GetLinearVelocity(PintActorHandle handle)
 {
-	return GetLocalVelocity(handle, false);
+	return GetLocalVelocity<false>(handle);
 }
 
 static void SetLocalVelocity(PintActorHandle handle, const Point& local_velocity, bool angular)
