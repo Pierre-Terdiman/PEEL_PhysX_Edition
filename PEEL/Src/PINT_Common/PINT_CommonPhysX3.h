@@ -152,42 +152,44 @@
 			return null;
 		}
 
+		inline_	udword	ThreadIndexToNbThreads(udword index)	const
+		{
+			if(index==0)
+				return 0;	// "Single threaded"
+			if(index==1)
+				return 1;	// "1 main + 1 worker thread"
+			if(index==2)
+				return 2;	// "1 main + 2 worker threads"
+			if(index==3)
+				return 3;	// "1 main + 3 worker threads"
+			if(index==4)
+				return 4;	// "1 main + 4 worker threads"
+			if(index==5)
+				return 8;	// "1 main + 8 worker threads"
+			if(index==6)
+				return 12;	// "1 main + 12 worker threads"
+			if(index==7)
+				return 15;	// "1 main + 15 worker threads"
+			return null;
+		}
+
 		inline_	udword	NbThreadsToThreadIndex(udword nb_threads)	const
 		{
 			if(nb_threads==0 || nb_threads==1)
-				return 0;
+				return 0;	// "Single threaded"
 			/*if(nb_threads==0)
 				return 0;
 			if(nb_threads==1)
 				return 1;*/
 			if(nb_threads==2)
-				return 2+1;
+				return 2;		// "1 main + 2 worker threads"
 			if(nb_threads<=4)
-				return 3+1;
+				return 4;		// "1 main + 4 worker threads"
 			if(nb_threads<=8)
-				return 4+1;
-			return 4+1;	// Limited to 8 threads for now
-		}
-
-		inline_	udword	ThreadIndexToNbThreads(udword index)	const
-		{
-			if(index==0)
-				return 0;
-			if(index==1)
-				return 1;
-			if(index==2)
-				return 2;
-			if(index==3)
-				return 3;
-			if(index==4)
-				return 4;
-			if(index==5)
-				return 8;
-			if(index==6)
-				return 12;
-			if(index==7)
-				return 15;
-			return null;
+				return 5;		// "1 main + 8 worker threads"
+			if(nb_threads<=12)
+				return 6;		// "1 main + 12 worker threads"
+			return 7;			// "1 main + 15 worker threads"
 		}
 
 #if PHYSX_SUPPORT_SCRATCH_BUFFER
