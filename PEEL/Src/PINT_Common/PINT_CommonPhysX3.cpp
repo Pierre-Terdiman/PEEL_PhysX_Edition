@@ -3809,6 +3809,36 @@ static inline_ void RenderShape(PintRender& renderer, PxShape* shape, const PxTr
 	else RenderShapeGeneric(renderer, shape, IcePose);
 }
 
+// Version hardcoded for 6 planes and without out-clip-mask
+static PX_FORCE_INLINE bool testPlane(const PxVec3& d, const PxVec3& m, const Plane* p)
+{
+    const float NP = d.x*fabsf(p->n.x) + d.y*fabsf(p->n.y) + d.z*fabsf(p->n.z);
+    const float MP = m.x*p->n.x + m.y*p->n.y + m.z*p->n.z + p->d;
+    return NP < MP;
+}
+
+static PX_FORCE_INLINE bool planesAABBOverlap(const PxBounds3& a, const Plane* p)
+{
+	const PxVec3 m = a.getCenter();
+	const PxVec3 d = a.maximum - m;
+
+    // PT: TODO: could use SIMD for the first 4 planes
+    if(testPlane(d, m, p++))
+        return false;
+    if(testPlane(d, m, p++))
+        return false;
+    if(testPlane(d, m, p++))
+        return false;
+    if(testPlane(d, m, p++))
+        return false;
+    if(testPlane(d, m, p++))
+        return false;
+    if(testPlane(d, m, p++))
+        return false;
+
+	return true;
+}
+
 void SharedPhysX::Render(PintRender& renderer, PintRenderPass render_pass)
 {
 	if(!mScene)
@@ -3873,8 +3903,9 @@ void SharedPhysX::Render(PintRender& renderer, PintRenderPass render_pass)
 #else
 						const PxBounds3 ActorBounds = rigidActor->getWorldBounds();
 #endif
-						udword OutClipMask;
-						if(!PlanesAABBOverlap((const AABB&)ActorBounds, FrustumPlanes, OutClipMask, (1<<6)-1))
+						//udword OutClipMask;
+						//if(!PlanesAABBOverlap((const AABB&)ActorBounds, FrustumPlanes, OutClipMask, (1<<6)-1))
+						if(!planesAABBOverlap(ActorBounds, FrustumPlanes))
 							continue;
 						nbVisibleActors++;
 					}
