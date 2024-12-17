@@ -5238,7 +5238,26 @@ void PhysX3::GetOptionsFromGUI(const char* test_name)
 	}
 }
 
+void PhysX3::GetOptionsFromOverride(PintOverride* overrideParams)
+{
+	if(overrideParams)
+	{
+		if(overrideParams->mNbIter!=INVALID_ID)
+			gParams.mSolverIterationCountPos = overrideParams->mNbIter;
+
+		if(overrideParams->mSleeping!=INVALID_ID)
+			gParams.mEnableSleeping = overrideParams->mSleeping!=0;
+
+#ifdef PHYSX_SUPPORT_GPU
+		if(overrideParams->mUseGPU!=INVALID_ID)
+			gParams.mUseGPU = overrideParams->mUseGPU!=0;
+#endif
+	}
+}
+
 #if PHYSX_SUPPORT_PX_BROADPHASE_TYPE
+namespace
+{
 	// ### would be easier to use a callback here
 	class BPComboBox : public IceComboBox
 	{
@@ -5259,6 +5278,7 @@ void PhysX3::GetOptionsFromGUI(const char* test_name)
 			}
 		}
 	};
+}
 #endif
 
 static void gCheckBoxCallback(const IceCheckBox& check_box, bool checked, void* user_data)

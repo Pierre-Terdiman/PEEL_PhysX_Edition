@@ -332,6 +332,8 @@ static PEEL_SimulationEventCallback gSimulationEventCallback;
 void PhysX::Init(const PINT_WORLD_CREATE& desc)
 //PintSceneHandle PhysX::Init(const PINT_WORLD_CREATE& desc)
 {
+	PhysX3::GetOptionsFromOverride(desc.mOverride);
+
 #ifdef USE_LOAD_LIBRARY
 /*	udword FPUEnv[256];
 	FillMemory(FPUEnv, 256*4, 0xff);

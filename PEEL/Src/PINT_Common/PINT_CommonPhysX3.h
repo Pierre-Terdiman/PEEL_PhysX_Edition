@@ -848,6 +848,7 @@
 		IceWindow*				InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICallback& callback);
 		const EditableParams&	GetEditableParams();
 		void					GetOptionsFromGUI(const char* test_name);
+		void					GetOptionsFromOverride(PintOverride* overrideParams);
 		void					CloseSharedGUI();
 		bool					IsDebugVizEnabled();
 	}
