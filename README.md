@@ -11,7 +11,7 @@ For now this is mainly a private backup of the code online. Feel free to look at
 
 Because the project supports both very old and very new engines, building everything with the same compiler is basically impossible. Some old engines whose source code has never been made public require e.g. Visual Studio 2010, while brand new engines only support Visual Studio 2019 and C++17. I have no good build solution for this project. Included here on GitHub are various manually maintained Visual Studio solutions. I tend to use VS2008 for Win32 builds, VS2017 for x64 builds, and VS2019 for new engines like Jolt (included here as an example).
 
-This "PhysX edition" currently only includes plugins for PhysX 4.1.2, PhysX 5.1.0, and PhysX 5.4.2. The older versions are not included so far. Due to the size limits enforced by Github on binary files, the GPU DLLs have been zipped. Just unzip them locally if you need them. You should still be able to run the precompiled binaries on the CPU.
+This "PhysX edition" currently only includes plugins for PhysX 4.1.2, PhysX 5.1.0, PhysX 5.4.2, PhysX 5.5.0, PhysX 5.6.0. The older versions are not included so far. Due to the size limits enforced by Github on binary files, the GPU DLLs have been zipped. Just unzip them locally if you need them. You should still be able to run the precompiled binaries on the CPU.
 
 Screenshots:
 
