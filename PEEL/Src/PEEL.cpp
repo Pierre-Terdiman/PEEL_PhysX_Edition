@@ -1666,6 +1666,8 @@ static void RenderCallback()
 		}
 		{
 			glLineWidth(0.5f);
+			glGetError();	// The previous glLineWidth() causes an error ("invalid value") after a driver update, although rendering looks fine.
+
 			SetUserDefinedPolygonMode();
 		}
 
