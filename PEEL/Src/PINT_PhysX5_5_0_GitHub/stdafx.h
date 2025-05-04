@@ -39,8 +39,10 @@ using namespace physx;
 #define PHYSX_SUPPORT_MAX_DEPEN_VELOCITY					1
 #define PHYSX_SUPPORT_TGS									1
 #define PHYSX_SUPPORT_SUBSTEPS								1
+#define PHYSX_SUPPORT_POINT_FRICTION						1
 #define PHYSX_SUPPORT_IMPROVED_PATCH_FRICTION				1
 #define	PHYSX_SUPPORT_FRICTION_EVERY_ITERATION				1
+#define	PHYSX_SUPPORT_EXTERNAL_FORCES_EVERY_ITERATION		1
 #define PHYSX_SUPPORT_STABILIZATION_FLAG					1
 #define	PHYSX_SUPPORT_KINE_FILTERING_MODE					1
 #define	PHYSX_SUPPORT_GYROSCOPIC_FORCES						1
@@ -139,6 +141,7 @@ using namespace physx;
 #define PX_RACK_AND_PINION_H
 
 #define PxIdtQuat						PxQuat(PxIdentity)
+#define	PxConvexFlag_eGPU_COMPATIBLE	PxConvexFlag::eGPU_COMPATIBLE
 #define PHYSX_CREATE_AGGREGATE_PARAMS	max_size, max_size, enable_self_collision
 #define PHYSX_CONTACT_DISTANCE			contactDistance_deprecated
 

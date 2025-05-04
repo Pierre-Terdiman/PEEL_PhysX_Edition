@@ -75,22 +75,30 @@ void SetupSceneDesc(PxSceneDesc& sceneDesc, const PINT_WORLD_CREATE& desc, const
 #if PHYSX_SUPPORT_FRICTION_EVERY_ITERATION
 	SetSceneFlag(sceneDesc, PxSceneFlag::eENABLE_FRICTION_EVERY_ITERATION,	mParams.mFrictionEveryIteration);
 #endif
+#if PHYSX_SUPPORT_EXTERNAL_FORCES_EVERY_ITERATION
+	SetSceneFlag(sceneDesc, PxSceneFlag::eENABLE_EXTERNAL_FORCES_EVERY_ITERATION_TGS, mParams.mExternalForcesEveryIteration);
+#endif
+
 //		SetSceneFlag(sceneDesc, PxSceneFlag::eDEPRECATED_TRIGGER_TRIGGER_REPORTS,				true);
 //	if(!gEnableSSE)
 //		sceneDesc.flags					|= PxSceneFlag::eDISABLE_SSE;
+#if PHYSX_SUPPORT_POINT_FRICTION
 	if(mParams.mEnableOneDirFriction)
 		//sceneDesc.flags					|= PxSceneFlag::eENABLE_ONE_DIRECTIONAL_FRICTION;
 		sceneDesc.frictionType			= PxFrictionType::eONE_DIRECTIONAL;
 	if(mParams.mEnableTwoDirFriction)
 //			sceneDesc.flags					|= PxSceneFlag::eENABLE_TWO_DIRECTIONAL_FRICTION;
 		sceneDesc.frictionType			= PxFrictionType::eTWO_DIRECTIONAL;
+#endif
 	sceneDesc.broadPhaseType			= mParams.mBroadPhaseType;
 //	sceneDesc.simulationOrder			= PxSimulationOrder::eSOLVE_COLLIDE;
 	sceneDesc.ccdMaxPasses				= mParams.mMaxNbCCDPasses;
 
 #if PHYSX_SUPPORT_TGS
 	if(mParams.mTGS)
-		sceneDesc.solverType			= PxSolverType::eTGS;
+		sceneDesc.solverType	= PxSolverType::eTGS;
+	else
+		sceneDesc.solverType	= PxSolverType::ePGS;
 #endif
 
 	if(!mParams.mEnableSleeping)

@@ -19,7 +19,26 @@
 	#define UINT8_MAX MAX_UBYTE
 #endif
 
+#define PX_ENABLE_FEATURES_UNDER_CONSTRUCTION	0
+
 #include "PxPhysicsAPI.h"
+
+	#include "vehicle/PxVehicleComponents.h"
+	#include "vehicle/PxVehicleDrive.h"
+	#include "vehicle/PxVehicleDrive4W.h"
+	#include "vehicle/PxVehicleDriveTank.h"
+	#include "vehicle/PxVehicleSDK.h"
+	#include "vehicle/PxVehicleShaders.h"
+	#include "vehicle/PxVehicleTireFriction.h"
+	#include "vehicle/PxVehicleUpdate.h"
+	#include "vehicle/PxVehicleUtil.h"
+	#include "vehicle/PxVehicleUtilControl.h"
+	#include "vehicle/PxVehicleUtilSetup.h"
+	#include "vehicle/PxVehicleUtilTelemetry.h"
+	#include "vehicle/PxVehicleWheels.h"
+	#include "vehicle/PxVehicleNoDrive.h"
+	#include "vehicle/PxVehicleDriveNW.h"
+
 #include "foundation/PxFoundation.h"
 #include "foundation/PxUtilities.h"
 
@@ -33,16 +52,16 @@ using namespace physx;
 #define PHYSX_SUPPORT_PX_BROADPHASE_ABP						1
 #define PHYSX_SUPPORT_PX_BROADPHASE_PABP					1
 #define PHYSX_SUPPORT_CPU_DISPATCHER_MODE					1
-#define PHYSX_SUPPORT_CUDA_GL_INTEROP						1
+#define PHYSX_SUPPORT_CUDA_GL_INTEROP						0
 // Actors/Rigid bodies
 #define PHYSX_SUPPORT_ADAPTIVE_FORCE						0
 #define PHYSX_SUPPORT_MAX_DEPEN_VELOCITY					1
 #define PHYSX_SUPPORT_TGS									1
 #define PHYSX_SUPPORT_SUBSTEPS								1
-#define PHYSX_SUPPORT_POINT_FRICTION						1
-#define PHYSX_SUPPORT_IMPROVED_PATCH_FRICTION				1
+#define PHYSX_SUPPORT_POINT_FRICTION						0
+#define PHYSX_SUPPORT_IMPROVED_PATCH_FRICTION				0	// This is now the only supported mode
 #define	PHYSX_SUPPORT_FRICTION_EVERY_ITERATION				1
-#define	PHYSX_SUPPORT_EXTERNAL_FORCES_EVERY_ITERATION		0
+#define	PHYSX_SUPPORT_EXTERNAL_FORCES_EVERY_ITERATION		1
 #define PHYSX_SUPPORT_STABILIZATION_FLAG					1
 #define	PHYSX_SUPPORT_KINE_FILTERING_MODE					1
 #define	PHYSX_SUPPORT_GYROSCOPIC_FORCES						1
@@ -54,10 +73,10 @@ using namespace physx;
 #define PHYSX_SUPPORT_TORSION_FRICTION						1
 #define PHYSX_SUPPORT_RIGIDACTOREX_CREATE_EXCLUSIVE_SHAPE	1
 #define PHYSX_SUPPORT_CUSTOM_GEOMETRY						1
-#define PHYSX_SUPPORT_CUSTOM_GEOMETRY_PUBLIC_MEMBERS		1
+#define PHYSX_SUPPORT_CUSTOM_GEOMETRY_PUBLIC_MEMBERS		0
 #define PHYSX_SUPPORT_HEIGHTFIELDS							1
 #define PHYSX_SUPPORT_HEIGHTFIELD_THICKNESS					0
-#define PHYSX_SUPPORT_DIRECT_SHAPE_GET_GEOMETRY				0
+#define PHYSX_SUPPORT_DIRECT_SHAPE_GET_GEOMETRY				1
 // Articulations
 #define PHYSX_SUPPORT_ARTICULATIONS							0
 #define	PHYSX_SUPPORT_DAMPING_ON_ARTICULATION_LINKS			1
@@ -65,7 +84,7 @@ using namespace physx;
 #define PHYSX_SUPPORT_RCA_CFM_SCALE							1
 #define PHYSX_SUPPORT_RCA_DOF_SCALE							0
 #define PHYSX_SUPPORT_RCA_ARMATURE							1
-#define PHYSX_SUPPORT_RCA_NEW_LIMIT_API						0
+#define PHYSX_SUPPORT_RCA_NEW_LIMIT_API						1
 // Convexes
 #define PHYSX_SUPPORT_USER_DEFINED_GAUSSMAP_LIMIT			1
 #define PHYSX_SUPPORT_TIGHT_CONVEX_BOUNDS					1
@@ -99,9 +118,9 @@ using namespace physx;
 #define PHYSX_SUPPORT_RACK_JOINT							1
 #define PHYSX_SUPPORT_CHAIN_JOINT							0
 #define PHYSX_SUPPORT_NEW_JOINT_TYPES						1
-#define PHYSX_SUPPORT_JOINT_PROJECTION						1
-#define PHYSX_SUPPORT_JOINT_CONTACT_DISTANCE				1
-#define PHYSX_SUPPORT_JOINT_PXTRANSFORM32					0
+#define PHYSX_SUPPORT_JOINT_PROJECTION						0
+#define PHYSX_SUPPORT_JOINT_CONTACT_DISTANCE				0
+#define PHYSX_SUPPORT_JOINT_PXTRANSFORM32					1
 // Scene queries
 #define PHYSX_SUPPORT_SQ_UPDATE_MODE						1
 #define PHYSX_DEPRECATED_DISTANCE							1
@@ -141,10 +160,11 @@ using namespace physx;
 #define PX_RACK_AND_PINION_H
 
 #define PxIdtQuat						PxQuat(PxIdentity)
-#define	PxConvexFlag_eGPU_COMPATIBLE	PxConvexFlag::eGPU_COMPATIBLE
-#define PHYSX_CREATE_AGGREGATE_PARAMS	max_size, enable_self_collision
+#define	PxConvexFlag_eGPU_COMPATIBLE	PxConvexFlag::Enum(0)
+#define PHYSX_CREATE_AGGREGATE_PARAMS	max_size, max_size, enable_self_collision
 #define PHYSX_CONTACT_DISTANCE			contactDistance_deprecated
 
 //#define PHYSX_SUPPORT_PMAP_XP
 
+#define eMESH_ANY eANY_HIT
 #include "..\PINT_Common\PINT_CommonPhysX3_Deprecated.h"

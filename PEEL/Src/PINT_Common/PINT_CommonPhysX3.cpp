@@ -4425,6 +4425,9 @@ enum PhysXGUIElement
 #if PHYSX_SUPPORT_FRICTION_EVERY_ITERATION
 	PHYSX_GUI_FRICTION_EVERY_ITERATION,
 #endif
+#if PHYSX_SUPPORT_EXTERNAL_FORCES_EVERY_ITERATION
+	PHYSX_GUI_EXTERNAL_FORCES_EVERY_ITERATION,
+#endif
 	PHYSX_GUI_DISABLE_STRONG_FRICTION,
 	PHYSX_GUI_ENABLE_ONE_DIR_FRICTION,
 	PHYSX_GUI_ENABLE_TWO_DIR_FRICTION,
@@ -4589,6 +4592,9 @@ EditableParams::EditableParams() :
 #endif
 #if PHYSX_SUPPORT_FRICTION_EVERY_ITERATION
 	mFrictionEveryIteration		(false),
+#endif
+#if PHYSX_SUPPORT_EXTERNAL_FORCES_EVERY_ITERATION
+	mExternalForcesEveryIteration(false),
 #endif
 	mDisableStrongFriction		(false),
 	mEnableOneDirFriction		(false),
@@ -4857,6 +4863,9 @@ const EditableParams& PhysX3::GetEditableParams()
 #if PHYSX_SUPPORT_FRICTION_EVERY_ITERATION
 		CheckBoxPtr		mCheckBox_FrictionEveryIteration;
 #endif
+#if PHYSX_SUPPORT_EXTERNAL_FORCES_EVERY_ITERATION
+		CheckBoxPtr		mCheckBox_ExternalForcesEveryIteration;
+#endif
 #if PHYSX_SUPPORT_STABILIZATION_FLAG
 		CheckBoxPtr		mCheckBox_Stabilization;
 #endif
@@ -5105,6 +5114,10 @@ void PhysX3::GetOptionsFromGUI(const char* test_name)
 #if PHYSX_SUPPORT_FRICTION_EVERY_ITERATION
 	if(gPhysXUI->mCheckBox_FrictionEveryIteration)
 		gParams.mFrictionEveryIteration = gPhysXUI->mCheckBox_FrictionEveryIteration->IsChecked();
+#endif
+#if PHYSX_SUPPORT_EXTERNAL_FORCES_EVERY_ITERATION
+	if(gPhysXUI->mCheckBox_ExternalForcesEveryIteration)
+		gParams.mExternalForcesEveryIteration = gPhysXUI->mCheckBox_ExternalForcesEveryIteration->IsChecked();
 #endif
 #if PHYSX_SUPPORT_TGS
 	if(gPhysXUI->mCheckBox_TGS)
@@ -5440,6 +5453,10 @@ static void gCheckBoxCallback(const IceCheckBox& check_box, bool checked, void* 
 #if PHYSX_SUPPORT_TGS
 		case PHYSX_GUI_TGS:
 			gParams.mTGS = checked;
+	#if PHYSX_SUPPORT_EXTERNAL_FORCES_EVERY_ITERATION
+			if(gPhysXUI->mCheckBox_ExternalForcesEveryIteration)
+				gPhysXUI->mCheckBox_ExternalForcesEveryIteration->SetEnabled(checked);
+	#endif
 			break;
 #endif
 #if PHYSX_SUPPORT_GYROSCOPIC_FORCES
@@ -5474,6 +5491,11 @@ static void gCheckBoxCallback(const IceCheckBox& check_box, bool checked, void* 
 #if PHYSX_SUPPORT_FRICTION_EVERY_ITERATION
 		case PHYSX_GUI_FRICTION_EVERY_ITERATION:
 			gParams.mFrictionEveryIteration = checked;
+			break;
+#endif
+#if PHYSX_SUPPORT_EXTERNAL_FORCES_EVERY_ITERATION
+		case PHYSX_GUI_EXTERNAL_FORCES_EVERY_ITERATION:
+			gParams.mExternalForcesEveryIteration = checked;
 			break;
 #endif
 		case PHYSX_GUI_DISABLE_STRONG_FRICTION:
@@ -5972,6 +5994,12 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 #endif
 #if PHYSX_SUPPORT_FRICTION_EVERY_ITERATION
 				gPhysXUI->mCheckBox_FrictionEveryIteration = helper.CreateCheckBox(TabWindow, PHYSX_GUI_FRICTION_EVERY_ITERATION, xf2, y, CheckBoxWidth, 20, "Friction every iteration", gPhysXUI->mPhysXGUI, gParams.mFrictionEveryIteration, gCheckBoxCallback);
+				y += YStepCB;
+#endif
+#if PHYSX_SUPPORT_EXTERNAL_FORCES_EVERY_ITERATION
+				gPhysXUI->mCheckBox_ExternalForcesEveryIteration = helper.CreateCheckBox(TabWindow, PHYSX_GUI_EXTERNAL_FORCES_EVERY_ITERATION, xf2, y, CheckBoxWidth, 20, "External forces every iteration (TGS)", gPhysXUI->mPhysXGUI, gParams.mExternalForcesEveryIteration, gCheckBoxCallback);
+				if(gPhysXUI->mCheckBox_ExternalForcesEveryIteration)
+					gPhysXUI->mCheckBox_ExternalForcesEveryIteration->SetEnabled(gParams.mTGS);
 				y += YStepCB;
 #endif
 				y += YStepCB;

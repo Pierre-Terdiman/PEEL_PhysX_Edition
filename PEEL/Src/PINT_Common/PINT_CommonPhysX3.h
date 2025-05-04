@@ -232,7 +232,7 @@
 		bool							mUseGPU;
 		inline_	PxConvexFlags			GetConvexFlags()	const
 		{
-			return mUseGPU ? (PxConvexFlag::eCOMPUTE_CONVEX|PxConvexFlag::eGPU_COMPATIBLE) : PxConvexFlag::eCOMPUTE_CONVEX;
+			return mUseGPU ? (PxConvexFlag::eCOMPUTE_CONVEX|PxConvexFlag_eGPU_COMPATIBLE) : PxConvexFlag::eCOMPUTE_CONVEX;
 		}
 #else
 		inline_	PxConvexFlags			GetConvexFlags()	const
@@ -265,6 +265,9 @@
 #endif
 #if PHYSX_SUPPORT_FRICTION_EVERY_ITERATION
 		bool							mFrictionEveryIteration;
+#endif
+#if PHYSX_SUPPORT_EXTERNAL_FORCES_EVERY_ITERATION
+		bool							mExternalForcesEveryIteration;
 #endif
 		bool							mDisableStrongFriction;
 		bool							mEnableOneDirFriction;

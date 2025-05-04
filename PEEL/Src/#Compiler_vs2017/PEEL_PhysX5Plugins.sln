@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PINT_PhysX542GitHub", "..\P
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PINT_PhysX550GitHub", "..\PINT_PhysX5_5_0_GitHub\vs2017\PINT_PhysX550GitHub.vcxproj", "{BE28A126-2C23-49AD-8CB6-9F06F86ACBBF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PINT_PhysX560GitHub", "..\PINT_PhysX5_6_0_GitHub\vs2017\PINT_PhysX560GitHub.vcxproj", "{E5EBBA41-B843-437B-BE7E-805CA672D883}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -55,6 +57,18 @@ Global
 		{BE28A126-2C23-49AD-8CB6-9F06F86ACBBF}.Release|x64.Build.0 = Release|x64
 		{BE28A126-2C23-49AD-8CB6-9F06F86ACBBF}.Release|x86.ActiveCfg = Release|Win32
 		{BE28A126-2C23-49AD-8CB6-9F06F86ACBBF}.Release|x86.Build.0 = Release|Win32
+		{E5EBBA41-B843-437B-BE7E-805CA672D883}.Debug|x64.ActiveCfg = Debug|x64
+		{E5EBBA41-B843-437B-BE7E-805CA672D883}.Debug|x64.Build.0 = Debug|x64
+		{E5EBBA41-B843-437B-BE7E-805CA672D883}.Debug|x86.ActiveCfg = Debug|Win32
+		{E5EBBA41-B843-437B-BE7E-805CA672D883}.Debug|x86.Build.0 = Debug|Win32
+		{E5EBBA41-B843-437B-BE7E-805CA672D883}.Profile|x64.ActiveCfg = Profile|x64
+		{E5EBBA41-B843-437B-BE7E-805CA672D883}.Profile|x64.Build.0 = Profile|x64
+		{E5EBBA41-B843-437B-BE7E-805CA672D883}.Profile|x86.ActiveCfg = Profile|Win32
+		{E5EBBA41-B843-437B-BE7E-805CA672D883}.Profile|x86.Build.0 = Profile|Win32
+		{E5EBBA41-B843-437B-BE7E-805CA672D883}.Release|x64.ActiveCfg = Release|x64
+		{E5EBBA41-B843-437B-BE7E-805CA672D883}.Release|x64.Build.0 = Release|x64
+		{E5EBBA41-B843-437B-BE7E-805CA672D883}.Release|x86.ActiveCfg = Release|Win32
+		{E5EBBA41-B843-437B-BE7E-805CA672D883}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
