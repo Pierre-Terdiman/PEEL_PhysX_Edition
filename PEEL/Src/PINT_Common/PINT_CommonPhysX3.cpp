@@ -4430,8 +4430,10 @@ enum PhysXGUIElement
 	PHYSX_GUI_EXTERNAL_FORCES_EVERY_ITERATION,
 #endif
 	PHYSX_GUI_DISABLE_STRONG_FRICTION,
+#if PHYSX_SUPPORT_POINT_FRICTION
 	PHYSX_GUI_ENABLE_ONE_DIR_FRICTION,
 	PHYSX_GUI_ENABLE_TWO_DIR_FRICTION,
+#endif
 	PHYSX_GUI_USE_PVD,
 	PHYSX_GUI_USE_FULL_PVD_CONNECTION,
 //	PHYSX_GUI_DRAW_MBP_REGIONS,
@@ -4598,8 +4600,10 @@ EditableParams::EditableParams() :
 	mExternalForcesEveryIteration(false),
 #endif
 	mDisableStrongFriction		(false),
+#if PHYSX_SUPPORT_POINT_FRICTION
 	mEnableOneDirFriction		(false),
 	mEnableTwoDirFriction		(false),
+#endif
 #if PHYSX_SUPPORT_ADAPTIVE_FORCE
 	mAdaptiveForce				(false),
 #endif
@@ -5502,12 +5506,14 @@ static void gCheckBoxCallback(const IceCheckBox& check_box, bool checked, void* 
 		case PHYSX_GUI_DISABLE_STRONG_FRICTION:
 			gParams.mDisableStrongFriction = checked;
 			break;
+#if PHYSX_SUPPORT_POINT_FRICTION
 		case PHYSX_GUI_ENABLE_ONE_DIR_FRICTION:
 			gParams.mEnableOneDirFriction = checked;
 			break;
 		case PHYSX_GUI_ENABLE_TWO_DIR_FRICTION:
 			gParams.mEnableTwoDirFriction = checked;
 			break;
+#endif
 		case PHYSX_GUI_USE_PVD:
 			gParams.mUsePVD = checked;
 			if(gPhysXUI->mCheckBox_FullPVD)
@@ -5983,12 +5989,13 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 				helper.CreateCheckBox(TabWindow, PHYSX_GUI_DISABLE_STRONG_FRICTION, xf2, y, CheckBoxWidth, 20, "Disable strong friction", gPhysXUI->mPhysXGUI, gParams.mDisableStrongFriction, gCheckBoxCallback);
 				y += YStepCB;
 
+#if PHYSX_SUPPORT_POINT_FRICTION
 				helper.CreateCheckBox(TabWindow, PHYSX_GUI_ENABLE_ONE_DIR_FRICTION, xf2, y, CheckBoxWidth, 20, "Enable one dir. friction", gPhysXUI->mPhysXGUI, gParams.mEnableOneDirFriction, gCheckBoxCallback);
 				y += YStepCB;
 
 				helper.CreateCheckBox(TabWindow, PHYSX_GUI_ENABLE_TWO_DIR_FRICTION, xf2, y, CheckBoxWidth, 20, "Enable two dir. friction", gPhysXUI->mPhysXGUI, gParams.mEnableTwoDirFriction, gCheckBoxCallback);
 				y += YStepCB;
-
+#endif
 #if PHYSX_SUPPORT_IMPROVED_PATCH_FRICTION
 				gPhysXUI->mCheckBox_ImprovedPatchFriction = helper.CreateCheckBox(TabWindow, PHYSX_GUI_IMPROVED_PATCH_FRICTION, xf2, y, CheckBoxWidth, 20, "Improved patch friction", gPhysXUI->mPhysXGUI, gParams.mImprovedPatchFriction, gCheckBoxCallback);
 				y += YStepCB;

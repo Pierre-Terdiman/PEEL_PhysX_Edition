@@ -270,8 +270,10 @@
 		bool							mExternalForcesEveryIteration;
 #endif
 		bool							mDisableStrongFriction;
+#if PHYSX_SUPPORT_POINT_FRICTION
 		bool							mEnableOneDirFriction;
 		bool							mEnableTwoDirFriction;
+#endif
 #if PHYSX_SUPPORT_ADAPTIVE_FORCE
 		bool							mAdaptiveForce;
 #endif
