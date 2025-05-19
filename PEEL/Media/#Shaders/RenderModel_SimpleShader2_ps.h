@@ -18,8 +18,8 @@ void main()
 	vec3 dy = dFdy(varyPos.xyz);
 	vec3 normal = normalize(cross(dx, dy));
 
-	//gl_FragColor = vec4(normal, 1.0);
-	//return;
+//gl_FragColor = vec4(normal, 1.0);
+//return;
 
 	float brightness = dot(normal, -parallelLightDir);
 	//float diffuse = (0.3 + 0.7 * max(brightness,0.0));

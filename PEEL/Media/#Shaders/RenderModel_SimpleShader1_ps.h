@@ -12,6 +12,8 @@ void main()
 //	{
 //		normal.xyz *= -1;
 //	}	
+//	gl_FragColor = vec4(normal, gl_Color.w);
+//	return;
 
 //****	vec3 dx = dFdx(varyPos.xyz);
 //****	vec3 dy = dFdy(varyPos.xyz);
