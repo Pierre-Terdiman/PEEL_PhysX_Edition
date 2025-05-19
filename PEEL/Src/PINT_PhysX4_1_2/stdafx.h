@@ -12,10 +12,18 @@
 
 #include <vector>
 
-#define UINT32_MAX MAX_UDWORD
-#define UINT8_MAX MAX_UBYTE
+#ifndef UINT32_MAX
+	#define UINT32_MAX MAX_UDWORD
+#endif
+#ifndef UINT8_MAX
+	#define UINT8_MAX MAX_UBYTE
+#endif
 
 #include "PxPhysicsAPI.h"
+#define PX_VEHICLE_UTIL_TELEMETRY_H
+#define PX_VEHICLE_UTIL_CONTROL_H
+#define PX_VEHICLE_UTIL_SETUP_H
+
 #include "PsFoundation.h"
 #include "PsUtilities.h"
 
@@ -35,11 +43,14 @@ using namespace physx;
 #define PHYSX_SUPPORT_MAX_DEPEN_VELOCITY					1
 #define PHYSX_SUPPORT_TGS									1
 #define PHYSX_SUPPORT_SUBSTEPS								1
+#define PHYSX_SUPPORT_POINT_FRICTION						1
 #define PHYSX_SUPPORT_IMPROVED_PATCH_FRICTION				1
 #define	PHYSX_SUPPORT_FRICTION_EVERY_ITERATION				1
+#define	PHYSX_SUPPORT_EXTERNAL_FORCES_EVERY_ITERATION		0
 #define PHYSX_SUPPORT_STABILIZATION_FLAG					1
 #define	PHYSX_SUPPORT_KINE_FILTERING_MODE					1
 #define	PHYSX_SUPPORT_GYROSCOPIC_FORCES						0
+#define PHYSX_SUPPORT_SOLVER_RESIDUALS						0
 // Aggregates
 #define	PHYSX_SUPPORT_GPU_AGGREGATES						0
 // Shapes
@@ -120,16 +131,18 @@ using namespace physx;
 //#define PHYSX_SUPPORT_CHARACTERS
 #define PHYSX_SUPPORT_CHARACTERS2
 #define PHYSX_REMOVED_CLIENT_ID
-#define PHYSX_CONTACT_DISTANCE	contactDistance
 
 #define PHYSX_SUPPORT_GEAR_JOINT_OLD	1
 #define PHYSX_SUPPORT_RACK_JOINT_OLD	1
 
 //#define USE_RAYCASTS_API
 
-#define PxHashMap	physx::shdfnd::HashMap
-#define PxIdtQuat	PxQuat(PxIdentity)
+#define PxArray							physx::shdfnd::Array
+#define PxHashMap						physx::shdfnd::HashMap
+#define PxIdtQuat						PxQuat(PxIdentity)
+#define	PxConvexFlag_eGPU_COMPATIBLE	PxConvexFlag::eGPU_COMPATIBLE
 #define PHYSX_CREATE_AGGREGATE_PARAMS	max_size, enable_self_collision
+#define PHYSX_CONTACT_DISTANCE			contactDistance
 
 typedef PxBVHStructure		PxBVH;
 typedef PxBVHStructureDesc	PxBVHDesc;
