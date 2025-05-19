@@ -10,7 +10,7 @@
 #include "GL_MSAA.h"
 #include "GLTexture.h"
 
-#ifdef PEEL_USE_MSAA
+#if PEEL_USE_MSAA
 static int gMSAA_NbSamples = 0;
 /*static*/ udword gMSAA_Index = 0;
 /*static*/ GLuint g_msaaFbo = 0;
@@ -24,7 +24,7 @@ void StartFrame_MSAA()
 {
 	SPY_ZONE("StartFrame MSAA")
 
-#ifdef PEEL_USE_MSAA
+#if PEEL_USE_MSAA
 	if(gMSAA_NbSamples)
 	{
 		glEnable(GL_MULTISAMPLE);
@@ -37,7 +37,7 @@ void EndFrame_MSAA()
 {
 	SPY_ZONE("EndFrame MSAA")
 
-#ifdef PEEL_USE_MSAA
+#if PEEL_USE_MSAA
 	if(g_msaaFbo && gMSAA_NbSamples)
 	{
 		glBindFramebuffer(GL_READ_FRAMEBUFFER_EXT, g_msaaFbo);
@@ -50,7 +50,7 @@ void EndFrame_MSAA()
 
 void Release_MSAA()
 {
-#ifdef PEEL_USE_MSAA
+#if PEEL_USE_MSAA
 	GLTexture::ReleaseFramebuffer(g_msaaFbo);
 	GLTexture::ReleaseRenderbuffer(g_msaaColorBuf);
 	GLTexture::ReleaseRenderbuffer(g_msaaDepthBuf);
@@ -59,7 +59,7 @@ void Release_MSAA()
 
 void Resize_MSAA()
 {
-#ifdef PEEL_USE_MSAA
+#if PEEL_USE_MSAA
 	if(gMSAA_NbSamples)
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -96,7 +96,7 @@ void Resize_MSAA()
 
 void Select_MSAA(udword index)
 {
-#ifdef PEEL_USE_MSAA
+#if PEEL_USE_MSAA
 	if(index==gMSAA_Index)
 		return;
 	gMSAA_Index = index;

@@ -14,7 +14,7 @@
 #include "PintDef.h"
 
 	class Pint;
-#ifdef PEEL_USE_ICE_FRACTURE
+#if PEEL_USE_ICE_FRACTURE
 	#include <meshmerizer\IceFractureConvex.h>
 	typedef FractureConvex Convex;
 #endif

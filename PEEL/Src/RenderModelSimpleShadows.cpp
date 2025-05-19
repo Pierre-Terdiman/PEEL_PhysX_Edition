@@ -334,7 +334,7 @@ static void RenderObjects_(PintRenderPass render_pass)
 
 extern bool gMirror;
 extern bool gInvalidPlanes;
-#ifdef PEEL_USE_MSAA
+#if PEEL_USE_MSAA
 extern GLuint g_msaaFbo;
 #endif
 extern bool	gWireframePass;
@@ -413,7 +413,7 @@ void RenderModel_SimpleShadows::Render(udword width, udword height, const Point&
 					gShadowMaps[i]->makeShadowMap(cam_pos, cam_dir, gLightDirs[i], gShadowClipNear, gShadowClipFar, &RenderShadowCasters_);
 				}
 			}
-	#ifdef PEEL_USE_MSAA
+	#if PEEL_USE_MSAA
 			if(g_msaaFbo)
 				glBindFramebuffer(GL_FRAMEBUFFER, g_msaaFbo);
 	#endif
@@ -494,7 +494,7 @@ if(w!=width || h!=height)
 if(w!=width || h!=height)
 	glViewport(0, 0, width, height);
 
-#ifdef PEEL_USE_MSAA
+#if PEEL_USE_MSAA
 		if(g_msaaFbo)
 			glBindFramebuffer(GL_FRAMEBUFFER, g_msaaFbo);
 #endif

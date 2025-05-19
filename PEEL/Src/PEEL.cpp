@@ -72,7 +72,7 @@
 #include "GL_MSAA.h"
 #include "GLScreenshot.h"
 
-#ifdef PEEL_USE_SPY
+#if PEEL_USE_SPY
 	#ifdef _WIN64
 		#ifdef _DEBUG
 			#pragma comment(lib, "../Spy/Win64/SpyClient_D.lib")
@@ -209,7 +209,7 @@ enum RaytracingResolution
 };
 static	RaytracingResolution	gRaytracingResolution = RT_WINDOW_128;
 
-#ifdef PEEL_USE_MSAA
+#if PEEL_USE_MSAA
 extern udword gMSAA_Index;
 #endif
 
@@ -707,7 +707,7 @@ static void ResetTimers()
 
 	if(gCandidateTest)
 	{
-#ifdef PEEL_PUBLIC_BUILD
+#if PEEL_PUBLIC_BUILD
 		if(gCandidateTest->IsPrivate())
 		{
 			StartDisplayMessage(PRIVATE_BUILD);
@@ -1532,7 +1532,7 @@ static void RenderCallback()
 	if(!gScreenWidth || !gScreenHeight)
 		return;
 
-#ifdef PEEL_USE_SPY
+#if PEEL_USE_SPY
 	{
 		Spy::Zone Spy_RenderCallback("RenderCallback");
 #endif
@@ -1976,7 +1976,7 @@ static void RenderCallback()
 		RecordCameraPose();
 	}
 
-#ifdef PEEL_USE_SPY
+#if PEEL_USE_SPY
 	}
 	Spy::Sync();
 #endif
@@ -2101,7 +2101,7 @@ static void gCleanup()
 
 	ReleasePEELMenuBar();
 	PEEL_ReleaseThreads();
-#ifdef PEEL_USE_SPY
+#if PEEL_USE_SPY
 	Spy::Close();
 #endif
 	PEEL_GlobalClose();
@@ -2496,7 +2496,7 @@ int PEEL_main(int argc, char** argv)
 		}
 	}
 
-#ifdef PEEL_USE_SPY
+#if PEEL_USE_SPY
 	Spy::Init();
 #endif
 
@@ -3926,7 +3926,7 @@ static void CreateRenderTab(IceWindow* tab)
 		glFogfv(GL_FOG_COLOR, &FogColor.x);
 	}*/
 
-#ifdef PEEL_USE_MSAA
+#if PEEL_USE_MSAA
 	{
 //		y += YStep;
 		gGUIHelper.CreateLabel(tab, 4, y+LabelOffsetY, 90, 20, "MSAA:", gMainGUI);

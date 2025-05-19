@@ -38,7 +38,7 @@
 
 #define STRINGIFY(A) #A
 
-#ifdef PEEL_USE_SPY
+#if PEEL_USE_SPY
 	#include "Spy\SpyClient.h"
 	#define SPY_ZONE(Label)	Spy::Zone __SpyZone(Label);
 #else

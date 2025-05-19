@@ -11,7 +11,7 @@
 
 #include "..\Common.h"
 
-#ifdef PEEL_USE_ICE_FRACTURE
+#if PEEL_USE_ICE_FRACTURE
 	#include <meshmerizer\IceFractureConvex.h>
 #endif
 #endif

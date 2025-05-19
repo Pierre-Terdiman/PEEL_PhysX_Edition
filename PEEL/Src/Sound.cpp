@@ -9,7 +9,7 @@
 #include "stdafx.h"
 #include "Sound.h"
 
-#ifdef PEEL_SOUND
+#if PEEL_SOUND
 	#ifdef _WIN64
 	static char* FMOD_DLL_Name = "fmod64.dll";
 	#else
@@ -272,7 +272,7 @@ static FMOD_INSTANCE *FMOD_CreateInstance64(char *dllName)
 
 static bool InitFMOD()
 {
-#ifdef PEEL_SOUND
+#if PEEL_SOUND
 	#ifdef _WIN64
 	gFMOD = FMOD_CreateInstance64(FMOD_DLL_Name);
 	#else
@@ -307,7 +307,7 @@ static bool InitFMOD()
 
 void StartSound(const char* filename, udword pos)
 {
-#ifdef PEEL_SOUND
+#if PEEL_SOUND
 	const char* FindPEELFile(const char* filename);
 	const char* File = FindPEELFile(filename);
 	if(!File)
@@ -334,7 +334,7 @@ void StartSound(const char* filename, udword pos)
 
 udword GetSoundPos()
 {
-#ifdef PEEL_SOUND
+#if PEEL_SOUND
 	if(gChannel!=INVALID_ID)
 	{
 		const udword CurPos = gFMOD->FSOUND_GetCurrentPosition(gChannel)/1024;
@@ -347,7 +347,7 @@ udword GetSoundPos()
 
 void SetFreq(int f)
 {
-#ifdef PEEL_SOUND
+#if PEEL_SOUND
 	if(gChannel!=INVALID_ID)
 	{
 		gFMOD->FSOUND_SetFrequency(gChannel, f);

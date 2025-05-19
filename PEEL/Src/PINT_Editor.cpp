@@ -33,7 +33,7 @@
 - release object: update stats, what do we do with shapes that aren't used anymore?
 */
 
-#ifdef PEEL_COMPILE_NVD
+#if PEEL_COMPILE_NVD
 	#define TEST_NVD
 #endif
 
