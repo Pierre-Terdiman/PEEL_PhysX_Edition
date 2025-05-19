@@ -556,57 +556,6 @@ void PhysX::Init(const PINT_WORLD_CREATE& desc)
 //	return mScene;
 }
 
-#ifdef REMOVED
-static void setupJoint(PxArticulationJoint* j)
-{
-	j->setExternalCompliance(1.0f);
-	j->setDamping(0.0f);
-
-/*	j->setSwingLimitEnabled(true);
-	j->setSwingLimitEnabled(false);
-//	j->setSwingLimit(PxPi/6, PxPi/6);
-	j->setSwingLimit(0.00001f, 0.00001f);
-//	j->setTwistLimitEnabled(true);
-	j->setTwistLimitEnabled(false);
-//	j->setTwistLimit(-PxPi/12, PxPi/12);
-	j->setTwistLimit(-0.00001f, 0.00001f);
-
-	if(0)
-	{
-//		const float Limit = 0.00001f;
-		const float Limit = 0.01f;
-		j->setSwingLimitEnabled(true);
-		j->setSwingLimit(Limit, Limit);
-		j->setTwistLimitEnabled(true);
-		j->setTwistLimit(-Limit, Limit);
-	}*/
-}
-
-static void setupJoint(PxArticulationJoint* j, const PINT_ARTICULATED_BODY_CREATE& bc)
-{
-//	setupJoint(j);
-	j->setSwingLimitEnabled(bc.mEnableSwingLimit);
-	j->setSwingLimit(bc.mSwingYLimit, bc.mSwingZLimit);
-
-	j->setTwistLimitEnabled(bc.mEnableTwistLimit);
-	j->setTwistLimit(bc.mTwistLowerLimit, bc.mTwistUpperLimit);
-
-	if(bc.mUseMotor)
-	{
-		if(bc.mMotor.mExternalCompliance!=0.0f)
-			j->setExternalCompliance(bc.mMotor.mExternalCompliance);
-		if(bc.mMotor.mInternalCompliance!=0.0f)
-			j->setInternalCompliance(bc.mMotor.mInternalCompliance);
-		j->setDamping(bc.mMotor.mDamping);
-		j->setStiffness(bc.mMotor.mStiffness);
-		if(!bc.mMotor.mTargetVelocity.IsNotUsed())
-			j->setTargetVelocity(ToPxVec3(bc.mMotor.mTargetVelocity));
-		if(!bc.mMotor.mTargetOrientation.IsNotUsed())
-			j->setTargetOrientation(ToPxQuat(bc.mMotor.mTargetOrientation));
-	}
-}
-#endif
-
 void PhysX::TestNewFeature()
 {
 	return;
