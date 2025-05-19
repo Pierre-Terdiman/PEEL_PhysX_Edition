@@ -149,6 +149,8 @@ void SetupSceneDesc(PxSceneDesc& sceneDesc, const PINT_WORLD_CREATE& desc, const
 
 	if(mParams.mMaxBiasCoeff>=0.0f)
 		sceneDesc.maxBiasCoefficient = mParams.mMaxBiasCoeff;
+
+	sceneDesc.solverBatchSize = mParams.mSolverBatchSize;
 }
 
 namespace

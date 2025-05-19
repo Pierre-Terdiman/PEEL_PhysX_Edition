@@ -4569,6 +4569,7 @@ EditableParams::EditableParams() :
 	mNbSubsteps					(1),
 #endif
 	// Dynamics
+	mSolverBatchSize			(128),
 	mMaxBiasCoeff				(-1.0f),
 	mDefaultStaticFriction		(0.5f),
 	mDefaultDynamicFriction		(0.5f),
@@ -4826,6 +4827,7 @@ const EditableParams& PhysX3::GetEditableParams()
 		EditBoxPtr		mEditBox_DefaultDynamicFriction;
 		EditBoxPtr		mEditBox_FrictionOffsetThreshold;
 		EditBoxPtr		mEditBox_MaxBiasCoeff;
+		EditBoxPtr		mEditBox_SolverBatchSize;
 #if PHYSX_SUPPORT_TORSION_FRICTION
 		EditBoxPtr		mEditBox_TorsionalPatchRadius;
 		EditBoxPtr		mEditBox_MinTorsionalPatchRadius;
@@ -5071,6 +5073,7 @@ void PhysX3::GetOptionsFromGUI(const char* test_name)
 #if PHYSX_SUPPORT_MAX_DEPEN_VELOCITY
 	Common_GetFromEditBox(gParams.mMaxDepenVelocity, gPhysXUI->mEditBox_MaxDepenVelocity, 0.0f, FLT_MAX);
 #endif
+	Common_GetFromEditBox(gParams.mSolverBatchSize, gPhysXUI->mEditBox_SolverBatchSize);
 	Common_GetFromEditBox(gParams.mMaxBiasCoeff, gPhysXUI->mEditBox_MaxBiasCoeff, -FLT_MAX, FLT_MAX);
 	Common_GetFromEditBox(gParams.mDefaultStaticFriction, gPhysXUI->mEditBox_DefaultStaticFriction, 0.0f, FLT_MAX);
 	Common_GetFromEditBox(gParams.mDefaultDynamicFriction, gPhysXUI->mEditBox_DefaultDynamicFriction, 0.0f, FLT_MAX);
@@ -6064,6 +6067,7 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 			gPhysXUI->mEditBox_StabilizationThreshold = CreateEditBox(helper, TabWindow, 4, y, "Stabilization threshold:", helper.Convert(gParams.mStabilizationThreshold), EDITBOX_FLOAT_POSITIVE, LabelWidth, EditBoxX);
 #endif
 			gPhysXUI->mEditBox_MaxBiasCoeff = CreateEditBox(helper, TabWindow, 4, y, "Max bias coeff:", helper.Convert(gParams.mMaxBiasCoeff), EDITBOX_FLOAT, LabelWidth, EditBoxX);
+			gPhysXUI->mEditBox_SolverBatchSize = CreateEditBox(helper, TabWindow, 4, y, "Solver batch size:", _F("%d", gParams.mSolverBatchSize), EDITBOX_INTEGER_POSITIVE, LabelWidth, EditBoxX);
 		}
 
 		// TAB_JOINTS

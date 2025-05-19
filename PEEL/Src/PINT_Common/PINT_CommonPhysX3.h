@@ -251,6 +251,7 @@
 #endif
 
 		// Dynamics
+		udword							mSolverBatchSize;
 		float							mMaxBiasCoeff;
 		float							mDefaultStaticFriction;
 		float							mDefaultDynamicFriction;
