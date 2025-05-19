@@ -211,13 +211,6 @@ static void setupJoint(const EditableParams& params, PxArticulationJointReducedC
 #endif
 			j->setDriveVelocity(Axis, bc.mTargetVel);
 //			j->userData = 0;
-
-/*					ASSERT(!j->userData);
-					MotorData* MD = ICE_NEW(MotorData);
-					j->userData = MD;
-					// We store the ptr in a redundant array just to be able to conveniently release the objects when closing.
-					mMotorData.push_back(MD);*/
-
 		}
 
 

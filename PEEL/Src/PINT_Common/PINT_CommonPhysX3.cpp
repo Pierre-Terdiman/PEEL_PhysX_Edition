@@ -700,12 +700,6 @@ PintJointHandle SharedPhysX::CreateJoint(PxPhysics& physics, const PINT_JOINT_CR
 						j->setDriveVelocity(jc.mDriveVelocity);
 						j->setDriveForceLimit(l);
 						j->setDriveGearRatio(r);
-
-	/*					ASSERT(!j->userData);
-						MotorData* MD = ICE_NEW(MotorData);
-						j->userData = MD;
-						// We store the ptr in a redundant array just to be able to conveniently release the objects when closing.
-						mMotorData.push_back(MD);*/
 					}
 
 	//				j->getConstraint()->setFlag(PxConstraintFlag::eDRIVE_LIMITS_ARE_FORCES, true);
@@ -805,12 +799,6 @@ PintJointHandle SharedPhysX::CreateJoint(PxPhysics& physics, const PINT_JOINT_CR
 						j->setDriveVelocity(jc.mDriveVelocity);
 						j->setDriveForceLimit(l);
 						j->setDriveGearRatio(r);
-
-		/*					ASSERT(!j->userData);
-						MotorData* MD = ICE_NEW(MotorData);
-						j->userData = MD;
-						// We store the ptr in a redundant array just to be able to conveniently release the objects when closing.
-						mMotorData.push_back(MD);*/
 					}
 
 		//			j->getConstraint()->setFlag(PxConstraintFlag::eDRIVE_LIMITS_ARE_FORCES, true);
