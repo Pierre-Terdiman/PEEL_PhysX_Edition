@@ -144,6 +144,7 @@ PhysicsTest* RenderTestSelector(const GLFontRenderer& texter, float x, float tex
 				"(behavior)",
 				"(contact generation)",
 				"(joints-basics)",
+				"(joints-D6 basics)",
 				"(joints)",
 				"(joints-portals)",
 				"(articulations)",

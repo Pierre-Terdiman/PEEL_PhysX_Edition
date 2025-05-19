@@ -38,7 +38,7 @@ static bool GetD6DynamicData(Pint& pint, PintJointHandle handle, PintD6DynamicDa
 
 static const char* gDesc_D6Joint_Prismatic = "D6 joint - prismatic joint with asymmetric limits.";
 
-START_TEST(D6Joint_Prismatic, CATEGORY_JOINTS, gDesc_D6Joint_Prismatic)
+START_TEST(D6Joint_Prismatic, CATEGORY_JOINTS_D6_BASICS, gDesc_D6Joint_Prismatic)
 
 	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
 	{
@@ -155,7 +155,7 @@ class D6Joint_PrismaticDrive : public TestBase
 	virtual					~D6Joint_PrismaticDrive()	{										}
 	virtual	const char*		GetName()			const	{ return "D6Joint_PrismaticDrive";		}
 	virtual	const char*		GetDescription()	const	{ return gDesc_D6Joint_PrismaticDrive;	}
-	virtual	TestCategory	GetCategory()		const	{ return CATEGORY_JOINTS;				}
+	virtual	TestCategory	GetCategory()		const	{ return CATEGORY_JOINTS_D6_BASICS;		}
 
 	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
 	{
@@ -457,7 +457,7 @@ class D6Joint_PrismaticPosDrive : public TestBase
 	virtual					~D6Joint_PrismaticPosDrive(){											}
 	virtual	const char*		GetName()			const	{ return "D6Joint_PrismaticPosDrive";		}
 	virtual	const char*		GetDescription()	const	{ return gDesc_D6Joint_PrismaticPosDrive;	}
-	virtual	TestCategory	GetCategory()		const	{ return CATEGORY_JOINTS;					}
+	virtual	TestCategory	GetCategory()		const	{ return CATEGORY_JOINTS_D6_BASICS;			}
 
 	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
 	{
@@ -607,7 +607,7 @@ class D6Joint_PrismaticPosDrive : public TestBase
 
 static const char* gDesc_D6Joint_PointInPlane = "D6 joint - point-in-plane joint with asymmetric limits.";
 
-START_TEST(D6Joint_PointInPlane, CATEGORY_JOINTS, gDesc_D6Joint_PointInPlane)
+START_TEST(D6Joint_PointInPlane, CATEGORY_JOINTS_D6_BASICS, gDesc_D6Joint_PointInPlane)
 
 	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
 	{
@@ -703,7 +703,7 @@ END_TEST(D6Joint_PointInPlane)
 
 static const char* gDesc_D6Joint_PointInBox = "D6 joint - point-in-box joint with asymmetric limits.";
 
-START_TEST(D6Joint_PointInBox, CATEGORY_JOINTS, gDesc_D6Joint_PointInBox)
+START_TEST(D6Joint_PointInBox, CATEGORY_JOINTS_D6_BASICS, gDesc_D6Joint_PointInBox)
 
 	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
 	{
@@ -781,7 +781,7 @@ static PintJointHandle CreateD6Hinge(Pint& pint, const PINT_BOX_CREATE& box_desc
 
 static const char* gDesc_D6Joint_Hinge = "D6 joint - hinge joint with asymmetric limits around the twist axis.";
 
-START_TEST(D6Joint_HingeUsingTwist, CATEGORY_JOINTS, gDesc_D6Joint_Hinge)
+START_TEST(D6Joint_HingeUsingTwist, CATEGORY_JOINTS_D6_BASICS, gDesc_D6Joint_Hinge)
 
 	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
 	{
@@ -856,7 +856,7 @@ END_TEST(D6Joint_HingeUsingTwist)
 
 static const char* gDesc_D6Joint_Hinge2 = "D6 joint - hinge joint with PI limits around the twist axis.";
 
-START_TEST(D6Joint_HingeUsingTwist2, CATEGORY_JOINTS, gDesc_D6Joint_Hinge2)
+START_TEST(D6Joint_HingeUsingTwist2, CATEGORY_JOINTS_D6_BASICS, gDesc_D6Joint_Hinge2)
 
 	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
 	{
@@ -916,7 +916,7 @@ END_TEST(D6Joint_HingeUsingTwist2)
 
 static const char* gDesc_D6Joint_Hinge3 = "D6 joint - hinge joint with PI limits around the twist axis, and a rotated joint frame.";
 
-START_TEST(D6Joint_HingeUsingTwist3, CATEGORY_JOINTS, gDesc_D6Joint_Hinge3)
+START_TEST(D6Joint_HingeUsingTwist3, CATEGORY_JOINTS_D6_BASICS, gDesc_D6Joint_Hinge3)
 
 	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
 	{
@@ -971,7 +971,7 @@ END_TEST(D6Joint_HingeUsingTwist3)
 
 static const char* gDesc_D6Joint_PrismaticTwist = "D6 joint - prismatic twist";
 
-START_TEST(D6Joint_PrismaticTwist, CATEGORY_JOINTS, gDesc_D6Joint_PrismaticTwist)
+START_TEST(D6Joint_PrismaticTwist, CATEGORY_JOINTS_D6_BASICS, gDesc_D6Joint_PrismaticTwist)
 
 	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
 	{
@@ -1031,7 +1031,7 @@ END_TEST(D6Joint_PrismaticTwist)
 
 static const char* gDesc_D6Joint_SwingY = "D6 joint - swing Y";
 
-START_TEST(D6Joint_SwingY, CATEGORY_JOINTS, gDesc_D6Joint_SwingY)
+START_TEST(D6Joint_SwingY, CATEGORY_JOINTS_D6_BASICS, gDesc_D6Joint_SwingY)
 
 	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
 	{
@@ -1098,7 +1098,7 @@ END_TEST(D6Joint_SwingY)
 
 static const char* gDesc_D6Joint_SwingZ = "D6 joint - swing Z";
 
-START_TEST(D6Joint_SwingZ, CATEGORY_JOINTS, gDesc_D6Joint_SwingZ)
+START_TEST(D6Joint_SwingZ, CATEGORY_JOINTS_D6_BASICS, gDesc_D6Joint_SwingZ)
 
 	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
 	{
@@ -1165,7 +1165,7 @@ END_TEST(D6Joint_SwingZ)
 
 static const char* gDesc_D6Joint_SwingCone = "D6 joint - swing YZ cone";
 
-START_TEST(D6Joint_SwingYZCone, CATEGORY_JOINTS, gDesc_D6Joint_SwingCone)
+START_TEST(D6Joint_SwingYZCone, CATEGORY_JOINTS_D6_BASICS, gDesc_D6Joint_SwingCone)
 
 	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
 	{
@@ -1237,7 +1237,7 @@ END_TEST(D6Joint_SwingYZCone)
 
 static const char* gDesc_D6Joint_SwingCone2 = "D6 joint - swing YZ cone";
 
-START_TEST(D6Joint_SwingYZCone2, CATEGORY_JOINTS, gDesc_D6Joint_SwingCone2)
+START_TEST(D6Joint_SwingYZCone2, CATEGORY_JOINTS_D6_BASICS, gDesc_D6Joint_SwingCone2)
 
 	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
 	{
@@ -1309,7 +1309,7 @@ END_TEST(D6Joint_SwingYZCone2)
 
 static const char* gDesc_D6Joint_SwingY_ZFree = "D6 joint - swing Y, Z free";
 
-START_TEST(D6Joint_SwingYZFree, CATEGORY_JOINTS, gDesc_D6Joint_SwingY_ZFree)
+START_TEST(D6Joint_SwingYZFree, CATEGORY_JOINTS_D6_BASICS, gDesc_D6Joint_SwingY_ZFree)
 
 	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
 	{
@@ -1379,7 +1379,7 @@ END_TEST(D6Joint_SwingYZFree)
 
 static const char* gDesc_D6Joint_SphericalNoLimits = "D6 joint - spherical, no limits";
 
-START_TEST(D6Joint_SphericalNoLimits, CATEGORY_JOINTS, gDesc_D6Joint_SphericalNoLimits)
+START_TEST(D6Joint_SphericalNoLimits, CATEGORY_JOINTS_D6_BASICS, gDesc_D6Joint_SphericalNoLimits)
 
 	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
 	{
@@ -1454,7 +1454,7 @@ END_TEST(D6Joint_SphericalNoLimits)
 
 static const char* gDesc_D6Joint_AsymmetricSwingCone = "D6 joint - asymmetric swing YZ cone";
 
-START_TEST(D6Joint_AsymmetricSwingYZCone, CATEGORY_JOINTS, gDesc_D6Joint_AsymmetricSwingCone)
+START_TEST(D6Joint_AsymmetricSwingYZCone, CATEGORY_JOINTS_D6_BASICS, gDesc_D6Joint_AsymmetricSwingCone)
 
 	static	const float DesiredMinSwingY;
 	static	const float DesiredMaxSwingY;
