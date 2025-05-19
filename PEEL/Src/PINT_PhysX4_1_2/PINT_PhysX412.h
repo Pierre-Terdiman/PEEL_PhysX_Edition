@@ -16,7 +16,7 @@
 	class PhysX : public SharedPhysX_Vehicles
 	{
 		public:
-										PhysX(const EditableParams& params);
+										PhysX(const EditableParams& params, const char* test_name);
 		virtual							~PhysX();
 
 		// Pint

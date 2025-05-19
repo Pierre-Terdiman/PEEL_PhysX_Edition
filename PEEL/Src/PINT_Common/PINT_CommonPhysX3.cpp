@@ -1325,7 +1325,7 @@ PintJointHandle SharedPhysX::CreateJoint(PxPhysics& physics, const PINT_JOINT_CR
 
 static SharedPhysX* gPhysX = null;
 
-SharedPhysX::SharedPhysX(const EditableParams& params) :
+SharedPhysX::SharedPhysX(const EditableParams& params, const char* test_name) :
 	mFoundation				(null),
 	mPhysics				(null),
 	mScene					(null),
@@ -1364,6 +1364,7 @@ SharedPhysX::SharedPhysX(const EditableParams& params) :
 #ifdef SHARED_SHAPES_USE_HASH
 	mSphereShapes = null;
 #endif
+	PhysX3::GetOptionsFromGUI(test_name);
 }
 
 SharedPhysX::~SharedPhysX()

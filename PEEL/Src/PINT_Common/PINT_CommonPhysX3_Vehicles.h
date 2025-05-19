@@ -205,7 +205,7 @@
 	class SharedPhysX_Vehicles : public SharedPhysX, public Pint_Vehicle
 	{
 		public:
-									SharedPhysX_Vehicles(const EditableParams& params);
+									SharedPhysX_Vehicles(const EditableParams& params, const char* test_name);
 		virtual						~SharedPhysX_Vehicles();
 
 		virtual	Pint_Vehicle*		GetVehicleAPI();

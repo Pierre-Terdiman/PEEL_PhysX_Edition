@@ -174,8 +174,8 @@ static PxCudaContextManager* gCudaContextManager = NULL;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-PhysX::PhysX(const EditableParams& params) :
-	SharedPhysX_Vehicles(params),
+PhysX::PhysX(const EditableParams& params, const char* test_name) :
+	SharedPhysX_Vehicles(params, test_name),
 	mPVD				(null),
 	mTransport			(null)
 //	mProfileZoneManager	(null),
@@ -868,12 +868,10 @@ class MyUICallback : public UICallback
 
 void PhysX_Init(const PINT_WORLD_CREATE& desc)
 {
-	PhysX3::GetOptionsFromGUI(desc.GetTestName());
-
 	PhysX3_InitFilterShader();
 
 	ASSERT(!gPhysX);
-	gPhysX = ICE_NEW(PhysX)(PhysX3::GetEditableParams());
+	gPhysX = ICE_NEW(PhysX)(PhysX3::GetEditableParams(), desc.GetTestName());
 	gPhysX->Init(desc);
 }
 

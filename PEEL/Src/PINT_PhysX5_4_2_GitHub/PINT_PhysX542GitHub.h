@@ -16,7 +16,7 @@
 	class PhysX : public SharedPhysX_Vehicles
 	{
 		public:
-										PhysX(const EditableParams& params);
+										PhysX(const EditableParams& params, const char* test_name);
 		virtual							~PhysX();
 
 		// Pint
@@ -42,8 +42,8 @@
 	class PhysX_CQS : public PhysX
 	{
 		public:
-										PhysX_CQS(const EditableParams& params)	: PhysX(params)	{}
-		virtual							~PhysX_CQS()											{}
+										PhysX_CQS(const EditableParams& params, const char* test_name) : PhysX(params, test_name)	{}
+		virtual							~PhysX_CQS()																				{}
 
 		virtual	void					Close();
 

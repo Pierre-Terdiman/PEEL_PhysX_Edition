@@ -445,7 +445,7 @@
 #endif
 	{
 		public:
-											SharedPhysX(const EditableParams& params);
+											SharedPhysX(const EditableParams& params, const char* test_name);
 		virtual								~SharedPhysX();
 
 		// PxDeletionListener

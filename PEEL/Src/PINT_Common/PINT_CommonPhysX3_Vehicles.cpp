@@ -1821,8 +1821,8 @@ PxVehicleDrive4W* SampleVehicle_VehicleManager::create4WVehicle(SharedPhysX_Vehi
 
 #pragma warning(disable:4355)	// 'this' : used in base member initializer list
 
-SharedPhysX_Vehicles::SharedPhysX_Vehicles(const EditableParams& params) :
-	SharedPhysX		(params),
+SharedPhysX_Vehicles::SharedPhysX_Vehicles(const EditableParams& params, const char* test_name) :
+	SharedPhysX		(params, test_name),
 	Pint_Vehicle	(*this)
 {
 }
