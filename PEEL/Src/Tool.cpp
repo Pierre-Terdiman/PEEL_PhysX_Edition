@@ -21,6 +21,9 @@
 	#include "ToolTerrainEditor.h"
 	#include "ToolTexture.h"
 	#include "ToolBullet.h"
+#if !PEEL_PUBLIC_BUILD
+	#include "ToolWFC.h"
+#endif
 
 udword GetNbTools()
 {
@@ -41,6 +44,9 @@ static const char* gToolNames[] =
 	"Terrain editor",
 	"Texture",
 	"Bullet",
+#if !PEEL_PUBLIC_BUILD
+	"WFC",
+#endif
 };
 
 ICE_COMPILE_TIME_ASSERT(TOOL_COUNT==ARRAYSIZE(gToolNames));
@@ -108,7 +114,9 @@ void InitTools()
 	gTools[TOOL_TERRAIN_EDITOR]		= ICE_NEW(ToolTerrainEditor);
 	gTools[TOOL_TEXTURE]			= ICE_NEW(ToolTexture);
 	gTools[TOOL_BULLET]				= ICE_NEW(ToolBullet);
-
+#if !PEEL_PUBLIC_BUILD
+	gTools[TOOL_WFC]				= ICE_NEW(ToolWFC);
+#endif
 	SelectTool(0);
 }
 

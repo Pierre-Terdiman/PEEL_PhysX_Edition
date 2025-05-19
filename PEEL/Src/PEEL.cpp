@@ -44,6 +44,17 @@
 	#include "ScreenQuad_BackColor.h"
 	#include "ScreenQuad_ColorGradient.h"
 	#include "ScreenQuad_ColorSphere.h"
+#if !PEEL_PUBLIC_BUILD
+	#include "ScreenQuad_Sky.h"
+	#include "ScreenQuad_MinimalAtmosphere.h"
+	#include "ScreenQuad_SimpleAtmosphericScattering.h"
+	#include "ScreenQuad_Atmosphere.h"
+	#include "ScreenQuad_OldScattering.h"
+	#include "ScreenQuad_Komoc.h"
+	#include "ScreenQuad_AtmosphericScatteringUnity.h"
+	#include "ScreenQuad_Shadertoy_IQ.h"
+	#include "ScreenQuad_Shadertoy_IQ2.h"
+#endif
 #include "TextureManager.h"
 #include "RenderTarget.h"
 #include "PintColorShapeRenderer.h"
@@ -339,7 +350,17 @@ static void InitScreenQuadModes()
 	gScreenQuadModes[SCREEN_QUAD_BACK_COLOR]					= ICE_NEW(ScreenQuadBackColor)(gMenuClearColor);
 	gScreenQuadModes[SCREEN_QUAD_GRADIENT]						= ICE_NEW(ScreenQuadColorGradient)(gScreenQuadTab_TopColor, gScreenQuadTab_BottomColor);
 	gScreenQuadModes[SCREEN_QUAD_COLOR_SPHERE]					= ICE_NEW(ScreenQuadColorSphere);
-
+#if !PEEL_PUBLIC_BUILD
+	gScreenQuadModes[SCREEN_QUAD_SKY]							= ICE_NEW(ScreenQuadSky);
+	gScreenQuadModes[SCREEN_QUAD_MINIMAL_ATMOSPHERE]			= ICE_NEW(ScreenQuadMinimalAtmosphere);
+	gScreenQuadModes[SCREEN_QUAD_SIMPLE_ATMOSPHERIC_SCATTERING]	= ICE_NEW(ScreenQuadSimpleAtmosphericScattering);
+	gScreenQuadModes[SCREEN_QUAD_ATMOSPHERE]					= ICE_NEW(ScreenQuadAtmosphere);
+	gScreenQuadModes[SCREEN_QUAD_OLD_SCATTERING]				= ICE_NEW(ScreenQuadOldScattering);
+	gScreenQuadModes[SCREEN_QUAD_KOMOC]							= ICE_NEW(ScreenQuadKomoc);
+	gScreenQuadModes[SCREEN_QUAD_ATMOSPHERIC_SCATTERING_UNITY]	= ICE_NEW(ScreenQuadAtmosphericScatteringUnity);
+	gScreenQuadModes[SCREEN_QUAD_SHADERTOY_IQ]					= ICE_NEW(ScreenQuadShadertoyIQ);
+	gScreenQuadModes[SCREEN_QUAD_SHADERTOY_IQ2]					= ICE_NEW(ScreenQuadShadertoyIQ2);
+#endif
 	SelectScreenQuadMode(SCREEN_QUAD_BACK_COLOR);
 }
 
