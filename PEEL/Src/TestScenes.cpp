@@ -236,7 +236,8 @@ bool TestBase::Init(Pint& pint, bool create_def_env)
 	if(!Setup(pint, Caps))
 		return false;
 
-	return SetupDefaultEnvironment(pint, create_def_env);
+	/*return*/ SetupDefaultEnvironment(pint, create_def_env);
+	return true;	// Returns caps value only
 }
 
 void TestBase::Close(Pint& pint)
