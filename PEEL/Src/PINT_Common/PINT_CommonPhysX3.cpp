@@ -4750,6 +4750,8 @@ const EditableParams& PhysX3::GetEditableParams()
 
 #define MAX_NB_DEBUG_VIZ_PARAMS	32
 
+namespace
+{
 	struct PhysXUI : public Allocateable
 	{
 						PhysXUI(UICallback& callback, udword nb_debug_viz_params, bool* debug_viz_params, const char** debug_viz_names);
@@ -4921,6 +4923,7 @@ const EditableParams& PhysX3::GetEditableParams()
 		EditBoxPtr		mEditBox_DebugVizScale;
 		IceCheckBox*	mCheckBox_DebugVis[MAX_NB_DEBUG_VIZ_PARAMS];
 	};
+}
 
 PhysXUI::PhysXUI(UICallback& callback, udword nb_debug_viz_params, bool* debug_viz_params, const char** debug_viz_names) :
 	mCallback			(callback),

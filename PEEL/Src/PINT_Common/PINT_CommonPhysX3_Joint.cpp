@@ -689,8 +689,6 @@ PxSphericalJoint* CreateSphericalJoint(const EditableParams& params, PxPhysics& 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////////
-
 PxFixedJoint* CreateFixedJoint(const EditableParams& params, PxPhysics& physics, const PINT_FIXED_JOINT_CREATE& jc, PxRigidActor* actor0, PxRigidActor* actor1, const PxTransform& localFrame0, const PxTransform& localFrame1)
 {
 	PxFixedJoint* j = PxFixedJointCreate(physics, actor0, localFrame0, actor1, localFrame1);
