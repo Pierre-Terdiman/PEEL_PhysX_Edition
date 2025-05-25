@@ -863,8 +863,17 @@
 
 	inline_	void	SetupShape(SharedPhysX& physx, const EditableParams& params, const PINT_SHAPE_CREATE* create, PxShape& shape, PxU16 collision_group, bool debug_viz_flag)
 	{
-//		shape.setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
-		shape.setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, params.mSQFlag);
+		if(create->mFlags & SHAPE_FLAGS_INACTIVE)
+		{
+			shape.setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
+			shape.setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, false);
+		}
+		else
+		{
+//			shape.setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
+			shape.setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, params.mSQFlag);
+		}
+
 		shape.setFlag(PxShapeFlag::eVISUALIZATION, debug_viz_flag);
 //		shape.setFlag(PxShapeFlag::eUSE_SWEPT_BOUNDS, gUseCCD);
 		shape.setRestOffset(params.mRestOffset);
