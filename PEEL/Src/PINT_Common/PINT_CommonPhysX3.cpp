@@ -1873,6 +1873,30 @@ void SharedPhysX::SetDisabledGroups(udword nb_groups, const PintDisabledGroups* 
 		PhysX3_SetGroupCollisionFlag(groups[i].mGroup0, groups[i].mGroup1, false);
 }
 
+PintActorHandle SharedPhysX::CreateGroundPlane(const PINT_OBJECT_CREATE& desc)
+{
+	PxRigidStatic* actor = mPhysics->createRigidStatic(PxTransform(PxIdentity));
+	ASSERT(actor);
+
+	SetActorName(actor, desc.mName);
+
+	const PxPlaneGeometry planeGeom;
+#if PHYSX_SUPPORT_RIGIDACTOREX_CREATE_EXCLUSIVE_SHAPE
+	PxShape* NewShape = PxRigidActorExt::createExclusiveShape(*actor, planeGeom, *mDefaultMaterial);
+#else
+	PxShape* NewShape = actor->createShape(planeGeom, *mDefaultMaterial);
+#endif
+	ASSERT(NewShape);
+
+	const PxQuat q = PxShortestRotation(PxVec3(1.0f, 0.0f, 0.0f), PxVec3(0.0f, 1.0f, 0.0f));
+	NewShape->setLocalPose(PxTransform(q));
+
+	SetupShape(*this, mParams, desc.GetFirstShape(), *NewShape, desc.mCollisionGroup, PhysX3::IsDebugVizEnabled());
+
+	AddActorToScene(actor);
+	return CreateHandle(actor);
+}
+
 PintActorHandle SharedPhysX::CreateObject(const PINT_OBJECT_CREATE& desc)
 {
 	const udword NbShapes = desc.GetNbShapes();
@@ -1881,6 +1905,9 @@ PintActorHandle SharedPhysX::CreateObject(const PINT_OBJECT_CREATE& desc)
 
 	ASSERT(mPhysics);
 	ASSERT(mScene);
+
+	if(mParams.mGroundPlane && !desc.mAddToDatabase)
+		return CreateGroundPlane(desc);
 
 	const PxTransform pose(ToPxVec3(desc.mPosition), ToPxQuat(desc.mRotation));
 	ASSERT(pose.isValid());
@@ -4368,6 +4395,7 @@ enum PhysXGUIElement
 	//
 	PHYSX_GUI_ENABLE_SLEEPING,
 	PHYSX_GUI_ENABLE_SQ,
+	PHYSX_GUI_GROUND_PLANE,
 	PHYSX_GUI_ENABLE_CCD,
 #if PHYSX_SUPPORT_ANGULAR_CCD
 	PHYSX_GUI_ENABLE_ANGULAR_CCD,
@@ -4526,6 +4554,7 @@ EditableParams::EditableParams() :
 #if PHYSX_SUPPORT_CPU_DISPATCHER_MODE
 	mCPUDispatcherMode			(PxDefaultCpuDispatcherWaitForWorkMode::eWAIT_FOR_WORK),
 #endif
+	mGroundPlane				(false),
 	mEnableCCD					(false),
 #if PHYSX_SUPPORT_ANGULAR_CCD
 	mEnableAngularCCD			(false),
@@ -4872,6 +4901,7 @@ namespace
 #if PHYSX_SUPPORT_GYROSCOPIC_FORCES
 		CheckBoxPtr		mCheckBox_Gyro;
 #endif
+		CheckBoxPtr		mCheckBox_GroundPlane;
 		CheckBoxPtr		mCheckBox_CCD;
 #if PHYSX_SUPPORT_ANGULAR_CCD
 		CheckBoxPtr		mCheckBox_AngularCCD;
@@ -5132,6 +5162,8 @@ void PhysX3::GetOptionsFromGUI(const char* test_name)
 #endif
 	if(gPhysXUI->mCheckBox_Sleeping)
 		gParams.mEnableSleeping = gPhysXUI->mCheckBox_Sleeping->IsChecked();
+	if(gPhysXUI->mCheckBox_GroundPlane)
+		gParams.mGroundPlane = gPhysXUI->mCheckBox_GroundPlane->IsChecked();
 	if(gPhysXUI->mCheckBox_CCD)
 		gParams.mEnableCCD = gPhysXUI->mCheckBox_CCD->IsChecked();
 #if PHYSX_SUPPORT_ANGULAR_CCD
@@ -5393,6 +5425,9 @@ static void gCheckBoxCallback(const IceCheckBox& check_box, bool checked, void* 
 				gPhysXUI->mComboBox_StaticPruner->SetEnabled(checked);
 			if(gPhysXUI->mComboBox_DynamicPruner)
 				gPhysXUI->mComboBox_DynamicPruner->SetEnabled(checked);
+			break;
+		case PHYSX_GUI_GROUND_PLANE:
+			gParams.mGroundPlane = checked;
 			break;
 		case PHYSX_GUI_ENABLE_CCD:
 			gParams.mEnableCCD = checked;
@@ -5771,7 +5806,10 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 #endif
 //			y += YStep;
 
+			const udword x2 = 200;
 			{
+				gPhysXUI->mCheckBox_GroundPlane = helper.CreateCheckBox(TabWindow, PHYSX_GUI_GROUND_PLANE, 200, y+8, CheckBoxWidth, 20, "Ground plane instead of box", gPhysXUI->mPhysXGUI, gParams.mGroundPlane, gCheckBoxCallback);
+
 				gPhysXUI->mCheckBox_CCD = helper.CreateCheckBox(TabWindow, PHYSX_GUI_ENABLE_CCD, 4, y, CheckBoxWidth, 20, "Enable CCD", gPhysXUI->mPhysXGUI, gParams.mEnableCCD, gCheckBoxCallback);
 				y += YStepCB;
 
@@ -5837,10 +5875,7 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 #endif
 			y += YStepCB;
 
-			y = 100;
-			const udword x2 = 200;
-//			const udword x2 = 4;
-
+			y = 120;
 
 			const sdword EditBoxX = 130;
 			const sdword LabelWidth = 130;

@@ -203,6 +203,7 @@
 #if PHYSX_SUPPORT_CPU_DISPATCHER_MODE
 		PxDefaultCpuDispatcherWaitForWorkMode::Enum		mCPUDispatcherMode;
 #endif
+		bool							mGroundPlane;
 		bool							mEnableCCD;
 #if PHYSX_SUPPORT_ANGULAR_CCD
 		bool							mEnableAngularCCD;
@@ -774,6 +775,7 @@
 		virtual	void								CreateShapes			(const PINT_OBJECT_CREATE& desc, PxRigidActor* actor, PintCollisionGroup group, const char* forced_name){}
 #else
 		private:
+				PintActorHandle						CreateGroundPlane(const PINT_OBJECT_CREATE& desc);
 				PxShape*							CreateSphereShape		(const PINT_SHAPE_CREATE* create, PxRigidActor* actor, const PxSphereGeometry& geometry,		const PxMaterial& material, const PxTransform& local_pose, PxU16 collision_group);
 				PxShape*							CreateBoxShape			(const PINT_SHAPE_CREATE* create, PxRigidActor* actor, const PxBoxGeometry& geometry,			const PxMaterial& material, const PxTransform& local_pose, PxU16 collision_group);
 				PxShape*							CreateCapsuleShape		(const PINT_SHAPE_CREATE* create, PxRigidActor* actor, const PxCapsuleGeometry& geometry,		const PxMaterial& material, const PxTransform& local_pose, PxU16 collision_group);
