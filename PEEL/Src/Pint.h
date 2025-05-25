@@ -797,11 +797,11 @@
 
 	struct PINT_JOINT_CREATE : public Allocateable
 	{
-						PINT_JOINT_CREATE(PintJoint type) :
+						PINT_JOINT_CREATE(PintJoint type, PintActorHandle object0 = null, PintActorHandle object1 = null) :
 							mName		(null),
 							mType		(type),
-							mObject0	(null),
-							mObject1	(null)
+							mObject0	(object0),
+							mObject1	(object1)
 						{
 						}
 
@@ -830,25 +830,21 @@
 				}
 
 				PINT_SPHERICAL_JOINT_CREATE(PintActorHandle object0, PintActorHandle object1, const PR& p0, const PR& p1) :
-					PINT_JOINT_CREATE	(PINT_JOINT_SPHERICAL),
+					PINT_JOINT_CREATE	(PINT_JOINT_SPHERICAL, object0, object1),
 					mLocalPivot0		(p0),
 					mLocalPivot1		(p1),
 					mLimits				(-1.0f, -1.0f)
 				{
-					mObject0 = object0;
-					mObject1 = object1;
 				}
 
 				PINT_SPHERICAL_JOINT_CREATE(PintActorHandle object0, PintActorHandle object1, const Point& p0, const Point& p1) :
-					PINT_JOINT_CREATE	(PINT_JOINT_SPHERICAL),
+					PINT_JOINT_CREATE	(PINT_JOINT_SPHERICAL, object0, object1),
 					mLimits				(-1.0f, -1.0f)
 				{
 					mLocalPivot0.mPos = p0;
 					mLocalPivot0.mRot.Identity();
 					mLocalPivot1.mPos = p1;
 					mLocalPivot1.mRot.Identity();
-					mObject0 = object0;
-					mObject1 = object1;
 				}
 
 				PINT_SPHERICAL_JOINT_CREATE(const PINT_SPHERICAL_JOINT_CREATE& create) :
@@ -993,11 +989,11 @@
 
 	struct PINT_DISTANCE_JOINT_CREATE : PINT_JOINT_CREATE
 	{
-					PINT_DISTANCE_JOINT_CREATE() :
-						PINT_JOINT_CREATE	(PINT_JOINT_DISTANCE),
-						mLocalPivot0		(Point(0.0f, 0.0f, 0.0f)),
-						mLocalPivot1		(Point(0.0f, 0.0f, 0.0f)),
-						mLimits				(-1.0f, -1.0f)
+					PINT_DISTANCE_JOINT_CREATE(PintActorHandle object0 = null, PintActorHandle object1 = null, float minLimit = -1.0f, float maxLimit = -1.0f, const Point& p0 = Point(0.0f, 0.0f, 0.0f), const Point& p1 = Point(0.0f, 0.0f, 0.0f)) :
+						PINT_JOINT_CREATE	(PINT_JOINT_DISTANCE, object0, object1),
+						mLocalPivot0		(p0),
+						mLocalPivot1		(p1),
+						mLimits				(minLimit, maxLimit)
 					{
 					}
 
