@@ -1646,17 +1646,8 @@ class JacobsLadder : public TestBase
 
 	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 280;
-		WD.mHeight	= 600;
-		WD.mLabel	= "JacobsLadder";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 280;
+		IceWindow* UI = CreateTestWindow(Width, 300);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -1712,20 +1703,8 @@ class JacobsLadder : public TestBase
 		}*/
 
 		y += YStep;
-		AddResetButton(UI, 4, y, 264);
 
-		IceTabControl* TabControl;
-		{
-			TabControlDesc TCD;
-			TCD.mParent	= UI;
-			TCD.mX		= 4;
-			TCD.mY		= y + 30;
-			TCD.mWidth	= WD.mWidth - 16;
-			TCD.mHeight	= 120;
-			TabControl = ICE_NEW(IceTabControl)(TCD);
-			RegisterUIElement(TabControl);
-		}
-		return TabControl;
+		return CreateTestTabControlAndResetButton(UI, Width, y, 0);
 	}
 
 /*	virtual bool	Setup(Pint& pint, const PintCaps& caps)
@@ -2749,17 +2728,8 @@ class FixedJointsTorus : public TestBase
 
 	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 350;
-		WD.mHeight	= 550;
-		WD.mLabel	= "FixedJointsTorus";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 350;
+		IceWindow* UI = CreateTestWindow(Width, 520);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -2828,22 +2798,8 @@ class FixedJointsTorus : public TestBase
 		y += YStep;
 
 		y += YStep;
-		AddResetButton(UI, 4, y, 350-16);
 
-		y += YStep;
-		y += YStep;
-		IceTabControl* TabControl;
-		{
-			TabControlDesc TCD;
-			TCD.mParent	= UI;
-			TCD.mX		= 4;
-			TCD.mY		= y;
-			TCD.mWidth	= WD.mWidth - 16;
-			TCD.mHeight	= 140;
-			TabControl = ICE_NEW(IceTabControl)(TCD);
-			RegisterUIElement(TabControl);
-		}
-		return TabControl;
+		return CreateTestTabControlAndResetButton(UI, Width, y, 20);
 	}
 
 	virtual	const char*		GetSubName()	const
@@ -4160,17 +4116,8 @@ START_TEST(ConfigurableSphericalChain, CATEGORY_JOINTS, gDesc_ConfigurableSpheri
 
 	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 450;
-		WD.mHeight	= 500;
-		WD.mLabel	= "ConfigurableSphericalChain";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 450;
+		IceWindow* UI = CreateTestWindow(Width, 500);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -4233,20 +4180,8 @@ START_TEST(ConfigurableSphericalChain, CATEGORY_JOINTS, gDesc_ConfigurableSpheri
 		}
 
 		y += YStep;
-		AddResetButton(UI, 4, y, 450-16);
 
-		IceTabControl* TabControl;
-		{
-			TabControlDesc TCD;
-			TCD.mParent	= UI;
-			TCD.mX		= 4;
-			TCD.mY		= y + 30;
-			TCD.mWidth	= WD.mWidth - 16;
-			TCD.mHeight	= 120;
-			TabControl = ICE_NEW(IceTabControl)(TCD);
-			RegisterUIElement(TabControl);
-		}
-		return TabControl;
+		return CreateTestTabControlAndResetButton(UI, Width, y, 0);
 	}
 
 	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
@@ -4982,8 +4917,8 @@ static const bool gDriveVehicle = true;
 				mFrontAxleObject[i] = null;
 		}
 		PintActorHandle	mChassis;
-		WheelData			mFront[2];
-		WheelData			mRear[2];
+		WheelData		mFront[2];
+		WheelData		mRear[2];
 		PintActorHandle	mFrontAxleObject[2];
 	};
 
@@ -5774,17 +5709,8 @@ class LegoTechnicBuggy : public LegoTechnicVehicle
 
 	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 300;
-		WD.mHeight	= 500;
-		WD.mLabel	= "Lego Technic Buggy";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 300;
+		IceWindow* UI = CreateTestWindow(Width, 500);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -5855,23 +5781,9 @@ class LegoTechnicBuggy : public LegoTechnicVehicle
 
 
 		y += YStep;
-		AddResetButton(UI, 4, y, 300-16);
 
+		return CreateTestTabControlAndResetButton(UI, Width, y, 20);
 //		return CreateOverrideTabControl("Lego Technic Buggy", 20);
-		{
-			IceTabControl* TabControl;
-			{
-				TabControlDesc TCD;
-				TCD.mParent	= UI;
-				TCD.mX		= 4;
-				TCD.mY		= y + 30;
-				TCD.mWidth	= WD.mWidth - 16;
-				TCD.mHeight	= 120 + 20;
-				TabControl = ICE_NEW(IceTabControl)(TCD);
-				RegisterUIElement(TabControl);
-			}
-			return TabControl;
-		}
 	}
 
 	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
