@@ -130,7 +130,8 @@ static void TraceImpl(const char *inFMT, ...)
 	#ifdef _DEBUG
 		#pragma comment(lib, "../../../../PEEL_Externals/Jolt/Lib/x64/Debug/Jolt.lib")
 	#else
-		#pragma comment(lib, "../../../../PEEL_Externals/Jolt/Lib/x64/Release/Jolt.lib")
+		//#pragma comment(lib, "../../../../PEEL_Externals/Jolt/Lib/x64/Release/Jolt.lib")
+		#pragma comment(lib, "../../../../PEEL_Externals/Jolt/Lib/x64/Distribution/Jolt.lib")
 	#endif
 #else
 	#pragma comment(lib, "../../Ice/Lib/IceCore.lib")
@@ -646,14 +647,14 @@ const char* JoltPint::GetName() const
 {
 	const int inNumThreads = gNbThreads ? gNbThreads : thread::hardware_concurrency() - 1;
 
-	const char* Name = "Jolt";
+	const char* Name = "Jolt AVX";
 
 	return _F("%s (%dT)", Name, inNumThreads);
 }
 
 const char* JoltPint::GetUIName() const
 {
-	return "Jolt";
+	return "Jolt AVX";
 }
 
 void JoltPint::GetCaps(PintCaps& caps) const
