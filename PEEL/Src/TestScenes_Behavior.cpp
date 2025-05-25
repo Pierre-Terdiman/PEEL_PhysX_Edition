@@ -1692,3 +1692,49 @@ START_TEST(Dzhanibekov, CATEGORY_BEHAVIOR, gDesc_Dzhanibekov)
 END_TEST(Dzhanibekov)
 
 ///////////////////////////////////////////////////////////////////////////////
+
+static const char* gDesc_ThinRods = "Motion of thin rods.";
+
+START_TEST(ThinRods, CATEGORY_BEHAVIOR, gDesc_ThinRods)
+
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	{
+		return CreateOverrideTabControl("ThinRods", 20);
+	}
+
+	virtual void	GetSceneParams(PINT_WORLD_CREATE& desc)
+	{
+		TestBase::GetSceneParams(desc);
+		desc.mCamera[0] = PintCameraPose(Point(20.96f, 11.22f, 22.69f), Point(-0.65f, -0.31f, -0.70f));
+		desc.mCamera[1] = PintCameraPose(Point(25.15f, 0.10f, 23.19f), Point(-0.73f, -0.12f, -0.67f));
+		SetDefEnv(desc, true);
+	}
+
+	virtual bool	Setup(Pint& pint, const PintCaps& caps)
+	{
+		if(!caps.mSupportRigidBodySimulation)
+			return false;
+
+	//	const Point Extents(0.01f, 4.0f, 0.01f);
+		const Point Extents(0.05f, 4.0f, 0.05f);
+		PINT_BOX_CREATE BoxDesc(Extents);
+		BoxDesc.mRenderer = CreateRenderer(BoxDesc);
+
+		udword NbFastBoxes = 40;
+		for(udword i=0;i<NbFastBoxes;i++)
+		{
+			const float Angle = float(i)*TWOPI/float(NbFastBoxes);
+
+			PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
+			ObjectDesc.mMass			= 1.0f;
+			ObjectDesc.mPosition		= Point(cosf(Angle)*5.0f, 10.0f, sinf(Angle)*5.0f);
+			ObjectDesc.mLinearVelocity	= 4.0f * Point(ObjectDesc.mPosition.x, 0.0f, ObjectDesc.mPosition.z).Normalize();
+			CreatePintObject(pint, ObjectDesc);
+		}
+
+		return true;
+	}
+
+END_TEST(ThinRods)
+
+///////////////////////////////////////////////////////////////////////////////
