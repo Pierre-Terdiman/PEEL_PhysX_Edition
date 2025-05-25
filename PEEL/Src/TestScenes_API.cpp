@@ -121,6 +121,51 @@ END_TEST(CollisionGroups)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static const char* gDesc_InactiveShape = "Test that inactive shapes are properly handled. Inactive shapes should not have collisions and should not contribute to the object's inertia. This is mainly used for pure visual shapes. \
+This test creates two compunds made of a box and a sphere. In one of the compounds the box is set as inactive. That object should not rotate when the test starts.";
+
+START_TEST(InactiveShape, CATEGORY_API, gDesc_InactiveShape)
+
+	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
+	{
+		TestBase::GetSceneParams(desc);
+		desc.mCamera[0] = PintCameraPose(Point(4.46f, 6.16f, 11.04f), Point(-0.67f, -0.35f, -0.66f));
+		SetDefEnv(desc, true);
+	}
+
+	virtual bool	Setup(Pint& pint, const PintCaps& caps)
+	{
+		if(!caps.mSupportRigidBodySimulation || !caps.mSupportCompounds)
+			return false;
+
+		for(udword i=0;i<2;i++)
+		{
+			PINT_SPHERE_CREATE SphereDesc(1.0);
+			SphereDesc.mRenderer = CreateRenderer(SphereDesc);
+
+			Matrix3x3 Rot;
+			Rot.RotZ(PI/4.0f);
+
+			const Point Extents(0.1f, 5.0f, 0.1f);
+			PINT_BOX_CREATE BoxDesc(Extents);
+			BoxDesc.mRenderer = CreateRenderer(BoxDesc);
+			BoxDesc.mLocalPos = Point(-3.0f, 4.0f, 0.0f);
+			BoxDesc.mLocalRot = Rot;
+			BoxDesc.mFlags	= i ? SHAPE_FLAGS_INACTIVE : SHAPE_FLAGS_DEFAULT;
+			SphereDesc.SetNext(&BoxDesc);
+
+			PINT_OBJECT_CREATE ObjectDesc(&SphereDesc);
+			ObjectDesc.mMass			= 1.0f;
+			ObjectDesc.mPosition		= Point(0.0f, 1.0f, float(i)*5.0f);
+			CreatePintObject(pint, ObjectDesc);
+		}
+		return true;
+	}
+
+END_TEST(InactiveShape)
+
+///////////////////////////////////////////////////////////////////////////////
+
 static const char* gDesc_COMLocalOffset = "Tests that the center-of-mass (COM) local offset is properly taken into account. The box should rotate on its own if \
 the test succeeds. The rendered RGB frame indicates the location of the COM.";
 
