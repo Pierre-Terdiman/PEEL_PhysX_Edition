@@ -323,6 +323,7 @@ START_TEST(DoubleDominoEffect, CATEGORY_BEHAVIOR, gDesc_DoubleDominoEffect)
 	{
 		TestBase::GetSceneParams(desc);
 		desc.mCamera[0] = PintCameraPose(Point(0.91f, 1.15f, 3.16f), Point(-0.50f, -0.69f, -0.52f));
+		desc.mCamera[1] = PintCameraPose(Point(2.68f, 0.83f, 1.26f), Point(-0.97f, -0.22f, 0.11f));
 		SetDefEnv(desc, true);
 	}
 
@@ -331,11 +332,14 @@ START_TEST(DoubleDominoEffect, CATEGORY_BEHAVIOR, gDesc_DoubleDominoEffect)
 		if(!caps.mSupportRigidBodySimulation)
 			return false;
 
+		const PINT_MATERIAL_CREATE StrongFriction(1.0f, 1.0f, 0.0f);
+
 		const float Scale = 0.5f;
 		const Point Extents(0.1f*Scale, 0.2f*Scale, 0.02f*Scale);
 
 		PINT_BOX_CREATE Create(Extents);
-		Create.mRenderer	= CreateBoxRenderer(Extents);
+		Create.mRenderer = CreateRenderer(Create);
+		Create.mMaterial = &StrongFriction;
 
 		const udword NbDominoes = 16;
 		PintActorHandle Handles[NbDominoes];
