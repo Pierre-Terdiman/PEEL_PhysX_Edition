@@ -174,6 +174,6 @@
 	void		Jolt_Close();
 	JoltPint*	GetJolt();
 
-	extern "C"	__declspec(dllexport)	PintPlugin*	GetPintPlugin();
+	DECLARE_PINT_EXPORTS
 
 #endif

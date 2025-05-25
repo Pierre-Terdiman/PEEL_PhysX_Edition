@@ -83,6 +83,6 @@
 	void		PhysX_Close();
 	PhysX*		GetPhysX();
 
-	extern "C"	__declspec(dllexport)	PintPlugin*	GetPintPlugin();
+	DECLARE_PINT_EXPORTS
 
 #endif
