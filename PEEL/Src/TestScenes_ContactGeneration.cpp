@@ -36,13 +36,13 @@ START_TEST(DynamicBoxVsLargeStaticSphere, CATEGORY_CONTACT_GENERATION, gDesc_Dyn
 
 		{
 			PINT_BOX_CREATE Create(1.0f, 1.0f, 1.0f);
-			Create.mRenderer	= CreateBoxRenderer(Create.mExtents);
+			Create.mRenderer	= CreateRenderer(Create);
 			CreateDynamicObject(pint, &Create, Point(0.0f, Radius + 4.0f, 0.0f));
 		}
 
 		{
 			PINT_SPHERE_CREATE Create(Radius);
-			Create.mRenderer	= CreateSphereRenderer(Create.mRadius);
+			Create.mRenderer	= CreateRenderer(Create);
 			CreateStaticObject(pint, &Create, Point(0.0f, 0.0f, 0.0f));
 		}
 		return true;
@@ -71,7 +71,7 @@ START_TEST(DynamicConvexVsVeryLargeStaticSphere, CATEGORY_CONTACT_GENERATION, gD
 
 		{
 			PINT_SPHERE_CREATE Create(10000.0f);
-			Create.mRenderer	= CreateSphereRenderer(Create.mRadius);
+			Create.mRenderer	= CreateRenderer(Create);
 			CreateStaticObject(pint, &Create, Point(0.0f, -10000.0f+20.0f, 0.0f));
 		}
 
@@ -81,7 +81,7 @@ START_TEST(DynamicConvexVsVeryLargeStaticSphere, CATEGORY_CONTACT_GENERATION, gD
 			ASSERT(NbPts==16);
 
 			PINT_CONVEX_CREATE ConvexCreate(16, Pts);
-			ConvexCreate.mRenderer	= CreateConvexRenderer(16, Pts);
+			ConvexCreate.mRenderer	= CreateRenderer(ConvexCreate);
 
 			PintActorHandle Handle = CreateDynamicObject(pint, &ConvexCreate, Point(0.0f, 30.0f, 0.0f));
 			ASSERT(Handle);
@@ -113,13 +113,13 @@ START_TEST(SphereOnLargeBox, CATEGORY_CONTACT_GENERATION, gDesc_SphereOnLargeBox
 
 		{
 			PINT_BOX_CREATE Create(20.0f, 2.0f, 20.0f);
-			Create.mRenderer	= CreateBoxRenderer(Create.mExtents);
+			Create.mRenderer	= CreateRenderer(Create);
 			CreateDynamicObject(pint, &Create, Point(0.0f, 2.0f, 0.0f));
 		}
 
 		{
 			PINT_SPHERE_CREATE Create(Radius);
-			Create.mRenderer	= CreateSphereRenderer(Create.mRadius);
+			Create.mRenderer	= CreateRenderer(Create);
 			CreateDynamicObject(pint, &Create, Point(0.0f, 8.0f, 0.0f));
 		}
 		return true;
@@ -147,13 +147,13 @@ START_TEST(BoxOnLargeBox, CATEGORY_CONTACT_GENERATION, gDesc_BoxOnLargeBox)
 
 		{
 			PINT_BOX_CREATE Create(20.0f, 2.0f, 20.0f);
-			Create.mRenderer	= CreateBoxRenderer(Create.mExtents);
+			Create.mRenderer	= CreateRenderer(Create);
 			CreateDynamicObject(pint, &Create, Point(0.0f, 2.0f, 0.0f));
 		}
 
 		{
 			PINT_BOX_CREATE Create(4.0f, 1.0f, 1.0f);
-			Create.mRenderer	= CreateBoxRenderer(Create.mExtents);
+			Create.mRenderer	= CreateRenderer(Create);
 			CreateDynamicObject(pint, &Create, Point(0.0f, 8.0f, 0.0f));
 		}
 		return true;
@@ -184,13 +184,13 @@ START_TEST(CapsuleOnLargeBox, CATEGORY_CONTACT_GENERATION, gDesc_CapsuleOnLargeB
 
 		{
 			PINT_BOX_CREATE Create(20.0f, 2.0f, 20.0f);
-			Create.mRenderer	= CreateBoxRenderer(Create.mExtents);
+			Create.mRenderer	= CreateRenderer(Create);
 			CreateDynamicObject(pint, &Create, Point(0.0f, 2.0f, 0.0f));
 		}
 
 		{
 			PINT_CAPSULE_CREATE Create(Radius, HalfHeight);
-			Create.mRenderer	= CreateCapsuleRenderer(Create.mRadius, Create.mHalfHeight*2.0f);
+			Create.mRenderer	= CreateRenderer(Create);
 
 			const Quat q = ShortestRotation(Point(0.0f, 1.0f, 0.0f), Point(1.0f, 0.0f, 0.0f));
 			CreateDynamicObject(pint, &Create, Point(0.0f, 8.0f, 0.0f), &q);
@@ -199,6 +199,71 @@ START_TEST(CapsuleOnLargeBox, CATEGORY_CONTACT_GENERATION, gDesc_CapsuleOnLargeB
 	}
 
 END_TEST(CapsuleOnLargeBox)
+
+///////////////////////////////////////////////////////////////////////////////
+
+static const char* gDesc_ObjectsOnThinBox = "Objects falling on a thin (almost flat) box.";
+
+START_TEST(ObjectsOnThinBox, CATEGORY_CONTACT_GENERATION, gDesc_ObjectsOnThinBox)
+
+	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
+	{
+		TestBase::GetSceneParams(desc);
+		desc.mCamera[0] = PintCameraPose(Point(5.23f, 3.19f, 4.66f), Point(-0.52f, -0.15f, -0.84f));
+		SetDefEnv(desc, true);
+	}
+
+	virtual bool	Setup(Pint& pint, const PintCaps& caps)
+	{
+		if(!caps.mSupportRigidBodySimulation)
+			return false;
+
+		{
+			PINT_BOX_CREATE Create(20.0f, 0.001f, 20.0f);
+			Create.mRenderer	= CreateRenderer(Create);
+			CreateStaticObject(pint, &Create, Point(0.0f, 2.0f, 0.0f));
+		}
+
+		float x = -2.0f;
+		const float y = 4.0f;
+
+		{
+			PINT_SPHERE_CREATE Create(0.4f);
+			Create.mRenderer	= CreateRenderer(Create);
+			CreateDynamicObject(pint, &Create, Point(x, y, 0.0f));
+		}
+		x += 2.0f;
+		{
+			PINT_BOX_CREATE Create(0.4f, 0.4f, 0.4f);
+			Create.mRenderer	= CreateRenderer(Create);
+			CreateDynamicObject(pint, &Create, Point(x, y, 0.0f));
+		}
+		x += 2.0f;
+		{
+			const float Radius = 0.2f;
+			const float HalfHeight = 0.4f;
+			PINT_CAPSULE_CREATE Create(Radius, HalfHeight);
+			Create.mRenderer	= CreateRenderer(Create);
+
+			const Quat q = ShortestRotation(Point(0.0f, 1.0f, 0.0f), Point(1.0f, 0.0f, 0.0f));
+			CreateDynamicObject(pint, &Create, Point(x, y, 0.0f), &q);
+		}
+		x += 2.0f;
+		if(caps.mSupportConvexes)
+		{
+			MyConvex C;
+			C.LoadFile(4);
+
+			PINT_CONVEX_CREATE ConvexCreate(C.mNbVerts, C.mVerts);
+			ConvexCreate.mRenderer	= CreateRenderer(ConvexCreate);
+
+			CreateDynamicObject(pint, &ConvexCreate, Point(x, y, 0.0f));
+		}
+
+		return true;
+	}
+
+END_TEST(ObjectsOnThinBox)
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -223,13 +288,13 @@ START_TEST(ThinCapsuleOnBox, CATEGORY_CONTACT_GENERATION, gDesc_ThinCapsuleOnBox
 
 		{
 			PINT_BOX_CREATE Create(2.0f, 2.0f, 2.0f);
-			Create.mRenderer	= CreateBoxRenderer(Create.mExtents);
+			Create.mRenderer	= CreateRenderer(Create);
 			CreateStaticObject(pint, &Create, Point(0.0f, 2.0f, 0.0f));
 		}
 
 		{
 			PINT_CAPSULE_CREATE Create(Radius, HalfHeight);
-			Create.mRenderer	= CreateCapsuleRenderer(Create.mRadius, Create.mHalfHeight*2.0f);
+			Create.mRenderer	= CreateRenderer(Create);
 
 			const Quat q = ShortestRotation(Point(0.0f, 1.0f, 0.0f), Point(1.0f, 0.0f, 0.0f));
 			CreateDynamicObject(pint, &Create, Point(0.0f, 4.0f-Radius, 0.0f), &q);
@@ -262,19 +327,19 @@ START_TEST(ThinCapsuleOnBoxes, CATEGORY_CONTACT_GENERATION, gDesc_ThinCapsuleOnB
 
 		{
 			PINT_BOX_CREATE Create(2.0f, 2.0f, 2.0f);
-			Create.mRenderer	= CreateBoxRenderer(Create.mExtents);
+			Create.mRenderer	= CreateRenderer(Create);
 			CreateStaticObject(pint, &Create, Point(-5.5f, 2.0f, 0.0f));
 		}
 
 		{
 			PINT_BOX_CREATE Create(2.0f, 2.0f, 2.0f);
-			Create.mRenderer	= CreateBoxRenderer(Create.mExtents);
+			Create.mRenderer	= CreateRenderer(Create);
 			CreateStaticObject(pint, &Create, Point(5.5f, 2.0f, 0.0f));
 		}
 
 		{
 			PINT_CAPSULE_CREATE Create(Radius, HalfHeight);
-			Create.mRenderer	= CreateCapsuleRenderer(Create.mRadius, Create.mHalfHeight*2.0f);
+			Create.mRenderer	= CreateRenderer(Create);
 
 			const Quat q = ShortestRotation(Point(0.0f, 1.0f, 0.0f), Point(1.0f, 0.0f, 0.0f));
 			CreateDynamicObject(pint, &Create, Point(0.0f, 4.0f-Radius, 0.0f), &q);
@@ -306,7 +371,7 @@ START_TEST(PCM_Stress, CATEGORY_CONTACT_GENERATION, gDesc_PCM_Stress)
 		const float Altitude = 10.0f;
 
 		PINT_BOX_CREATE BoxDesc(100.0f, 0.05f, 100.0f);
-		BoxDesc.mRenderer	= CreateBoxRenderer(BoxDesc.mExtents);
+		BoxDesc.mRenderer	= CreateRenderer(BoxDesc);
 
 		PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
 		ObjectDesc.mPosition.x	= 0.0f;
@@ -323,7 +388,7 @@ START_TEST(PCM_Stress, CATEGORY_CONTACT_GENERATION, gDesc_PCM_Stress)
 		C.LoadFile(i);
 
 		PINT_CONVEX_CREATE ConvexCreate(C.mNbVerts, C.mVerts);
-		ConvexCreate.mRenderer	= CreateConvexRenderer(ConvexCreate.mNbVerts, ConvexCreate.mVerts);
+		ConvexCreate.mRenderer	= CreateRenderer(ConvexCreate);
 
 //		const float Amplitude = 1.5f;
 		const udword NbX = 12;
@@ -344,6 +409,13 @@ START_TEST(PCM_Stress, CATEGORY_CONTACT_GENERATION, gDesc_PCM_Stress)
 				ASSERT(Handle);
 			}
 		}
+
+//		PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
+//		ObjectDesc.mPosition.x	= 0.0f;
+//		ObjectDesc.mPosition.y	= Altitude;
+//		ObjectDesc.mPosition.z	= 0.0f;
+//		ObjectDesc.mMass		= 0.0f;
+//		CreatePintObject(pint, ObjectDesc);
 
 		return true;
 	}
@@ -783,7 +855,7 @@ Ref: 1036831949
 			if(ShapeType==PINT_SHAPE_BOX)
 			{
 				PINT_BOX_CREATE Create(1.0f, 1.0f, 1.0f);
-				Create.mRenderer	= CreateBoxRenderer(Create.mExtents);
+				Create.mRenderer	= CreateRenderer(Create);
 				Create.mMaterial	= &MatDesc;
 				PintActorHandle ShapeHandle = CreateDynamicObject(pint, &Create, ShapePos, Rotation);
 				ASSERT(ShapeHandle);
@@ -791,7 +863,7 @@ Ref: 1036831949
 			else if(ShapeType==PINT_SHAPE_SPHERE)
 			{
 				PINT_SPHERE_CREATE Create(1.0f);
-				Create.mRenderer	= CreateSphereRenderer(Create.mRadius);
+				Create.mRenderer	= CreateRenderer(Create);
 				Create.mMaterial	= &MatDesc;
 				PintActorHandle ShapeHandle = CreateDynamicObject(pint, &Create, ShapePos, Rotation);
 				ASSERT(ShapeHandle);
@@ -799,7 +871,7 @@ Ref: 1036831949
 			else if(ShapeType==PINT_SHAPE_CAPSULE)
 			{
 				PINT_CAPSULE_CREATE Create(1.0f, 2.0f);
-				Create.mRenderer	= CreateCapsuleRenderer(Create.mRadius, Create.mHalfHeight*2.0f);
+				Create.mRenderer	= CreateRenderer(Create);
 				Create.mMaterial	= &MatDesc;
 				PintActorHandle ShapeHandle = CreateDynamicObject(pint, &Create, ShapePos, Rotation);
 				ASSERT(ShapeHandle);
@@ -843,14 +915,14 @@ START_TEST(VeryLargeTriangle, CATEGORY_CONTACT_GENERATION, gDesc_VeryLargeTriang
 
 			const float Radius = 1.0f;
 			PINT_SPHERE_CREATE SphereDesc(Radius);
-			SphereDesc.mRenderer	= CreateSphereRenderer(SphereDesc.mRadius);
+			SphereDesc.mRenderer	= CreateRenderer(SphereDesc);
 			SphereDesc.mMaterial	= &MatDesc;
 
 			PintActorHandle ShapeHandle = CreateDynamicObject(pint, &SphereDesc, Point(0.0f, Radius*2.0f, 0.0f));
 			ASSERT(ShapeHandle);
 
 			PINT_CAPSULE_CREATE CapsuleDesc(Radius, Radius);
-			CapsuleDesc.mRenderer	= CreateCapsuleRenderer(CapsuleDesc.mRadius, CapsuleDesc.mHalfHeight*2.0f);
+			CapsuleDesc.mRenderer	= CreateRenderer(CapsuleDesc);
 			CapsuleDesc.mMaterial	= &MatDesc;
 
 			PintActorHandle ShapeHandle2 = CreateDynamicObject(pint, &CapsuleDesc, Point(4.0f, Radius*2.0f, 0.0f));
@@ -927,7 +999,7 @@ START_TEST(SphereMeshUnitTest, CATEGORY_CONTACT_GENERATION, gDesc_SphereMeshUnit
 		const float Radius = 0.036977537f;
 
 		PINT_SPHERE_CREATE SphereDesc(Radius);
-		SphereDesc.mRenderer	= CreateSphereRenderer(Radius);
+		SphereDesc.mRenderer	= CreateRenderer(SphereDesc);
 
 		PINT_OBJECT_CREATE ObjectDesc(&SphereDesc);
 		ObjectDesc.mMass		= 1.0f;
@@ -995,7 +1067,7 @@ START_TEST(SphereMeshUnitTest_FC, CATEGORY_CONTACT_GENERATION, gDesc_SphereMeshU
 		const float Radius = 1.0f;
 
 		PINT_SPHERE_CREATE SphereDesc(Radius);
-		SphereDesc.mRenderer	= CreateSphereRenderer(Radius);
+		SphereDesc.mRenderer	= CreateRenderer(SphereDesc);
 
 		PINT_OBJECT_CREATE ObjectDesc(&SphereDesc);
 		ObjectDesc.mMass		= 1.0f;
@@ -1074,7 +1146,7 @@ START_TEST(SphereMeshUnitTest_VC, CATEGORY_CONTACT_GENERATION, gDesc_SphereMeshU
 		const float Radius = 1.0f;
 
 		PINT_SPHERE_CREATE SphereDesc(Radius);
-		SphereDesc.mRenderer	= CreateSphereRenderer(Radius);
+		SphereDesc.mRenderer	= CreateRenderer(SphereDesc);
 
 		PINT_OBJECT_CREATE ObjectDesc(&SphereDesc);
 		ObjectDesc.mMass		= 1.0f;
@@ -1155,7 +1227,7 @@ START_TEST(SphereMeshUnitTest_EC, CATEGORY_CONTACT_GENERATION, gDesc_SphereMeshU
 		const float Radius = 1.0f;
 
 		PINT_SPHERE_CREATE SphereDesc(Radius);
-		SphereDesc.mRenderer	= CreateSphereRenderer(Radius);
+		SphereDesc.mRenderer	= CreateRenderer(SphereDesc);
 
 		PINT_OBJECT_CREATE ObjectDesc(&SphereDesc);
 		ObjectDesc.mMass		= 1.0f;
@@ -1246,10 +1318,10 @@ START_TEST(InternalFaces, CATEGORY_CONTACT_GENERATION, gDesc_InternalFaces)
 		const float Radius = 0.1f;
 
 		PINT_SPHERE_CREATE SphereDesc(Radius);
-		SphereDesc.mRenderer	= CreateSphereRenderer(Radius);
+		SphereDesc.mRenderer	= CreateRenderer(SphereDesc);
 
 		PINT_BOX_CREATE BoxDesc(Point(Radius, Radius, Radius));
-		BoxDesc.mRenderer	= CreateBoxRenderer(BoxDesc.mExtents);
+		BoxDesc.mRenderer	= CreateRenderer(BoxDesc);
 		BoxDesc.mMaterial	= &Material;
 
 		PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
