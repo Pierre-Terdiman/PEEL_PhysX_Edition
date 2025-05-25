@@ -26,16 +26,6 @@ START_TEST(EmptyScene, CATEGORY_UNDEFINED, gDesc_EmptyScene)
 	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
 	{
 		TestBase::GetSceneParams(desc);
-		desc.mCamera[0] = PintCameraPose(Point(30.38f, 16.45f, 31.28f), Point(-0.58f, -0.48f, -0.65f));
-		desc.mCamera[0] = PintCameraPose(Point(30.38f, 16000.45f, 31.28f), Point(-0.58f, -0.48f, -0.65f));
-		//desc.mCamera[0] = PintCameraPose(Point(11.19f, 0.57f, 9.77f), Point(-0.38f, -0.81f, -0.45f));
-		//desc.mCamera[0] = PintCameraPose(Point(-1524286.38f, -189248.67f, -1175734.13f), Point(0.79f, 0.16f, 0.59f));
-		//desc.mCamera[0] = PintCameraPose(Point(-1524286.38f, 5000000.0f, -1175734.13f), Point(0.79f, 0.16f, 0.59f));
-		desc.mCamera[0] = PintCameraPose(Point(30.38f, 16000.45f, 31.28f), Point(0.57f, -0.62f, 0.53f));
-		desc.mCamera[0] = PintCameraPose(Point(-1608341.13f, -3888308.50f, 5651855.00f), Point(0.09f, 0.93f, -0.36f));
-
-		desc.mCamera[0] = PintCameraPose(Point(2213434.00f, -1216752.50f, 3018044.00f), Point(0.66f, -0.32f, 0.69f));
-
 		SetDefEnv(desc, false);
 	}
 
@@ -45,6 +35,61 @@ START_TEST(EmptyScene, CATEGORY_UNDEFINED, gDesc_EmptyScene)
 	}
 
 END_TEST(EmptyScene)
+
+///////////////////////////////////////////////////////////////////////////////
+
+static const char* gDesc_EmptySceneAfterLargeRelease = "Empty scene after releasing a large amount of objects. Exposes issues in engines still parsing empty structures that should have been resized. WARNING: creates 4 million objects, takes a while.";
+
+START_TEST(EmptySceneAfterLargeRelease, CATEGORY_UNDEFINED, gDesc_EmptySceneAfterLargeRelease)
+
+	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
+	{
+		TestBase::GetSceneParams(desc);
+		SetDefEnv(desc, false);
+	}
+
+	virtual	bool	Setup(Pint& pint, const PintCaps& caps)
+	{
+		if(!caps.mSupportRigidBodySimulation)
+			return false;
+
+		const float Radius = 0.1f;
+		PINT_SPHERE_CREATE Create(Radius);
+		Create.mRenderer	= CreateSphereRenderer(Create.mRadius);
+
+		const float IncX = Radius * 3.0f;
+		float x = 0.0f;
+
+		const udword Nb = 4*1024*1024;
+
+		PintActorHandle* Objects = ICE_ALLOCATE(PintActorHandle, Nb);
+
+		printf("Creating %d objects\n", Nb);
+		for(udword i=0;i<Nb;i++)
+		{
+			//Objects[i] = CreateStaticObject(pint, &Create, Point(x, Radius, 0.0f));
+			Objects[i] = CreateDynamicObject(pint, &Create, Point(x, Radius, 0.0f));
+			x += IncX;
+		}
+
+		printf("Simulating\n");
+		pint.Update(1.0f/60.0f);
+
+		printf("Releasing %d objects\n", Nb);
+		for(udword i=0;i<Nb;i++)
+		{
+			pint._ReleaseObject(Objects[Nb-1-i]);
+		}
+
+		ICE_FREE(Objects);
+
+		printf("Simulating\n");
+		pint.Update(1.0f/60.0f);
+
+		return true;
+	}
+
+END_TEST(EmptySceneAfterLargeRelease)
 
 ///////////////////////////////////////////////////////////////////////////////
 
