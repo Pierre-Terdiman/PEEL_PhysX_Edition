@@ -6369,3 +6369,239 @@ C.Scale(2.0f, 2.0f, 2.0f);
 END_TEST(LegoTechnicBuggy)
 
 ///////////////////////////////////////////////////////////////////////////////
+
+static const char* gDesc_ChainFountain = "Chain fountain. Scene adapted from Bepu Physics: 'The chain fountain is sometimes called Newton's beads or the Mould Effect. \
+A stiff segmented rope gets yanked upwards and over the lip by falling segments. \
+Peculiarly, the rope sometimes climbs to heights far higher than the container edge as bits of the rope 'kick' off the floor on their way out. \
+The effect tends to be more visible with chains that resist bending more.'                         \
+The default renderer is slow on this scene, consider disabling the wireframe overlay and switching to a simpler shader to stay at 60 FPS.";
+
+// All quoted text in this test comes from the original code.
+// "A segmented rope chain thing launches itself out of a container. See also: https://en.wikipedia.org/wiki/Chain_fountain"
+class ChainFountain : public TestBase
+{
+			EditBoxPtr		mEditBox_BeadCount;
+			EditBoxPtr		mEditBox_BeadSpacing;
+			EditBoxPtr		mEditBox_BeadRadius;
+			EditBoxPtr		mEditBox_BeadMass;
+			EditBoxPtr		mEditBox_BeadMassForInertia;
+			EditBoxPtr		mEditBox_Nudge;
+			EditBoxPtr		mEditBox_SwingLimitAngle;
+			EditBoxPtr		mEditBox_JointMultiplier;
+	public:
+							ChainFountain()				{								}
+	virtual					~ChainFountain()			{								}
+	virtual	const char*		GetName()			const	{ return "ChainFountain";		}
+	virtual	const char*		GetDescription()	const	{ return gDesc_ChainFountain;	}
+	virtual	TestCategory	GetCategory()		const	{ return CATEGORY_JOINTS;		}
+
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	{
+		const sdword Width = 300;
+		IceWindow* UI = CreateTestWindow(Width, 410);
+
+		Widgets& UIElems = GetUIElements();
+
+		const sdword EditBoxWidth = 60;
+		const sdword LabelWidth = 120;
+		const sdword OffsetX = LabelWidth + 10;
+		const sdword LabelOffsetY = 2;
+		const sdword YStep = 20;
+		sdword y = 10;
+
+		helper.CreateLabel(UI, 4, y+LabelOffsetY, LabelWidth, 20, "Bead count:", &UIElems);
+		mEditBox_BeadCount = helper.CreateEditBox(UI, 1, 4+OffsetX, y, EditBoxWidth, 20, "4096", &UIElems, EDITBOX_INTEGER_POSITIVE, null, null);
+		y += YStep;
+
+		helper.CreateLabel(UI, 4, y+LabelOffsetY, LabelWidth, 20, "Bead spacing:", &UIElems);
+		mEditBox_BeadSpacing = helper.CreateEditBox(UI, 1, 4+OffsetX, y, EditBoxWidth, 20, "0.3", &UIElems, EDITBOX_FLOAT_POSITIVE, null, null);
+		y += YStep;
+
+		helper.CreateLabel(UI, 4, y+LabelOffsetY, LabelWidth, 20, "Bead radius:", &UIElems);
+		mEditBox_BeadRadius = helper.CreateEditBox(UI, 1, 4+OffsetX, y, EditBoxWidth, 20, "0.05", &UIElems, EDITBOX_FLOAT_POSITIVE, null, null);
+		y += YStep;
+
+		helper.CreateLabel(UI, 4, y+LabelOffsetY, LabelWidth, 20, "Bead mass:", &UIElems);
+		mEditBox_BeadMass = helper.CreateEditBox(UI, 1, 4+OffsetX, y, EditBoxWidth, 20, "1.0", &UIElems, EDITBOX_FLOAT_POSITIVE, null, null);
+		y += YStep;
+
+		helper.CreateLabel(UI, 4, y+LabelOffsetY, LabelWidth, 20, "Bead mass for inertia:", &UIElems);
+		mEditBox_BeadMassForInertia = helper.CreateEditBox(UI, 1, 4+OffsetX, y, EditBoxWidth, 20, "1.0", &UIElems, EDITBOX_FLOAT_POSITIVE, null, null);
+		y += YStep;
+
+		helper.CreateLabel(UI, 4, y+LabelOffsetY, LabelWidth, 20, "Nudge:", &UIElems);
+		mEditBox_Nudge = helper.CreateEditBox(UI, 1, 4+OffsetX, y, EditBoxWidth, 20, "0.006", &UIElems, EDITBOX_FLOAT_POSITIVE, null, null);
+		y += YStep;
+
+		helper.CreateLabel(UI, 4, y+LabelOffsetY, LabelWidth, 20, "Swing limit angle:", &UIElems);
+		mEditBox_SwingLimitAngle = helper.CreateEditBox(UI, 1, 4+OffsetX, y, EditBoxWidth, 20, "0.1", &UIElems, EDITBOX_FLOAT_POSITIVE, null, null);
+		y += YStep;
+
+		helper.CreateLabel(UI, 4, y+LabelOffsetY, LabelWidth, 20, "Joint multiplier:", &UIElems);
+		mEditBox_JointMultiplier = helper.CreateEditBox(UI, 1, 4+OffsetX, y, EditBoxWidth, 20, "1", &UIElems, EDITBOX_INTEGER_POSITIVE, null, null);
+		y += YStep;
+
+		y += YStep;
+
+		return CreateTestTabControlAndResetButton(UI, Width, y, 20);
+	}
+
+	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
+	{
+		TestBase::GetSceneParams(desc);
+		desc.mCamera[0] = PintCameraPose(Point(6.05f, 1.34f, -14.09f), Point(-0.15f, 0.02f, 0.99f));
+		desc.mCamera[1] = PintCameraPose(Point(7.91f, 7.88f, -21.45f), Point(-0.32f, -0.53f, 0.79f));
+		desc.mCamera[2] = PintCameraPose(Point(15.51f, -492.45f, 16.13f), Point(-0.49f, -0.47f, -0.73f));
+		SetDefEnv(desc, false);
+	}
+
+	virtual	float	GetRenderData(Point& center)	const
+	{
+		return 1000.0f;
+	}
+
+	virtual bool	Setup(Pint& pint, const PintCaps& caps)
+	{
+		/*if(!caps.mSupportRigidBodySimulation || !caps.mSupportConvexes || !caps.mSupportCompounds || !caps.mSupportHingeJoints)
+			return false;
+
+		const bool UseFiltering = true;
+		if(UseFiltering)
+		{
+			if(!caps.mSupportCollisionGroups)
+				return false;
+
+			const PintDisabledGroups DG(1, 2);
+			pint.SetDisabledGroups(1, &DG);
+		}*/
+
+		const udword BeadCount = GetInt(4096, mEditBox_BeadCount);
+		const udword JointMultiplier = GetInt(1, mEditBox_JointMultiplier);
+		const float BeadSpacing = GetFloat(0.3f, mEditBox_BeadSpacing);
+		const float CapsuleRadius = GetFloat(0.05f, mEditBox_BeadRadius);
+		const float BeadMass = GetFloat(1.0f, mEditBox_BeadMass);
+		const float BeadMassForInertia = GetFloat(1.0f, mEditBox_BeadMassForInertia);
+		const float Nudge = GetFloat(0.006f, mEditBox_Nudge);
+		const float MaximumSwingAngle = PI * GetFloat(0.05f * 2.0f, mEditBox_SwingLimitAngle);
+
+		const PINT_MATERIAL_CREATE GroundMaterial(0.5f, 0.5f, 0.0f);
+		const PINT_MATERIAL_CREATE RopeMaterial(0.5f, 0.5f, 0.0f);
+
+		const float HalfHeight = BeadSpacing * 0.5f;
+		PINT_CAPSULE_CREATE CapsuleDesc(CapsuleRadius, HalfHeight);
+		CapsuleDesc.mRenderer = CreateCapsuleRenderer(CapsuleRadius, BeadSpacing);
+		CapsuleDesc.mMaterial = &RopeMaterial;
+
+		PINT_OBJECT_CREATE ObjectDesc;
+		ObjectDesc.SetShape(&CapsuleDesc);
+		ObjectDesc.mMass			= BeadMass;
+		ObjectDesc.mMassForInertia	= BeadMassForInertia;
+
+		PintActorHandle* H = ICE_ALLOCATE(PintActorHandle, BeadCount);
+		const float Radius = 2.5f;
+		const float AnglePerIteration = 2.0f * asinf(BeadSpacing / (2.0f * Radius));
+		const float HeightPerIteration = CapsuleRadius * 2.0f / (TWOPI / AnglePerIteration);
+		for(udword i=0; i<BeadCount; i++)
+		{
+			const float Angle = PI + float(i) * AnglePerIteration;
+			const float NextAngle = PI + float(i + 1) * AnglePerIteration;
+
+			const Point CurrentPosition(2.8f + sinf(Angle) * Radius, 0.5f + HeightPerIteration * float(i), -15.0f + cosf(Angle) * Radius);
+			const Point NextPosition(2.8f + sinf(NextAngle) * Radius, 0.5f + HeightPerIteration * float(i + 1), -15.0f + cosf(NextAngle) * Radius);
+
+			// "Include a little nudge. This is going to create constraint error, but that's fine. It distributes the rope over the platform to avoid tangles."
+			ObjectDesc.mPosition = CurrentPosition + Point(0.0f, 0.0f, float(i) * Nudge);
+
+			// "The constraints were built along the local Y axis, so get the shortest rotation from Y to the current orientation."
+			const Point Offset = (CurrentPosition - NextPosition).Normalize();
+			if(1)
+			{
+				ObjectDesc.mRotation = ShortestRotation(Offset, Point(0.0f, 1.0f, 0.0f));
+			}
+			else
+			{
+				// Original code
+				const Point Cross = Offset ^ Point(0, 1, 0);
+				float crossLength = Cross.Magnitude();
+				if(crossLength > 1e-8f)
+				{
+					const AngleAxis aa(asinf(crossLength), Cross / crossLength);
+					ObjectDesc.mRotation = Quat(aa);
+				}
+				else
+					ObjectDesc.mRotation.Identity();
+			}
+
+			// "Throw the tip of the rope off the edge."
+			if(1)
+			{
+				if (i > BeadCount - 32)
+					ObjectDesc.mLinearVelocity = Point(20.0f, 0.0f, 0.0f);
+			}
+
+			H[i] = CreatePintObject(pint, ObjectDesc);
+		}
+
+		// Create joints
+		for(udword j=0; j<JointMultiplier; j++)
+		{
+			if(1)
+			for(udword i=1; i<BeadCount; i++)
+			{
+				PINT_SPHERICAL_JOINT_CREATE sjc(H[i-1], H[i], Point(0, BeadSpacing * 0.5f, 0), Point(0, BeadSpacing * -0.5f, 0));
+				sjc.mLocalPivot0.mRot = sjc.mLocalPivot1.mRot = ShortestRotation(Point(0.0f, 1.0f, 0.0f), Point(1.0f, 0.0f, 0.0f));
+				sjc.mLimits.Set(MaximumSwingAngle, MaximumSwingAngle);
+				const PintJointHandle JointHandle = pint.CreateJoint(sjc);
+			}
+
+			if(0)
+			for(udword i=1; i<BeadCount; i++)
+			{
+				const PINT_DISTANCE_JOINT_CREATE djc(H[i-1], H[i], 0.0f, 0.05f, Point(0, BeadSpacing * 0.5f, 0), Point(0, BeadSpacing * -0.5f, 0));
+				const PintJointHandle JointHandle = pint.CreateJoint(djc);
+			}
+		}
+		ICE_FREE(H);
+
+		// Create static platform & ground
+		{
+			PINT_OBJECT_CREATE StaticDesc;
+			StaticDesc.mMass = 0.0f;
+
+			{
+				PINT_BOX_CREATE PlatformDesc(11.6f*0.5f, 0.2f*0.5f, 40.0f*0.5f);
+				PlatformDesc.mRenderer = CreateBoxRenderer(PlatformDesc.mExtents);
+				PlatformDesc.mMaterial = &GroundMaterial;
+
+				StaticDesc.SetShape(&PlatformDesc);
+				CreatePintObject(pint, StaticDesc);
+			}
+
+			{
+				PINT_BOX_CREATE WallDesc(0.4f*0.5f, 1.0f*0.5f, 40.0f*0.5f);
+				WallDesc.mRenderer = CreateBoxRenderer(WallDesc.mExtents);
+				WallDesc.mMaterial = &GroundMaterial;
+				StaticDesc.SetShape(&WallDesc);
+
+				StaticDesc.mPosition = Point(5.65f, 2.4f - 2.0f, 0.0f);
+				CreatePintObject(pint, StaticDesc);
+
+				StaticDesc.mPosition = Point(-5.65f, 2.4f - 2.0f, 0.0f);
+				CreatePintObject(pint, StaticDesc);
+			}
+			{
+				PINT_BOX_CREATE GroundDesc(500*0.5f, 1*0.5f, 500*0.5f);
+				GroundDesc.mRenderer = CreateBoxRenderer(GroundDesc.mExtents);
+				GroundDesc.mMaterial = &GroundMaterial;
+
+				StaticDesc.SetShape(&GroundDesc);
+				StaticDesc.mPosition = Point(0.0f, -500.0f, 0.0f);
+				CreatePintObject(pint, StaticDesc);
+			}
+		}
+		return true;
+	}
+
+END_TEST(ChainFountain)
+
+///////////////////////////////////////////////////////////////////////////////
