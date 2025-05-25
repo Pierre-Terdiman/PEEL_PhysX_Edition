@@ -853,7 +853,7 @@ IceWindow* PhysXPlugIn::InitTestGUI(const char* test_name, IceWidget* parent, Pi
 	if(	strcmp(test_name, "CDStack")==0)
 		return CreateUI_SolverIterPos_Substeps(parent, helper, owner, 32, 4);
 
-	if(	strcmp(test_name, "Dzhanibekov")==0)
+	if(	strcmp(test_name, "Dzhanibekov")==0 || strcmp(test_name, "ThinRods")==0)
 		return CreateUI_Dzhanibekov(parent, helper, owner, true);
 
 	if(	strcmp(test_name, "Walker")==0)
@@ -972,7 +972,7 @@ void PhysXPlugIn::ApplyTestUIParams(const char* test_name)
 		return;
 	}
 
-	if(	strcmp(test_name, "Dzhanibekov")==0)
+	if(	strcmp(test_name, "Dzhanibekov")==0 || strcmp(test_name, "ThinRods")==0)
 	{
 #if PHYSX_SUPPORT_GYROSCOPIC_FORCES
 		EP.mGyro = gCheckBox_Generic0->IsChecked();
