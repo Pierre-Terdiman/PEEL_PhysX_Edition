@@ -72,17 +72,8 @@
 
 		virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
 		{
-			WindowDesc WD;
-			WD.mParent	= null;
-			WD.mX		= 50;
-			WD.mY		= 50;
-			WD.mWidth	= 300;
-			WD.mHeight	= 400;
-			WD.mLabel	= GetName();
-			WD.mType	= WINDOW_DIALOG;
-			IceWindow* UI = ICE_NEW(IceWindow)(WD);
-			RegisterUIElement(UI);
-			UI->SetVisible(true);
+			const sdword Width = 300;
+			IceWindow* UI = CreateTestWindow(Width, 400);
 
 			Widgets& UIElems = GetUIElements();
 
@@ -135,20 +126,8 @@
 			}
 
 			y += YStep;
-			AddResetButton(UI, 4, y, 300-16);
 
-			IceTabControl* TabControl;
-			{
-				TabControlDesc TCD;
-				TCD.mParent	= UI;
-				TCD.mX		= 4;
-				TCD.mY		= y + 30;
-				TCD.mWidth	= WD.mWidth - 16;
-				TCD.mHeight	= 120;
-				TabControl = ICE_NEW(IceTabControl)(TCD);
-				RegisterUIElement(TabControl);
-			}
-			return TabControl;
+			return CreateTestTabControlAndResetButton(UI, Width, y, 0);
 		}
 	};
 
