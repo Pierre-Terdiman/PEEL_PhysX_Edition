@@ -14,6 +14,17 @@
 #include "PintRenderPass.h"
 #include "PintSurfaceInterface.h"
 
+	///////////////////////////////////////////////////////////////////////////
+
+	#define	PINT_VERSION	1		// Increase this number each time the API or ABI changes.
+
+	// Convenience macro for PINT plugins to export expected functions.
+	#define DECLARE_PINT_EXPORTS																	\
+	extern "C"	__declspec(dllexport)	udword		GetPintVersion()	{ return PINT_VERSION;	}	\
+	extern "C"	__declspec(dllexport)	PintPlugin*	GetPintPlugin() /* Plugins must implement this one */;
+
+	///////////////////////////////////////////////////////////////////////////
+
 	class Pint;
 	class PintSQ;
 	class PintShapeRenderer;

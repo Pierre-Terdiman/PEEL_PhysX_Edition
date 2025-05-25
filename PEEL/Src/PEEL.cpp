@@ -495,6 +495,7 @@ CameraData& GetCamera()
 }
 
 typedef PintPlugin* (*GetPintPlugin)	();
+typedef udword		(*GetPintVersion)	();
 
 PintGUIHelper* GetGUIHelper();
 static PintGUIHelper& gGUIHelper = *GetGUIHelper();
@@ -505,6 +506,22 @@ static PintPlugin* LoadPlugIn(const char* filename)
 	if(!IceCore::LoadLibrary_(filename, LibHandle, true) || !LibHandle)
 	{
 		printf("WARNING: plugin %s failed to load.\n", filename);
+		return null;
+	}
+
+	GetPintVersion versionCheck = (GetPintVersion)BindSymbol(LibHandle, "GetPintVersion");
+	if(!versionCheck)
+	{
+		printf("WARNING: plugin %s does not export the GetPintVersion() function. Please add it and recompile. Look up DECLARE_PINT_EXPORTS for details.\n", filename);
+		UnloadLibrary(LibHandle);
+		return null;
+	}
+
+	const udword PintVersion = (versionCheck)();
+	if(PintVersion != PINT_VERSION)
+	{
+		printf("WARNING: plugin %s uses an old incompatible interface (version %d). Please recompile it.\n", filename, PintVersion);
+		UnloadLibrary(LibHandle);
 		return null;
 	}
 
