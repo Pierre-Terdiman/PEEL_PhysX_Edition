@@ -55,7 +55,7 @@
 				bool			LoadFromFile(const char* filename);
 				bool			LoadFile(udword i);
 				void			Release();
-				void			Scale(float s);
+				void			Scale(float sx, float sy, float sz);
 
 				int				mNbVerts;
 				Point*			mVerts;

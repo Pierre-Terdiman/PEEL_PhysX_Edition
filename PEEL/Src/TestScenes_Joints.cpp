@@ -6199,7 +6199,7 @@ class LegoTechnicBuggy : public LegoTechnicVehicle
 
 				MyConvex C;
 				C.LoadFile(i);
-C.Scale(2.0f);
+C.Scale(2.0f, 2.0f, 2.0f);
 
 				// 36 fps
 //				PINT_CONVEX_CREATE Create(C.mNbVerts, C.mVerts);

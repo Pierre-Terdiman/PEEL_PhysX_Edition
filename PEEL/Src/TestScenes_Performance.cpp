@@ -1996,7 +1996,7 @@ class DynamicsOnMeshLevel : public TestBase
 
 			MyConvex C;
 			C.LoadFile(Index);
-			C.Scale(ShapeSize);
+			C.Scale(ShapeSize, ShapeSize, ShapeSize);
 
 			PINT_CONVEX_CREATE ConvexCreate(C.mNbVerts, C.mVerts);
 			ConvexCreate.mRenderer	= CreateConvexRenderer(ConvexCreate.mNbVerts, ConvexCreate.mVerts);

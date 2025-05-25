@@ -87,8 +87,12 @@ bool MyConvex::LoadFile(udword i)
 	return status;
 }
 
-void MyConvex::Scale(float s)
+void MyConvex::Scale(float sx, float sy, float sz)
 {
 	for(int i=0;i<mNbVerts;i++)
-		mVerts[i] *= s;
+	{
+		mVerts[i].x *= sx;
+		mVerts[i].y *= sy;
+		mVerts[i].z *= sz;
+	}
 }
