@@ -492,43 +492,60 @@ void TestBase::CommonRelease()
 	DeleteOwnedObjects<TestData>(mTestData);
 }
 
-IceTabControl* TestBase::CreateOverrideTabControl(const char* name, udword extra_size)
+///////////////////////////////////////////////////////////////////////////////
+
+IceWindow* TestBase::CreateTestWindow(sdword width, sdword height)
 {
 	WindowDesc WD;
 	WD.mParent	= null;
 	WD.mX		= 50;
 	WD.mY		= 50;
-	WD.mWidth	= 300;
-	WD.mHeight	= 200 + extra_size;
-	WD.mLabel	= name;
+	WD.mWidth	= width;
+	WD.mHeight	= height;
+	WD.mLabel	= GetName();
 	WD.mType	= WINDOW_DIALOG;
 	IceWindow* UI = ICE_NEW(IceWindow)(WD);
 	RegisterUIElement(UI);
 	UI->SetVisible(true);
+	return UI;
+}
 
-//	Widgets& UIElems = GetUIElements();
-
-//	const sdword EditBoxWidth = 60;
-	const sdword LabelWidth = 100;
-//	const sdword OffsetX = LabelWidth + 10;
-//	const sdword LabelOffsetY = 2;
-	const sdword YStep = 20;
-	sdword y = 0;
-	y += YStep;
-	AddResetButton(UI, 4, y, WD.mWidth - 16);
+IceTabControl* TestBase::CreateTestTabControlAndResetButton(IceWindow* ui, sdword width, sdword y, udword extra_size)
+{
+	AddResetButton(ui, 4, y, width - 16 - 8);	// ### -8 for new MSVCs
 
 	IceTabControl* TabControl;
 	{
 		TabControlDesc TCD;
-		TCD.mParent	= UI;
+		TCD.mParent	= ui;
 		TCD.mX		= 4;
 		TCD.mY		= y + 30;
-		TCD.mWidth	= WD.mWidth - 16;
+		//TCD.mWidth	= width - 16;
+		TCD.mWidth	= width - 16 - 8;	// ### -8 for new MSVCs
 		TCD.mHeight	= 120 + extra_size;
 		TabControl = ICE_NEW(IceTabControl)(TCD);
 		RegisterUIElement(TabControl);
 	}
 	return TabControl;
+}
+
+IceTabControl* TestBase::CreateOverrideTabControl(const char* name, udword extra_size)
+{
+	const sdword Width = 300;
+	IceWindow* UI = CreateTestWindow(Width, 200 + extra_size);
+
+//	Widgets& UIElems = GetUIElements();
+
+//	const sdword EditBoxWidth = 60;
+//	const sdword LabelWidth = 100;
+//	const sdword OffsetX = LabelWidth + 10;
+//	const sdword LabelOffsetY = 2;
+	const sdword YStep = 20;
+	sdword y = 0;
+
+	y += YStep;
+
+	return CreateTestTabControlAndResetButton(UI, Width, y, extra_size);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

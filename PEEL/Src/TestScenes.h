@@ -292,6 +292,8 @@
 											desc.mCreateDefaultEnvironment = createDefaultEnvironment;
 										}
 		protected:
+				IceWindow*				CreateTestWindow(sdword width, sdword height);
+				IceTabControl*			CreateTestTabControlAndResetButton(IceWindow* ui, sdword width, sdword y, udword extra_size);
 				IceTabControl*			CreateOverrideTabControl(const char* name, udword extra_size);
 	};
 
