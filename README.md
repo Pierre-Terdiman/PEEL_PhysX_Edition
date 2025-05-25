@@ -13,6 +13,16 @@ Because the project supports both very old and very new engines, building everyt
 
 This "PhysX edition" currently only includes plugins for PhysX 4.1.2, PhysX 5.1.0, PhysX 5.4.2, PhysX 5.5.0, PhysX 5.6.0. The older versions are not included so far. Due to the size limits enforced by Github on binary files, the GPU DLLs have been zipped. Just unzip them locally if you need them. You should still be able to run the precompiled binaries on the CPU.
 
+Videos:
+
+[![Watch the video](https://img.youtube.com/vi/0r4i5UjNOQo/maxresdefault.jpg)](https://www.youtube.com/watch?v=0r4i5UjNOQo)
+
+And more:
+
+https://www.youtube.com/watch?v=jHWBD8P58dg
+
+https://www.youtube.com/watch?v=6dATi4-wb3o
+
 Screenshots:
 
 ![alt text](/Screenshots/LegoTechnicBuggy.jpg?raw=true)
