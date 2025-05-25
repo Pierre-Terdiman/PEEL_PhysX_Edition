@@ -15,6 +15,11 @@ This "PhysX edition" currently only includes plugins for PhysX 4.1.2, PhysX 5.1.
 
 Screenshots:
 
+![alt text](/Screenshots/LegoTechnicBuggy.jpg?raw=true)
+![alt text](/Screenshots/LegoTechnicKart.jpg?raw=true)
+![alt text](/Screenshots/JacobsLadder.jpg?raw=true)
+![alt text](/Screenshots/NutAndBolt.jpg?raw=true)
+
 ![alt text](/Screenshots/Screenshot00.jpg?raw=true) ![alt text](/Screenshots/Screenshot01.jpg?raw=true) ![alt text](/Screenshots/Screenshot02.jpg?raw=true)
 ![alt text](/Screenshots/Screenshot03.jpg?raw=true) ![alt text](/Screenshots/Screenshot04.jpg?raw=true) ![alt text](/Screenshots/Screenshot05.jpg?raw=true)
 ![alt text](/Screenshots/Screenshot06.jpg?raw=true) ![alt text](/Screenshots/Screenshot07.jpg?raw=true) ![alt text](/Screenshots/Screenshot08.jpg?raw=true)
