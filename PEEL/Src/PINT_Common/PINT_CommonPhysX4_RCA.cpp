@@ -77,8 +77,18 @@ bool SharedPhysX::AddRCArticulationToScene(PintArticHandle articulation)
 bool SharedPhysX::AddRCArticulationToAggregate(PintArticHandle articulation, PintAggregateHandle aggregate)
 {
 	PxArticulationReducedCoordinate* Articulation = reinterpret_cast<PxArticulationReducedCoordinate*>(articulation);
-	PxAggregate* Aggregate = (PxAggregate*)aggregate;
-	return Aggregate->addArticulation(*Articulation);
+	PxAggregate* Aggregate = reinterpret_cast<PxAggregate*>(aggregate);
+	bool status = Aggregate->addArticulation(*Articulation);
+	if(status)
+	{
+		// AddAggregateToScene already adds links to the actor manager and setup sleeping for rigid bodies.
+		// We only have to setup sleeping for the articulation itself here.
+		//SetupSleeping(Articulation, mParams.mEnableSleeping);
+		//Articulation->wakeUp();	// ### crash
+		if(!mParams.mEnableSleeping)
+			Articulation->setWakeCounter(9999999999.0f);
+	}
+	return status;
 }
 
 static void SetModeAndLimits(const EditableParams& params, PxArticulationJointReducedCoordinate* j, PxArticulationAxis::Enum axis, float min_limit, float max_limit)
@@ -105,38 +115,61 @@ static void SetModeAndLimits(const EditableParams& params, PxArticulationJointRe
 #endif
 }
 
-static void setupJoint(const EditableParams& params, PxArticulationJointReducedCoordinate* j, const PINT_RC_ARTICULATED_BODY_CREATE& bc)
-{
-//	setupJoint(j);
-
-//PxArticulationJointReducedCoordinate
 /*
-		virtual	void								setMotion(PxArticulationAxis::Enum axis, PxArticulationMotion::Enum motion) = 0;
-		virtual	PxArticulationMotion::Enum			getMotion(PxArticulationAxis::Enum axis) const = 0;
-
-		virtual void setLimit(PxArticulationAxis::Enum axis, const PxReal lowLimit, const PxReal highLimit) = 0;
-		virtual void getLimit(PxArticulationAxis::Enum axis, PxReal& lowLimit, PxReal& highLimit) = 0;
-		virtual void setDrive(PxArticulationAxis::Enum axis, const PxReal stiffness, const PxReal damping, const PxReal maxForce, bool isAccelerationDrive = false) = 0;
-		virtual void getDrive(PxArticulationAxis::Enum axis, PxReal& stiffness, PxReal& damping, PxReal& maxForce, bool& isAcceleration) = 0;
-		virtual void setDriveTarget(PxArticulationAxis::Enum axis, const PxReal target) = 0;
-		virtual void setDriveVelocity(PxArticulationAxis::Enum axis, const PxReal targetVel) = 0;
-		virtual PxReal getDriveTarget(PxArticulationAxis::Enum axis) = 0;
-		virtual PxReal getDriveVelocity(PxArticulationAxis::Enum axis) = 0;
-
-		virtual	void			setFrictionCoefficient(const PxReal coefficient) = 0;
-		virtual	PxReal			getFrictionCoefficient() const = 0;
-		virtual	const char*		getConcreteTypeName() const { return "PxArticulationJointReducedCoordinate"; }
-
-		virtual void	setMaxJointVelocity(const PxReal maxJointV) = 0;
-		virtual PxReal	getMaxJointVelocity() const = 0;
+PxArticulationJointReducedCoordinate API:
+		virtual		PxArticulationLink&	getParentArticulationLink() const = 0;
+		virtual		void				setParentPose(const PxTransform& pose) = 0;
+		virtual		PxTransform			getParentPose() const = 0;
+		virtual		PxArticulationLink&	getChildArticulationLink() const = 0;
+		virtual		void				setChildPose(const PxTransform& pose) = 0;
+		virtual		PxTransform			getChildPose() const = 0;
+		virtual		void				setJointType(PxArticulationJointType::Enum jointType) = 0;
+		virtual		PxArticulationJointType::Enum	getJointType() const = 0;
+		virtual		void				setMotion(PxArticulationAxis::Enum axis, PxArticulationMotion::Enum motion) = 0;
+		virtual		PxArticulationMotion::Enum	getMotion(PxArticulationAxis::Enum axis) const = 0;
+		virtual		void				setLimitParams(PxArticulationAxis::Enum axis, const PxArticulationLimit& limit) = 0;
+		virtual		PxArticulationLimit	getLimitParams(PxArticulationAxis::Enum axis) const = 0;
+		virtual		void				setDriveParams(PxArticulationAxis::Enum axis, const PxArticulationDrive& drive) = 0;
+		virtual		PxArticulationDrive	getDriveParams(PxArticulationAxis::Enum axis) const = 0;	
+		virtual		void				setDriveTarget(PxArticulationAxis::Enum axis, const PxReal target, bool autowake = true) = 0;
+		virtual		PxReal				getDriveTarget(PxArticulationAxis::Enum axis) const = 0;	
+		virtual		void				setDriveVelocity(PxArticulationAxis::Enum axis, const PxReal targetVel, bool autowake = true) = 0;
+		virtual		PxReal				getDriveVelocity(PxArticulationAxis::Enum axis) const = 0;	
+		virtual		void				setArmature(PxArticulationAxis::Enum axis, const PxReal armature) = 0;
+		virtual		PxReal				getArmature(PxArticulationAxis::Enum axis) const = 0;
+		virtual	PX_DEPRECATED	void	setFrictionCoefficient(const PxReal coefficient) = 0;
+		virtual	PX_DEPRECATED	PxReal	getFrictionCoefficient() const = 0;
+		virtual void setFrictionParams(PxArticulationAxis::Enum axis, const PxJointFrictionParams& jointFrictionParams) = 0;
+		virtual PxJointFrictionParams getFrictionParams(PxArticulationAxis::Enum axis) const = 0;
+		virtual	 PX_DEPRECATED	void				setMaxJointVelocity(const PxReal maxJointV) = 0;
+		virtual	 PX_DEPRECATED	PxReal				getMaxJointVelocity() const = 0;
+		virtual		void				setMaxJointVelocity(PxArticulationAxis::Enum axis, const PxReal maxJointV) = 0;
+		virtual		PxReal				getMaxJointVelocity(PxArticulationAxis::Enum axis) const = 0;
+		virtual		void				setJointPosition(PxArticulationAxis::Enum axis, const PxReal jointPos) = 0;
+		virtual		PxReal				getJointPosition(PxArticulationAxis::Enum axis) const = 0;
+		virtual		void				setJointVelocity(PxArticulationAxis::Enum axis, const PxReal jointVel) = 0;
+		virtual		PxReal				getJointVelocity(PxArticulationAxis::Enum axis) const = 0;
 */
 
+static void SetupDrive(PxArticulationJointReducedCoordinate* j, const MotorData& data)
+{
+	// Unfortunately this part of the API keeps changing :(
+#ifdef PHYSX_SUPPORT_OLD_4_0_API
+	j->setDrive(data.mAxis, data.mStiffness, data.mDamping, data.mMaxForce, data.mAccelerationDrive);
+#else
+	#if PHYSX_SUPPORT_RCA_NEW_LIMIT_API
+	j->setDriveParams(data.mAxis, PxArticulationDrive(data.mStiffness, data.mDamping, data.mMaxForce, data.mAccelerationDrive ? PxArticulationDriveType::eACCELERATION : PxArticulationDriveType::eFORCE));
+	#else
+	j->setDrive(data.mAxis, data.mStiffness, data.mDamping, data.mMaxForce, data.mAccelerationDrive ? PxArticulationDriveType::eACCELERATION : PxArticulationDriveType::eFORCE);
+	#endif
+#endif
+}
+
+void SharedPhysX::SetupRCAJoint(const EditableParams& params, PxArticulationJointReducedCoordinate* j, const PINT_RC_ARTICULATED_BODY_CREATE& bc)
+{
 	if(bc.mJointType==PINT_JOINT_SPHERICAL)
 	{
 		j->setJointType(PxArticulationJointType::eSPHERICAL);
-//		j->setMotion(PxArticulationAxis::eSWING2, PxArticulationMotion::eFREE);
-//		j->setMotion(PxArticulationAxis::eSWING1, PxArticulationMotion::eFREE);
-//		j->setMotion(PxArticulationAxis::eTWIST, PxArticulationMotion::eFREE);
 		SetModeAndLimits(params, j, PxArticulationAxis::eTWIST, bc.mMinTwistLimit, bc.mMaxTwistLimit);
 		SetModeAndLimits(params, j, PxArticulationAxis::eSWING1, bc.mMinSwing1Limit, bc.mMaxSwing1Limit);
 		SetModeAndLimits(params, j, PxArticulationAxis::eSWING2, bc.mMinSwing2Limit, bc.mMaxSwing2Limit);
@@ -155,22 +188,7 @@ static void setupJoint(const EditableParams& params, PxArticulationJointReducedC
 		else if(bc.mAxisIndex==Z_)
 			Axis = PxArticulationAxis::eZ;
 
-/*		const float MinLimit = bc.mMinLimit;
-		const float MaxLimit = bc.mMaxLimit;
-
-		if(MinLimit>MaxLimit)
-			j->setMotion(Axis, PxArticulationMotion::eFREE);
-		if(MinLimit==MaxLimit)
-			j->setMotion(Axis, PxArticulationMotion::eLOCKED);
-		if(MinLimit<MaxLimit)
-		{
-			j->setMotion(Axis, PxArticulationMotion::eLIMITED);
-			j->setLimit(Axis, MinLimit, MaxLimit);
-		}*/
 		SetModeAndLimits(params, j, Axis, bc.mMinLimit, bc.mMaxLimit);
-
-//		j->setMotion(PxArticulationAxis::eZ, PxArticulationMotion::eLIMITED);
-//		j->setLimit(PxArticulationAxis::eZ, -1.4f, 0.2f);
 	}
 	else if(bc.mJointType==PINT_JOINT_HINGE)
 	{
@@ -184,79 +202,37 @@ static void setupJoint(const EditableParams& params, PxArticulationJointReducedC
 		else if(bc.mAxisIndex==Z_)
 			Axis = PxArticulationAxis::eSWING2;
 
-/*		const float MinLimit = bc.mMinLimit;
-		const float MaxLimit = bc.mMaxLimit;
-
-		if(MinLimit>MaxLimit)
-			j->setMotion(Axis, PxArticulationMotion::eFREE);
-		if(MinLimit==MaxLimit)
-			j->setMotion(Axis, PxArticulationMotion::eLOCKED);
-		if(MinLimit<MaxLimit)
-		{
-			j->setMotion(Axis, PxArticulationMotion::eLIMITED);
-			j->setLimit(Axis, MinLimit, MaxLimit);
-		}*/
 		SetModeAndLimits(params, j, Axis, bc.mMinLimit, bc.mMaxLimit);
 
-		if(bc.mUseMotor)
+		if(bc.mMotorFlags != PINT_MOTOR_NONE)
 		{
-#ifdef PHYSX_SUPPORT_OLD_4_0_API
-			j->setDrive(Axis, bc.mMotor.mStiffness, bc.mMotor.mDamping, bc.mMotor.mMaxForce, bc.mMotor.mAccelerationDrive);
+			// We need to save the motor parameters just to be able to implement SetRCADriveEnabled, as there is bo enable/disable flag to simply disable the drive.
+			MotorData* MD = ICE_NEW(MotorData);
+			MD->mAxis				= Axis;
+			MD->mStiffness			= bc.mMotor.mStiffness;
+			MD->mDamping			= bc.mMotor.mDamping;
+			MD->mMaxForce			= bc.mMotor.mMaxForce;
+			MD->mAccelerationDrive	= bc.mMotor.mAccelerationDrive;
+			mMotorData.push_back(MD);
+#ifdef PHYSX_NO_USERDATA_RCA_JOINT
+			if(!mJointRCA_UserData)
+				mJointRCA_UserData = new PxHashMap<PxArticulationJointReducedCoordinate*, const MotorData*>;
+			mJointRCA_UserData->insert(j, MD);
 #else
-	#if PHYSX_SUPPORT_RCA_NEW_LIMIT_API
-			j->setDriveParams(Axis, PxArticulationDrive(bc.mMotor.mStiffness, bc.mMotor.mDamping, bc.mMotor.mMaxForce, bc.mMotor.mAccelerationDrive ? PxArticulationDriveType::eACCELERATION : PxArticulationDriveType::eFORCE));
-	#else
-			j->setDrive(Axis, bc.mMotor.mStiffness, bc.mMotor.mDamping, bc.mMotor.mMaxForce, bc.mMotor.mAccelerationDrive ? PxArticulationDriveType::eACCELERATION : PxArticulationDriveType::eFORCE);
-	#endif
+			ASSERT(!j->userData);
+			j->userData = MD;
 #endif
+			SetupDrive(j, *MD);
+
 			j->setDriveVelocity(Axis, bc.mTargetVel);
-//			j->userData = 0;
+			j->setDriveTarget(Axis, bc.mTargetPos);
 		}
-
-
-/*		virtual void setDrive(PxArticulationAxis::Enum axis, const PxReal stiffness, const PxReal damping, const PxReal maxForce, bool isAccelerationDrive = false) = 0;
-		virtual void getDrive(PxArticulationAxis::Enum axis, PxReal& stiffness, PxReal& damping, PxReal& maxForce, bool& isAcceleration) = 0;
-		virtual void setDriveTarget(PxArticulationAxis::Enum axis, const PxReal target) = 0;
-		virtual void setDriveVelocity(PxArticulationAxis::Enum axis, const PxReal targetVel) = 0;*/
-
-//	PxD6JointDrive(PxReal driveStiffness, PxReal driveDamping, PxReal driveForceLimit, bool isAcceleration = false)
-
-
-//		j->setDrive(PxArticulationAxis::eTWIST, 0.0f, PX_MAX_F32, PX_MAX_F32, false);
-//		j->setDriveVelocity(PxArticulationAxis::eTWIST, 1.0f);
-
 	}
 	else
 		ASSERT(0);
 
 	j->setFrictionCoefficient(bc.mFrictionCoeff);
 	j->setMaxJointVelocity(bc.mMaxJointVelocity);
-
-/*	j->setSwingLimitEnabled(bc.mEnableSwingLimit);
-	if(bc.mEnableSwingLimit)
-		j->setSwingLimit(bc.mSwingYLimit, bc.mSwingZLimit);
-
-	j->setTwistLimitEnabled(bc.mEnableTwistLimit);
-	if(bc.mEnableTwistLimit)
-		j->setTwistLimit(bc.mTwistLowerLimit, bc.mTwistUpperLimit);
-
-	if(bc.mUseMotor)
-	{
-		if(bc.mMotor.mExternalCompliance!=0.0f)
-			j->setExternalCompliance(bc.mMotor.mExternalCompliance);
-		if(bc.mMotor.mInternalCompliance!=0.0f)
-			j->setInternalCompliance(bc.mMotor.mInternalCompliance);
-		j->setDamping(bc.mMotor.mDamping);
-	#ifdef IS_PHYSX_3_2
-		j->setSpring(bc.mMotor.mStiffness);
-	#else
-		j->setStiffness(bc.mMotor.mStiffness);
-	#endif
-		if(!bc.mMotor.mTargetVelocity.IsNotUsed())
-			j->setTargetVelocity(ToPxVec3(bc.mMotor.mTargetVelocity));
-		if(!bc.mMotor.mTargetOrientation.IsNotUsed())
-			j->setTargetOrientation(ToPxQuat(bc.mMotor.mTargetOrientation));
-	}*/
 }
 
 PintActorHandle SharedPhysX::CreateRCArticulatedObject(const PINT_OBJECT_CREATE& oc, const PINT_RC_ARTICULATED_BODY_CREATE& bc, PintArticHandle articulation)
@@ -270,129 +246,15 @@ PintActorHandle SharedPhysX::CreateRCArticulatedObject(const PINT_OBJECT_CREATE&
 	PxArticulationJointReducedCoordinate* joint = static_cast<PxArticulationJointReducedCoordinate*>(((PxArticulationLink*)h)->getInboundJoint());
 	if(joint)	// Will be null for root link
 	{
+#ifdef PHYSX_NO_USERDATA_RCA_JOINT
+#else
+		joint->userData = null;
+#endif
 		joint->setParentPose(ToPxTransform(bc.mLocalPivot0));
 		joint->setChildPose(ToPxTransform(bc.mLocalPivot1));
-		::setupJoint(mParams, joint, bc);
+		SetupRCAJoint(mParams, joint, bc);
 	}
 	return h;
-}
-
-bool SharedPhysX::SetRCADriveEnabled(PintActorHandle handle, bool flag)
-{
-	PxRigidActor* RigidActor = GetActorFromHandle(handle);
-	if(!RigidActor || RigidActor->getConcreteType()!=PxConcreteType::eARTICULATION_LINK)
-		return false;
-
-	PxArticulationLink* Link = static_cast<PxArticulationLink*>(RigidActor);
-
-	PxArticulationJointReducedCoordinate* j = static_cast<PxArticulationJointReducedCoordinate*>(Link->getInboundJoint());
-
-	// TODO: articulation joints now have user-data (in 5.0), so use them
-//	j->userData = null;
-
-	// Ok this is clumsy: articulation joints don't have userData! So we could have stored the active axis there but instead
-	// we need to figure it out at runtime here (or we could have used a hashmap but that's kind of heavy for nothing)
-	PxArticulationAxis::Enum Axis = PxArticulationAxis::eCOUNT;
-	{
-		if(j->getJointType()!=PxArticulationJointType::eREVOLUTE)
-		{
-			ASSERT(0);	// Not implemented yet
-			return false;
-		}
-
-		if(j->getMotion(PxArticulationAxis::eTWIST)!=PxArticulationMotion::eLOCKED)
-			Axis = PxArticulationAxis::eTWIST;
-		else if(j->getMotion(PxArticulationAxis::eSWING1)!=PxArticulationMotion::eLOCKED)
-			Axis = PxArticulationAxis::eSWING1;
-		else if(j->getMotion(PxArticulationAxis::eSWING2)!=PxArticulationMotion::eLOCKED)
-			Axis = PxArticulationAxis::eSWING2;
-		else
-			return false;	// All 3 axes locked!
-	}
-
-	// TODO: this is so clumsy, can we have a flag please?
-	PxReal stiffness;
-	PxReal damping;
-	PxReal maxForce;
-#ifdef PHYSX_SUPPORT_OLD_4_0_API
-	bool isAcceleration;
-	j->getDrive(Axis, stiffness, damping, maxForce, isAcceleration);
-#else
-	PxArticulationDriveType::Enum driveType;
-	#if PHYSX_SUPPORT_RCA_NEW_LIMIT_API
-	PxArticulationDrive tmp = j->getDriveParams(Axis);
-	stiffness = tmp.stiffness;
-	damping = tmp.damping;
-	maxForce = tmp.maxForce;
-	driveType = tmp.driveType;
-	#else
-	j->getDrive(Axis, stiffness, damping, maxForce, driveType);
-	#endif
-#endif
-	// TODO: hardcoded because gaaaah no userData
-	if(flag)
-#ifdef PHYSX_SUPPORT_OLD_4_0_API
-		j->setDrive(Axis, 0.0f, 1000.0f, FLT_MAX, false);
-#else
-	#if PHYSX_SUPPORT_RCA_NEW_LIMIT_API
-		j->setDriveParams(Axis, PxArticulationDrive(0.0f, 1000.0f, FLT_MAX, PxArticulationDriveType::eFORCE));
-	#else
-		j->setDrive(Axis, 0.0f, 1000.0f, FLT_MAX, PxArticulationDriveType::eFORCE);
-	#endif
-#endif
-	else
-#ifdef PHYSX_SUPPORT_OLD_4_0_API
-		j->setDrive(Axis, 0.0f, 0.0f, maxForce, isAcceleration);
-#else
-		#if PHYSX_SUPPORT_RCA_NEW_LIMIT_API
-		j->setDriveParams(Axis, PxArticulationDrive(0.0f, 0.0f, maxForce, driveType));
-		#else
-		j->setDrive(Axis, 0.0f, 0.0f, maxForce, driveType);
-		#endif
-#endif
-
-//	j->setDriveVelocity(Axis, velocity);
-	return true;
-}
-
-bool SharedPhysX::SetRCADriveVelocity(PintActorHandle handle, float velocity)
-{
-	PxRigidActor* RigidActor = GetActorFromHandle(handle);
-	if(!RigidActor || RigidActor->getConcreteType()!=PxConcreteType::eARTICULATION_LINK)
-		return false;
-
-	PxArticulationLink* Link = static_cast<PxArticulationLink*>(RigidActor);
-
-	PxArticulationJointReducedCoordinate* j = static_cast<PxArticulationJointReducedCoordinate*>(Link->getInboundJoint());
-//	PxArticulationJoint* j = static_cast<PxArticulationJoint*>(Link->getInboundJoint());
-
-//	Joint->userData = 0;
-//	Link->userData = 0;
-//	joint->
-
-	// Ok this is clumsy: articulation joints don't have userData! So we could have stored the active axis there but instead
-	// we need to figure it out at runtime here (or we could have used a hashmap but that's kind of heavy for nothing)
-	PxArticulationAxis::Enum Axis = PxArticulationAxis::eCOUNT;
-	{
-		if(j->getJointType()!=PxArticulationJointType::eREVOLUTE)
-		{
-			ASSERT(0);	// Not implemented yet
-			return false;
-		}
-
-		if(j->getMotion(PxArticulationAxis::eTWIST)!=PxArticulationMotion::eLOCKED)
-			Axis = PxArticulationAxis::eTWIST;
-		else if(j->getMotion(PxArticulationAxis::eSWING1)!=PxArticulationMotion::eLOCKED)
-			Axis = PxArticulationAxis::eSWING1;
-		else if(j->getMotion(PxArticulationAxis::eSWING2)!=PxArticulationMotion::eLOCKED)
-			Axis = PxArticulationAxis::eSWING2;
-		else
-			return false;	// All 3 axes locked!
-	}
-
-//	j->setDrive(Axis, bc.mMotor.mStiffness, bc.mMotor.mDamping, bc.mMotor.mMaxForce, bc.mMotor.mAccelerationDrive);
-	j->setDriveVelocity(Axis, velocity);
-	return true;
 }
 
 // TODO: refactor with CreateJoint
@@ -443,4 +305,67 @@ PintActorHandle SharedPhysX::CreateRCArticulationLink(PxArticulationReducedCoord
 			SetupSleeping(rigidDynamic, mParams.mEnableSleeping);
 	}*/
 	return CreateHandle(actor);
+}
+
+PxArticulationJointReducedCoordinate* SharedPhysX::RetrieveJointData(PintActorHandle handle, MotorData& data)	const
+{
+	PxRigidActor* RigidActor = GetActorFromHandle(handle);
+	if(!RigidActor || RigidActor->getConcreteType()!=PxConcreteType::eARTICULATION_LINK)
+		return null;
+
+	PxArticulationLink* Link = static_cast<PxArticulationLink*>(RigidActor);
+
+	PxArticulationJointReducedCoordinate* j = static_cast<PxArticulationJointReducedCoordinate*>(Link->getInboundJoint());
+	if(!j)
+		return null;
+
+#ifdef PHYSX_NO_USERDATA_RCA_JOINT
+	const MotorData* MD = mJointRCA_UserData ? mJointRCA_UserData->find(j)->second : null;
+#else
+	const MotorData* MD = reinterpret_cast<const MotorData*>(j->userData);
+#endif
+	if(!MD)
+		return null;
+
+	data = *MD;
+
+	return j;
+}
+
+bool SharedPhysX::SetRCADriveEnabled(PintActorHandle handle, bool flag)
+{
+	MotorData MD;
+	PxArticulationJointReducedCoordinate* j = RetrieveJointData(handle, MD);
+	if(!j)
+		return false;
+
+	if(!flag)
+		MD.mStiffness = MD.mDamping = 0.0f;
+
+	SetupDrive(j, MD);
+
+//	j->setDriveVelocity(Axis, velocity);
+	return true;
+}
+
+bool SharedPhysX::SetRCADriveVelocity(PintActorHandle handle, float velocity)
+{
+	MotorData MD;
+	PxArticulationJointReducedCoordinate* j = RetrieveJointData(handle, MD);
+	if(!j)
+		return false;
+
+	j->setDriveVelocity(MD.mAxis, velocity);
+	return true;
+}
+
+bool SharedPhysX::SetRCADrivePosition(PintActorHandle handle, float position)
+{
+	MotorData MD;
+	PxArticulationJointReducedCoordinate* j = RetrieveJointData(handle, MD);
+	if(!j)
+		return false;
+
+	j->setDriveTarget(MD.mAxis, position);
+	return true;
 }

@@ -47,6 +47,15 @@ PxFilterFlags PhysX3_SimulationFilterShader(
 
 	pairFlags = PxPairFlag::eCONTACT_DEFAULT|PxPairFlag::Enum(gFilterShaderExtraPairFlags);
 
+	if(0)
+	{
+		defaultFlags |= PxFilterFlag::eCALLBACK;
+		pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND;
+		pairFlags |= PxPairFlag::eNOTIFY_TOUCH_PERSISTS;
+		pairFlags |= PxPairFlag::eNOTIFY_TOUCH_LOST;
+		pairFlags |= PxPairFlag::eNOTIFY_CONTACT_POINTS;
+	}
+
 	return defaultFlags;
 }
 

@@ -649,7 +649,10 @@ PxSphericalJoint* CreateSphericalJoint(const EditableParams& params, PxPhysics& 
 		if(ValidLimits)
 		{
 			// ### names
-			const PxJointLimitCone limits(jc.mLimits.mMinValue, jc.mLimits.mMaxValue);
+			//const PxJointLimitCone limits(jc.mLimits.mMinValue, jc.mLimits.mMaxValue);
+			//const PxJointLimitCone limits(jc.mLimits.mMinValue, jc.mLimits.mMaxValue, PxSpring(120.0f, 1.0f));
+			const PxJointLimitCone limits(jc.mLimits.mMinValue, jc.mLimits.mMaxValue, PxSpring(1000.0f, 100.0f));
+			//const PxJointLimitCone limits(jc.mLimits.mMinValue, jc.mLimits.mMaxValue, PxSpring(100000.0f, 10000.0f));
 			j->setLimitCone(limits);
 		}
 		j->setSphericalJointFlag(PxSphericalJointFlag::eLIMIT_ENABLED, ValidLimits);

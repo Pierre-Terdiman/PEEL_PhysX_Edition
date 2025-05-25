@@ -442,8 +442,24 @@
 	class MotorData : public Allocateable
 	{
 		public:
-			MotorData();
-			~MotorData();
+			MotorData() :
+				mAxis				(PxArticulationAxis::eCOUNT),
+				mStiffness			(0.0f),
+				mDamping			(0.0f),
+				mMaxForce			(0.0f),
+				mAccelerationDrive	(false)
+			{
+			}
+
+			~MotorData()
+			{
+			}
+
+		PxArticulationAxis::Enum	mAxis;
+		float						mStiffness;
+		float						mDamping;
+		float						mMaxForce;
+		bool						mAccelerationDrive;
 	};
 
 	struct LocalShapeCreationParams
@@ -567,6 +583,7 @@
 		virtual	bool						AddRCArticulationToAggregate(PintArticHandle articulation, PintAggregateHandle aggregate)									override;
 		virtual	bool						SetRCADriveEnabled(PintActorHandle handle, bool flag)																		override;
 		virtual	bool						SetRCADriveVelocity(PintActorHandle handle, float velocity)																	override;
+		virtual	bool						SetRCADrivePosition(PintActorHandle handle, float position)																	override;
 #endif
 
 		virtual	udword						BatchRaycasts				(PintSQThreadContext context, udword nb, PintRaycastHit* dest, const PintRaycastData* raycasts)							override;
@@ -788,6 +805,10 @@
 #else
 		private:
 				PintActorHandle						CreateGroundPlane(const PINT_OBJECT_CREATE& desc);
+#if PHYSX_SUPPORT_RCA
+				void								SetupRCAJoint(const EditableParams& params, PxArticulationJointReducedCoordinate* j, const PINT_RC_ARTICULATED_BODY_CREATE& bc);
+				PxArticulationJointReducedCoordinate*	RetrieveJointData(PintActorHandle handle, MotorData& data)	const;
+#endif
 				PxShape*							CreateSphereShape		(const PINT_SHAPE_CREATE* create, PxRigidActor* actor, const PxSphereGeometry& geometry,		const PxMaterial& material, const PxTransform& local_pose, PxU16 collision_group);
 				PxShape*							CreateBoxShape			(const PINT_SHAPE_CREATE* create, PxRigidActor* actor, const PxBoxGeometry& geometry,			const PxMaterial& material, const PxTransform& local_pose, PxU16 collision_group);
 				PxShape*							CreateCapsuleShape		(const PINT_SHAPE_CREATE* create, PxRigidActor* actor, const PxCapsuleGeometry& geometry,		const PxMaterial& material, const PxTransform& local_pose, PxU16 collision_group);
@@ -821,6 +842,10 @@
 				};
 				std::vector<LocalTorque>	mLocalTorques;
 				std::vector<MotorData*>		mMotorData;
+#ifdef PHYSX_NO_USERDATA_RCA_JOINT
+				// Unfortunately some PhysX versions didn't have userData in PxArticulationJointReducedCoordinate
+				PxHashMap<PxArticulationJointReducedCoordinate*, const MotorData*>*	mJointRCA_UserData;
+#endif
 #if PHYSX_SUPPORT_GEAR_JOINT
 				std::vector<PxGearJoint*>	mGearJoints;
 #endif

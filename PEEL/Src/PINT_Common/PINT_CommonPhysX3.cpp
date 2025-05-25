@@ -188,16 +188,6 @@ PxU32 MemoryInputData::tell() const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-MotorData::MotorData()
-{
-}
-
-MotorData::~MotorData()
-{
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 static const PxQuat q = PxShortestRotation(PxVec3(0.0f, 1.0f, 0.0f), PxVec3(1.0f, 0.0f, 0.0f));
 
 void PhysX3::ComputeCapsuleTransform(PR& dst, const PR& src)
@@ -493,10 +483,34 @@ PintJointHandle SharedPhysX::CreateJoint(PxPhysics& physics, const PINT_JOINT_CR
 					j->setMotion(PxD6Axis::eTWIST, PxD6Motion::eFREE);
 					j->setMotion(PxD6Axis::eSWING1, PxD6Motion::eFREE);
 					j->setMotion(PxD6Axis::eSWING2, PxD6Motion::eFREE);
-
 #if PHYSX_SUPPORT_JOINT_PROJECTION
 					SetupD6Projection(j, enable_projection, projection_linear_tolerance, projection_angular_tolerance);
 #endif
+					const bool ValidLimits = IsSphericalLimitEnabled(jc.mLimits);
+					if(ValidLimits)
+					{
+						// ### names
+						//const PxJointLimitCone limits(jc.mLimits.mMinValue, jc.mLimits.mMaxValue);
+						//const PxJointLimitCone limits(jc.mLimits.mMinValue, jc.mLimits.mMaxValue, PxSpring(120.0f, 1.0f));
+						const PxJointLimitCone limits(jc.mLimits.mMinValue, jc.mLimits.mMaxValue, PxSpring(1000.0f, 100.0f));
+						//const PxJointLimitCone limits(jc.mLimits.mMinValue, jc.mLimits.mMaxValue, PxSpring(100000.0f, 10000.0f));
+						//j->setLimitCone(limits);
+
+						j->setMotion(PxD6Axis::eTWIST, PxD6Motion::eLIMITED);
+						j->setTwistLimit(PxJointAngularLimitPair(-0.1f, 0.1f, PxSpring(1000.0f, 100.0f)));
+
+						j->setMotion(PxD6Axis::eSWING1, PxD6Motion::eLIMITED);
+						j->setMotion(PxD6Axis::eSWING2, PxD6Motion::eLIMITED);
+
+/*						j->setSwingLimit(PxJointLimitCone(MaxSwingY, MaxSwingZ
+#if PHYSX_SUPPORT_JOINT_CONTACT_DISTANCE
+							, ContactDistance
+#endif
+							));*/
+		//					j->setSwingLimit(PxJointLimitCone(MaxSwingY, MaxSwingZ, 0.0f));
+		//					j->setSwingLimit(PxJointLimitCone(MaxSwingY, MaxSwingZ, PxSpring(100.0f, 10.0f)));
+						j->setSwingLimit(PxJointLimitCone(jc.mLimits.mMinValue, jc.mLimits.mMaxValue, PxSpring(1000.0f, 100.0f)));
+					}
 				}
 			}
 			else
@@ -1336,6 +1350,9 @@ SharedPhysX::SharedPhysX(const EditableParams& params, const char* test_name) :
 	mScratchPad				(null),
 	mScratchPadSize			(0),
 #endif
+#ifdef PHYSX_NO_USERDATA_RCA_JOINT
+	mJointRCA_UserData		(null),
+#endif
 #ifndef IS_PHYSX_3_2
 	mInvisibles				(null),
 #endif
@@ -1503,6 +1520,9 @@ void SharedPhysX::CloseCommon()
 		MotorData* MD = mMotorData[i];
 		DELETESINGLE(MD);
 	}
+#ifdef PHYSX_NO_USERDATA_RCA_JOINT
+	PX_DELETE(mJointRCA_UserData);
+#endif
 }
 
 #ifndef IS_PHYSX_3_2
@@ -4657,7 +4677,8 @@ EditableParams::EditableParams() :
 #if PHYSX_SUPPORT_MAX_DEPEN_VELOCITY
 	mMaxDepenVelocity			(3.0f),
 #endif
-	mSleepThreshold				(0.05f),	// 0.05		0.01 / 0.02
+	// With 0.05 the sphere stops on the HF in unrealistic positions. Let's decrease this a bit.
+	mSleepThreshold				(0.04f),	// 0.05		0.01 / 0.02
 #if PHYSX_SUPPORT_STABILIZATION_FLAG
 	mStabilizationThreshold		(0.0025f),	// 0.0025	0.001
 #endif
