@@ -362,6 +362,9 @@ static IceWindow* CreateUI_DoubleDominoEffect(IceWidget* parent, PintGUIHelper& 
 	struct Override{ static void Walker(const IceCheckBox& check_box, bool checked, void* user_data)
 	{
 		gCheckBox_Generic0->SetEnabled(checked);
+#if PHYSX_SUPPORT_IMPROVED_PATCH_FRICTION
+		gCheckBox_Generic1->SetEnabled(checked);
+#endif
 	}};
 	ASSERT(!gCheckBox_Override);
 	gCheckBox_Override = helper.CreateCheckBox(TabWindow, 0, x, y, 200, 20, "Override main panel settings", &owner, true, Override::Walker, null);
@@ -371,6 +374,12 @@ static IceWindow* CreateUI_DoubleDominoEffect(IceWidget* parent, PintGUIHelper& 
 	ASSERT(!gCheckBox_Generic0);
 	gCheckBox_Generic0 = helper.CreateCheckBox(TabWindow, 0, 4, y, CheckBoxWidth, 20, "Enable sleeping", &owner, false, null, null);
 	y += YStep;
+
+#if PHYSX_SUPPORT_IMPROVED_PATCH_FRICTION
+	ASSERT(!gCheckBox_Generic1);
+	gCheckBox_Generic1 = helper.CreateCheckBox(TabWindow, 0, 4, y, CheckBoxWidth, 20, "Improved patch friction", &owner, true, null, null);
+	y += YStep;
+#endif
 
 	return TabWindow;
 }
@@ -688,6 +697,50 @@ static IceWindow* CreateUI_JacobsLadder(IceWidget* parent, PintGUIHelper& helper
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static IceWindow* CreateUI_ChainFountain(IceWidget* parent, PintGUIHelper& helper, Widgets& owner)
+{
+	IceWindow* TabWindow = CreateTabWindow(parent, owner);
+
+	sdword y = 4;
+	sdword x = 4;
+
+	struct Override{ static void ChainFountain(const IceCheckBox& check_box, bool checked, void* user_data)
+	{
+		gEditBox_Generic0->SetEnabled(checked);
+#if PHYSX_SUPPORT_TGS
+		gCheckBox_Generic0->SetEnabled(checked);
+#endif
+		gCheckBox_Generic1->SetEnabled(checked);
+		gCheckBox_Generic2->SetEnabled(checked);
+	}};
+	ASSERT(!gCheckBox_Override);
+	gCheckBox_Override = helper.CreateCheckBox(TabWindow, 0, x, y, 200, 20, "Override main panel settings", &owner, true, Override::ChainFountain, null);
+	y += YStep;
+
+#if PHYSX_SUPPORT_TGS
+	ASSERT(!gCheckBox_Generic0);
+	gCheckBox_Generic0 = helper.CreateCheckBox(TabWindow, 0, 4, y, CheckBoxWidth, 20, "Enable TGS", &owner, true, null, null);
+	y += YStep;
+#endif
+
+	ASSERT(!gCheckBox_Generic1);
+	gCheckBox_Generic1 = helper.CreateCheckBox(TabWindow, 0, 4, y, CheckBoxWidth, 20, "Speculative contacts", &owner, true, null, null);
+	y += YStep;
+
+	ASSERT(!gCheckBox_Generic2);
+	gCheckBox_Generic2 = helper.CreateCheckBox(TabWindow, 0, 4, y, CheckBoxWidth, 20, "Use D6 joints", &owner, true, null, null);
+	y += YStep;
+
+	helper.CreateLabel(TabWindow, 4, y+LabelOffsetY, LabelWidth, 20, "Solver iter pos:", &owner);
+	ASSERT(!gEditBox_Generic0);
+	gEditBox_Generic0 = helper.CreateEditBox(TabWindow, 0, 4+EditBoxX, y, EditBoxWidth, 20, "12", &owner, EDITBOX_INTEGER_POSITIVE, null, null);
+	y += YStep;
+
+	return TabWindow;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 /*static IceWindow* CreateUI_LimitedHingeJoint(IceWidget* parent, PintGUIHelper& helper, Widgets& owner)
 {
 	IceWindow* TabWindow = CreateTabWindow(parent, owner);
@@ -807,6 +860,36 @@ static IceWindow* CreateUI_CCD(IceWidget* parent, PintGUIHelper& helper, Widgets
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static IceWindow* CreateUI_AnymalC(IceWidget* parent, PintGUIHelper& helper, Widgets& owner)
+{
+	IceWindow* TabWindow = CreateTabWindow(parent, owner);
+
+	sdword y = 4;
+	sdword x = 4;
+
+	struct Override{ static void AnymalC(const IceCheckBox& check_box, bool checked, void* user_data)
+	{
+		gEditBox_Generic0->SetEnabled(checked);
+//		gCheckBox_Generic0->SetEnabled(checked);
+	}};
+	ASSERT(!gCheckBox_Override);
+	gCheckBox_Override = helper.CreateCheckBox(TabWindow, 0, x, y, 200, 20, "Override main panel settings", &owner, true, Override::AnymalC, null);
+	y += YStep;
+
+/*	ASSERT(!gCheckBox_Generic0);
+	gCheckBox_Generic0 = helper.CreateCheckBox(TabWindow, 0, 4, y, CheckBoxWidth, 20, "Enable TGS", &owner, true, null, null);
+	y += YStep;*/
+
+	helper.CreateLabel(TabWindow, 4, y+LabelOffsetY, LabelWidth, 20, "Contact offset:", &owner);
+	ASSERT(!gEditBox_Generic0);
+	gEditBox_Generic0 = helper.CreateEditBox(TabWindow, 0, 4+EditBoxX, y, EditBoxWidth, 20, "0.01", &owner, EDITBOX_FLOAT_POSITIVE, null, null);
+	y += YStep;
+
+	return TabWindow;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 static bool IsCCDTest(const char* test_name)
 {
 	return strncmp(test_name, "CCDTest_", 8)==0;
@@ -840,6 +923,9 @@ IceWindow* PhysXPlugIn::InitTestGUI(const char* test_name, IceWidget* parent, Pi
 	if(	strcmp(test_name, "ArticulationDriveVsStaticObstacle")==0
 	||	strcmp(test_name, "HingeJointMotorVsObstacle")==0)		
 		return CreateUI_ArticulationDriveVsStaticObstacle(parent, helper, owner);
+
+	if(	strcmp(test_name, "AnymalC")==0)
+		return CreateUI_AnymalC(parent, helper, owner);
 
 	if(	strcmp(test_name, "CompoundTowerTweaked")==0)
 		return CreateUI_SolverIterPos_Substeps(parent, helper, owner, 32, 2);
@@ -887,7 +973,10 @@ IceWindow* PhysXPlugIn::InitTestGUI(const char* test_name, IceWidget* parent, Pi
 	if(strcmp(test_name, "JacobsLadder")==0)
 		return CreateUI_JacobsLadder(parent, helper, owner);
 
-	if(strcmp(test_name, "AddLocalTorque")==0)
+	if(strcmp(test_name, "ChainFountain")==0)
+		return CreateUI_ChainFountain(parent, helper, owner);
+
+	if(strcmp(test_name, "AddLocalTorque")==0 || strcmp(test_name, "CylinderCompounds")==0 || strcmp(test_name, "Heightfield")==0)
 		return CreateUI_AddLocalTorque(parent, helper, owner);
 
 	if(strcmp(test_name, "FixedJointsTorus")==0)
@@ -981,6 +1070,12 @@ void PhysXPlugIn::ApplyTestUIParams(const char* test_name)
 		return;
 	}
 
+	if(	strcmp(test_name, "AnymalC")==0)
+	{
+		Common_GetFromEditBox(EP.mContactOffset, gEditBox_Generic0, 0.0f, MAX_FLOAT);
+		return;
+	}
+
 	if(	strcmp(test_name, "Walker")==0)
 	{
 		Common_GetFromEditBox(EP.mMaxBiasCoeff, gEditBox_Generic0, 0.0f, MAX_FLOAT);
@@ -990,6 +1085,9 @@ void PhysXPlugIn::ApplyTestUIParams(const char* test_name)
 	if(	strcmp(test_name, "DoubleDominoEffect")==0)
 	{
 		EP.mEnableSleeping = gCheckBox_Generic0->IsChecked();
+#if PHYSX_SUPPORT_IMPROVED_PATCH_FRICTION
+		EP.mImprovedPatchFriction = gCheckBox_Generic1->IsChecked();
+#endif
 		return;
 	}
 
@@ -1089,7 +1187,7 @@ void PhysXPlugIn::ApplyTestUIParams(const char* test_name)
 		return;
 	}
 
-	if(strcmp(test_name, "AddLocalTorque")==0)
+	if(strcmp(test_name, "AddLocalTorque")==0 || strcmp(test_name, "CylinderCompounds")==0 || strcmp(test_name, "Heightfield")==0)
 	{
 #if PHYSX_SUPPORT_STABILIZATION_FLAG
 		EP.mStabilization = gCheckBox_Generic1->IsChecked();
@@ -1113,6 +1211,21 @@ void PhysXPlugIn::ApplyTestUIParams(const char* test_name)
 #if PHYSX_SUPPORT_TGS
 		EP.mTGS = gCheckBox_Generic0->IsChecked();
 #endif
+		udword NbIters;
+		Common_GetFromEditBox(NbIters, gEditBox_Generic0);
+		if(NbIters>EP.mSolverIterationCountPos)
+			EP.mSolverIterationCountPos = NbIters;
+		return;
+	}
+
+	if(strcmp(test_name, "ChainFountain")==0)
+	{
+#if PHYSX_SUPPORT_TGS
+		EP.mTGS = gCheckBox_Generic0->IsChecked();
+#endif
+		EP.mEnableAngularCCD = gCheckBox_Generic1->IsChecked();
+		EP.mUseD6Joint = gCheckBox_Generic2->IsChecked();
+
 		udword NbIters;
 		Common_GetFromEditBox(NbIters, gEditBox_Generic0);
 		if(NbIters>EP.mSolverIterationCountPos)

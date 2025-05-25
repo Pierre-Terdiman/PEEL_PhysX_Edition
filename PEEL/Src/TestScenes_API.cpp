@@ -253,6 +253,7 @@ START_TEST(AngularVelocity, CATEGORY_API, gDesc_AngularVelocity)
 		PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
 		ObjectDesc.mMass		= 1.0f;
 		ObjectDesc.mPosition	= Point(-2.264f, 18.78940f, 3.333f);
+		//ObjectDesc.mAngularVelocity	= Point(0.0f, 0.0f, 10.0f);
 		const PintActorHandle Handle = CreatePintObject(pint, ObjectDesc);
 		pint.mUserData = Handle;
 
@@ -579,7 +580,7 @@ END_TEST(ContactModify)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static const char* gDesc_Compound = "Basic compound.";
+static const char* gDesc_Compound = "Basic compound (whose shapes have an identity local pose).";
 
 START_TEST(Compound, CATEGORY_API, gDesc_Compound)
 
@@ -618,6 +619,161 @@ START_TEST(Compound, CATEGORY_API, gDesc_Compound)
 	}
 
 END_TEST(Compound)
+
+///////////////////////////////////////////////////////////////////////////////
+
+static Quat FromEuler(const float* src)
+{
+	float euler[3];
+	euler[0] = src[0] / 180.0f * PI;
+	euler[1] = src[2] / 180.0f * PI;
+	euler[2] = src[1] / 180.0f * PI;
+
+	Quat quat;
+	quat.Identity();
+
+	// loop over euler angles, accumulate rotations
+	for(int i=0; i<3; i++)
+	{
+		float qrot[4] = {cosf(euler[i]/2.0f), 0, 0, 0};
+		float sa = sinf(euler[i]/2.0f);
+
+		// construct quaternion rotation
+		if(i==0)
+			qrot[1] = sa;
+		else if(i==1)
+			qrot[2] = sa;
+		else if(i==2)
+			qrot[3] = sa;
+
+		// accumulate rotation
+		Quat q(qrot[0], qrot[1], qrot[2], qrot[3]);
+		Quat tmp = q * quat;
+		//Quat tmp = quat * q;
+		quat = tmp;
+	}
+
+	quat.Normalize();
+	return quat;
+}
+
+static const char* gDesc_CylinderCompounds = "Cylinder compounds adapted from a MuJoCo scene.";
+
+START_TEST(CylinderCompounds, CATEGORY_API, gDesc_CylinderCompounds)
+
+	virtual	float	GetRenderData(Point& center)	const	{ return 20.0f;	}
+
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	{
+		return CreateOverrideTabControl("CylinderCompounds", 20);
+	}
+
+	virtual void	GetSceneParams(PINT_WORLD_CREATE& desc)
+	{
+		TestBase::GetSceneParams(desc);
+		desc.mCamera[0] = PintCameraPose(Point(0.98f, 1.91f, 3.82f), Point(-0.24f, -0.26f, -0.94f));
+		SetDefEnv(desc, true);
+	}
+
+	virtual bool	Setup(Pint& pint, const PintCaps& caps)
+	{
+		if(!caps.mSupportRigidBodySimulation || !caps.mSupportCompounds)
+			return false;
+/*
+    <body pos="-.3 0 .3" euler="80 10 0">
+      <freejoint/>
+      <replicate count="30" euler="0 0 12">
+        <geom type="box" pos="0 -.12 0" size=".01315 .005 .1" rgba=".8 0 0 1"/>
+      </replicate>
+    </body>
+*/
+		{
+			const Point BodyPos(-0.3f, 0.3f, 0.0f);
+			const float BodyRot_Euler[3] = { 80.0f, 0.0f, 10.0f };
+			const float Euler_Inc[3] = { 0.0f, 0.0f, 12.0f };
+			const Point LocalPos(0.0f, 0.0f, -0.12f);
+			const Point Size(0.01315f, 0.1f, 0.005f);
+			Replicate(pint, BodyPos, BodyRot_Euler, 30, Euler_Inc, LocalPos, Size, 4.0f);
+		}
+/*
+    <body pos="0 0 .4" euler="20 20 0">
+      <freejoint/>
+      <replicate count="10" euler="0 0 36">
+        <geom type="box" pos="0 -0.067 0" size=".025 .01 .1" rgba="0 .8 0 1"/>
+      </replicate>
+    </body>
+*/
+		{
+			const Point BodyPos(0.0f, 0.4f, 0.0f);
+			const float BodyRot_Euler[3] = { 20.0f, 0.0f, 20.0f };
+			const float Euler_Inc[3] = { 0.0f, 0.0f, 36.0f };
+			const Point LocalPos(0.0f, 0.0f, -0.067f);
+			const Point Size(0.025f, 0.1f, 0.01f);
+			Replicate(pint, BodyPos, BodyRot_Euler, 10, Euler_Inc, LocalPos, Size, 4.0f);
+		}
+/*
+    <body pos=".3 0 .3" euler="30 30 0">
+      <freejoint/>
+      <replicate count="4" euler="0 0 90">
+        <geom type="box" pos="0.005 -0.05 0" size=".05 .005 .08" rgba="0 0 .8 1"/>
+      </replicate>
+    </body>
+*/
+		{
+			const Point BodyPos(0.3f, 0.3f, 0.0f);
+			const float BodyRot_Euler[3] = { 30.0f, 0.0f, 30.0f };
+			const float Euler_Inc[3] = { 0.0f, 0.0f, 90.0f };
+			const Point LocalPos(0.005f, 0.0f, -0.05f);
+			const Point Size(0.05f, 0.08f, 0.005f);
+			Replicate(pint, BodyPos, BodyRot_Euler, 4, Euler_Inc, LocalPos, Size, 4.0f);
+		}
+		return true;
+	}
+
+	void	Replicate(	Pint& pint,
+						const Point& body_pos, const float* body_rot_euler,
+						udword count, const float* euler_inc, const Point& local_pos,
+						const Point& initial_size, float scale)
+	{
+		float Scale = scale;
+		{
+			const Point pos = local_pos * Scale;
+			const Point size = initial_size * scale;
+			PintShapeRenderer* renderer = CreateBoxRenderer(size);
+
+			float a = 0.0f;
+			float b = 0.0f;
+			float c = 0.0f;
+
+			const udword MAX_COUNT = 32;
+			PINT_BOX_CREATE BoxDesc[MAX_COUNT];
+			for(udword i=0;i<count;i++)
+			{
+				float euler[3] = {a,b,c};
+
+				BoxDesc[i].mExtents		= size;
+				BoxDesc[i].mRenderer	= renderer;
+				BoxDesc[i].mLocalRot	= FromEuler(euler);
+				BoxDesc[i].mLocalPos	= pos * Matrix3x3(BoxDesc[i].mLocalRot);
+				//BoxDesc[i].mLocalPos	= Matrix3x3(BoxDesc[i].mLocalRot) * pos;
+				a += euler_inc[0];
+				b += euler_inc[1];
+				c += euler_inc[2];
+				if(i!=count-1)
+					BoxDesc[i].SetNext(&BoxDesc[i+1]);
+			}
+
+			{
+				PINT_OBJECT_CREATE ObjectDesc(BoxDesc);
+				ObjectDesc.mMass		= 1.0f;
+				ObjectDesc.mPosition	= body_pos * Scale;
+				ObjectDesc.mRotation	= FromEuler(body_rot_euler);
+				CreatePintObject(pint, ObjectDesc);
+			}
+		}
+	}
+
+END_TEST(CylinderCompounds)
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -737,6 +893,11 @@ class Heightfield : public HeightfieldTest
 	virtual	TestCategory		GetCategory()					const	{ return CATEGORY_API;		}
 
 	virtual	float	GetRenderData(Point& center)	const	{ return 200.0f;	}
+
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	{
+		return CreateOverrideTabControl("Heightfield", 20);
+	}
 
 	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
 	{
