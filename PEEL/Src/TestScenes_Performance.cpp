@@ -42,17 +42,8 @@ class BoxStackConfigurable : public TestBase//, public PintContactNotifyCallback
 
 	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 300;
-		WD.mHeight	= 300;
-		WD.mLabel	= "Box stacks";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 320;
+		IceWindow* UI = CreateTestWindow(Width, 300);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -128,21 +119,9 @@ class BoxStackConfigurable : public TestBase//, public PintContactNotifyCallback
 			y += YStep;
 
 			y += YStep;
-			AddResetButton(UI, 4, y, WD.mWidth-4*2*2);
 		}
 
-		IceTabControl* TabControl;
-		{
-			TabControlDesc TCD;
-			TCD.mParent	= UI;
-			TCD.mX		= 4;
-			TCD.mY		= y + 30;
-			TCD.mWidth	= WD.mWidth - 16;
-			TCD.mHeight	= 140;
-			TabControl = ICE_NEW(IceTabControl)(TCD);
-			RegisterUIElement(TabControl);
-		}
-		return TabControl;
+		return CreateTestTabControlAndResetButton(UI, Width, y, 20);
 	}
 
 	virtual	const char*		GetSubName()	const
@@ -259,7 +238,7 @@ class BoxContainerConfigurable : public TestBase
 		WD.mX		= 50;
 		WD.mY		= 50;
 		WD.mWidth	= 400;
-		WD.mHeight	= 250;
+		WD.mHeight	= 270;
 		WD.mLabel	= "Box container";
 		WD.mType	= WINDOW_DIALOG;
 		IceWindow* UI = ICE_NEW(IceWindow)(WD);
@@ -369,7 +348,7 @@ class BoxContainerConfigurable : public TestBase
 			y += YStep;
 
 			y += YStep;
-			AddResetButton(UI, 4, y, WD.mWidth-4*2*2);
+			AddResetButton(UI, 4, y, WD.mWidth-24);
 		}
 		return null;
 	}
