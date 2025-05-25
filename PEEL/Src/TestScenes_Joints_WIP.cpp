@@ -3074,11 +3074,14 @@ class MultiBodyVehicle : public VehicleInput
 		const float RCAFriction = GetFloat(0.0f, mEditBox_RCAFriction);	// TODO: tune per joint
 		const float ChassisFriction = GetFloat(1.0f, mEditBox_ChassisFriction);
 
-		const PINT_MATERIAL_CREATE ChassisMaterial(ChassisFriction, ChassisFriction, 0.0f);
-		const PINT_MATERIAL_CREATE UserMaterial(Friction, Friction, 0.0f);
-//		const PINT_MATERIAL_CREATE LowFrictionMaterial(0.2f, 0.2f, 0.0f);
-		const PINT_MATERIAL_CREATE WheelFrontMaterial(WheelFrontFriction, WheelFrontFriction, 0.0f);
-//		const PINT_MATERIAL_CREATE WheelRearMaterial(WheelRearFriction, WheelRearFriction, 0.0f);
+		const float Restitution = 0.0f;
+		//const float RestitutionWheels = -20000.0f;	// compliant contacts
+		const float RestitutionWheels = 0.0f;
+		const PINT_MATERIAL_CREATE ChassisMaterial(ChassisFriction, ChassisFriction, Restitution);
+		const PINT_MATERIAL_CREATE UserMaterial(Friction, Friction, Restitution);
+//		const PINT_MATERIAL_CREATE LowFrictionMaterial(0.2f, 0.2f, Restitution);
+		const PINT_MATERIAL_CREATE WheelFrontMaterial(WheelFrontFriction, WheelFrontFriction, RestitutionWheels);
+//		const PINT_MATERIAL_CREATE WheelRearMaterial(WheelRearFriction, WheelRearFriction, RestitutionWheels);
 
 		const float AutoSpeed = GetFloat(0.0f, mEditBox_Speed);
 		const float MassInertiaCoeff = GetFloat(-1.0f, mEditBox_InertiaCoeff);
@@ -3655,7 +3658,7 @@ class MultiBodyVehicle : public VehicleInput
 						{
 							if(DT == DRIVE_TYPE_4WD || (DT == DRIVE_TYPE_RWD && !IsFront) || (DT == DRIVE_TYPE_FWD && IsFront))
 							{
-								ArticulatedDesc.mUseMotor			= true;
+								ArticulatedDesc.mMotorFlags			= PINT_MOTOR_VELOCITY;
 								//TODO: revisit these
 								ArticulatedDesc.mMotor.mStiffness	= 0.0f;
 								ArticulatedDesc.mMotor.mDamping		= 1000.0f;

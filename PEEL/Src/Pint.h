@@ -1252,6 +1252,7 @@
 		bool	mFixBase;
 	};
 
+	// Motor / drive / actuator.
 	struct PINT_RC_ARTICULATED_MOTOR_CREATE : public Allocateable
 	{
 				PINT_RC_ARTICULATED_MOTOR_CREATE() :
@@ -1266,6 +1267,13 @@
 		float	mDamping;
 		float	mMaxForce;
 		bool	mAccelerationDrive;
+	};
+
+	enum PintMotorFlags
+	{
+		PINT_MOTOR_NONE		=	0,		// Joint has no drive / motor / actuator
+		PINT_MOTOR_VELOCITY	=	(1<<0),	// Joint has a velocity drive 
+		PINT_MOTOR_POSITION	=	(1<<1),	// Joint has a position drive
 	};
 
 	struct PINT_RC_ARTICULATED_BODY_CREATE	: public Allocateable
@@ -1284,8 +1292,9 @@
 											mMaxSwing2Limit		(-1.0f),
 											mFrictionCoeff		(0.5f),
 											mMaxJointVelocity	(1000000.f),
-											mUseMotor			(false),
-											mTargetVel			(0.0f)
+											mMotorFlags			(PINT_MOTOR_NONE),
+											mTargetVel			(0.0f),
+											mTargetPos			(0.0f)
 											{
 												mLocalPivot0.Identity();
 												mLocalPivot1.Identity();
@@ -1310,9 +1319,10 @@
 		float								mFrictionCoeff;		// See PxArticulationJointReducedCoordinate::setFrictionCoefficient()
 		float								mMaxJointVelocity;	// See PxArticulationJointReducedCoordinate::setMaxJointVelocity()
 		//
-		bool								mUseMotor;
+		PintMotorFlags						mMotorFlags;
 		PINT_RC_ARTICULATED_MOTOR_CREATE	mMotor;
 		float								mTargetVel;
+		float								mTargetPos;
 	};
 
 	///////////////////////////////////////////////////////////////////////////
@@ -1700,6 +1710,7 @@
 		virtual	bool				AddRCArticulationToAggregate(PintArticHandle articulation, PintAggregateHandle aggregate)									{ return NotImplemented("AddRCArticulationToAggregate");		}
 		virtual	bool				SetRCADriveEnabled(PintActorHandle handle, bool flag)																		{ return NotImplemented("SetRCADriveEnabled");					}
 		virtual	bool				SetRCADriveVelocity(PintActorHandle handle, float velocity)																	{ return NotImplemented("SetRCADriveVelocity");					}
+		virtual	bool				SetRCADrivePosition(PintActorHandle handle, float position)																	{ return NotImplemented("SetRCADrivePosition");					}
 
 		// Joints - WIP
 		virtual	bool				SetDriveEnabled(PintJointHandle handle, bool flag)									{ return NotImplemented("SetDriveEnabled");				}

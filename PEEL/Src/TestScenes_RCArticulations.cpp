@@ -108,7 +108,8 @@ START_TEST(ScissorLift, CATEGORY_RCARTICULATIONS, gDesc_ScissorLift)
 			base = pint.CreateRCArticulatedObject(ObjectDesc, ArticulatedDesc, RCA);
 		}
 
-		if(0)
+		const bool AddWheels = false;
+		if(AddWheels)
 		{
 			const float WheelRadius = 0.2f;
 			PintShapeRenderer* Renderer = CreateSphereRenderer(WheelRadius);
@@ -147,10 +148,7 @@ START_TEST(ScissorLift, CATEGORY_RCARTICULATIONS, gDesc_ScissorLift)
 				PintActorHandle Wheel = pint.CreateRCArticulatedObject(ObjectDesc, ArticulatedDesc, RCA);
 				(void)Wheel;
 			}
-
 		}
-
-
 
 		//Now create the slider and fixed joints...
 
@@ -855,7 +853,7 @@ static void createMotorizedArm(Pint& pint, float x, float y, float z, udword nb_
 //					ArticulatedDesc.mLocalAxis0		= Point(1.0f, 0.0f, 0.0f);
 //					ArticulatedDesc.mLocalAxis1		= Point(1.0f, 0.0f, 0.0f);
 
-				ArticulatedDesc.mUseMotor			= true;
+				ArticulatedDesc.mMotorFlags			= PINT_MOTOR_VELOCITY;
 //					ArticulatedDesc.mMotor.mStiffness	= 1000.0f;
 //					ArticulatedDesc.mMotor.mDamping		= 100.0f;
 				ArticulatedDesc.mTargetVel			= velocity;
@@ -1012,6 +1010,7 @@ START_TEST(MotorizedHingesBenchmark, CATEGORY_RCARTICULATIONS, gDesc_MotorizedHi
 			return false;
 
 		const udword Nb = 64;
+		//const udword Nb = 16;
 
 		const float ScaleX = 20.0f;
 		const float ScaleZ = 30.0f;
@@ -1019,8 +1018,8 @@ START_TEST(MotorizedHingesBenchmark, CATEGORY_RCARTICULATIONS, gDesc_MotorizedHi
 		{
 			for(udword i=0;i<Nb;i++)
 			{
-				createMotorizedArm(pint, float(i)*ScaleX, 0.0f, float(j)*ScaleZ, 5, null, false);
-				//createMotorizedArm(pint, float(i)*ScaleX, 0.0f, float(j)*ScaleZ, 5, null, true);
+				//createMotorizedArm(pint, float(i)*ScaleX, 0.0f, float(j)*ScaleZ, 5, null, false);
+				createMotorizedArm(pint, float(i)*ScaleX, 0.0f, float(j)*ScaleZ, 5, null, true);
 			}
 		}
 
@@ -1270,7 +1269,7 @@ static void SetupArticBodyDesc(PINT_RC_ARTICULATED_BODY_CREATE& desc)
 		desc.mMotor.mMaxForce = 10000.0f;
 		desc.mMotor.mAccelerationDrive = false;
 
-		desc.mUseMotor = true;
+		desc.mMotorFlags = PINT_MOTOR_VELOCITY;
 		desc.mTargetVel = 0.0f;
 	}
 

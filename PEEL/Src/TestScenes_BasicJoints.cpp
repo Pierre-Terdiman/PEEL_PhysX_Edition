@@ -184,11 +184,11 @@ class BasicJointAPI : public TestBase
 		const udword SelectedIndex = mComboBox_Preset->GetSelectedIndex();
 
 		if(SelectedIndex==0)
-			desc.mCamera[0] = PintCameraPose(Point(7.10f, 22.91f, -10.82f), Point(-0.63f, -0.29f, 0.72f));
+			desc.mCamera[0] = PintCameraPose(Point(7.76f, 23.95f, -11.58f), Point(-0.66f, -0.49f, 0.57f));
 		else if(SelectedIndex==1)
 			desc.mCamera[0] = PintCameraPose(Point(-0.61f, 20.57f, 6.71f), Point(0.12f, -0.20f, -0.97f));
 		else if(SelectedIndex==2)
-			desc.mCamera[0] = PintCameraPose(Point(0.10f, 14.65f, 8.24f), Point(-0.09f, 0.39f, -0.92f));
+			desc.mCamera[0] = PintCameraPose(Point(7.76f, 23.95f, -11.58f), Point(-0.66f, -0.49f, 0.57f));
 		else if(SelectedIndex==3)
 			desc.mCamera[0] = PintCameraPose(Point(5.93f, 20.16f, 5.70f), Point(-0.67f, -0.28f, -0.68f));
 		else if(SelectedIndex==4)
@@ -206,28 +206,32 @@ class BasicJointAPI : public TestBase
 			return false;
 		const udword SelectedIndex = mComboBox_Preset->GetSelectedIndex();
 
+		// We should ideally use extents of different sizes to make sure the local pivots are properly interpreted.
+
 		if(SelectedIndex==0)
 		{
 			if(!caps.mSupportFixedJoints)
 				return false;
 
-			const float BoxSize = 1.0f;
-			const Point Extents(BoxSize, BoxSize, BoxSize);
-
+			const Point Extents(0.5f, 1.0f, 1.5f);
 			PINT_BOX_CREATE BoxDesc(Extents);
 			BoxDesc.mRenderer = CreateBoxRenderer(Extents);
 
-			const Point StaticPos(0.0f, 20.0f, 0.0f);
-			const Point DynamicPos = StaticPos - Extents*2.0f;
+			const Point Extents2(2.0f, 2.5f, 3.0f);
+			PINT_BOX_CREATE BoxDesc2(Extents2);
+			BoxDesc2.mRenderer = CreateBoxRenderer(Extents2);
+
+			const Point StaticPos(1.0f, 20.0f, -1.0f);
+			const Point DynamicPos = StaticPos - Extents - Extents2;
 
 			const PintActorHandle StaticObject = CreateStaticObject(pint, &BoxDesc, StaticPos);
-			const PintActorHandle DynamicObject = CreateDynamicObject(pint, &BoxDesc, DynamicPos);
+			const PintActorHandle DynamicObject = CreateDynamicObject(pint, &BoxDesc2, DynamicPos);
 
 			PINT_FIXED_JOINT_CREATE Desc;
 			Desc.mObject0		= StaticObject;
 			Desc.mObject1		= DynamicObject;
 			Desc.mLocalPivot0	= -Extents;
-			Desc.mLocalPivot1	= Extents;
+			Desc.mLocalPivot1	= Extents2;
 			const PintJointHandle JointHandle = pint.CreateJoint(Desc);
 			ASSERT(JointHandle);
 		}
@@ -260,21 +264,21 @@ class BasicJointAPI : public TestBase
 			if(!caps.mSupportSphericalJoints)
 				return false;
 
-			const float BoxSize = 1.0f;
-			const Point Extents(BoxSize, BoxSize, BoxSize);
-
+			const Point Extents(0.5f, 1.0f, 1.5f);
 			PINT_BOX_CREATE BoxDesc(Extents);
 			BoxDesc.mRenderer = CreateBoxRenderer(Extents);
 
-			const Point StaticPos(0.0f, 20.0f, 0.0f);
-			const Point DynamicPos = StaticPos - Extents*2.0f;
+			const Point Extents2(2.0f, 2.5f, 3.0f);
+			PINT_BOX_CREATE BoxDesc2(Extents2);
+			BoxDesc2.mRenderer = CreateBoxRenderer(Extents2);
 
-//			const PintActorHandle StaticObject = CreateStaticObject(pint, &BoxDesc, StaticPos);
-//			const PintActorHandle DynamicObject = CreateDynamicObject(pint, &BoxDesc, DynamicPos);
-			const PintActorHandle DynamicObject = CreateDynamicObject(pint, &BoxDesc, DynamicPos);
+			const Point StaticPos(1.0f, 20.0f, -1.0f);
+			const Point DynamicPos = StaticPos - Extents - Extents2;
+
 			const PintActorHandle StaticObject = CreateStaticObject(pint, &BoxDesc, StaticPos);
+			const PintActorHandle DynamicObject = CreateDynamicObject(pint, &BoxDesc2, DynamicPos);
 
-			const PintJointHandle JointHandle = pint.CreateJoint(PINT_SPHERICAL_JOINT_CREATE(StaticObject, DynamicObject, -Extents, Extents));
+			const PintJointHandle JointHandle = pint.CreateJoint(PINT_SPHERICAL_JOINT_CREATE(StaticObject, DynamicObject, -Extents, Extents2));
 			ASSERT(JointHandle);
 		}
 		else if(SelectedIndex==3)
@@ -855,6 +859,8 @@ class HingeJointMotor : public TestBase
 			CheckBoxPtr		mCheckBox_EnableMotor;
 			CheckBoxPtr		mCheckBox_EnableUpdate;
 			EditBoxPtr		mEditBox_TargetVel;
+			EditBoxPtr		mEditBox_Stiffness;
+			EditBoxPtr		mEditBox_Damping;
 			ComboBoxPtr		mComboBox_JointType;
 			SliderPtr		mSlider;
 
@@ -871,8 +877,8 @@ class HingeJointMotor : public TestBase
 		WD.mParent	= null;
 		WD.mX		= 50;
 		WD.mY		= 50;
-		WD.mWidth	= 280;
-		WD.mHeight	= 220;
+		WD.mWidth	= 280+10;
+		WD.mHeight	= 220+30;
 		WD.mLabel	= "HingeJointMotor";
 		WD.mType	= WINDOW_DIALOG;
 		IceWindow* UI = ICE_NEW(IceWindow)(WD);
@@ -899,6 +905,16 @@ class HingeJointMotor : public TestBase
 			mEditBox_TargetVel = helper.CreateEditBox(UI, 1, 4+OffsetX, y, EditBoxWidth, 20, "1.0", &UIElems, EDITBOX_FLOAT, null, null);
 			mEditBox_TargetVel->SetEnabled(InitialEnabled);
 			y += YStep;
+
+			helper.CreateLabel(UI, 4, y+LabelOffsetY, LabelWidth, 20, "Stiffness:", &UIElems);
+			mEditBox_Stiffness = helper.CreateEditBox(UI, 1, 4+OffsetX, y, EditBoxWidth, 20, "0.0", &UIElems, EDITBOX_FLOAT, null, null);
+			mEditBox_Stiffness->SetEnabled(InitialEnabled);
+			y += YStep;
+
+			helper.CreateLabel(UI, 4, y+LabelOffsetY, LabelWidth, 20, "Damping:", &UIElems);
+			mEditBox_Damping = helper.CreateEditBox(UI, 1, 4+OffsetX, y, EditBoxWidth, 20, "1000.0", &UIElems, EDITBOX_FLOAT, null, null);
+			mEditBox_Damping->SetEnabled(InitialEnabled);
+			y += YStep;
 		}
 
 		helper.CreateLabel(UI, 4, y+LabelOffsetY, LabelWidth, 20, "Joint type:", &UIElems);
@@ -913,14 +929,13 @@ class HingeJointMotor : public TestBase
 
 		{
 			y += YStep;
-			y += YStep;
 			SliderDesc SD;
 			SD.mStyle	= SLIDER_HORIZONTAL;
 			SD.mID		= 0;
 			SD.mParent	= UI;
 			SD.mX		= 4;
 			SD.mY		= y;
-			SD.mWidth	= WD.mWidth - SD.mX*2;
+			SD.mWidth	= WD.mWidth - 30;
 			SD.mHeight	= 20;
 			SD.mLabel	= "test";
 			mSlider		= ICE_NEW(IceSlider)(SD);
@@ -1010,6 +1025,8 @@ class HingeJointMotor : public TestBase
 			const Point Pivot0	= Disp*0.5f;
 			const Point Pivot1	= -Disp*0.5f;
 			const float TargetVel = GetFloat(1.0f, mEditBox_TargetVel);
+			const float Stiffness = GetFloat(0.0f, mEditBox_Stiffness);
+			const float Damping = GetFloat(1000.0f, mEditBox_Damping);
 
 			if(RCA)
 			{
@@ -1024,10 +1041,9 @@ class HingeJointMotor : public TestBase
 
 				if(EnableMotor)
 				{
-					Desc.mUseMotor			= true;
-					//TODO: revisit these
-					Desc.mMotor.mStiffness	= 0.0f;
-					Desc.mMotor.mDamping	= 1000.0f;
+					Desc.mMotorFlags		= PINT_MOTOR_VELOCITY;
+					Desc.mMotor.mStiffness	= Stiffness;
+					Desc.mMotor.mDamping	= Damping;
 					Desc.mTargetVel			= TargetVel;
 				}
 
@@ -1111,6 +1127,7 @@ class HingeJointMotor : public TestBase
 			const Point AngVel = pint.GetAngularVelocity(LTD->mDynamicObject);
 	//		renderer.print(0.0f, y, text_scale, _F("Angular velocity: %.3f | %.3f | %.3f\n", Float(AngVel.x), Float(AngVel.y), Float(AngVel.z)));
 			renderer.print(0.0f, y, text_scale, _F("Angular velocity: %f\n", AngVel.z));
+			//renderer.print(0.0f, y, text_scale, _F("Angular velocity: %f %f %f\n", AngVel.x, AngVel.y, AngVel.z));
 			y -= text_scale;
 	//		return PrintTwistAngle(pint, renderer, y, text_scale);
 		}
