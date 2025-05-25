@@ -1371,17 +1371,19 @@ float ComputeConstantScale(const Point& pos, const Matrix4x4& view, const Matrix
 	SetupModelViewMatrix();
 	gWireframePass = true;
 	SetMainColor(gWireColor);
+	const PintRenderPass renderPass = PINT_RENDER_PASS_WIREFRAME_OVERLAY;
 	FOR_EACH_ENGINE(i)
 	{
 		if(gEngines[i].mEnabled && gEngines[i].mSupportsCurrentTest)
 		{
 			ASSERT(gEngines[i].mEngine);
 			Pint* Engine = gEngines[i].mEngine;
-			gPintRender->StartRender(gEngines[i].mEngine, &gDefaultControlInterface->mSelMan, PINT_RENDER_PASS_WIREFRAME_OVERLAY);
-				Engine->Render(*gPintRender, PINT_RENDER_PASS_WIREFRAME_OVERLAY);
+			gPintRender->StartRender(gEngines[i].mEngine, &gDefaultControlInterface->mSelMan, renderPass);
+				Engine->Render(*gPintRender, renderPass);
 			gPintRender->EndRender();
 		}
 	}
+
 	gWireframePass = false;
 	SetCameraNearClip(CurrentNearClip);
 	SetupProjectionMatrix();
