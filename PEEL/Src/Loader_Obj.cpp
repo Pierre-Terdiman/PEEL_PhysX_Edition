@@ -82,7 +82,8 @@ namespace
 
 			printf("Found OBJ mesh with %d verts and %d tris\n", mCurrentMesh->GetNbVerts(), mCurrentMesh->GetNbTris());
 
-			mCurrentMesh->Recenter();
+			if(mParams.mRecenter)
+				mCurrentMesh->Recenter();
 			mDatabase.mMeshes.AddPtr(mCurrentMesh);
 			mIndexBase += mCurrentMesh->GetNbVerts();
 			mCurrentMesh = null;
@@ -127,8 +128,11 @@ static bool gParseCallback(const char* command, const ParameterBlock& pb, size_t
 				Ctx->mCurrentMesh = ICE_NEW(WavefrontMesh)(null, Ctx->mCurrentID++);
 
 			const float x = float(::atof(pb[1]));
-			const float y = float(::atof(pb[2]));
-			const float z = float(::atof(pb[3]));
+			float y = float(::atof(pb[2]));
+			float z = float(::atof(pb[3]));
+
+			if(Ctx->mParams.mFlipYZ)
+				TSwap(y, z);
 
 			const float GlobalScale = Ctx->mParams.mScale;
 			Point p(x*GlobalScale, y*GlobalScale, z*GlobalScale);
@@ -143,11 +147,25 @@ static bool gParseCallback(const char* command, const ParameterBlock& pb, size_t
 				Ctx->mCurrentMesh = ICE_NEW(WavefrontMesh)(null, Ctx->mCurrentID++);
 
 			const udword VRef0 = ::atoi(pb[1]);
-			const udword VRef1 = ::atoi(pb[2]);
-			const udword VRef2 = ::atoi(pb[3]);
+			udword VRef1 = ::atoi(pb[2]);
+			udword VRef2 = ::atoi(pb[3]);
+
+			if(Ctx->mParams.mFlipYZ)
+				TSwap(VRef1, VRef2);
+
 			Ctx->mCurrentMesh->mIndices.Add(VRef0-Ctx->mIndexBase-1);
 			Ctx->mCurrentMesh->mIndices.Add(VRef1-Ctx->mIndexBase-1);
 			Ctx->mCurrentMesh->mIndices.Add(VRef2-Ctx->mIndexBase-1);
+		}
+		else if(pb[0]=="vt")
+		{
+			if(!Ctx->mCurrentMesh)
+				Ctx->mCurrentMesh = ICE_NEW(WavefrontMesh)(null, Ctx->mCurrentID++);
+
+			const float u = float(::atof(pb[1]));
+			const float v = float(::atof(pb[2]));
+
+			Ctx->mCurrentMesh->mUVs.AddVertex(Point(u, -v, 0.0f));
 		}
 	}
 	return true;

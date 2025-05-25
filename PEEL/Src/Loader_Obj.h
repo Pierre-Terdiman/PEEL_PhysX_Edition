@@ -48,13 +48,15 @@
 
 	struct WavefrontLoaderParams
 	{
-		WavefrontLoaderParams() : mScale(1.0f), mTransform(Idt), mMergeMeshes(false)
+		WavefrontLoaderParams() : mScale(1.0f), mTransform(Idt), mMergeMeshes(false), mRecenter(true), mFlipYZ(false)
 		{
 		}
 
 		Matrix4x4	mTransform;
 		float		mScale;
 		bool		mMergeMeshes;
+		bool		mRecenter;
+		bool		mFlipYZ;
 	};
 
 	bool	LoadObj(const char* filename, const WavefrontLoaderParams& params, WavefrontDatabase& database);
