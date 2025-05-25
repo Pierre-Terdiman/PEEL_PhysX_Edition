@@ -65,6 +65,7 @@ using namespace physx;
 #define PHYSX_SUPPORT_STABILIZATION_FLAG					1
 #define	PHYSX_SUPPORT_KINE_FILTERING_MODE					1
 #define	PHYSX_SUPPORT_GYROSCOPIC_FORCES						1
+#define PHYSX_SUPPORT_SOLVER_RESIDUALS						0
 // Aggregates
 #define	PHYSX_SUPPORT_GPU_AGGREGATES						1
 // Shapes
@@ -135,11 +136,12 @@ using namespace physx;
 
 
 #if PX_SUPPORT_GPU_PHYSX
-	#define PHYSX_SUPPORT_GPU
+	#define PHYSX_SUPPORT_GPU			1
+	#define PHYSX_SUPPORT_DIRECT_GPU	1
 #endif
 
-#define PHYSX_SUPPORT_GPU_NEW_MEMORY_CONFIG
-#ifdef PHYSX_SUPPORT_GPU
+#define PHYSX_SUPPORT_GPU_NEW_MEMORY_CONFIG	1
+#if PHYSX_SUPPORT_GPU
 	#define BUILD_GPU_DATA	buildGPUData
 #endif
 #define BUILD_GPU_DATA	buildGPUData

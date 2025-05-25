@@ -4455,6 +4455,9 @@ enum PhysXGUIElement
 //	PHYSX_GUI_DRAW_MBP_REGIONS,
 #ifdef PHYSX_SUPPORT_GPU
 	PHYSX_GUI_USE_GPU,
+	#if PHYSX_SUPPORT_DIRECT_GPU
+	PHYSX_GUI_USE_DIRECT_GPU,
+	#endif
 #endif
 	//
 	PHYSX_GUI_NB_THREADS,
@@ -4586,6 +4589,9 @@ EditableParams::EditableParams() :
 	mUseFullPvdConnection		(true),
 #ifdef PHYSX_SUPPORT_GPU
 	mUseGPU						(false),
+	#if PHYSX_SUPPORT_DIRECT_GPU
+	mUseDirectGPU				(false),
+	#endif
 #endif
 	//mGlobalBoxSize			(10000.0f),
 	//mContactOffset			(0.002f),
@@ -5558,6 +5564,11 @@ static void gCheckBoxCallback(const IceCheckBox& check_box, bool checked, void* 
 		case PHYSX_GUI_USE_GPU:
 			gParams.mUseGPU = checked;
 			break;
+	#if PHYSX_SUPPORT_DIRECT_GPU
+		case PHYSX_GUI_USE_DIRECT_GPU:
+			gParams.mUseDirectGPU = checked;
+			break;
+	#endif
 #endif
 //		case PHYSX_GUI_DRAW_MBP_REGIONS:
 //			gVisualizeMBPRegions = checked;
@@ -5875,6 +5886,10 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 #ifdef PHYSX_SUPPORT_GPU
 			helper.CreateCheckBox(TabWindow, PHYSX_GUI_USE_GPU, 4, y, CheckBoxWidth, 20, "Use GPU", gPhysXUI->mPhysXGUI, gParams.mUseGPU, gCheckBoxCallback);
 			y += YStepCB;
+	#if PHYSX_SUPPORT_DIRECT_GPU
+			helper.CreateCheckBox(TabWindow, PHYSX_GUI_USE_DIRECT_GPU, 4, y, CheckBoxWidth, 20, "Use direct GPU", gPhysXUI->mPhysXGUI, gParams.mUseDirectGPU, gCheckBoxCallback);
+			y += YStepCB;
+	#endif
 #endif
 			y += YStepCB;
 

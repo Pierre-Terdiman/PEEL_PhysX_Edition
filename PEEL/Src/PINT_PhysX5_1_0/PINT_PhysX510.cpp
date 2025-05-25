@@ -42,7 +42,9 @@ PxPBDParticleSystem* gParticleSystem = null;
 //	#define USE_NEW_PVD
 #endif
 
-//#define USE_SPY_PROFILER
+#ifdef PEEL_PROFILE
+	//#define USE_SPY_PROFILER
+#endif
 //#define DEBUG_SPY_PROFILER
 #ifdef USE_SPY_PROFILER
 	#include "..\Spy\SpyClient.h"
@@ -165,7 +167,7 @@ static PxPvd* gVisualDebugger = null;
 
 static PxDefaultCpuDispatcher* gDefaultCPUDispatcher = null;
 
-#ifdef PHYSX_SUPPORT_GPU
+#if PHYSX_SUPPORT_GPU
 static PxCudaContextManager* gCudaContextManager = null;
 #endif
 
@@ -441,7 +443,7 @@ void PhysX::Init(const PINT_WORLD_CREATE& desc)
 		sceneDesc.filterShader				= ContactModifySimulationFilterShader;
 #endif
 
-#ifdef PHYSX_SUPPORT_GPU
+#if PHYSX_SUPPORT_GPU
 		if(mParams.mUseGPU)
 		{
 			printf("Using GPU\n");
@@ -458,7 +460,7 @@ void PhysX::Init(const PINT_WORLD_CREATE& desc)
 			sceneDesc.gpuDynamicsConfig.patchStreamCapacity *= 2;
 			sceneDesc.gpuDynamicsConfig.tempBufferCapacity *= 2;*/
 
-	#ifdef PHYSX_SUPPORT_GPU_NEW_MEMORY_CONFIG
+	#if PHYSX_SUPPORT_GPU_NEW_MEMORY_CONFIG
 			sceneDesc.gpuDynamicsConfig.maxRigidContactCount *= 2;
 			sceneDesc.gpuDynamicsConfig.maxRigidPatchCount *= 2;
 	#else
@@ -816,7 +818,7 @@ void PhysX::Close()
 	SAFE_RELEASE(gSceneQuerySystem)
 
 	SAFE_RELEASE(mPhysics)
-#ifdef PHYSX_SUPPORT_GPU
+#if PHYSX_SUPPORT_GPU
 	SAFE_RELEASE(gCudaContextManager);
 #endif
 //	SAFE_RELEASE(mProfileZoneManager)

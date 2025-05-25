@@ -235,6 +235,9 @@
 		{
 			return mUseGPU ? (PxConvexFlag::eCOMPUTE_CONVEX|PxConvexFlag_eGPU_COMPATIBLE) : PxConvexFlag::eCOMPUTE_CONVEX;
 		}
+	#if PHYSX_SUPPORT_DIRECT_GPU
+		bool							mUseDirectGPU;
+	#endif
 #else
 		inline_	PxConvexFlags			GetConvexFlags()	const
 		{

@@ -9,7 +9,7 @@
 #include "stdafx.h"
 #include <delayimp.h>
 
-//#ifdef PHYSX_SUPPORT_GPU
+//#if PHYSX_SUPPORT_GPU
 //#include "Gpu\PxGpu.h"
 //#endif
 
@@ -76,7 +76,7 @@ FARPROC WINAPI delayHook(unsigned dliNotify, PDelayLoadInfo pdli)
 	#endif
 #endif
 
-#ifdef PHYSX_SUPPORT_GPU
+#if PHYSX_SUPPORT_GPU
     		if(strcmp(pdli->szDll, "PhysXGpu_32.dll")==0)
 	#ifdef PEEL_PROFILE
 				return (FARPROC)::LoadLibraryA("PhysXGpuPROFILE_32_5_5_0_GitHub.dll");
@@ -133,7 +133,7 @@ FARPROC WINAPI delayHook(unsigned dliNotify, PDelayLoadInfo pdli)
 	#endif
 #endif
 
-#ifdef PHYSX_SUPPORT_GPU
+#if PHYSX_SUPPORT_GPU
     		if(strcmp(pdli->szDll, "PhysXGpu_64.dll")==0)
 	#ifdef PEEL_PROFILE
 				return (FARPROC)::LoadLibraryA("PhysXGpuPROFILE_64_5_5_0_GitHub.dll");
@@ -165,7 +165,7 @@ PfnDliHook __pfnDliNotifyHook2 = delayHook;
 //#include "pvd/windows/PxWindowsPvdDelayLoadHook.h"
 
 	class MyDelayLoadHook : public PxDelayLoadHook
-#ifdef PHYSX_SUPPORT_GPU
+#if PHYSX_SUPPORT_GPU
 		, public PxGpuLoadHook
 #endif
 	{
@@ -176,7 +176,7 @@ PfnDliHook __pfnDliNotifyHook2 = delayHook;
 			PxSetPhysXCookingDelayLoadHook(this);
 			PxSetPhysXCommonDelayLoadHook(this);
 //			PxPvdSetFoundationDelayLoadHook(this);
-#ifdef PHYSX_SUPPORT_GPU
+#if PHYSX_SUPPORT_GPU
 			PxSetPhysXGpuLoadHook(this);
 //			PxSetPhysXGpuDelayLoadHook(this);
 #endif
@@ -250,7 +250,7 @@ PfnDliHook __pfnDliNotifyHook2 = delayHook;
 			return "PxPvdSDK_32_5_5_0_GitHub.dll";
 		}*/
 
-#ifdef PHYSX_SUPPORT_GPU
+#if PHYSX_SUPPORT_GPU
 		virtual const char* getPhysXGpuDllName() const
 		{
 	#ifndef WIN64

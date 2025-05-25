@@ -116,11 +116,11 @@ using namespace physx;
 
 
 #if PX_SUPPORT_GPU_PHYSX
-	#define PHYSX_SUPPORT_GPU
+	#define PHYSX_SUPPORT_GPU	1
 #endif
 
-#define PHYSX_SUPPORT_GPU_NEW_MEMORY_CONFIG
-#ifdef PHYSX_SUPPORT_GPU
+#define PHYSX_SUPPORT_GPU_NEW_MEMORY_CONFIG	1
+#if PHYSX_SUPPORT_GPU
 	#define BUILD_GPU_DATA	buildGPUData
 #endif
 #define BUILD_GPU_DATA	buildGPUData

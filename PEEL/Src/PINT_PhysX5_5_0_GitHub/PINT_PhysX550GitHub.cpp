@@ -167,7 +167,7 @@ static PxPvd* gVisualDebugger = null;
 
 static PxDefaultCpuDispatcher* gDefaultCPUDispatcher = null;
 
-#ifdef PHYSX_SUPPORT_GPU
+#if PHYSX_SUPPORT_GPU
 static PxCudaContextManager* gCudaContextManager = null;
 #endif
 
@@ -443,11 +443,15 @@ void PhysX::Init(const PINT_WORLD_CREATE& desc)
 		sceneDesc.filterShader				= ContactModifySimulationFilterShader;
 #endif
 
-#ifdef PHYSX_SUPPORT_GPU
+#if PHYSX_SUPPORT_GPU
 		if(mParams.mUseGPU)
 		{
 			printf("Using GPU\n");
 			sceneDesc.flags |= PxSceneFlag::eENABLE_GPU_DYNAMICS;
+	#if PHYSX_SUPPORT_DIRECT_GPU
+			if(mParams.mUseDirectGPU)
+				sceneDesc.flags |= PxSceneFlag::eENABLE_DIRECT_GPU_API;
+	#endif		
 			sceneDesc.broadPhaseType = PxBroadPhaseType::eGPU;
 			// TODO: expose this. More partitions = slower.
 			sceneDesc.gpuMaxNumPartitions = 8;
@@ -460,7 +464,7 @@ void PhysX::Init(const PINT_WORLD_CREATE& desc)
 			sceneDesc.gpuDynamicsConfig.patchStreamCapacity *= 2;
 			sceneDesc.gpuDynamicsConfig.tempBufferCapacity *= 2;*/
 
-	#ifdef PHYSX_SUPPORT_GPU_NEW_MEMORY_CONFIG
+	#if PHYSX_SUPPORT_GPU_NEW_MEMORY_CONFIG
 			sceneDesc.gpuDynamicsConfig.maxRigidContactCount *= 2;
 			sceneDesc.gpuDynamicsConfig.maxRigidPatchCount *= 2;
 	#else
@@ -818,7 +822,7 @@ void PhysX::Close()
 	SAFE_RELEASE(gSceneQuerySystem)
 
 	SAFE_RELEASE(mPhysics)
-#ifdef PHYSX_SUPPORT_GPU
+#if PHYSX_SUPPORT_GPU
 	SAFE_RELEASE(gCudaContextManager);
 #endif
 //	SAFE_RELEASE(mProfileZoneManager)
