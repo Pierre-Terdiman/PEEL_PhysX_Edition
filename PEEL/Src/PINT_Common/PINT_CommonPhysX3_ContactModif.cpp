@@ -145,7 +145,8 @@ void PEEL_ContactModifyCallback::onContactModify(PxContactModifyPair* const pair
 			PxU32	mContactIndex;
 			PxU32	mUserIndex;
 		};
-		_array<DelayedContact> delayed;
+		//_array<DelayedContact> delayed;
+		PxArray<DelayedContact> delayed;
 
 		for(PxU32 i=0;i<count;i++)
 		{

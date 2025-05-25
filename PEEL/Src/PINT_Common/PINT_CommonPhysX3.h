@@ -26,6 +26,13 @@
 #include "PINT_CommonPhysX_FoundationAPI.h"
 #include "PINT_CommonPhysX_Names.h"
 
+#include <Core/RockHashMap.h>
+
+	inline_ u32 ComputeHash(const PintActorHandle p)
+	{
+		return Rock::ComputeHash64(uint64_t(p));
+	}
+
 #ifdef PHYSX_SUPPORT_CHARACTERS2
 	#include "PINT_CommonPhysX3_CCT.h"
 #endif
@@ -820,7 +827,8 @@
 				std::vector<PxRackAndPinionJoint*>	mRackJoints;
 #endif
 #ifndef IS_PHYSX_3_2
-				_hashset<PintActorHandle>*	mInvisibles;
+				PxHashSet<PintActorHandle>*	mInvisibles;
+				//Rock::CoalescedHashSet<PintActorHandle>*	mInvisibles;
 #endif
 
 				Vertices					mDebugVizHelper;

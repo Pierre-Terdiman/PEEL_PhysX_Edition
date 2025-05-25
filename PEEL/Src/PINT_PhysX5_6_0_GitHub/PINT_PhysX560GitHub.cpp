@@ -328,11 +328,40 @@ class MyContactModifyCallback : public PxContactModifyCallback
 #include "..\PINT_Common\PINT_CommonPhysX3_ContactNotif.h"
 static PEEL_SimulationEventCallback gSimulationEventCallback;
 
+void SetupAllocator(Rock::Allocator* allocator);
+
+namespace
+{
+	class RockAllocatorWrapper : public Rock::Allocator
+	{
+		public:
+						RockAllocatorWrapper()	{}
+		virtual			~RockAllocatorWrapper()	{}
+
+		virtual void*	malloc(size_t size, Rock::MemoryType /*type*/)	override
+		{
+			//return _aligned_malloc(size, 16);
+			return gDefaultAllocator->allocate(size, "", "", 0);
+		}
+
+		virtual void*	mallocDebug(size_t size, const char* filename, u32 line, const char* class_name, Rock::MemoryType /*type*/, bool /*from_new*/)	override
+		{
+//			return _aligned_malloc(size, 16);
+			return gDefaultAllocator->allocate(size, class_name, filename, line);
+		}
+
+		virtual void	free(void* memory, bool /*from_new*/)	override
+		{
+//			_aligned_free(memory);
+			gDefaultAllocator->deallocate(memory);
+		}
+	};
+	static RockAllocatorWrapper gWrapper;
+}
+
 void PhysX::Init(const PINT_WORLD_CREATE& desc)
 //PintSceneHandle PhysX::Init(const PINT_WORLD_CREATE& desc)
 {
-	PhysX3::GetOptionsFromOverride(desc.mOverride);
-
 #ifdef USE_LOAD_LIBRARY
 /*	udword FPUEnv[256];
 	FillMemory(FPUEnv, 256*4, 0xff);
@@ -361,6 +390,8 @@ void PhysX::Init(const PINT_WORLD_CREATE& desc)
 //	gDefaultErrorCallback = new PxDefaultErrorCallback;
 	gDefaultAllocator = new PEEL_PhysX3_AllocatorCallback;
 	gDefaultErrorCallback = new PEEL_PhysX3_ErrorCallback;
+
+	SetupAllocator(&gWrapper);
 
 	gSimulationEventCallback.Init(*this, desc.mContactNotifyCallback);
 	gNewContactModifyCallback.Init(*this, desc.mContactModifyCallback, desc.mContactModifyCallback2);

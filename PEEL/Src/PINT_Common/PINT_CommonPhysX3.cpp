@@ -3711,7 +3711,8 @@ PxQueryHitType::Enum SharedPhysX::postFilter(const PxFilterData& filterData, con
 bool SharedPhysX::SetSQFlag(PintActorHandle actor, bool flag)
 {
 	if(!mInvisibles)
-		mInvisibles = new _hashset<PintActorHandle>;
+		mInvisibles = new PxHashSet<PintActorHandle>;
+		//mInvisibles = new Rock::CoalescedHashSet<PintActorHandle>;
 
 	if(flag)
 	{

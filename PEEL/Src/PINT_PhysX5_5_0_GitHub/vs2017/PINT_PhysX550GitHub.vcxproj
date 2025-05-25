@@ -132,8 +132,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\..\Ice\APIs\Ice;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\extensions;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\geometry;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\foundation;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\foundation\unported;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\foundation\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\Common\src;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\common;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\pxtask;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\physxprofilesdk;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\cooking;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\include;..\..\..\..\PEEL_Externals\CL_19759212\GameWorks\Shared\NvFoundation\1.0\trunk\include\stdint;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\foundation\include;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\pvd\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\vehicle;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\PhysXGpu\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\physxextensions\src\serialization\File;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\pvd\include\;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\characterkinematic;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\src;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\src\intersection;..\PINT_PhysX5_5_0_GitHub;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PINT_PHYSX_EXPORTS;PX_PHYSX_CHARACTER_STATIC_LIB;PX_DEBUG;PX_CHECKED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\..\Ice\APIs\Ice;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\extensions;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\geometry;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\foundation;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\foundation\unported;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\foundation\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\Common\src;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\common;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\pxtask;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\physxprofilesdk;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\cooking;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\include;..\..\..\..\PEEL_Externals\CL_19759212\GameWorks\Shared\NvFoundation\1.0\trunk\include\stdint;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\foundation\include;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\pvd\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\vehicle;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\PhysXGpu\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\physxextensions\src\serialization\File;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\pvd\include\;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\characterkinematic;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\src;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\src\intersection;..\PINT_PhysX5_5_0_GitHub;..\;%(AdditionalIncludeDirectories);..\..\Rock\Src\APIs</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PINT_PHYSX_EXPORTS;PX_PHYSX_CHARACTER_STATIC_LIB;PX_DEBUG;PX_CHECKED;%(PreprocessorDefinitions);ROCK_NO_DLL</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <ExceptionHandling />
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -169,8 +169,8 @@ copy ..\..\..\..\PEEL_Externals\5_5_0_GitHub\vc12win32\debug\PhysXFoundation_32.
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\..\Ice\APIs\Ice;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\extensions;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\geometry;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\foundation;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\foundation\unported;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\foundation\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\Common\src;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\common;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\pxtask;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\physxprofilesdk;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\cooking;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\include;..\..\..\..\PEEL_Externals\CL_19759212\GameWorks\Shared\NvFoundation\1.0\trunk\include\stdint;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\foundation\include;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\pvd\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\vehicle;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\PhysXGpu\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\physxextensions\src\serialization\File;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\pvd\include\;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\characterkinematic;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\include;..\PINT_PhysX5_5_0_GitHub;..\;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\src;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\src\intersection;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PINT_PHYSX_EXPORTS;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\..\Ice\APIs\Ice;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\extensions;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\geometry;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\foundation;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\foundation\unported;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\foundation\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\Common\src;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\common;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\pxtask;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\physxprofilesdk;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\cooking;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\include;..\..\..\..\PEEL_Externals\CL_19759212\GameWorks\Shared\NvFoundation\1.0\trunk\include\stdint;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\foundation\include;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\pvd\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\vehicle;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\PhysXGpu\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\physxextensions\src\serialization\File;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\pvd\include\;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\characterkinematic;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\include;..\PINT_PhysX5_5_0_GitHub;..\;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\src;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\src\intersection;%(AdditionalIncludeDirectories);..\..\Rock\Src\APIs</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PINT_PHYSX_EXPORTS;WIN64;%(PreprocessorDefinitions);ROCK_NO_DLL</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <ExceptionHandling />
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -206,8 +206,8 @@ copy ..\..\..\..\PEEL_Externals\5_5_0_GitHub\bin\win.x86_64.vc142.mt\debug\PhysX
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>..\..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\..\Ice\APIs\Ice;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\extensions;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\geometry;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\foundation;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\foundation\unported;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\foundation\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\Common\src;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\common;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\pxtask;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\physxprofilesdk;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\cooking;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\include;..\..\..\..\PEEL_Externals\CL_19759212\GameWorks\Shared\NvFoundation\1.0\trunk\include\stdint;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\foundation\include;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\pvd\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\vehicle;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\PhysXGpu\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\physxextensions\src\serialization\File;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\pvd\include\;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\characterkinematic;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\include;..\PINT_PhysX5_5_0_GitHub;..\;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\src;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\src\intersection;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PINT_PHYSX_EXPORTS;PX_PHYSX_CHARACTER_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\..\Ice\APIs\Ice;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\extensions;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\geometry;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\foundation;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\foundation\unported;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\foundation\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\Common\src;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\common;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\pxtask;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\physxprofilesdk;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\cooking;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\include;..\..\..\..\PEEL_Externals\CL_19759212\GameWorks\Shared\NvFoundation\1.0\trunk\include\stdint;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\foundation\include;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\pvd\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\vehicle;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\PhysXGpu\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\physxextensions\src\serialization\File;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\pvd\include\;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\characterkinematic;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\include;..\PINT_PhysX5_5_0_GitHub;..\;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\src;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\src\intersection;%(AdditionalIncludeDirectories);..\..\Rock\Src\APIs</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PINT_PHYSX_EXPORTS;PX_PHYSX_CHARACTER_STATIC_LIB;%(PreprocessorDefinitions);ROCK_NO_DLL</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling />
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -254,8 +254,8 @@ copy ..\..\..\..\PEEL_Externals\5_5_0_GitHub\vc12win32\release\PhysXFoundation_3
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>..\..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\..\Ice\APIs\Ice;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\extensions;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\geometry;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\foundation;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\foundation\unported;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\foundation\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\Common\src;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\common;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\pxtask;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\physxprofilesdk;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\cooking;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\include;..\..\..\..\PEEL_Externals\CL_19759212\GameWorks\Shared\NvFoundation\1.0\trunk\include\stdint;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\foundation\include;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\pvd\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\vehicle;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\PhysXGpu\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\physxextensions\src\serialization\File;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\pvd\include\;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\characterkinematic;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\include;..\PINT_PhysX5_5_0_GitHub;..\;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\src;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\src\intersection;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PINT_PHYSX_EXPORTS;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\..\Ice\APIs\Ice;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\extensions;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\geometry;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\foundation;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\foundation\unported;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\foundation\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\Common\src;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\common;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\pxtask;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\physxprofilesdk;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\cooking;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\include;..\..\..\..\PEEL_Externals\CL_19759212\GameWorks\Shared\NvFoundation\1.0\trunk\include\stdint;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\foundation\include;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\pvd\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\vehicle;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\PhysXGpu\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\physxextensions\src\serialization\File;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\pvd\include\;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\characterkinematic;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\include;..\PINT_PhysX5_5_0_GitHub;..\;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\src;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\src\intersection;%(AdditionalIncludeDirectories);..\..\Rock\Src\APIs</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PINT_PHYSX_EXPORTS;WIN64;%(PreprocessorDefinitions);ROCK_NO_DLL</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling />
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -297,8 +297,8 @@ copy ..\..\..\..\PEEL_Externals\5_5_0_GitHub\bin\win.x86_64.vc142.mt\release\Phy
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>..\..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\..\Ice\APIs\Ice;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\extensions;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\geometry;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\foundation;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\foundation\unported;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\foundation\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\Common\src;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\common;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\pxtask;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\physxprofilesdk;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\cooking;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\include;..\..\..\..\PEEL_Externals\CL_19759212\GameWorks\Shared\NvFoundation\1.0\trunk\include\stdint;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\foundation\include;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\pvd\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\vehicle;..\..\..\..\PEEL_Externals\VC9;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\PhysXGpu\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\physxextensions\src\serialization\File;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\pvd\include\;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\characterkinematic;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\include;..\PINT_PhysX5_1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PINT_PHYSX_EXPORTS;PINT_SUPPORT_PVD;PX_PHYSX_CHARACTER_STATIC_LIB;PEEL_PROFILE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\..\Ice\APIs\Ice;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\extensions;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\geometry;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\foundation;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\foundation\unported;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\foundation\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\Common\src;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\common;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\pxtask;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\physxprofilesdk;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\cooking;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\include;..\..\..\..\PEEL_Externals\CL_19759212\GameWorks\Shared\NvFoundation\1.0\trunk\include\stdint;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\foundation\include;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\pvd\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\vehicle;..\..\..\..\PEEL_Externals\VC9;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\PhysXGpu\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\physxextensions\src\serialization\File;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\pvd\include\;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\characterkinematic;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\include;..\PINT_PhysX5_1;%(AdditionalIncludeDirectories);..\..\Rock\Src\APIs</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PINT_PHYSX_EXPORTS;PINT_SUPPORT_PVD;PX_PHYSX_CHARACTER_STATIC_LIB;PEEL_PROFILE;%(PreprocessorDefinitions);ROCK_NO_DLL</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling />
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -345,8 +345,8 @@ copy ..\..\..\..\PEEL_Externals\5_5_0_GitHub\Bin\vc12win32\PhysXFoundationPROFIL
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>..\..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\..\Ice\APIs\Ice;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\extensions;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\geometry;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\foundation;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\foundation\unported;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\foundation\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\Common\src;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\common;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\pxtask;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\physxprofilesdk;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\cooking;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\include;..\..\..\..\PEEL_Externals\CL_19759212\GameWorks\Shared\NvFoundation\1.0\trunk\include\stdint;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\foundation\include;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\pvd\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\vehicle;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\PhysXGpu\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\physxextensions\src\serialization\File;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\pvd\include\;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\characterkinematic;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\include;..\PINT_PhysX5_5_0_GitHub;..\;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\src;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\src\intersection;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;WIN64;PINT_PHYSX_EXPORTS;PINT_SUPPORT_PVD;PEEL_PROFILE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\..\Ice\APIs\Ice;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\extensions;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\geometry;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\foundation;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\foundation\unported;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\foundation\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\Common\src;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\common;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\pxtask;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\physxprofilesdk;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\cooking;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\include;..\..\..\..\PEEL_Externals\CL_19759212\GameWorks\Shared\NvFoundation\1.0\trunk\include\stdint;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\foundation\include;..\..\..\..\PEEL_Externals\5_1\PxShared\trunk\src\pvd\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\vehicle;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Source\PhysXGpu\include;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\physxextensions\src\serialization\File;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\pvd\include\;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Include\characterkinematic;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\include;..\PINT_PhysX5_5_0_GitHub;..\;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\src;..\..\..\..\PEEL_Externals\5_5_0_GitHub\source\geomutils\src\intersection;%(AdditionalIncludeDirectories);..\..\Rock\Src\APIs</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;WIN64;PINT_PHYSX_EXPORTS;PINT_SUPPORT_PVD;PEEL_PROFILE;%(PreprocessorDefinitions);ROCK_NO_DLL</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling />
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -421,6 +421,118 @@ copy ..\..\..\..\PEEL_Externals\5_5_0_GitHub\bin\win.x86_64.vc142.mt\profile\Phy
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\..\Rock\Src\APIs\Core\RockAllocator.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\Rock\Src\APIs\Core\RockArray.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\Rock\Src\APIs\Core\RockAssert.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\Rock\Src\APIs\Core\RockBitmap.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\Rock\Src\APIs\Core\RockFormat.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\Rock\Src\APIs\Core\RockFPU.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\Rock\Src\APIs\Core\RockHash.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\Rock\Src\APIs\Core\RockHashMap.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\Rock\Src\APIs\Core\RockLog.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\Rock\Src\APIs\Core\RockPlatform.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\Rock\Src\APIs\Core\RockQPC.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\Rock\Src\APIs\Core\RockSort.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\Rock\Src\APIs\Core\RockString.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\Rock\Src\APIs\Core\RockTimer.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\DelayLoad.cpp" />
     <ClCompile Include="..\PINT_PhysX550GitHub.cpp" />
     <ClCompile Include="..\stdafx.cpp">
@@ -462,6 +574,29 @@ copy ..\..\..\..\PEEL_Externals\5_5_0_GitHub\bin\win.x86_64.vc142.mt\profile\Phy
     <ClInclude Include="..\..\PINT_Common\PINT_Ice.h" />
     <ClInclude Include="..\..\PINT_Common\PortalJoint5.h" />
     <ClInclude Include="..\..\PINT_Common\PxPortalJoint.h" />
+    <ClInclude Include="..\..\Rock\Src\APIs\Core\RockAllocator.h" />
+    <ClInclude Include="..\..\Rock\Src\APIs\Core\RockArray.h" />
+    <ClInclude Include="..\..\Rock\Src\APIs\Core\RockAssert.h" />
+    <ClInclude Include="..\..\Rock\Src\APIs\Core\RockBitmap.h" />
+    <ClInclude Include="..\..\Rock\Src\APIs\Core\RockBitUtils.h" />
+    <ClInclude Include="..\..\Rock\Src\APIs\Core\RockCommon.h" />
+    <ClInclude Include="..\..\Rock\Src\APIs\Core\RockCore.h" />
+    <ClInclude Include="..\..\Rock\Src\APIs\Core\RockCoreTemplates.h" />
+    <ClInclude Include="..\..\Rock\Src\APIs\Core\RockFormat.h" />
+    <ClInclude Include="..\..\Rock\Src\APIs\Core\RockFPU.h" />
+    <ClInclude Include="..\..\Rock\Src\APIs\Core\RockHash.h" />
+    <ClInclude Include="..\..\Rock\Src\APIs\Core\RockHashMap.h" />
+    <ClInclude Include="..\..\Rock\Src\APIs\Core\RockLog.h" />
+    <ClInclude Include="..\..\Rock\Src\APIs\Core\RockMemory.h" />
+    <ClInclude Include="..\..\Rock\Src\APIs\Core\RockPlatform.h" />
+    <ClInclude Include="..\..\Rock\Src\APIs\Core\RockPreprocessor.h" />
+    <ClInclude Include="..\..\Rock\Src\APIs\Core\RockQPC.h" />
+    <ClInclude Include="..\..\Rock\Src\APIs\Core\RockSettings.h" />
+    <ClInclude Include="..\..\Rock\Src\APIs\Core\RockSort.h" />
+    <ClInclude Include="..\..\Rock\Src\APIs\Core\RockSpy.h" />
+    <ClInclude Include="..\..\Rock\Src\APIs\Core\RockString.h" />
+    <ClInclude Include="..\..\Rock\Src\APIs\Core\RockTimer.h" />
+    <ClInclude Include="..\..\Rock\Src\APIs\Core\RockTypes.h" />
     <ClInclude Include="..\PINT_PhysX550GitHub.h" />
     <ClInclude Include="..\stdafx.h" />
   </ItemGroup>
