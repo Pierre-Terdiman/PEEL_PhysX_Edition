@@ -115,7 +115,7 @@ START_TEST(DisplayConvexes, CATEGORY_UNDEFINED, gDesc_DisplayConvexes)
 			C.LoadFile(i);
 
 			PINT_CONVEX_CREATE ConvexCreate(C.mNbVerts, C.mVerts);
-			ConvexCreate.mRenderer	= CreateConvexRenderer(ConvexCreate.mNbVerts, ConvexCreate.mVerts);
+			ConvexCreate.mRenderer	= CreateRenderer(ConvexCreate);
 
 			PINT_OBJECT_CREATE ObjectDesc(&ConvexCreate);
 			ObjectDesc.mMass		= 0.0f;
@@ -129,14 +129,14 @@ END_TEST(DisplayConvexes)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static const char* gDesc_DisplayAllShapes = "Display standard shapes. This is just to test rendering options.";
+static const char* gDesc_DisplayAllShapes = "Display standard shapes. This is just to test rendering options. Note that it will only create cylinders, convex meshes and triangle meshes for plugins that do support them.";
 
 START_TEST(DisplayAllShapes, CATEGORY_UNDEFINED, gDesc_DisplayAllShapes)
 
 	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
 	{
 		TestBase::GetSceneParams(desc);
-		desc.mCamera[0] = PintCameraPose(Point(-1.62f, 5.24f, -5.53f), Point(0.60f, -0.58f, 0.54f));
+		desc.mCamera[0] = PintCameraPose(Point(-1.25f, 6.64f, -4.21f), Point(0.63f, -0.60f, 0.49f));
 		SetDefEnv(desc, true);
 	}
 
@@ -151,9 +151,6 @@ START_TEST(DisplayAllShapes, CATEGORY_UNDEFINED, gDesc_DisplayAllShapes)
 
 	virtual bool	Setup(Pint& pint, const PintCaps& caps)
 	{
-		if(!caps.mSupportConvexes || !caps.mSupportMeshes)
-			return false;
-
 		const float IncX = 3.0f;
 		float x = 2.5f;
 		{
@@ -171,7 +168,7 @@ START_TEST(DisplayAllShapes, CATEGORY_UNDEFINED, gDesc_DisplayAllShapes)
 		{
 			const float Size = 1.0f;
 			PINT_BOX_CREATE Create(Point(Size, Size, Size));
-			Create.mRenderer	= CreateBoxRenderer(Create.mExtents);
+			Create.mRenderer	= CreateRenderer(Create);
 			CreateStaticObject(pint, &Create, Point(x, Size, 0.0f), null, "Box");
 			x += IncX;
 		}
@@ -180,22 +177,36 @@ START_TEST(DisplayAllShapes, CATEGORY_UNDEFINED, gDesc_DisplayAllShapes)
 			const float Radius = 0.5f;
 			const float HalfHeight = 0.5f;
 			PINT_CAPSULE_CREATE Create(Radius, HalfHeight);
-			Create.mRenderer	= CreateCapsuleRenderer(Radius, HalfHeight*2.0f);
+			Create.mRenderer	= CreateRenderer(Create);
 			CreateStaticObject(pint, &Create, Point(x, Radius+HalfHeight, 0.0f), null, "Capsule");
 			x += IncX;
 		}
 
+		if(caps.mSupportCylinders)
+		{
+			const float Radius = 0.5f;
+			const float HalfHeight = 0.5f;
+			PINT_CYLINDER_CREATE Create(Radius, HalfHeight);
+			Create.mRenderer	= CreateRenderer(Create);
+			CreateStaticObject(pint, &Create, Point(x, HalfHeight, 0.0f), null, "Cylinder");
+		}
+		x += IncX;
+
+		if(caps.mSupportConvexes)
 		{
 			MyConvex C;
 			C.LoadFile(2);
 
 			PINT_CONVEX_CREATE Create(C.mNbVerts, C.mVerts);
-			Create.mRenderer	= CreateConvexRenderer(Create.mNbVerts, Create.mVerts);
+			Create.mRenderer	= CreateRenderer(Create);
 
 			CreateStaticObject(pint, &Create, Point(x, 1.0f, 0.0f), null, "Convex");
-			x += IncX;
 		}
-		return CreateMeshesFromRegisteredSurfaces(pint, caps, null, null, "Mesh");
+		x += IncX;
+
+		if(caps.mSupportMeshes)
+			CreateMeshesFromRegisteredSurfaces(pint, caps, null, null, "Mesh");
+		return true;
 	}
 
 END_TEST(DisplayAllShapes)
