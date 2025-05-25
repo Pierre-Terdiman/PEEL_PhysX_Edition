@@ -10,6 +10,7 @@
 #define TEST_SCENES_HELPERS_H
 
 #include "Pint.h"
+#include "PintShapeRenderer.h"
 
 //	static const float gValveScale = 0.01f;
 	static const float gValveScale = 1.0f;
@@ -169,5 +170,12 @@
 	float PrintAngularVelocity(Pint& pint, GLFontRenderer& renderer, PintActorHandle handle, float y, float text_scale);
 
 	bool GetHingeTwistAngle(Pint& pint, PintJointHandle handle, float& angle);
+
+	// Convenience wrappers
+	inline_ PintShapeRenderer* CreateRenderer(const PINT_SPHERE_CREATE& sphere)		{ return CreateSphereRenderer(sphere.mRadius);									}
+	inline_ PintShapeRenderer* CreateRenderer(const PINT_BOX_CREATE& box)			{ return CreateBoxRenderer(box.mExtents);										}
+	inline_ PintShapeRenderer* CreateRenderer(const PINT_CAPSULE_CREATE& capsule)	{ return CreateCapsuleRenderer(capsule.mRadius, capsule.mHalfHeight*2.0f);		}
+	inline_ PintShapeRenderer* CreateRenderer(const PINT_CYLINDER_CREATE& cylinder)	{ return CreateCylinderRenderer(cylinder.mRadius, cylinder.mHalfHeight * 2.0f);	}
+	inline_ PintShapeRenderer* CreateRenderer(const PINT_CONVEX_CREATE& convex)		{ return CreateConvexRenderer(convex.mNbVerts, convex.mVerts);					}
 
 #endif

@@ -9,7 +9,6 @@
 #include "stdafx.h"
 #include "PEEL.h"
 #include "PEEL_MenuBar.h"
-#include "PintShapeRenderer.h"
 #include "TestScenes.h"
 #include "TestScenesHelpers.h"
 #include "PintObjectsManager.h"

@@ -7,7 +7,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "PintShapeRenderer.h"
 #include "TestScenes.h"
 #include "TestScenesHelpers.h"
 #include "PintSQ.h"

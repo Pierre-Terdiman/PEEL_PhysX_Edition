@@ -8,7 +8,6 @@
 
 #include "stdafx.h"
 #include "TestScenesHelpers.h"
-#include "PintShapeRenderer.h"
 #include "MyConvex.h"
 #include "PintObjectsManager.h"
 #include "TestScenes.h"
@@ -299,7 +298,7 @@ bool CreateSeaOfStaticConvexes(Pint& pint, const PintCaps& caps, udword nb_x, ud
 	C.LoadFile(i);
 
 	PINT_CONVEX_CREATE ConvexCreate(C.mNbVerts, C.mVerts);
-	ConvexCreate.mRenderer	= CreateConvexRenderer(ConvexCreate.mNbVerts, ConvexCreate.mVerts);
+	ConvexCreate.mRenderer	= CreateRenderer(ConvexCreate);
 
 	const float Scale = 3.0f;
 	for(udword y=0;y<nb_y;y++)

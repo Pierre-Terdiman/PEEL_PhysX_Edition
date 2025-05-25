@@ -1756,8 +1756,6 @@ END_TEST(SceneRaycastVsStaticHeightfield)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "PintShapeRenderer.h"
-
 // https://github.com/NVIDIAGameWorks/PhysX/issues/550
 
 static const char* gDesc_RaycastBugGithub550 = "Repro for raycast bug reported on Github.";

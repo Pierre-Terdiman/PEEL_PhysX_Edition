@@ -8,7 +8,6 @@
 
 #include "stdafx.h"
 #include "Cylinder.h"
-#include "PintShapeRenderer.h"
 #include "TestScenes.h"
 #include "TestScenesHelpers.h"
 #include "GUI_Helpers.h"

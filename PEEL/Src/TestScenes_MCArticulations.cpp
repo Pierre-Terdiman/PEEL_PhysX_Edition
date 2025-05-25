@@ -9,7 +9,6 @@
 #include "stdafx.h"
 #include "Camera.h"
 #include "Cylinder.h"
-#include "PintShapeRenderer.h"
 #include "TestScenes.h"
 #include "TestScenesHelpers.h"
 #include "PintObjectsManager.h"

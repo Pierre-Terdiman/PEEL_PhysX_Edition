@@ -8,12 +8,9 @@
 
 #include "stdafx.h"
 #include "PEEL.h"
-#include "PintShapeRenderer.h"
 #include "TestScenes.h"
-//#include "TestScenesHelpers.h"
 #include "PintObjectsManager.h"
 #include "MyConvex.h"
-//#include "Loader_Bin.h"
 #include "GUI_Helpers.h"
 #include "Camera.h"
 #include "PintSQ.h"

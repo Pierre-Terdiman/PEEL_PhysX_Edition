@@ -10,7 +10,6 @@
 #include "TestScenes.h"
 #include "TestScenesHelpers.h"
 #include "PintObjectsManager.h"
-#include "PintShapeRenderer.h"
 #include "Loader_Bin.h"
 #include "Loader_RepX.h"
 

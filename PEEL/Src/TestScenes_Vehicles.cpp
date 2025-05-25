@@ -8,7 +8,6 @@
 
 #include "stdafx.h"
 #include "PEEL.h"
-#include "PintShapeRenderer.h"
 #include "Camera.h"
 #include "TestScenes_VehiclesBase.h"
 #include "TestScenesHelpers.h"

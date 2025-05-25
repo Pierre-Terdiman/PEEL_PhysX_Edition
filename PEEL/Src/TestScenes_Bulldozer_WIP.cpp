@@ -8,7 +8,6 @@
 
 #include "stdafx.h"
 #include "Cylinder.h"
-#include "PintShapeRenderer.h"
 #include "TestScenes_VehiclesBase.h"
 #include "TestScenesHelpers.h"
 #include "PintObjectsManager.h"

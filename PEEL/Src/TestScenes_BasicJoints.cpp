@@ -7,16 +7,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "PintShapeRenderer.h"
 #include "TestScenes.h"
-//#include "TestScenes_VehiclesBase.h"
 #include "TestScenesHelpers.h"
 #include "PintObjectsManager.h"
-//#include "Loader_Bin.h"
 #include "GUI_Helpers.h"
-//#include "Cylinder.h"
 #include "GLFontRenderer.h"
-//#include "ZB2Import.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -1159,7 +1159,6 @@ END_TEST(CapsuleOverlapAny_TestZone)
 
 #include "TestScenes_Heightfield.h"
 #include "MyConvex.h"
-#include "PintShapeRenderer.h"
 
 class SceneOverlapAnyVsStaticHeightfield : public HeightfieldTest
 {

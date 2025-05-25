@@ -8,10 +8,7 @@
 
 #include "stdafx.h"
 #include "TestScenes.h"
-//#include "TestScenesHelpers.h"
-//#include "Loader_Bin.h"
 #include "PintSQ.h"
-//#include "PintShapeRenderer.h"
 #include "ZB2Import.h"
 
 ///////////////////////////////////////////////////////////////////////////////
