@@ -37,21 +37,21 @@ PEEL_PhysX3_AllocatorCallback::~PEEL_PhysX3_AllocatorCallback()
 	}
 }
 
-static int atomicIncrement(volatile int* val)
+static inline_ int atomicIncrement(volatile int* val)
 {
 	return (int)InterlockedIncrement((volatile LONG*)val);
 }
 
-static int atomicDecrement(volatile int* val)
+static inline_ int atomicDecrement(volatile int* val)
 {
 	return (int)InterlockedDecrement((volatile LONG*)val);
 }
 
-static int atomicAdd(volatile int* val, int delta)
+static inline_ int atomicAdd(volatile int* val, int delta)
 {
-#if PHYSX_IMM_SUPPORT_INTERLOCKED_ADD
+//#if PHYSX_IMM_SUPPORT_INTERLOCKED_ADD
 	return (PxI32)InterlockedAdd((volatile LONG*)val, delta);
-#else
+/*#else
 	LONG newValue, oldValue;
 	do
 	{
@@ -60,7 +60,7 @@ static int atomicAdd(volatile int* val, int delta)
 	} while(InterlockedCompareExchange((volatile LONG*)val, newValue, oldValue) != oldValue);
 
 	return newValue;
-#endif
+#endif*/
 }
 
 PX_COMPILE_TIME_ASSERT(sizeof(PEEL_PhysX3_AllocatorCallback::Header)<=32);
