@@ -256,6 +256,7 @@
 		float							mMaxBiasCoeff;
 		float							mDefaultStaticFriction;
 		float							mDefaultDynamicFriction;
+		float							mDefaultRestitution;
 		float							mFrictionOffsetThreshold;
 #if PHYSX_SUPPORT_TORSION_FRICTION
 		float							mTorsionalPatchRadius;

@@ -1445,7 +1445,7 @@ void SharedPhysX::InitCommon()
 
 	// Create default material
 	{
-		const PINT_MATERIAL_CREATE Desc(mParams.mDefaultStaticFriction, mParams.mDefaultDynamicFriction, 0.0f);
+		const PINT_MATERIAL_CREATE Desc(mParams.mDefaultStaticFriction, mParams.mDefaultDynamicFriction, mParams.mDefaultRestitution);
 		mDefaultMaterial = CreateMaterial(Desc);
 		ASSERT(mDefaultMaterial);
 	}
@@ -4602,6 +4602,7 @@ EditableParams::EditableParams() :
 	mMaxBiasCoeff				(-1.0f),
 	mDefaultStaticFriction		(0.5f),
 	mDefaultDynamicFriction		(0.5f),
+	mDefaultRestitution			(0.0f),
 	mFrictionOffsetThreshold	(0.04f),
 #if PHYSX_SUPPORT_TORSION_FRICTION
 	mTorsionalPatchRadius		(0.0f),
@@ -4854,6 +4855,7 @@ namespace
 		EditBoxPtr		mEditBox_MaxDepenVelocity;
 #endif
 		//EditBoxPtr	mEditBox_GlobalBoxSize;
+		EditBoxPtr		mEditBox_DefaultRestitution;
 		EditBoxPtr		mEditBox_DefaultStaticFriction;
 		EditBoxPtr		mEditBox_DefaultDynamicFriction;
 		EditBoxPtr		mEditBox_FrictionOffsetThreshold;
@@ -5108,6 +5110,7 @@ void PhysX3::GetOptionsFromGUI(const char* test_name)
 #endif
 	Common_GetFromEditBox(gParams.mSolverBatchSize, gPhysXUI->mEditBox_SolverBatchSize);
 	Common_GetFromEditBox(gParams.mMaxBiasCoeff, gPhysXUI->mEditBox_MaxBiasCoeff, -FLT_MAX, FLT_MAX);
+	Common_GetFromEditBox(gParams.mDefaultRestitution, gPhysXUI->mEditBox_DefaultRestitution, -FLT_MAX, FLT_MAX);
 	Common_GetFromEditBox(gParams.mDefaultStaticFriction, gPhysXUI->mEditBox_DefaultStaticFriction, 0.0f, FLT_MAX);
 	Common_GetFromEditBox(gParams.mDefaultDynamicFriction, gPhysXUI->mEditBox_DefaultDynamicFriction, 0.0f, FLT_MAX);
 	Common_GetFromEditBox(gParams.mFrictionOffsetThreshold, gPhysXUI->mEditBox_FrictionOffsetThreshold, 0.0f, FLT_MAX);
@@ -6041,6 +6044,8 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 #endif
 				y += YStepCB;
 
+				gPhysXUI->mEditBox_DefaultRestitution = CreateEditBox(helper, TabWindow, xf2, y, "Default restitution:", helper.Convert(gParams.mDefaultRestitution), EDITBOX_FLOAT, LabelWidth2, EditBoxX2);
+				gPhysXUI->mEditBox_DefaultRestitution->AddToolTip("Coeff of elasticity/restitution between 0 and 1. Use negative value for compliant contacts.");
 				gPhysXUI->mEditBox_DefaultStaticFriction = CreateEditBox(helper, TabWindow, xf2, y, "Default static friction:", helper.Convert(gParams.mDefaultStaticFriction), EDITBOX_FLOAT_POSITIVE, LabelWidth2, EditBoxX2);
 				gPhysXUI->mEditBox_DefaultDynamicFriction = CreateEditBox(helper, TabWindow, xf2, y, "Default dynamic friction:", helper.Convert(gParams.mDefaultDynamicFriction), EDITBOX_FLOAT_POSITIVE, LabelWidth2, EditBoxX2);
 				gPhysXUI->mEditBox_FrictionOffsetThreshold = CreateEditBox(helper, TabWindow, xf2, y, "Friction offset threshold:", helper.Convert(gParams.mFrictionOffsetThreshold), EDITBOX_FLOAT_POSITIVE, LabelWidth2, EditBoxX2);
