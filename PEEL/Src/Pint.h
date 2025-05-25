@@ -291,11 +291,21 @@
 
 	///////////////////////////////////////////////////////////////////////////
 
-	enum ShapeSharing
+	enum PintShapeSharing
 	{
 		SHAPE_SHARING_UNDEFINED,	// Let the per-plugin UI decide
 		SHAPE_SHARING_YES,
-		SHAPE_SHARING_NO
+		SHAPE_SHARING_NO,
+
+		SHAPE_SHARING_FORCE_DWORD	= 0x7fffffff
+	};
+
+	enum PintShapeFlags
+	{
+		SHAPE_FLAGS_DEFAULT		=	0,
+		SHAPE_FLAGS_INACTIVE	=	(1<<0),	// Just for visuals
+
+		SHAPE_FLAGS_FORCE_DWORD	= 0x7fffffff
 	};
 
 	struct PINT_SHAPE_CREATE : public Allocateable
@@ -306,6 +316,7 @@
 												mMaterial	(null),
 												mRenderer	(null),
 												mSharing	(SHAPE_SHARING_UNDEFINED),
+												mFlags		(SHAPE_FLAGS_DEFAULT),
 												mNext		(null)
 											{
 												mLocalPos.Zero();
@@ -320,6 +331,7 @@
 												mMaterial	(desc.mMaterial),
 												mRenderer	(desc.mRenderer),
 												mSharing	(desc.mSharing),
+												mFlags		(desc.mFlags),
 												mNext		(desc.mNext)
 											{
 											}
@@ -339,7 +351,8 @@
 		Quat								mLocalRot;
 		const PINT_MATERIAL_CREATE*			mMaterial;
 		mutable PintShapeRenderer*			mRenderer;
-		ShapeSharing						mSharing;
+		PintShapeSharing					mSharing;
+		PintShapeFlags						mFlags;
 
 		inline_	const PINT_SHAPE_CREATE*	_GetNext()						const	{ return mNext;	}
 		inline_	void						SetNext(const PINT_SHAPE_CREATE* next)	{ mNext = next;	}
