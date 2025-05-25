@@ -15,11 +15,6 @@
 #include "PINT_CommonPhysX3.h"
 #include "PINT_CommonPhysX5_Fluid.h"
 
-#if PHYSX_SUPPORT_CUSTOM_GEOMETRY
-//	#include "PINT_CommonPhysX5_CustomGeom.h"
-	#include "extensions/PxCustomGeometryExt.h"
-#endif
-
 #pragma warning(disable:4355)	// 'this' : used in base member initializer list
 
 #ifdef PHYSX_SUPPORT_CHARACTERS
@@ -1472,6 +1467,16 @@ void SharedPhysX::CloseCommon()
 
 #ifdef SHARED_SHAPES_USE_HASH
 	DELETESINGLE(mSphereShapes);
+#endif
+
+#if PHYSX_SUPPORT_CUSTOM_GEOMETRY
+	const udword NbCylinders = mCylinderCBs.GetNbEntries();
+	for(udword i=0;i<NbCylinders;i++)
+	{
+		CylinderCB* c = reinterpret_cast<CylinderCB*>(mCylinderCBs.GetEntry(i));
+		PX_DELETE(c);
+	}
+	mCylinderCBs.Empty();
 #endif
 
 #ifndef IS_PHYSX_3_2
@@ -3188,7 +3193,7 @@ PxShape* SharedPhysX::CreateCylinderShape(const PINT_SHAPE_CREATE* create, PxRig
 //	const InternalCustomConvex* custom1 = (const InternalCustomConvex*)geometry.callbacks;
 //PxCustomGeometryExt::Callbacks* cb = (PxCustomGeometryExt::Callbacks*)geometry.callbacks;
 
-PxCustomGeometryExt::CylinderCallbacks* CustomCylinder = (PxCustomGeometryExt::CylinderCallbacks*)geometry.callbacks;
+const CylinderCB* CustomCylinder = static_cast<const CylinderCB*>(geometry.callbacks);
 
 
 //	ASSERT(custom1->type==InternalCustomConvex::eCylinder);
@@ -3196,7 +3201,6 @@ PxCustomGeometryExt::CylinderCallbacks* CustomCylinder = (PxCustomGeometryExt::C
 
 //ASSERT(cb->getCustomType() == PxCustomGeometryExt::CylinderData::CUSTOM_TYPE);
 //const PxCustomGeometryExt::CylinderData* CustomCylinder = cb->get<PxCustomGeometryExt::CylinderData>();
-
 #if PHYSX_SUPPORT_CUSTOM_GEOMETRY_PUBLIC_MEMBERS
 	const float radius = CustomCylinder->radius;
 	const float height = CustomCylinder->height;
@@ -3210,8 +3214,11 @@ PxCustomGeometryExt::CylinderCallbacks* CustomCylinder = (PxCustomGeometryExt::C
 	{
 		//printf("Sharing shape\n");
 		actor->attachShape(*S);
+		PX_DELETE(CustomCylinder);
 		return S;
 	}
+
+	mCylinderCBs.AddPtr(CustomCylinder);
 
 	PxShape* NewShape = CreateSharedShape(*this, mPhysics, create, actor, geometry, material, local_pose, collision_group, mParams);
 
@@ -3344,13 +3351,10 @@ void SharedPhysX::ReportShape(const PINT_SHAPE_CREATE& create, udword index, voi
 		const PINT_CYLINDER_CREATE& CylinderCreate = static_cast<const PINT_CYLINDER_CREATE&>(create);
 
 //			const PxCustomGeometry CustomGeom = InternalCustomCylinder::getGeometry(CylinderCreate.mHalfHeight * 2.0f, CylinderCreate.mRadius, 1, 0.0f);
-// ####
-// where is this released?
 //PxCustomGeometryExt::Callbacks* cb = PxCustomGeometryExt::createCylinderCallbacks(CylinderCreate.mHalfHeight * 2.0f, CylinderCreate.mRadius, 1, 0.0f);
 //const PxCustomGeometry CustomGeom(*cb);
 
-//PxCustomGeometryExt::CylinderCallbacks* cb = new PxCustomGeometryExt::CylinderCallbacks(CylinderCreate.mHalfHeight * 2.0f, CylinderCreate.mRadius, 1, 0.0f);
-PxCustomGeometryExt::CylinderCallbacks* cb = new PxCustomGeometryExt::CylinderCallbacks(CylinderCreate.mHalfHeight * 2.0f, CylinderCreate.mRadius, 1, 0.0f);
+CylinderCB* cb = PX_NEW(CylinderCB)(CylinderCreate.mHalfHeight * 2.0f, CylinderCreate.mRadius, 1, 0.0f);
 const PxCustomGeometry CustomGeom(*cb);
 
 		shape = CreateCylinderShape(&create, actor, CustomGeom, *ShapeMaterial, LocalPose, group);

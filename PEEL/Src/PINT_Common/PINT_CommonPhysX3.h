@@ -774,6 +774,7 @@
 				SharedCapsuleShapes					mCapsuleShapes;
 #if PHYSX_SUPPORT_CUSTOM_GEOMETRY
 				SharedCapsuleShapes					mCylinderShapes;
+				PtrContainer						mCylinderCBs;
 #endif
 				SharedMeshShapes					mConvexShapes;
 				SharedMeshShapes					mMeshShapes;

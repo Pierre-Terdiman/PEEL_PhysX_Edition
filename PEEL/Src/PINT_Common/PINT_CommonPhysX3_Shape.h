@@ -13,8 +13,11 @@
 
 //#define SHARED_SHAPES_USE_HASH
 
-#ifdef REMOVED
+#if PHYSX_SUPPORT_CUSTOM_GEOMETRY
+	#include "PINT_CommonPhysX5_CustomGeom.h"
+#endif
 
+#ifdef REMOVED
 
 #ifdef SHARED_SHAPES_USE_HASH
 	// Jeeez this stuff is as tedious to use as ever
