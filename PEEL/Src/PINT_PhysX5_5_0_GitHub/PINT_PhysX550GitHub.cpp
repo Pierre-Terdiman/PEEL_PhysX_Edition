@@ -44,7 +44,9 @@ PxPBDParticleSystem* gParticleSystem = null;
 //	#define USE_NEW_PVD
 #endif
 
-//#define USE_SPY_PROFILER
+#ifdef PEEL_PROFILE
+	//#define USE_SPY_PROFILER
+#endif
 //#define DEBUG_SPY_PROFILER
 #ifdef USE_SPY_PROFILER
 	#include "..\Spy\SpyClient.h"
