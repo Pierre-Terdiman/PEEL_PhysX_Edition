@@ -166,14 +166,19 @@ END_TEST(InactiveShape)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static const char* gDesc_COMLocalOffset = "Tests that the center-of-mass (COM) local offset is properly taken into account. The box should rotate on its own if \
-the test succeeds. The rendered RGB frame indicates the location of the COM.";
+static const Point gCOMLocalOffset(0.0f, 0.0f, 1.5f);
 
-START_TEST(COMLocalOffset, CATEGORY_API, gDesc_COMLocalOffset)
+class InertiaTest : public TestBase
+{
+	const bool	mUseExplicitInertia;
+	public:
+							InertiaTest(bool explicit_inertia) : mUseExplicitInertia(explicit_inertia)	{}
+	virtual					~InertiaTest()																{}
+	virtual	TestCategory	GetCategory()		const	override	{ return CATEGORY_API;		}
 
-	virtual	float	GetRenderData(Point& center)	const	{ return 20.0f;	}
+	virtual	float	GetRenderData(Point& center)	const	override	{ return 20.0f;	}
 
-	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
+	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)	override
 	{
 		TestBase::GetSceneParams(desc);
 		desc.mCamera[0] = PintCameraPose(Point(4.40f, 2.92f, 5.12f), Point(-0.69f, -0.31f, -0.65f));
@@ -181,7 +186,7 @@ START_TEST(COMLocalOffset, CATEGORY_API, gDesc_COMLocalOffset)
 		SetDefEnv(desc, true);
 	}
 
-	virtual bool	Setup(Pint& pint, const PintCaps& caps)
+	virtual bool	Setup(Pint& pint, const PintCaps& caps)	override
 	{
 		if(!caps.mSupportRigidBodySimulation)
 			return false;
@@ -191,22 +196,30 @@ START_TEST(COMLocalOffset, CATEGORY_API, gDesc_COMLocalOffset)
 		BoxDesc.mRenderer = CreateBoxRenderer(Extents);
 
 		PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
-		ObjectDesc.mMass			= 1.0f;
-		ObjectDesc.mPosition		= Point(0.0f, Extents.y, 0.0f);
-		ObjectDesc.mCOMLocalOffset	= Point(0.0f, 0.0f, 1.5f);
-		const PintActorHandle Handle = CreatePintObject(pint, ObjectDesc);
-		pint.mUserData = Handle;
+		ObjectDesc.mMass		= 1.0f;
+		ObjectDesc.mPosition	= Point(0.0f, Extents.y, 0.0f);
 
+		if(mUseExplicitInertia)
+		{
+			ObjectDesc.mExplicitInertiaTensor		= Point(0.416666687f, 1.08333337f, 0.833333373f);
+			ObjectDesc.mExplicitMassLocalPose.mPos	= gCOMLocalOffset;
+		}
+		else
+		{
+			ObjectDesc.mCOMLocalOffset	= gCOMLocalOffset;
+		}
+
+		pint.mUserData = CreatePintObject(pint, ObjectDesc);
 		return true;
 	}
 
-	virtual	void	OnObjectReleased(Pint& pint, PintActorHandle removed_object)
+	virtual	void	OnObjectReleased(Pint& pint, PintActorHandle removed_object)	override
 	{
 		if(pint.mUserData==removed_object)
 			pint.mUserData = null;
 	}
 
-	virtual	void	DrawDebugInfo(Pint& pint, PintRender& render)
+	virtual	void	DrawDebugInfo(Pint& pint, PintRender& render)	override
 	{
 		if(!pint.mUserData)
 			return;
@@ -214,16 +227,38 @@ START_TEST(COMLocalOffset, CATEGORY_API, gDesc_COMLocalOffset)
 		const PintActorHandle Handle = PintActorHandle(pint.mUserData);
 		const Matrix4x4 GlobalPose = pint.GetWorldTransform(Handle);
 
-		const Point COMLocalOffset(0.0f, 0.0f, 1.5f);
+		const Point p = gCOMLocalOffset * GlobalPose;
 
-		const Point p = COMLocalOffset * GlobalPose;
-
-		render.DrawLine(p, p+GlobalPose[0], Point(1.0f, 0.0f, 0.0f));
-		render.DrawLine(p, p+GlobalPose[1], Point(0.0f, 1.0f, 0.0f));
-		render.DrawLine(p, p+GlobalPose[2], Point(0.0f, 0.0f, 1.0f));
+		render.DrawLine(p, p + GlobalPose[0], Point(1.0f, 0.0f, 0.0f));
+		render.DrawLine(p, p + GlobalPose[1], Point(0.0f, 1.0f, 0.0f));
+		render.DrawLine(p, p + GlobalPose[2], Point(0.0f, 0.0f, 1.0f));
 	}
+};
 
+static const char* gDesc_COMLocalOffset = "Tests that the center-of-mass (COM) local offset is properly taken into account. The box should rotate on its own if \
+the test succeeds. The rendered RGB frame indicates the location of the COM.";
+
+class COMLocalOffset : public InertiaTest
+{
+	public:
+							COMLocalOffset() : InertiaTest(false)	{}
+	virtual					~COMLocalOffset()						{}
+	virtual	const char*		GetName()			const	{ return "COMLocalOffset";			}
+	virtual	const char*		GetDescription()	const	{ return gDesc_COMLocalOffset;		}
 END_TEST(COMLocalOffset)
+
+///////////////////////////////////////////////////////////////////////////////
+
+static const char* gDesc_ExplicitInertia = "Same test as before, but using the API that let users set the inertia explicitly.";
+
+class ExplicitInertia : public InertiaTest
+{
+	public:
+							ExplicitInertia() : InertiaTest(true)	{}
+	virtual					~ExplicitInertia()						{}
+	virtual	const char*		GetName()			const	{ return "ExplicitInertia";			}
+	virtual	const char*		GetDescription()	const	{ return gDesc_ExplicitInertia;		}
+END_TEST(ExplicitInertia)
 
 ///////////////////////////////////////////////////////////////////////////////
 

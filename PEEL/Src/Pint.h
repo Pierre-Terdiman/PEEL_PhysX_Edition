@@ -16,7 +16,7 @@
 
 	///////////////////////////////////////////////////////////////////////////
 
-	#define	PINT_VERSION	1		// Increase this number each time the API or ABI changes.
+	#define	PINT_VERSION	2		// Increase this number each time the API or ABI changes.
 
 	// Convenience macro for PINT plugins to export expected functions.
 	#define DECLARE_PINT_EXPORTS																	\
@@ -611,24 +611,29 @@
 												mRotation.Identity();
 												mLinearVelocity.Zero();
 												mAngularVelocity.Zero();
+
 												mCOMLocalOffset.Zero();
+												mExplicitInertiaTensor.SetNotUsed();
+												mExplicitMassLocalPose.Identity();
 											}
 
 											PINT_OBJECT_CREATE(const PINT_OBJECT_CREATE& desc) :
-												mName			(desc.mName),
-												mExtraShapes	(desc.mExtraShapes),
-												mShape			(desc.mShape),
-												mPosition		(desc.mPosition),
-												mRotation		(desc.mRotation),
-												mCOMLocalOffset	(desc.mCOMLocalOffset),
-												mLinearVelocity	(desc.mLinearVelocity),
-												mAngularVelocity(desc.mAngularVelocity),
-												mMass			(desc.mMass),
-												mMassForInertia	(desc.mMassForInertia),
-												mCollisionGroup	(desc.mCollisionGroup),
-												mKinematic		(desc.mKinematic),
-												mAddToWorld		(desc.mAddToWorld),
-												mAddToDatabase	(desc.mAddToDatabase)
+												mName					(desc.mName),
+												mExtraShapes			(desc.mExtraShapes),
+												mShape					(desc.mShape),
+												mPosition				(desc.mPosition),
+												mRotation				(desc.mRotation),
+												mLinearVelocity			(desc.mLinearVelocity),
+												mAngularVelocity		(desc.mAngularVelocity),
+												mCOMLocalOffset			(desc.mCOMLocalOffset),
+												mExplicitInertiaTensor	(desc.mExplicitInertiaTensor),
+												mExplicitMassLocalPose	(desc.mExplicitMassLocalPose),
+												mMass					(desc.mMass),
+												mMassForInertia			(desc.mMassForInertia),
+												mCollisionGroup			(desc.mCollisionGroup),
+												mKinematic				(desc.mKinematic),
+												mAddToWorld				(desc.mAddToWorld),
+												mAddToDatabase			(desc.mAddToDatabase)
 											{
 											}
 
@@ -644,11 +649,16 @@
 		public:
 				Point						mPosition;
 				Quat						mRotation;
-				Point						mCOMLocalOffset;
 				Point						mLinearVelocity;
 				Point						mAngularVelocity;
+				// Use mass & optionally mCOMLocalOffset to let plugins compute the inertia from the shapes.
+				// Use mass, mExplicitInertiaTensor, mExplicitMassLocalPose to explicitly set the inertia from the test.
+				Point						mCOMLocalOffset;
+				Point						mExplicitInertiaTensor;
+				PR							mExplicitMassLocalPose;
 				float						mMass;
 				float						mMassForInertia;	// If negative, use the same as mMass.
+				//
 				PintCollisionGroup			mCollisionGroup;	// 0-31
 				bool						mKinematic;
 				bool						mAddToWorld;		// Add to scene. Typically false for aggregated parts.

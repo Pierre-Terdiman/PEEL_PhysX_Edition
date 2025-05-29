@@ -267,45 +267,54 @@ PxRigidBody* PhysX3::GetRigidBody(PintActorHandle handle)
 
 static void SetMassProperties(const PINT_OBJECT_CREATE& desc, PxRigidBody& rigid_body)
 {
-//	const PxVec3& LocalCOMOffset = ToPxVec3(desc.mCOMLocalOffset);
-
-	const PxVec3 ZeroCOM(0.0f);
-
-	if(desc.mMassForInertia<0.0f)
+	if(desc.mExplicitInertiaTensor.IsNotUsed())
 	{
-		//bool status = PxRigidBodyExt::setMassAndUpdateInertia(rigid_body, desc.mMass, &ZeroCOM);
-		bool status = PxRigidBodyExt::setMassAndUpdateInertia(rigid_body, desc.mMass/*, desc.mCOMLocalOffset.IsNonZero() ? &LocalCOMOffset : NULL*/);
-//		bool status = PxRigidBodyExt::updateMassAndInertia(rigid_body, desc.mMass/*, desc.mCOMLocalOffset.IsNonZero() ? &LocalCOMOffset : NULL*/);
-		ASSERT(status);
+	//	const PxVec3& LocalCOMOffset = ToPxVec3(desc.mCOMLocalOffset);
+
+		//const PxVec3 ZeroCOM(0.0f);
+
+		if(desc.mMassForInertia<0.0f)
+		{
+			//bool status = PxRigidBodyExt::setMassAndUpdateInertia(rigid_body, desc.mMass, &ZeroCOM);
+			bool status = PxRigidBodyExt::setMassAndUpdateInertia(rigid_body, desc.mMass/*, desc.mCOMLocalOffset.IsNonZero() ? &LocalCOMOffset : NULL*/);
+	//		bool status = PxRigidBodyExt::updateMassAndInertia(rigid_body, desc.mMass/*, desc.mCOMLocalOffset.IsNonZero() ? &LocalCOMOffset : NULL*/);
+			ASSERT(status);
+		}
+		else
+		{
+			//bool status = PxRigidBodyExt::setMassAndUpdateInertia(rigid_body, desc.mMassForInertia, &ZeroCOM);
+			bool status = PxRigidBodyExt::setMassAndUpdateInertia(rigid_body, desc.mMassForInertia/*, desc.mCOMLocalOffset.IsNonZero() ? &LocalCOMOffset : NULL*/);
+			ASSERT(status);
+			rigid_body.setMass(desc.mMass);
+		}
+
+		if(desc.mCOMLocalOffset.IsNonZero())
+		{
+			PxTransform Pose = rigid_body.getCMassLocalPose();
+			Pose.p += ToPxVec3(desc.mCOMLocalOffset);
+			rigid_body.setCMassLocalPose(Pose);
+		}
+
+		if(0)
+		{
+			PxTransform GlobalPose = rigid_body.getGlobalPose();
+
+			PxTransform Pose = rigid_body.getCMassLocalPose();
+			//printf("%f %f %f\n", Pose.p.x, Pose.p.y, Pose.p.z);
+			Pose.p = PxVec3(0.0f);
+			//Pose.q = GlobalPose.q;
+			Pose.q = PxQuat(PxIdentity);
+			rigid_body.setCMassLocalPose(Pose);
+		}
+
+	//	rigid_body.setMassSpaceInertiaTensor(PxVec3(1.0f));
 	}
 	else
 	{
-		//bool status = PxRigidBodyExt::setMassAndUpdateInertia(rigid_body, desc.mMassForInertia, &ZeroCOM);
-		bool status = PxRigidBodyExt::setMassAndUpdateInertia(rigid_body, desc.mMassForInertia/*, desc.mCOMLocalOffset.IsNonZero() ? &LocalCOMOffset : NULL*/);
-		ASSERT(status);
 		rigid_body.setMass(desc.mMass);
+		rigid_body.setMassSpaceInertiaTensor(ToPxVec3(desc.mExplicitInertiaTensor));
+		rigid_body.setCMassLocalPose(ToPxTransform(desc.mExplicitMassLocalPose));
 	}
-
-	if(desc.mCOMLocalOffset.IsNonZero())
-	{
-		PxTransform Pose = rigid_body.getCMassLocalPose();
-		Pose.p += ToPxVec3(desc.mCOMLocalOffset);
-		rigid_body.setCMassLocalPose(Pose);
-	}
-
-	if(0)
-	{
-		PxTransform GlobalPose = rigid_body.getGlobalPose();
-
-		PxTransform Pose = rigid_body.getCMassLocalPose();
-		//printf("%f %f %f\n", Pose.p.x, Pose.p.y, Pose.p.z);
-		Pose.p = PxVec3(0.0f);
-		//Pose.q = GlobalPose.q;
-		Pose.q = PxQuat(PxIdentity);
-		rigid_body.setCMassLocalPose(Pose);
-	}
-
-//	rigid_body.setMassSpaceInertiaTensor(PxVec3(1.0f));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
