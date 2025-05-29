@@ -197,12 +197,20 @@ PhysX::~PhysX()
 const char* PhysX::GetName() const
 {
 	const udword Suffix = mParams.ThreadIndexToNbThreads(mParams.mNbThreadsIndex);
+#ifdef PINT_SUPPORT_PVD
+	return _F("PhysX 5.1.0 (PVD)(%dT)", Suffix);
+#else
 	return _F("PhysX 5.1.0 (%dT)", Suffix);
+#endif
 }
 
 const char* PhysX::GetUIName() const
 {
+#ifdef PINT_SUPPORT_PVD
+	return "PhysX 5.1.0 (PVD)";
+#else
 	return "PhysX 5.1.0";
+#endif
 }
 
 void PhysX::GetCaps(PintCaps& caps) const
