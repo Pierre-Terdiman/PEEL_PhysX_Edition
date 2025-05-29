@@ -155,6 +155,7 @@ static bool		gEnableCCD					= false;
 static bool		gAllowSleeping				= true;
 static bool		gAllowShapeSharing			= true;
 static bool		gBackfaceCulling			= true;
+static bool		gGyroscopic					= false;
 static udword	gNbThreads					= 0;
 static udword	gNbSubsteps					= 1;
 static udword	gTempAllocSize				= 100;		// Mb
@@ -904,7 +905,7 @@ static void SetupDynamicActorSettings(BodyCreationSettings& settings, const PINT
 	settings.mLinearVelocity = ToVec3(desc.mLinearVelocity);
 	settings.mAngularVelocity = ToVec3(desc.mAngularVelocity);
 
-//	settings.mApplyGyroscopicForce = true;
+	settings.mApplyGyroscopicForce = gGyroscopic;
 }
 
 static void SetupOffsetShape(Ref<JPH::Shape>& shape, const PR& local_pose)
@@ -2293,6 +2294,7 @@ static IceCheckBox*	gCheckBox_AllowSleeping = null;
 static IceCheckBox*	gCheckBox_AllowShapeSharing = null;
 static IceCheckBox*	gCheckBox_CCD = null;
 static IceCheckBox*	gCheckBox_BackfaceCulling  = null;
+static IceCheckBox*	gCheckBox_Gyroscopic  = null;
 
 static IceEditBox* gEditBox_NbThreads = null;
 static IceEditBox* gEditBox_NbSubsteps = null;
@@ -2319,6 +2321,7 @@ enum JoltGUIElement
 	JOLT_GUI_ALLOW_SHAPE_SHARING,
 	JOLT_GUI_ENABLE_CCD,
 	JOLT_GUI_BACKFACE_CULLING,
+	JOLT_GUI_GYROSCOPIC,
 	//
 };
 
@@ -2352,6 +2355,8 @@ static void gJolt_GetOptionsFromGUI(const char* test_name)
 		gEnableCCD = gCheckBox_CCD->IsChecked();
 	if(gCheckBox_BackfaceCulling)
 		gBackfaceCulling = gCheckBox_BackfaceCulling->IsChecked();
+	if(gCheckBox_Gyroscopic)
+		gGyroscopic = gCheckBox_Gyroscopic->IsChecked();
 
 	Common_GetFromEditBox(gNbThreads, gEditBox_NbThreads);
 	Common_GetFromEditBox(gNbSubsteps, gEditBox_NbSubsteps);
@@ -2415,6 +2420,9 @@ IceWindow* Jolt_InitGUI(IceWidget* parent, PintGUIHelper& helper)
 	gCheckBox_BackfaceCulling = helper.CreateCheckBox(Main, JOLT_GUI_BACKFACE_CULLING, 4, y, CheckBoxWidth, 20, "Backface culling (scene queries)", gJoltGUI, gBackfaceCulling, gCheckBoxCallback);
 	y += YStep;
 
+	gCheckBox_Gyroscopic = helper.CreateCheckBox(Main, JOLT_GUI_GYROSCOPIC, 4, y, CheckBoxWidth, 20, "Enable gyroscopic forces", gJoltGUI, gGyroscopic, gCheckBoxCallback);
+	y += YStep;
+
 	gEditBox_NbThreads					= CreateEditBox(helper, Main, y, "Nb threads (0==automatic):", _F("%d", gNbThreads), EDITBOX_INTEGER_POSITIVE);
 	gEditBox_NbSubsteps					= CreateEditBox(helper, Main, y, "Nb substeps:", _F("%d", gNbSubsteps), EDITBOX_INTEGER_POSITIVE);
 	gEditBox_TempAllocSize				= CreateEditBox(helper, Main, y, "Tmp alloc size (Mb):", _F("%d", gTempAllocSize), EDITBOX_INTEGER_POSITIVE);
@@ -2456,6 +2464,7 @@ void Jolt_CloseGUI()
 	gCheckBox_AllowShapeSharing = null;
 	gCheckBox_CCD = null;
 	gCheckBox_BackfaceCulling = null;
+	gCheckBox_Gyroscopic = null;
 	gEditBox_NbThreads = null;
 	gEditBox_NbSubsteps = null;
 	gEditBox_TempAllocSize = null;
