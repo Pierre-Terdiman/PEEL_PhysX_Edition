@@ -4591,7 +4591,7 @@ EditableParams::EditableParams() :
 #if PHYSX_SUPPORT_CPU_DISPATCHER_MODE
 	mCPUDispatcherMode			(PxDefaultCpuDispatcherWaitForWorkMode::eWAIT_FOR_WORK),
 #endif
-	mGroundPlane				(false),
+	mGroundPlane				(true),
 	mEnableCCD					(false),
 #if PHYSX_SUPPORT_ANGULAR_CCD
 	mEnableAngularCCD			(false),
