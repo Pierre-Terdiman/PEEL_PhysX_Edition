@@ -20,8 +20,10 @@ Videos:
 And more:
 
 https://www.youtube.com/watch?v=jHWBD8P58dg
+(You can run that one locally using Run_PhysX4_Showreel2.bat in the Build64 folder)
 
 https://www.youtube.com/watch?v=6dATi4-wb3o
+(You can run that one locally using Run_PhysX4_Showreel.bat in the Build64 folder)
 
 Screenshots:
 
