@@ -741,6 +741,57 @@ static IceWindow* CreateUI_ChainFountain(IceWidget* parent, PintGUIHelper& helpe
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static IceWindow* CreateUI_NewtonCradle(IceWidget* parent, PintGUIHelper& helper, Widgets& owner)
+{
+	IceWindow* TabWindow = CreateTabWindow(parent, owner);
+
+	sdword y = 4;
+	sdword x = 4;
+
+	struct Override{ static void NewtonCradle(const IceCheckBox& check_box, bool checked, void* user_data)
+	{
+#if PHYSX_SUPPORT_SUBSTEPS
+		gEditBox_Generic0->SetEnabled(checked);
+#endif
+		gEditBox_Generic1->SetEnabled(checked);
+		gCheckBox_Generic0->SetEnabled(checked);
+		gCheckBox_Generic1->SetEnabled(checked);
+		gCheckBox_Generic2->SetEnabled(checked);
+	}};
+
+	ASSERT(!gCheckBox_Override);
+	gCheckBox_Override = helper.CreateCheckBox(TabWindow, 0, x, y, 200, 20, "Override main panel settings", &owner, true, Override::NewtonCradle, null);
+	y += YStep;
+
+	ASSERT(!gCheckBox_Generic0);
+	gCheckBox_Generic0 = helper.CreateCheckBox(TabWindow, 0, 4, y, CheckBoxWidth, 20, "Zero damping", &owner, true, null, null);
+	y += YStep;
+
+	ASSERT(!gCheckBox_Generic1);
+	gCheckBox_Generic1 = helper.CreateCheckBox(TabWindow, 0, 4, y, CheckBoxWidth, 20, "Zero contact offset", &owner, true, null, null);
+	y += YStep;
+
+	ASSERT(!gCheckBox_Generic2);
+	gCheckBox_Generic2 = helper.CreateCheckBox(TabWindow, 0, 4, y, CheckBoxWidth, 20, "Disable sleeping & stabilization", &owner, true, null, null);
+	y += YStep;
+
+#if PHYSX_SUPPORT_SUBSTEPS
+	helper.CreateLabel(TabWindow, 4, y+LabelOffsetY, LabelWidth, 20, "Nb substeps:", &owner);
+	ASSERT(!gEditBox_Generic0);
+	gEditBox_Generic0 = helper.CreateEditBox(TabWindow, 0, 4+EditBoxX, y, EditBoxWidth, 20, "16", &owner, EDITBOX_INTEGER_POSITIVE, null, null);
+	y += YStep;
+#endif
+
+	helper.CreateLabel(TabWindow, 4, y+LabelOffsetY, LabelWidth, 20, "Solver iter pos:", &owner);
+	ASSERT(!gEditBox_Generic1);
+	gEditBox_Generic1 = helper.CreateEditBox(TabWindow, 0, 4+EditBoxX, y, EditBoxWidth, 20, "32", &owner, EDITBOX_INTEGER_POSITIVE, null, null);
+	y += YStep;
+
+	return TabWindow;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 /*static IceWindow* CreateUI_LimitedHingeJoint(IceWidget* parent, PintGUIHelper& helper, Widgets& owner)
 {
 	IceWindow* TabWindow = CreateTabWindow(parent, owner);
@@ -976,6 +1027,9 @@ IceWindow* PhysXPlugIn::InitTestGUI(const char* test_name, IceWidget* parent, Pi
 	if(strcmp(test_name, "ChainFountain")==0)
 		return CreateUI_ChainFountain(parent, helper, owner);
 
+	if(strcmp(test_name, "NewtonCradle")==0)
+		return CreateUI_NewtonCradle(parent, helper, owner);
+
 	if(strcmp(test_name, "AddLocalTorque")==0 || strcmp(test_name, "CylinderCompounds")==0 || strcmp(test_name, "Heightfield")==0)
 		return CreateUI_AddLocalTorque(parent, helper, owner);
 
@@ -1019,14 +1073,21 @@ void PhysXPlugIn::ApplyTestUIParams(const char* test_name)
 
 	struct Local
 	{
-		static void OverrideSubsteps(EditableParams& EP)
+		static void OverrideSubsteps(EditableParams& EP, IceEditBox* edit_box)
 		{
 #if PHYSX_SUPPORT_SUBSTEPS
 			udword NbSubsteps;
-			Common_GetFromEditBox(NbSubsteps, gEditBox_Generic0);
+			Common_GetFromEditBox(NbSubsteps, edit_box);
 			if(NbSubsteps>EP.mNbSubsteps)
 				EP.mNbSubsteps = NbSubsteps;
 #endif
+		}
+		static void OverrideSolverIterationCount(EditableParams& EP, IceEditBox* edit_box)
+		{
+			udword NbIters;
+			Common_GetFromEditBox(NbIters, edit_box);
+			if(NbIters>EP.mSolverIterationCountPos)
+				EP.mSolverIterationCountPos = NbIters;
 		}
 	};
 
@@ -1096,7 +1157,7 @@ void PhysXPlugIn::ApplyTestUIParams(const char* test_name)
 #if PHYSX_SUPPORT_TGS
 		EP.mTGS = gCheckBox_Generic0->IsChecked();
 #endif
-		Local::OverrideSubsteps(EP);
+		Local::OverrideSubsteps(EP, gEditBox_Generic0);
 		return;
 	}
 
@@ -1117,10 +1178,7 @@ void PhysXPlugIn::ApplyTestUIParams(const char* test_name)
 
 	if(strcmp(test_name, "HighMassRatio")==0)
 	{
-		udword NbIters;
-		Common_GetFromEditBox(NbIters, gEditBox_Generic0);
-		if(NbIters>EP.mSolverIterationCountPos)
-			EP.mSolverIterationCountPos = NbIters;
+		Local::OverrideSolverIterationCount(EP, gEditBox_Generic0);
 #if PHYSX_SUPPORT_TGS
 		EP.mTGS = gCheckBox_Generic0->IsChecked();
 #endif
@@ -1151,7 +1209,7 @@ void PhysXPlugIn::ApplyTestUIParams(const char* test_name)
 
 	if(strcmp(test_name, "MultiBodyVehicle")==0)
 	{
-		Local::OverrideSubsteps(EP);
+		Local::OverrideSubsteps(EP, gEditBox_Generic0);
 		return;
 	}
 
@@ -1159,7 +1217,7 @@ void PhysXPlugIn::ApplyTestUIParams(const char* test_name)
 	||	strcmp(test_name, "Vehicle2")==0
 		)
 	{
-		Local::OverrideSubsteps(EP);
+		Local::OverrideSubsteps(EP, gEditBox_Generic0);
 		return;
 	}
 
@@ -1169,11 +1227,8 @@ void PhysXPlugIn::ApplyTestUIParams(const char* test_name)
 	||	strcmp(test_name, "CDStack")==0
 		)
 	{
-		Local::OverrideSubsteps(EP);
-		udword NbIters;
-		Common_GetFromEditBox(NbIters, gEditBox_Generic1);
-		if(NbIters>EP.mSolverIterationCountPos)
-			EP.mSolverIterationCountPos = NbIters;
+		Local::OverrideSubsteps(EP, gEditBox_Generic0);
+		Local::OverrideSolverIterationCount(EP, gEditBox_Generic1);
 		return;
 	}
 
@@ -1211,10 +1266,7 @@ void PhysXPlugIn::ApplyTestUIParams(const char* test_name)
 #if PHYSX_SUPPORT_TGS
 		EP.mTGS = gCheckBox_Generic0->IsChecked();
 #endif
-		udword NbIters;
-		Common_GetFromEditBox(NbIters, gEditBox_Generic0);
-		if(NbIters>EP.mSolverIterationCountPos)
-			EP.mSolverIterationCountPos = NbIters;
+		Local::OverrideSolverIterationCount(EP, gEditBox_Generic0);
 		return;
 	}
 
@@ -1226,10 +1278,20 @@ void PhysXPlugIn::ApplyTestUIParams(const char* test_name)
 		EP.mEnableAngularCCD = gCheckBox_Generic1->IsChecked();
 		EP.mUseD6Joint = gCheckBox_Generic2->IsChecked();
 
-		udword NbIters;
-		Common_GetFromEditBox(NbIters, gEditBox_Generic0);
-		if(NbIters>EP.mSolverIterationCountPos)
-			EP.mSolverIterationCountPos = NbIters;
+		Local::OverrideSolverIterationCount(EP, gEditBox_Generic0);
+		return;
+	}
+
+	if(strcmp(test_name, "NewtonCradle")==0)
+	{
+		if(gCheckBox_Generic0->IsChecked())
+			EP.mLinearDamping = EP.mAngularDamping = 0.0f;
+		if(gCheckBox_Generic1->IsChecked())
+			EP.mContactOffset = 0.0f;
+		if(gCheckBox_Generic2->IsChecked())
+			EP.mEnableSleeping = EP.mStabilization = false;
+		Local::OverrideSubsteps(EP, gEditBox_Generic0);
+		Local::OverrideSolverIterationCount(EP, gEditBox_Generic1);
 		return;
 	}
 

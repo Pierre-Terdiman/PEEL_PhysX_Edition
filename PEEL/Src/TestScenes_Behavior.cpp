@@ -1738,3 +1738,111 @@ START_TEST(ThinRods, CATEGORY_BEHAVIOR, gDesc_ThinRods)
 END_TEST(ThinRods)
 
 ///////////////////////////////////////////////////////////////////////////////
+
+static const char* gDesc_NewtonCradle = "Newton's cradle. This classic test might need per-engine tweaks, as it rarely works nicely out of the box.";
+
+START_TEST(NewtonCradle, CATEGORY_BEHAVIOR, gDesc_NewtonCradle)
+
+	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
+	{
+		TestBase::GetSceneParams(desc);
+		desc.mCamera[0] = PintCameraPose(Point(1.80f, 4.49f, 6.74f), Point(0.02f, 0.03f, -1.00f));
+		desc.mGravity = Point(0.0f, -100.0f, 0.0f);
+		SetDefEnv(desc, true);
+	}
+
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	{
+		return CreateOverrideTabControl("NewtonCradle", 100);
+	}
+
+	virtual bool	Setup(Pint& pint, const PintCaps& caps)
+	{
+		if(!caps.mSupportSphericalJoints || !caps.mSupportRigidBodySimulation)
+			return false;
+
+		const bool UseFiltering = true;
+		if(UseFiltering)
+		{
+			if(!caps.mSupportCollisionGroups)
+				return false;
+
+			const PintDisabledGroups DG(1, 2);
+			pint.SetDisabledGroups(1, &DG);
+		}
+
+		const PINT_MATERIAL_CREATE M(0.0f, 0.0f, 1.0f);
+
+		const float SphereRadius = 0.2f;
+
+		PINT_SPHERE_CREATE SphereDesc(SphereRadius);
+		SphereDesc.mRenderer = CreateRenderer(SphereDesc);
+		SphereDesc.mMaterial = &M;
+
+		const float Angle = 5.0f * DEGTORAD;
+		const float CapsuleRadius = 0.01f;
+		const float HalfHeight = 2.0f;
+
+		PINT_CAPSULE_CREATE CapsuleDesc(CapsuleRadius, HalfHeight);
+		Matrix3x3 Rot;
+		Rot.RotX(Angle);
+		CapsuleDesc.mLocalRot	= Rot;
+		CapsuleDesc.mLocalPos	= Point(0.0f, 2.0f, SphereRadius*1.75f);
+		CapsuleDesc.mRenderer	= CreateRenderer(CapsuleDesc);
+		CapsuleDesc.mMaterial = &M;
+
+		PINT_CAPSULE_CREATE CapsuleDesc2(CapsuleRadius, HalfHeight);
+		Matrix3x3 Rot2;
+		Rot2.RotX(-Angle);
+		CapsuleDesc2.mLocalRot	= Rot2;
+		CapsuleDesc2.mLocalPos	= Point(0.0f, CapsuleDesc.mLocalPos.y, -CapsuleDesc.mLocalPos.z);
+		CapsuleDesc2.mRenderer	= CapsuleDesc.mRenderer;
+		CapsuleDesc2.mMaterial = &M;
+
+		CapsuleDesc.SetNext(&CapsuleDesc2);
+		SphereDesc.SetNext(&CapsuleDesc);
+
+		PINT_OBJECT_CREATE ObjectDesc(&SphereDesc);
+		ObjectDesc.mMass = 1.0f;
+		ObjectDesc.mCollisionGroup	= 1;
+
+		const Point Extents(CapsuleRadius, CapsuleRadius, CapsuleRadius);
+		PINT_BOX_CREATE BoxDesc(Extents);
+		BoxDesc.mRenderer = CreateRenderer(BoxDesc);
+
+		PINT_OBJECT_CREATE ObjectDesc2(&BoxDesc);
+		ObjectDesc2.mMass = 0.0f;
+		ObjectDesc2.mCollisionGroup	= 2;
+
+		const udword NbElems = 10;
+		for(udword i=0;i<NbElems;i++)
+		{
+			const Point SpherePos(float(i)*SphereRadius*2.05f, 3.0f, 0.0f);
+
+			ObjectDesc.mPosition	= SpherePos;
+			if(i==NbElems-1)
+			{
+				ObjectDesc.mPosition = Point(6.779f, 4.463f, 0.0f);
+				Matrix3x3 initR;
+				initR.RotZ(50.70f * DEGTORAD);
+				ObjectDesc.mRotation = initR;
+			}
+			PintActorHandle h = CreatePintObject(pint, ObjectDesc);
+
+			ObjectDesc2.mPosition	= SpherePos + CapsuleDesc.mLocalPos + Rot[1]*HalfHeight;
+			PintActorHandle h2 = CreatePintObject(pint, ObjectDesc2);
+
+			ObjectDesc2.mPosition	= SpherePos + CapsuleDesc2.mLocalPos + Rot2[1]*HalfHeight;
+			PintActorHandle h3 = CreatePintObject(pint, ObjectDesc2);
+
+			PintJointHandle JointHandle0 = pint.CreateJoint(PINT_SPHERICAL_JOINT_CREATE(h, h2, CapsuleDesc.mLocalPos + Rot[1]*HalfHeight, Point(0.0f, 0.0f, 0.0f)));
+			PintJointHandle JointHandle1 = pint.CreateJoint(PINT_SPHERICAL_JOINT_CREATE(h, h3, CapsuleDesc2.mLocalPos + Rot2[1]*HalfHeight, Point(0.0f, 0.0f, 0.0f)));
+			(void)JointHandle0;
+			(void)JointHandle1;
+		}
+		return true;
+	}
+
+END_TEST(NewtonCradle)
+
+///////////////////////////////////////////////////////////////////////////////
