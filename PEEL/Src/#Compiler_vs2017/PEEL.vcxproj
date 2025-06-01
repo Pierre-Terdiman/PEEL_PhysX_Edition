@@ -94,8 +94,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\Ice\APIs\Ice;..\HACD;..\Glut\include;..\..\..\PEEL_Externals;..\DevIL\include;..\foundation;..\foundation\include;..\;..\..\Private\NVD;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;GLUT_NO_LIB_PRAGMA;PX_PHYSX_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\Ice\APIs\Ice;..\HACD;..\Glut\include;..\..\..\PEEL_Externals;..\DevIL\include;..\foundation;..\foundation\include;..\;..\..\Private\NVD;%(AdditionalIncludeDirectories);..\Rock\Src\APIs</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;GLUT_NO_LIB_PRAGMA;PX_PHYSX_STATIC_LIB;%(PreprocessorDefinitions);ROCK_NO_DLL</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <ExceptionHandling>false</ExceptionHandling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -125,8 +125,8 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\Ice\APIs\Ice;..\HACD;..\Glut\include;..\..\..\PEEL_Externals;..\DevIL\include;..\foundation;..\foundation\include;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;GLUT_NO_LIB_PRAGMA;PX_PHYSX_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\Ice\APIs\Ice;..\HACD;..\Glut\include;..\..\..\PEEL_Externals;..\DevIL\include;..\foundation;..\foundation\include;..\;%(AdditionalIncludeDirectories);..\Rock\Src\APIs</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;GLUT_NO_LIB_PRAGMA;PX_PHYSX_STATIC_LIB;%(PreprocessorDefinitions);ROCK_NO_DLL</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <ExceptionHandling>false</ExceptionHandling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -159,8 +159,8 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\Ice\APIs\Ice;..\HACD;..\Spy;..\Glut\include;..\..\..\PEEL_Externals;..\DevIL\include;..\foundation;..\foundation\include;..\;..\..\Private\NVD;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;GLUT_NO_LIB_PRAGMA;PX_PHYSX_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\Ice\APIs\Ice;..\HACD;..\Spy;..\Glut\include;..\..\..\PEEL_Externals;..\DevIL\include;..\foundation;..\foundation\include;..\;..\..\Private\NVD;%(AdditionalIncludeDirectories);..\Rock\Src\APIs</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;GLUT_NO_LIB_PRAGMA;PX_PHYSX_STATIC_LIB;%(PreprocessorDefinitions);ROCK_NO_DLL</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -201,8 +201,8 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\Ice\APIs\Ice;..\HACD;..\Spy;..\Glut\include;..\..\..\PEEL_Externals;..\DevIL\include;..\foundation;..\foundation\include;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;GLUT_NO_LIB_PRAGMA;PX_PHYSX_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\Ice\APIs\Ice;..\HACD;..\Spy;..\Glut\include;..\..\..\PEEL_Externals;..\DevIL\include;..\foundation;..\foundation\include;..\;%(AdditionalIncludeDirectories);..\Rock\Src\APIs</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;GLUT_NO_LIB_PRAGMA;PX_PHYSX_STATIC_LIB;%(PreprocessorDefinitions);ROCK_NO_DLL</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -586,6 +586,91 @@
     <ClCompile Include="..\RenderTarget.cpp" />
     <ClCompile Include="..\RepX_Tools.cpp" />
     <ClCompile Include="..\RevolutionShape.cpp" />
+    <ClCompile Include="..\RockInit.cpp" />
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockAllocator.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockArray.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockAssert.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockBitmap.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockFormat.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockFPU.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockHash.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockHashMap.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockLog.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockPlatform.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockQPC.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockSort.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockString.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockTimer.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\RoundCorners.cpp" />
     <ClCompile Include="..\Scattering.cpp" />
     <ClCompile Include="..\ScreenQuad.cpp" />
@@ -892,6 +977,30 @@
     <ClInclude Include="..\RepX_Tools.h" />
     <ClInclude Include="..\resource.h" />
     <ClInclude Include="..\RevolutionShape.h" />
+    <ClInclude Include="..\RockInit.h" />
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockAllocator.h" />
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockArray.h" />
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockAssert.h" />
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockBitmap.h" />
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockBitUtils.h" />
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockCommon.h" />
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockCore.h" />
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockCoreTemplates.h" />
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockFormat.h" />
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockFPU.h" />
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockHash.h" />
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockHashMap.h" />
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockLog.h" />
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockMemory.h" />
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockPlatform.h" />
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockPreprocessor.h" />
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockQPC.h" />
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockSettings.h" />
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockSort.h" />
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockSpy.h" />
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockString.h" />
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockTimer.h" />
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockTypes.h" />
     <ClInclude Include="..\RoundCorners.h" />
     <ClInclude Include="..\Scattering.h" />
     <ClInclude Include="..\ScreenQuad.h" />

@@ -9,6 +9,7 @@
 #include "stdafx.h"
 
 #include "Foundation.h"
+#include "RockInit.h"
 #include "DefaultControlInterface.h"
 #include "Tool.h"
 	#include "ToolInterface.h"
@@ -2141,6 +2142,7 @@ static void gCleanup()
 
 	ReleasePEELMenuBar();
 	PEEL_ReleaseThreads();
+	ReleaseRock();
 #if PEEL_USE_SPY
 	Spy::Close();
 #endif
@@ -2505,6 +2507,7 @@ static void SetBestRenderMode();
 int PEEL_main(int argc, char** argv)
 {
 	initFoundation();
+	InitRock();
 	PEEL_InitThreads();
 
 /*	if(0)

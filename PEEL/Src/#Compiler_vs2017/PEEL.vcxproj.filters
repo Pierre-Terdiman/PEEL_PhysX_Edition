@@ -110,6 +110,12 @@
     <Filter Include="Source Files\Main\#PEEL\RaytracingTest">
       <UniqueIdentifier>{719973c8-f748-4126-b3d2-107f5c70cf44}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Main\Support\Rock">
+      <UniqueIdentifier>{9950f814-da46-4ab0-b765-917dea0dc4d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Support\Rock\Core">
+      <UniqueIdentifier>{66a27a72-fee4-4af7-a294-a763c79cc8f5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\LegoLib\LegoLib.cpp">
@@ -741,6 +747,51 @@
     </ClCompile>
     <ClCompile Include="..\GLScreenshot.cpp">
       <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockAllocator.cpp">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockArray.cpp">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockAssert.cpp">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockBitmap.cpp">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockFormat.cpp">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockFPU.cpp">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockHash.cpp">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockHashMap.cpp">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockLog.cpp">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockPlatform.cpp">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockQPC.cpp">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockSort.cpp">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockString.cpp">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Rock\Src\APIs\Core\RockTimer.cpp">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\RockInit.cpp">
+      <Filter>Source Files\Main\#PEEL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1533,6 +1584,78 @@
     </ClInclude>
     <ClInclude Include="..\GLScreenshot.h">
       <Filter>Source Files\Main\Support\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockAllocator.h">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockArray.h">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockAssert.h">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockBitmap.h">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockBitUtils.h">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockCommon.h">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockCore.h">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockCoreTemplates.h">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockFormat.h">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockFPU.h">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockHash.h">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockHashMap.h">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockLog.h">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockMemory.h">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockPlatform.h">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockPreprocessor.h">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockQPC.h">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockSettings.h">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockSort.h">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockSpy.h">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockString.h">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockTimer.h">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Rock\Src\APIs\Core\RockTypes.h">
+      <Filter>Source Files\Main\Support\Rock\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\RockInit.h">
+      <Filter>Source Files\Main\#PEEL</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

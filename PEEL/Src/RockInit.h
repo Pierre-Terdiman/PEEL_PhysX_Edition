@@ -1,0 +1,15 @@
+///////////////////////////////////////////////////////////////////////////////
+/*
+ *	PEEL - Physics Engine Evaluation Lab
+ *	Copyright (C) 2012 Pierre Terdiman
+ *	Homepage: http://www.codercorner.com/blog.htm
+ */
+///////////////////////////////////////////////////////////////////////////////
+
+#ifndef ROCK_INIT_H
+#define ROCK_INIT_H
+
+	void	InitRock();
+	void	ReleaseRock();
+
+#endif
