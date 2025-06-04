@@ -21,7 +21,7 @@
 //				IndexedSurface*		CreateManagedSurface();
 				void				ReleaseManagedSurfaces();
 
-				bool				CreateMeshesFromRegisteredSurfaces(Pint& pint, const PintCaps& caps, const PINT_MATERIAL_CREATE* material=null, PtrContainer* created_objects=null, const char* name=null);
+				bool				CreateMeshesFromRegisteredSurfaces(Pint& pint, const PintCaps& caps, const PINT_MATERIAL_CREATE* material=null, PtrContainer* created_objects=null, const char* name=null, bool progress_bar=true);
 
 				// New API
 				// TODO: consider storing the CRCs in SurfaceData

@@ -164,7 +164,7 @@ static void TessellateTriangle(udword& nb_new_tris, const Triangle& tr, Triangle
 	};
 }
 
-bool SurfaceManager::CreateMeshesFromRegisteredSurfaces(Pint& pint, const PintCaps& caps, const PINT_MATERIAL_CREATE* material, PtrContainer* created_objects, const char* name)
+bool SurfaceManager::CreateMeshesFromRegisteredSurfaces(Pint& pint, const PintCaps& caps, const PINT_MATERIAL_CREATE* material, PtrContainer* created_objects, const char* name, bool progress_bar)
 {
 	if(!caps.mSupportMeshes)
 		return false;
@@ -175,7 +175,8 @@ bool SurfaceManager::CreateMeshesFromRegisteredSurfaces(Pint& pint, const PintCa
 //	const udword Nb = GetNbSurfaces();
 		const udword Nb2 = mSurfaceData.GetNbEntries()/gNb;
 		const SurfaceData* SD = reinterpret_cast<const SurfaceData*>(mSurfaceData.GetEntries());
-	CreateProgressBar(/*Nb+*/Nb2, _F("Loading... Please wait for: %s", pint.GetName()));
+	if(progress_bar)
+		CreateProgressBar(/*Nb+*/Nb2, _F("Loading... Please wait for: %s", pint.GetName()));
 
 	const bool Regular = true;
 	const bool MergeAll = false;
@@ -188,7 +189,8 @@ bool SurfaceManager::CreateMeshesFromRegisteredSurfaces(Pint& pint, const PintCa
 	{
 /*		for(udword i=0;i<Nb;i++)
 		{
-			SetProgress(i);
+			if(progress_bar)
+				SetProgress(i);
 
 			const IndexedSurface* IS = Surfaces[i];
 
@@ -217,7 +219,8 @@ bool SurfaceManager::CreateMeshesFromRegisteredSurfaces(Pint& pint, const PintCa
 
 		for(udword i=0;i<Nb2;i++)
 		{
-			SetProgress(/*Nb+*/i);
+			if(progress_bar)
+				SetProgress(/*Nb+*/i);
 
 			const IndexedSurface* IS = SD[i].mSurface;
 
@@ -245,7 +248,8 @@ bool SurfaceManager::CreateMeshesFromRegisteredSurfaces(Pint& pint, const PintCa
 		ASSERT(!Nb2);
 /*		for(udword i=0;i<Nb;i++)
 		{
-			SetProgress(i);
+			if(progress_bar)
+				SetProgress(i);
 
 			const IndexedSurface* IS = Surfaces[i];
 
@@ -306,7 +310,8 @@ bool SurfaceManager::CreateMeshesFromRegisteredSurfaces(Pint& pint, const PintCa
 		udword Offset = 0;
 		for(udword i=0;i<Nb;i++)
 		{
-			SetProgress(i);
+			if(progress_bar)
+				SetProgress(i);
 			const IndexedSurface* IS = Surfaces[i];
 //			Merged.Merge(IS);
 
@@ -367,7 +372,8 @@ bool SurfaceManager::CreateMeshesFromRegisteredSurfaces(Pint& pint, const PintCa
 		udword Offset = 0;
 		for(udword i=0;i<Nb;i++)
 		{
-			SetProgress(i);
+			if(progress_bar)
+				SetProgress(i);
 			const IndexedSurface* IS = Surfaces[i];
 //			Merged.Merge(IS);
 
@@ -485,7 +491,8 @@ bool SurfaceManager::CreateMeshesFromRegisteredSurfaces(Pint& pint, const PintCa
 	DELETEARRAY(Cells);*/
 	}
 
-	ReleaseProgressBar();
+	if(progress_bar)
+		ReleaseProgressBar();
 
 	time = TimeGetTime() - time;
 	printf("Mesh creation time: %d (%s)\n", time, pint.GetName());
