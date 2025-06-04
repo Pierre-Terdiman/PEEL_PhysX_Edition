@@ -22,6 +22,7 @@
 extern udword gScreenWidth;
 extern udword gScreenHeight;
 extern GLFontRenderer gTexter;
+extern bool gShowHiddenWire;
 
 static inline_ void DrawImpact(const PintRaycastHit& hit)
 {
@@ -456,7 +457,8 @@ EndInstanceRender();
 bool DefaultRenderer::SetCurrentActor(PintActorHandle h)
 {
 	// Warning, handle is a native handle here!
-	const bool RenderEnabled = mVisManager->IsRenderable(h);
+	const bool RenderEnabled = (gShowHiddenWire && mPass==PINT_RENDER_PASS_WIREFRAME_OVERLAY) ? true : mVisManager->IsRenderable(h);
+
 	mRenderEnabled = RenderEnabled;
 
 	udword Flags = 0;

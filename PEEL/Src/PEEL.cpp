@@ -263,6 +263,7 @@ static	bool	gCameraFreezeFrustum = false;
 // Render tab
 static	bool	gWireframeEnabled = false;
 static	bool	gWireframeOverlayEnabled = true;
+		bool	gShowHiddenWire = false;
 static	bool	gGLFinish = false;
 static	bool	gRenderEnabled = true;
 /*static*/ void EnableRendering(bool b);
@@ -2991,6 +2992,7 @@ static IceEditBox*	gEditBox_FrameSize = null;
 static IceCheckBox*	gCheckBox_Render = null;
 static IceCheckBox*	gCheckBox_Wireframe = null;
 static IceCheckBox*	gCheckBox_WireframeOverlay = null;
+static IceCheckBox*	gCheckBox_ShowHiddenWire = null;
 static IceCheckBox*	gCheckBox_GLFinish = null;
 
 static IceCheckBox*	gCheckBox_RenderSun = null;
@@ -3900,29 +3902,10 @@ static void CreateRenderTab(IceWindow* tab)
 	gCheckBox_Render = gGUIHelper.CreateCheckBox(tab, 0, 4, y, 80, 20, "Render", gMainGUI, gRenderEnabled, Render::Lambda, null);
 //	y += YStep;
 
-	struct Wireframe{ static void Lambda(const IceCheckBox& check_box, bool checked, void* user_data)	{ gWireframeEnabled = checked; }};
-	gCheckBox_Wireframe = gGUIHelper.CreateCheckBox(tab, 0, 4+100, y, 80, 20, "Wireframe", gMainGUI, gWireframeEnabled, Wireframe::Lambda, null);
-//	y += YStep;
-
-	struct WireframeOverlay{ static void Lambda(const IceCheckBox& check_box, bool checked, void* user_data)	{ gWireframeOverlayEnabled = checked; }};
-	gCheckBox_WireframeOverlay = gGUIHelper.CreateCheckBox(tab, 0, 4+200, y, 80, 20, "Overlay", gMainGUI, gWireframeOverlayEnabled, WireframeOverlay::Lambda, null);
-
 	struct GLFinish{ static void Lambda(const IceCheckBox& check_box, bool checked, void* user_data)	{ gGLFinish = checked; }};
-	gCheckBox_GLFinish = gGUIHelper.CreateCheckBox(tab, 0, 4+300, y, 80, 20, "GLFinish", gMainGUI, gGLFinish, GLFinish::Lambda, null);
+	gCheckBox_GLFinish = gGUIHelper.CreateCheckBox(tab, 0, 4+70, y, 80, 20, "GLFinish", gMainGUI, gGLFinish, GLFinish::Lambda, null);
+
 	y += YStep;
-
-	{
-	const udword OffsetX2 = 0;
-	gGUIHelper.CreateLabel(tab, 4+OffsetX2, y+LabelOffsetY, 90, 20, "Wireframe overlay:", gMainGUI);
-	gEditBox_WireframeOverlayCoeff = gGUIHelper.CreateEditBox(tab, MAIN_GUI_WIREFRAME_OVERLAY_COEFF, 4+OffsetX+OffsetX2, y, EditBoxWidth, 20, gGUIHelper.Convert(gWireframeOverlayCoeff), gMainGUI, EDITBOX_FLOAT_POSITIVE, gEBCallback, gTooltip_WireframeOverlayCoeff);
-	}
-
-	{
-	const udword LocalLabelWidth = 130;
-	const udword OffsetX2 = 200;
-	gGUIHelper.CreateLabel(tab, 4+OffsetX2, y+LabelOffsetY, LocalLabelWidth, 20, "Convex edges threshold:", gMainGUI);
-	gEditBox_ConvexEdgesThreshold = gGUIHelper.CreateEditBox(tab, MAIN_GUI_CONVEX_EDGES_THRESHOLD, 4+LocalLabelWidth+OffsetX2, y, EditBoxWidth, 20, gGUIHelper.Convert(gConvexEdgesThreshold), gMainGUI, EDITBOX_FLOAT_POSITIVE, gEBCallback, null/*gTooltip_WireframeOverlayCoeff*/);
-	}
 
 	y += YStep;
 
@@ -3934,9 +3917,35 @@ static void CreateRenderTab(IceWindow* tab)
 	y += YStep;
 
 	{
-		sdword y2 = 10;
-		gGUIHelper.CreateButton(tab, COLOR_PICKER_WIRE_COLOR, 300, 50, 130, 20, "Change wire color", gMainGUI, gColorPickerButtonCallback, null, "Change wireframe color");
-		y2 += 30;
+		const udword LocalLabelWidth = 130;
+		const sdword WireX = 260;
+		sdword WireY = 10;
+
+		struct Wireframe{ static void Lambda(const IceCheckBox& check_box, bool checked, void* user_data)	{ gWireframeEnabled = checked; }};
+		gCheckBox_Wireframe = gGUIHelper.CreateCheckBox(tab, 0, 4+WireX, WireY, 80, 20, "Wireframe", gMainGUI, gWireframeEnabled, Wireframe::Lambda, null);
+	//	y += YStep;
+
+		struct WireframeOverlay{ static void Lambda(const IceCheckBox& check_box, bool checked, void* user_data)	{ gWireframeOverlayEnabled = checked; }};
+		gCheckBox_WireframeOverlay = gGUIHelper.CreateCheckBox(tab, 0, 4+WireX+100, WireY, 80, 20, "Overlay", gMainGUI, gWireframeOverlayEnabled, WireframeOverlay::Lambda, null);
+
+		WireY += YStep;
+
+		struct ShowHiddenWire{ static void Lambda(const IceCheckBox& check_box, bool checked, void* user_data)	{ gShowHiddenWire = checked; }};
+		gCheckBox_ShowHiddenWire = gGUIHelper.CreateCheckBox(tab, 0, 4+WireX, WireY, 120, 20, "Show hidden wire", gMainGUI, gShowHiddenWire, ShowHiddenWire::Lambda, null);
+
+		WireY += YStep;
+
+		gGUIHelper.CreateLabel(tab, 4+WireX, WireY+LabelOffsetY, LocalLabelWidth, 20, "Wireframe overlay:", gMainGUI);
+		gEditBox_WireframeOverlayCoeff = gGUIHelper.CreateEditBox(tab, MAIN_GUI_WIREFRAME_OVERLAY_COEFF, 4+LocalLabelWidth+WireX, WireY, EditBoxWidth, 20, gGUIHelper.Convert(gWireframeOverlayCoeff), gMainGUI, EDITBOX_FLOAT_POSITIVE, gEBCallback, gTooltip_WireframeOverlayCoeff);
+
+		WireY += YStep;
+
+		gGUIHelper.CreateLabel(tab, 4+WireX, WireY+LabelOffsetY, LocalLabelWidth, 20, "Convex edges threshold:", gMainGUI);
+		gEditBox_ConvexEdgesThreshold = gGUIHelper.CreateEditBox(tab, MAIN_GUI_CONVEX_EDGES_THRESHOLD, 4+LocalLabelWidth+WireX, WireY, EditBoxWidth, 20, gGUIHelper.Convert(gConvexEdgesThreshold), gMainGUI, EDITBOX_FLOAT_POSITIVE, gEBCallback, null/*gTooltip_WireframeOverlayCoeff*/);
+
+		WireY += YStep;
+
+		gGUIHelper.CreateButton(tab, COLOR_PICKER_WIRE_COLOR, WireX, WireY, 130, 20, "Change wire color", gMainGUI, gColorPickerButtonCallback, null, "Change wireframe color");
 	}
 
 /*	gGUIHelper.CreateLabel(tab, 4, y+LabelOffsetY, 90, 20, "Wireframe overlay:", gMainGUI);
@@ -4405,6 +4414,7 @@ static void PEEL_CloseGUI()
 	gCheckBox_RenderSun = null;
 	gCheckBox_Wireframe = null;
 	gCheckBox_WireframeOverlay = null;
+	gCheckBox_ShowHiddenWire = null;
 	gCheckBox_GLFinish = null;
 
 	gEditBox_WireframeOverlayCoeff = null;
@@ -4449,6 +4459,7 @@ static void SetBestRenderMode()
 {
 	// Must be done after initializing the UI
 	int index = RENDER_MODEL_SIMPLE_SHADOWS;
+//index = RENDER_MODEL_LEARN;
 	if(!SelectRenderModel(index))
 	{
 		index = RENDER_MODEL_SIMPLE_SHADER_2;
