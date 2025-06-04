@@ -4074,42 +4074,44 @@ static void CreateScreenQuadTab(IceWindow* tab)
 
 static void CreateSunTab(IceWindow* tab)
 {
+	const sdword EditBoxX = 120;
+	const sdword LabelWidth = 110;
 	sdword y = 4;
 
 	struct RenderSun{ static void Lambda(const IceCheckBox& check_box, bool checked, void* user_data)	{ gRenderSunEnabled = checked; }};
 	gCheckBox_RenderSun = gGUIHelper.CreateCheckBox(tab, 0, 4, y, 80, 20, "Render sun", gMainGUI, gRenderSunEnabled, RenderSun::Lambda, null);
 	y += YStep;
 
-	gGUIHelper.CreateLabel(tab, 4, y+LabelOffsetY, 90, 20, "Phi:", gMainGUI);
-	gEditBox_SunPhi = gGUIHelper.CreateEditBox(tab, MAIN_GUI_SUN_PHI, 4+OffsetX, y, EditBoxWidth, 20, gGUIHelper.Convert(gSunPhi), gMainGUI, EDITBOX_FLOAT, gEBCallback, null);
+	gGUIHelper.CreateLabel(tab, 4, y+LabelOffsetY, LabelWidth, 20, "Phi:", gMainGUI);
+	gEditBox_SunPhi = gGUIHelper.CreateEditBox(tab, MAIN_GUI_SUN_PHI, EditBoxX, y, EditBoxWidth, 20, gGUIHelper.Convert(gSunPhi), gMainGUI, EDITBOX_FLOAT, gEBCallback, null);
 	y += YStep;
 
-	gGUIHelper.CreateLabel(tab, 4, y+LabelOffsetY, 90, 20, "Theta:", gMainGUI);
-	gEditBox_SunTheta = gGUIHelper.CreateEditBox(tab, MAIN_GUI_SUN_THETA, 4+OffsetX, y, EditBoxWidth, 20, gGUIHelper.Convert(gSunTheta), gMainGUI, EDITBOX_FLOAT, gEBCallback, null);
+	gGUIHelper.CreateLabel(tab, 4, y+LabelOffsetY, LabelWidth, 20, "Theta:", gMainGUI);
+	gEditBox_SunTheta = gGUIHelper.CreateEditBox(tab, MAIN_GUI_SUN_THETA, EditBoxX, y, EditBoxWidth, 20, gGUIHelper.Convert(gSunTheta), gMainGUI, EDITBOX_FLOAT, gEBCallback, null);
 	y += YStep;
 
-	gGUIHelper.CreateLabel(tab, 4, y+LabelOffsetY, 90, 20, "Intensity:", gMainGUI);
-	gEditBox_SunIntensity = gGUIHelper.CreateEditBox(tab, MAIN_GUI_SUN_INTENSITY, 4+OffsetX, y, EditBoxWidth, 20, gGUIHelper.Convert(gSunIntensity), gMainGUI, EDITBOX_FLOAT, gEBCallback, null);
+	gGUIHelper.CreateLabel(tab, 4, y+LabelOffsetY, LabelWidth, 20, "Intensity:", gMainGUI);
+	gEditBox_SunIntensity = gGUIHelper.CreateEditBox(tab, MAIN_GUI_SUN_INTENSITY, EditBoxX, y, EditBoxWidth, 20, gGUIHelper.Convert(gSunIntensity), gMainGUI, EDITBOX_FLOAT, gEBCallback, null);
 	y += YStep;
 
-	gGUIHelper.CreateLabel(tab, 4, y+LabelOffsetY, 90, 20, "Rayleigh multiplier:", gMainGUI);
-	gEditBox_RayleighMultiplier = gGUIHelper.CreateEditBox(tab, MAIN_GUI_RAYLEIGH_MULTIPLIER, 4+OffsetX, y, EditBoxWidth, 20, gGUIHelper.Convert(gRayleighMultiplier), gMainGUI, EDITBOX_FLOAT, gEBCallback, null);
+	gGUIHelper.CreateLabel(tab, 4, y+LabelOffsetY, LabelWidth, 20, "Rayleigh multiplier:", gMainGUI);
+	gEditBox_RayleighMultiplier = gGUIHelper.CreateEditBox(tab, MAIN_GUI_RAYLEIGH_MULTIPLIER, EditBoxX, y, EditBoxWidth, 20, gGUIHelper.Convert(gRayleighMultiplier), gMainGUI, EDITBOX_FLOAT, gEBCallback, null);
 	y += YStep;
 
-	gGUIHelper.CreateLabel(tab, 4, y+LabelOffsetY, 90, 20, "Mie multiplier:", gMainGUI);
-	gEditBox_MieMultiplier = gGUIHelper.CreateEditBox(tab, MAIN_GUI_MIE_MULTIPLIER, 4+OffsetX, y, EditBoxWidth, 20, gGUIHelper.Convert(gMieMultiplier), gMainGUI, EDITBOX_FLOAT, gEBCallback, null);
+	gGUIHelper.CreateLabel(tab, 4, y+LabelOffsetY, LabelWidth, 20, "Mie multiplier:", gMainGUI);
+	gEditBox_MieMultiplier = gGUIHelper.CreateEditBox(tab, MAIN_GUI_MIE_MULTIPLIER, EditBoxX, y, EditBoxWidth, 20, gGUIHelper.Convert(gMieMultiplier), gMainGUI, EDITBOX_FLOAT, gEBCallback, null);
 	y += YStep;
 
-	gGUIHelper.CreateLabel(tab, 4, y+LabelOffsetY, 90, 20, "Scattering multiplier:", gMainGUI);
-	gEditBox_ScatteringMultiplier = gGUIHelper.CreateEditBox(tab, MAIN_GUI_SCATTERING_MULTIPLIER, 4+OffsetX, y, EditBoxWidth, 20, gGUIHelper.Convert(gScatteringMultiplier), gMainGUI, EDITBOX_FLOAT, gEBCallback, null);
+	gGUIHelper.CreateLabel(tab, 4, y+LabelOffsetY, LabelWidth, 20, "Scattering multiplier:", gMainGUI);
+	gEditBox_ScatteringMultiplier = gGUIHelper.CreateEditBox(tab, MAIN_GUI_SCATTERING_MULTIPLIER, EditBoxX, y, EditBoxWidth, 20, gGUIHelper.Convert(gScatteringMultiplier), gMainGUI, EDITBOX_FLOAT, gEBCallback, null);
 	y += YStep;
 
-	gGUIHelper.CreateLabel(tab, 4, y+LabelOffsetY, 90, 20, "Extinction multiplier:", gMainGUI);
-	gEditBox_ExtinctionMultiplier = gGUIHelper.CreateEditBox(tab, MAIN_GUI_EXTINCTION_MULTIPLIER, 4+OffsetX, y, EditBoxWidth, 20, gGUIHelper.Convert(gExtinctionMultiplier), gMainGUI, EDITBOX_FLOAT, gEBCallback, null);
+	gGUIHelper.CreateLabel(tab, 4, y+LabelOffsetY, LabelWidth, 20, "Extinction multiplier:", gMainGUI);
+	gEditBox_ExtinctionMultiplier = gGUIHelper.CreateEditBox(tab, MAIN_GUI_EXTINCTION_MULTIPLIER, EditBoxX, y, EditBoxWidth, 20, gGUIHelper.Convert(gExtinctionMultiplier), gMainGUI, EDITBOX_FLOAT, gEBCallback, null);
 	y += YStep;
 
-	gGUIHelper.CreateLabel(tab, 4, y+LabelOffsetY, 90, 20, "HGg:", gMainGUI);
-	gEditBox_HGg = gGUIHelper.CreateEditBox(tab, MAIN_GUI_HG, 4+OffsetX, y, EditBoxWidth, 20, gGUIHelper.Convert(gHGg), gMainGUI, EDITBOX_FLOAT, gEBCallback, null);
+	gGUIHelper.CreateLabel(tab, 4, y+LabelOffsetY, LabelWidth, 20, "HGg:", gMainGUI);
+	gEditBox_HGg = gGUIHelper.CreateEditBox(tab, MAIN_GUI_HG, EditBoxX, y, EditBoxWidth, 20, gGUIHelper.Convert(gHGg), gMainGUI, EDITBOX_FLOAT, gEBCallback, null);
 	y += YStep;
 
 	tab->SetVisible(false);
