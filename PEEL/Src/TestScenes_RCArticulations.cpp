@@ -47,22 +47,143 @@ static Quat GetConjugateQ(Pint& pint, PintActorHandle actor)
 	return pr.mRot.GetConjugate();
 }
 
-static const char* gDesc_ScissorLift = "Scissor lift. Adapted from the PhysX reduced coordinates articulation snippet.";
+static const char* gDesc_ScissorLift = "Scissor lift. Adapted from the PhysX reduced coordinates articulation snippet. This test will use regular joints if RC articulations are not supported.";
 
 START_TEST(ScissorLift, CATEGORY_RCARTICULATIONS, gDesc_ScissorLift)
 
-	virtual	float	GetRenderData(Point& center)	const	{ return 20.0f;	}
+	CheckBoxPtr		mCheckBox_RCA;
+	CheckBoxPtr		mCheckBox_Wheels;
+	EditBoxPtr		mEditBox_LinkHeight;
 
-	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
+	{
+		const sdword Width = 300;
+		IceWindow* UI = CreateTestWindow(Width, 400);
+
+		Widgets& UIElems = GetUIElements();
+
+		const sdword EditBoxWidth = 60;
+		const sdword LabelWidth = 120;
+		const sdword OffsetX = LabelWidth + 10;
+		const sdword LabelOffsetY = 2;
+		const sdword YStep = 20;
+		sdword y = 0;
+		{
+			mCheckBox_RCA = helper.CreateCheckBox(UI, 0, 4, y, 400, 20, "Use articulation", &UIElems, true, null, null);
+			y += YStep;
+
+			mCheckBox_Wheels = helper.CreateCheckBox(UI, 0, 4, y, 400, 20, "Add wheels", &UIElems, false, null, null);
+			y += YStep;
+
+			helper.CreateLabel(UI, 4, y+LabelOffsetY, LabelWidth, 20, "Link height:", &UIElems);
+			mEditBox_LinkHeight = helper.CreateEditBox(UI, 1, 4+OffsetX, y, EditBoxWidth, 20, "3", &UIElems, EDITBOX_INTEGER_POSITIVE, null, null);
+			y += YStep;
+		}
+
+		y += YStep;
+		AddResetButton(UI, 4, y, Width);
+
+		return null;
+	}
+
+	virtual	float	GetRenderData(Point& center)	const	override	{ return 20.0f;	}
+
+	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)	override
 	{
 		TestBase::GetSceneParams(desc);
 		desc.mCamera[0] = PintCameraPose(Point(3.96f, 2.64f, 3.98f), Point(-0.69f, -0.32f, -0.65f));
 		SetDefEnv(desc, true);
 	}
 
-	virtual bool	Setup(Pint& pint, const PintCaps& caps)
+	static void CreateLoopJoint(Pint& pint, PintActorHandle object0, PintActorHandle object1, const Point& local_pivot0, const Point& local_pivot1)
 	{
-		if(!caps.mSupportCollisionGroups || !caps.mSupportRCArticulations || !caps.mSupportRigidBodySimulation)
+		const PINT_SPHERICAL_JOINT_CREATE Desc(object0, object1, local_pivot0, local_pivot1);
+		const PintJointHandle JointHandle = pint.CreateJoint(Desc);
+		ASSERT(JointHandle);
+	}
+
+	static PintActorHandle CreateFixedBodyPart(Pint& pint, PintArticHandle rca, const PINT_OBJECT_CREATE& create, PintActorHandle parent, const Point& local_pivot0, const Point& local_pivot1)
+	{
+		PintActorHandle h;
+		if(rca)
+		{
+			PINT_RC_ARTICULATED_BODY_CREATE ArticulatedDesc;
+			ArticulatedDesc.mJointType			= PINT_JOINT_FIXED;
+			ArticulatedDesc.mParent				= parent;
+			ArticulatedDesc.mLocalPivot0.mPos	= local_pivot0;
+			ArticulatedDesc.mLocalPivot1.mPos	= local_pivot1;
+			h = pint.CreateRCArticulatedObject(create, ArticulatedDesc, rca);
+		}
+		else
+		{
+			h = CreatePintObject(pint, create);
+
+			PINT_FIXED_JOINT_CREATE Desc;
+			Desc.mObject0		= parent;
+			Desc.mObject1		= h;
+			Desc.mLocalPivot0	= local_pivot0;
+			Desc.mLocalPivot1	= local_pivot1;
+			const PintJointHandle JointHandle = pint.CreateJoint(Desc);
+			ASSERT(JointHandle);
+		}
+		return h;
+	}
+
+	static PintActorHandle CreateHingedBodyPart(Pint& pint, PintArticHandle rca, const PINT_OBJECT_CREATE& create, PintActorHandle parent, const PR& local_pivot0, const PR& local_pivot1, bool setup_limits, float min_limit, float max_limit)
+	{
+		PintActorHandle h;
+		if(rca)
+		{
+			PINT_RC_ARTICULATED_BODY_CREATE ArticulatedDesc;
+			ArticulatedDesc.mJointType			= PINT_JOINT_HINGE;
+			ArticulatedDesc.mAxisIndex			= X_;
+			ArticulatedDesc.mParent				= parent;
+			ArticulatedDesc.mLocalPivot0		= local_pivot0;
+			ArticulatedDesc.mLocalPivot1		= local_pivot1;
+
+			if(setup_limits)
+			{
+				ArticulatedDesc.mMinLimit	= min_limit;
+				ArticulatedDesc.mMaxLimit	= max_limit;
+			}
+			else
+			{
+				ArticulatedDesc.mMinLimit	= -PI;
+				ArticulatedDesc.mMaxLimit	= PI;
+			}
+
+			h = pint.CreateRCArticulatedObject(create, ArticulatedDesc, rca);
+		}
+		else
+		{
+			h = CreatePintObject(pint, create);
+
+			PINT_HINGE2_JOINT_CREATE Desc;
+			Desc.mObject0		= parent;
+			Desc.mObject1		= h;
+			Desc.mLocalPivot0	= local_pivot0;
+			Desc.mLocalPivot1	= local_pivot1;
+
+			if(setup_limits)
+			{
+				Desc.mLimits.mMinValue	= min_limit;
+				Desc.mLimits.mMaxValue	= max_limit;
+			}
+			else
+			{
+				Desc.mLimits.mMinValue	= -PI;
+				Desc.mLimits.mMaxValue	= PI;
+			}
+
+			const PintJointHandle JointHandle = pint.CreateJoint(Desc);
+			ASSERT(JointHandle);
+		}
+		return h;
+	}
+
+	virtual bool	Setup(Pint& pint, const PintCaps& caps)	override
+	{
+		if(!caps.mSupportCollisionGroups || !caps.mSupportRigidBodySimulation)
 			return false;
 
 		// Group 0 is already used by the default static environment so we start with group 1
@@ -70,8 +191,11 @@ START_TEST(ScissorLift, CATEGORY_RCARTICULATIONS, gDesc_ScissorLift)
 		const PintDisabledGroups DG(Layer0_Group, Layer0_Group);
 		pint.SetDisabledGroups(1, &DG);
 
-		PintArticHandle RCA = pint.CreateRCArticulation(PINT_RC_ARTICULATION_CREATE());
-//		gArticulation->setSolverIterationCounts(32);
+		PintArticHandle RCA = null;
+		if(caps.mSupportRCArticulations && mCheckBox_RCA && mCheckBox_RCA->IsChecked())
+			RCA = pint.CreateRCArticulation(PINT_RC_ARTICULATION_CREATE());
+
+		const bool AddWheels = mCheckBox_Wheels && mCheckBox_Wheels->IsChecked();
 
 		const bool SetupLimits = true;
 
@@ -87,28 +211,36 @@ START_TEST(ScissorLift, CATEGORY_RCARTICULATIONS, gDesc_ScissorLift)
 		const Quat leftRot(AngleAxis(-angle, Point(1.0f, 0.0f, 0.0f)));
 		const Quat rightRot(AngleAxis(angle, Point(1.0f, 0.0f, 0.0f)));
 
+		//const Point WheelOffset(0.0f, AddWheels ? 0.1f : 0.0f, 0.0f);
 		const Point BasePos(0.0f, 0.25f, 0.0f);
 
 		//(1) Create base...
-//		PxArticulationLink* base = gArticulation->createLink(NULL, PxTransform(PxVec3(0.f, 0.25f, 0.f)));
+//		PxArticulationLink* base = gArticulation->createLink(NULL, PxTransform(PxVec3(0.0f, 0.25f, 0.0f)));
 //		PxRigidActorExt::createExclusiveShape(*base, PxBoxGeometry(0.5f, 0.25f, 1.5f), *gMaterial);
-//		PxRigidBodyExt::updateMassAndInertia(*base, 3.f);
+//		PxRigidBodyExt::updateMassAndInertia(*base, 3.0f);
 		PintActorHandle base;
 		{
 			const Point Extents(0.5f, 0.25f, 1.5f);
 //			const Point Extents(0.25f, 0.25f, 1.5f);
 			PINT_BOX_CREATE BoxDesc(Extents);
-			BoxDesc.mRenderer	= CreateBoxRenderer(Extents);
+			BoxDesc.mRenderer	= CreateRenderer(BoxDesc);
 
 			PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
 			ObjectDesc.mMass		= 3.0f;
 			ObjectDesc.mPosition	= BasePos;
+ObjectDesc.mCollisionGroup	= Layer0_Group;
 
-			PINT_RC_ARTICULATED_BODY_CREATE ArticulatedDesc;
-			base = pint.CreateRCArticulatedObject(ObjectDesc, ArticulatedDesc, RCA);
+			if(RCA)
+			{
+				PINT_RC_ARTICULATED_BODY_CREATE ArticulatedDesc;
+				base = pint.CreateRCArticulatedObject(ObjectDesc, ArticulatedDesc, RCA);
+			}
+			else
+			{
+				base = CreatePintObject(pint, ObjectDesc);
+			}
 		}
 
-		const bool AddWheels = false;
 		if(AddWheels)
 		{
 			const float WheelRadius = 0.2f;
@@ -127,261 +259,238 @@ START_TEST(ScissorLift, CATEGORY_RCARTICULATIONS, gDesc_ScissorLift)
 				PINT_OBJECT_CREATE ObjectDesc(&SphereDesc);
 				ObjectDesc.mMass		= 1.0f;
 				ObjectDesc.mPosition	= BasePos + Delta;
+ObjectDesc.mCollisionGroup	= Layer0_Group;
 
-				PINT_RC_ARTICULATED_BODY_CREATE ArticulatedDesc;
-				ArticulatedDesc.mJointType			= PINT_JOINT_HINGE;
-				ArticulatedDesc.mJointType			= PINT_JOINT_SPHERICAL;
-				ArticulatedDesc.mParent				= base;
-				ArticulatedDesc.mLocalPivot0.mPos	= Delta;
-				ArticulatedDesc.mLocalPivot1.mPos	= Point(0.f, 0.0f, 0.f);
-//				ArticulatedDesc.mAxisIndex			= X_;
-				ArticulatedDesc.mFrictionCoeff		= 0.0f;
-/*
-				ArticulatedDesc.mMinTwistLimit		(1.0f),
-				ArticulatedDesc.mMaxTwistLimit		(-1.0f),
-				ArticulatedDesc.mMinSwing1Limit		(1.0f),
-				ArticulatedDesc.mMaxSwing1Limit		(-1.0f),
-				ArticulatedDesc.mMinSwing2Limit		(1.0f),
-				ArticulatedDesc.mMaxSwing2Limit		(-1.0f),
-				ArticulatedDesc.mFrictionCoeff		(0.5f),
-*/
-				PintActorHandle Wheel = pint.CreateRCArticulatedObject(ObjectDesc, ArticulatedDesc, RCA);
-				(void)Wheel;
+				if(RCA)
+				{
+					PINT_RC_ARTICULATED_BODY_CREATE ArticulatedDesc;
+					ArticulatedDesc.mJointType			= PINT_JOINT_SPHERICAL;
+					ArticulatedDesc.mParent				= base;
+					ArticulatedDesc.mLocalPivot0.mPos	= Delta;
+					ArticulatedDesc.mLocalPivot1.mPos	= Point(0.0f, 0.0f, 0.0f);
+	//				ArticulatedDesc.mAxisIndex			= X_;
+					ArticulatedDesc.mFrictionCoeff		= 0.0f;
+	/*
+					ArticulatedDesc.mMinTwistLimit		(1.0f),
+					ArticulatedDesc.mMaxTwistLimit		(-1.0f),
+					ArticulatedDesc.mMinSwing1Limit		(1.0f),
+					ArticulatedDesc.mMaxSwing1Limit		(-1.0f),
+					ArticulatedDesc.mMinSwing2Limit		(1.0f),
+					ArticulatedDesc.mMaxSwing2Limit		(-1.0f),
+					ArticulatedDesc.mFrictionCoeff		(0.5f),
+	*/
+					const PintActorHandle Wheel = pint.CreateRCArticulatedObject(ObjectDesc, ArticulatedDesc, RCA);
+				}
+				else
+				{
+					const PintActorHandle Wheel = CreatePintObject(pint, ObjectDesc);
+
+					PINT_SPHERICAL_JOINT_CREATE Desc;
+					Desc.mObject0			= base;
+					Desc.mLocalPivot0.mPos	= Delta;
+					Desc.mObject1			= Wheel;
+					Desc.mLocalPivot1.mPos	= Point(0.0f, 0.0f, 0.0f);
+					const PintJointHandle JointHandle = pint.CreateJoint(Desc);
+					ASSERT(JointHandle);
+				}
 			}
 		}
 
 		//Now create the slider and fixed joints...
 
-//		PxArticulationLink* leftRoot = gArticulation->createLink(base, PxTransform(PxVec3(0.f, 0.55f, -0.9f)));
+//		PxArticulationLink* leftRoot = gArticulation->createLink(base, PxTransform(PxVec3(0.0f, 0.55f, -0.9f)));
 //		PxRigidActorExt::createExclusiveShape(*leftRoot, PxBoxGeometry(0.5f, 0.05f, 0.05f), *gMaterial);
-//		PxRigidBodyExt::updateMassAndInertia(*leftRoot, 1.f);
+//		PxRigidBodyExt::updateMassAndInertia(*leftRoot, 1.0f);
 //
 //		PxArticulationJointReducedCoordinate* joint = static_cast<PxArticulationJointReducedCoordinate*>(leftRoot->getInboundJoint());
 //		joint->setJointType(PxArticulationJointType::eFIX);
-//		joint->setParentPose(PxTransform(PxVec3(0.f, 0.25f, -0.9f)));
-//		joint->setChildPose(PxTransform(PxVec3(0.f, -0.05f, 0.f)));
+//		joint->setParentPose(PxTransform(PxVec3(0.0f, 0.25f, -0.9f)));
+//		joint->setChildPose(PxTransform(PxVec3(0.0f, -0.05f, 0.0f)));
 
 		PintActorHandle leftRoot;
 		{
 			const Point Extents(0.5f, 0.05f, 0.05f);
 			PINT_BOX_CREATE BoxDesc(Extents);
-			BoxDesc.mRenderer	= CreateBoxRenderer(Extents);
+			BoxDesc.mRenderer	= CreateRenderer(BoxDesc);
 
 			PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
 			ObjectDesc.mMass		= 1.0f;
-			ObjectDesc.mPosition	= Point(0.f, 0.55f, -0.9f);
+			ObjectDesc.mPosition	= Point(0.0f, 0.55f, -0.9f);
+ObjectDesc.mCollisionGroup	= Layer0_Group;
 
-			PINT_RC_ARTICULATED_BODY_CREATE ArticulatedDesc;
-			ArticulatedDesc.mJointType			= PINT_JOINT_FIXED;
-			ArticulatedDesc.mParent				= base;
-			ArticulatedDesc.mLocalPivot0.mPos	= Point(0.f, 0.25f, -0.9f);
-			ArticulatedDesc.mLocalPivot1.mPos	= Point(0.f, -0.05f, 0.f);
-			leftRoot = pint.CreateRCArticulatedObject(ObjectDesc, ArticulatedDesc, RCA);
+			leftRoot = CreateFixedBodyPart(pint, RCA, ObjectDesc, base, Point(0.0f, 0.25f, -0.9f), Point(0.0f, -0.05f, 0.0f));
 		}
 
-//		PxArticulationLink* rightRoot = gArticulation->createLink(base, PxTransform(PxVec3(0.f, 0.55f, 0.9f)));
+//		PxArticulationLink* rightRoot = gArticulation->createLink(base, PxTransform(PxVec3(0.0f, 0.55f, 0.9f)));
 //		PxRigidActorExt::createExclusiveShape(*rightRoot, PxBoxGeometry(0.5f, 0.05f, 0.05f), *gMaterial);
-//		PxRigidBodyExt::updateMassAndInertia(*rightRoot, 1.f);
+//		PxRigidBodyExt::updateMassAndInertia(*rightRoot, 1.0f);
 		//Set up the drive joint...	
 //		gDriveJoint = static_cast<PxArticulationJointReducedCoordinate*>(rightRoot->getInboundJoint());
 //		gDriveJoint->setJointType(PxArticulationJointType::ePRISMATIC);
 //		gDriveJoint->setMotion(PxArticulationAxis::eZ, PxArticulationMotion::eLIMITED);
 //		gDriveJoint->setLimit(PxArticulationAxis::eZ, -1.4f, 0.2f);
-//		gDriveJoint->setDrive(PxArticulationAxis::eZ, 100000.f, 0.f, PX_MAX_F32);
+//		gDriveJoint->setDrive(PxArticulationAxis::eZ, 100000.0f, 0.0f, PX_MAX_F32);
 
-//		gDriveJoint->setParentPose(PxTransform(PxVec3(0.f, 0.25f, 0.9f)));
-//		gDriveJoint->setChildPose(PxTransform(PxVec3(0.f, -0.05f, 0.f)));
+//		gDriveJoint->setParentPose(PxTransform(PxVec3(0.0f, 0.25f, 0.9f)));
+//		gDriveJoint->setChildPose(PxTransform(PxVec3(0.0f, -0.05f, 0.0f)));
 
 		PintActorHandle rightRoot;
 		{
 			const Point Extents(0.5f, 0.05f, 0.05f);
 			PINT_BOX_CREATE BoxDesc(Extents);
-			BoxDesc.mRenderer	= CreateBoxRenderer(Extents);
+			BoxDesc.mRenderer	= CreateRenderer(BoxDesc);
 
 			PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
 			ObjectDesc.mMass		= 1.0f;
-			ObjectDesc.mPosition	= Point(0.f, 0.55f, 0.9f);
+			ObjectDesc.mPosition	= Point(0.0f, 0.55f, 0.9f);
+ObjectDesc.mCollisionGroup	= Layer0_Group;
 
-			PINT_RC_ARTICULATED_BODY_CREATE ArticulatedDesc;
-			ArticulatedDesc.mJointType			= PINT_JOINT_PRISMATIC;
-			ArticulatedDesc.mAxisIndex			= Z_;
-			ArticulatedDesc.mMinLimit			= -1.4f;
-			ArticulatedDesc.mMaxLimit			= 0.2f;
-			ArticulatedDesc.mParent				= base;
-			ArticulatedDesc.mLocalPivot0.mPos	= Point(0.f, 0.25f, 0.9f);
-			ArticulatedDesc.mLocalPivot1.mPos	= Point(0.f, -0.05f, 0.f);
-			rightRoot = pint.CreateRCArticulatedObject(ObjectDesc, ArticulatedDesc, RCA);
+			if(RCA)
+			{
+				PINT_RC_ARTICULATED_BODY_CREATE ArticulatedDesc;
+				ArticulatedDesc.mJointType			= PINT_JOINT_PRISMATIC;
+				ArticulatedDesc.mAxisIndex			= Z_;
+				ArticulatedDesc.mMinLimit			= -1.4f;
+				ArticulatedDesc.mMaxLimit			= 0.2f;
+				ArticulatedDesc.mParent				= base;
+				ArticulatedDesc.mLocalPivot0.mPos	= Point(0.0f, 0.25f, 0.9f);
+				ArticulatedDesc.mLocalPivot1.mPos	= Point(0.0f, -0.05f, 0.0f);
+				rightRoot = pint.CreateRCArticulatedObject(ObjectDesc, ArticulatedDesc, RCA);
+			}
+			else
+			{
+				rightRoot = CreatePintObject(pint, ObjectDesc);
+
+				PINT_PRISMATIC_JOINT_CREATE Desc;
+				Desc.mObject0			= base;
+				Desc.mLocalPivot0.mPos	= Point(0.0f, 0.25f, 0.9f);
+				Desc.mObject1			= rightRoot;
+				Desc.mLocalPivot1.mPos	= Point(0.0f, -0.05f, 0.0f);
+				Desc.mLocalAxis0		= Point(0.0f, 0.0f, 1.0f);
+				Desc.mLocalAxis1		= Point(0.0f, 0.0f, 1.0f);
+				Desc.mLimits.mMinValue	= -1.4f;
+				Desc.mLimits.mMaxValue	= 0.2f;
+				const PintJointHandle JointHandle = pint.CreateJoint(Desc);
+				ASSERT(JointHandle);
+			}
 		}
 
 		//
 
-//		const udword linkHeight = 1;
-		const udword linkHeight = 3;
-//		const udword linkHeight = 7;
+		const udword linkHeight = GetInt(3, mEditBox_LinkHeight);
+
 //		PxArticulationLink* currLeft = leftRoot, *currRight = rightRoot;
 		PintActorHandle currLeft = leftRoot;
 		PintActorHandle currRight = rightRoot;
-		Quat rightParentRot;	rightParentRot.Identity();
-		Quat leftParentRot;		leftParentRot.Identity();
+		Quat rightParentRot(Idt);
+		Quat leftParentRot(Idt);
+
+//		PR LastLeftLinkPose(Idt);
+//		PR LastRightLinkPose(Idt);
 
 		for(udword i=0; i<linkHeight; ++i)
 		{
-			const Point pos(0.5f, 0.55f + 0.1f*(1 + i), 0.f);
+			const Point pos(0.5f, 0.55f + 0.1f*(1 + i), 0.0f);
 
-//			PxArticulationLink* leftLink = gArticulation->createLink(currLeft, PxTransform(pos + PxVec3(0.f, sinAng*(2 * i + 1), 0.f), leftRot));
-//			PxRigidActorExt::createExclusiveShape(*leftLink, PxBoxGeometry(0.05f, 0.05f, 1.f), *gMaterial);
-//			PxRigidBodyExt::updateMassAndInertia(*leftLink, 1.f);
+//			PxArticulationLink* leftLink = gArticulation->createLink(currLeft, PxTransform(pos + PxVec3(0.0f, sinAng*(2 * i + 1), 0.0f), leftRot));
+//			PxRigidActorExt::createExclusiveShape(*leftLink, PxBoxGeometry(0.05f, 0.05f, 1.0f), *gMaterial);
+//			PxRigidBodyExt::updateMassAndInertia(*leftLink, 1.0f);
 
-			const Point leftAnchorLocation = pos + Point(0.f, sinAng*(2 * i), -0.9f);
+			const Point leftAnchorLocation = pos + Point(0.0f, sinAng*(2 * i), -0.9f);
 
 //			joint = static_cast<PxArticulationJointReducedCoordinate*>(leftLink->getInboundJoint());
 //			joint->setParentPose(PxTransform(currLeft->getGlobalPose().transformInv(leftAnchorLocation), leftParentRot));
-//			joint->setChildPose(PxTransform(PxVec3(0.f, 0.f, -1.f), rightRot));
+//			joint->setChildPose(PxTransform(PxVec3(0.0f, 0.0f, -1.0f), rightRot));
 //			joint->setJointType(PxArticulationJointType::eREVOLUTE);
 //			joint->setMotion(PxArticulationAxis::eTWIST, PxArticulationMotion::eLIMITED);
 //			joint->setLimit(PxArticulationAxis::eTWIST, -PxPi, angle);
 
 			PintActorHandle leftLink;
 			{
-				const Point Extents(0.05f, 0.05f, 1.f);
+				const Point Extents(0.05f, 0.05f, 1.0f);
 				PINT_BOX_CREATE BoxDesc(Extents);
-				BoxDesc.mRenderer	= CreateBoxRenderer(Extents);
+				BoxDesc.mRenderer	= CreateRenderer(BoxDesc);
 
 				PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
 				ObjectDesc.mMass			= 1.0f;
-				ObjectDesc.mPosition		= pos + Point(0.f, sinAng*(2 * i + 1), 0.f);
+				ObjectDesc.mPosition		= pos + Point(0.0f, sinAng*(2 * i + 1), 0.0f);
 				ObjectDesc.mRotation		= leftRot;
+//LastLeftLinkPose = PR(ObjectDesc.mPosition, ObjectDesc.mRotation);
+
 				ObjectDesc.mCollisionGroup	= Layer0_Group;
 
-				PINT_RC_ARTICULATED_BODY_CREATE ArticulatedDesc;
-				ArticulatedDesc.mJointType	= PINT_JOINT_HINGE;
-				ArticulatedDesc.mAxisIndex	= X_;
-				if(SetupLimits)
-				{
-					ArticulatedDesc.mMinLimit	= -PI;
-					ArticulatedDesc.mMaxLimit	= angle;
-				}
-				else
-				{
-					ArticulatedDesc.mMinLimit	= -PI;
-					ArticulatedDesc.mMaxLimit	= PI;
-				}
-				ArticulatedDesc.mParent		= currLeft;
-
-				ArticulatedDesc.mLocalPivot0.mPos	= TransformInv(pint, currLeft, leftAnchorLocation);
-				ArticulatedDesc.mLocalPivot0.mRot	= leftParentRot;
-				ArticulatedDesc.mLocalPivot1.mPos	= Point(0.f, 0.f, -1.f);
-				ArticulatedDesc.mLocalPivot1.mRot	= rightRot;
-				leftLink = pint.CreateRCArticulatedObject(ObjectDesc, ArticulatedDesc, RCA);
+				leftLink = CreateHingedBodyPart(pint, RCA, ObjectDesc, currLeft,
+					PR(TransformInv(pint, currLeft, leftAnchorLocation), leftParentRot),
+					PR(Point(0.0f, 0.0f, -1.0f), rightRot),
+					SetupLimits, -PI, angle);
 			}
 
 			leftParentRot = leftRot;
 
-//			PxArticulationLink* rightLink = gArticulation->createLink(currRight, PxTransform(pos + PxVec3(0.f, sinAng*(2 * i + 1), 0.f), rightRot));
-//			PxRigidActorExt::createExclusiveShape(*rightLink, PxBoxGeometry(0.05f, 0.05f, 1.f), *gMaterial);
-//			PxRigidBodyExt::updateMassAndInertia(*rightLink, 1.f);
+//			PxArticulationLink* rightLink = gArticulation->createLink(currRight, PxTransform(pos + PxVec3(0.0f, sinAng*(2 * i + 1), 0.0f), rightRot));
+//			PxRigidActorExt::createExclusiveShape(*rightLink, PxBoxGeometry(0.05f, 0.05f, 1.0f), *gMaterial);
+//			PxRigidBodyExt::updateMassAndInertia(*rightLink, 1.0f);
 
-			const Point rightAnchorLocation = pos + Point(0.f, sinAng*(2 * i), 0.9f);
+			const Point rightAnchorLocation = pos + Point(0.0f, sinAng*(2 * i), 0.9f);
 
 //			joint = static_cast<PxArticulationJointReducedCoordinate*>(rightLink->getInboundJoint());
 //			joint->setJointType(PxArticulationJointType::eREVOLUTE);
 //			joint->setParentPose(PxTransform(currRight->getGlobalPose().transformInv(rightAnchorLocation), rightParentRot));
-//			joint->setChildPose(PxTransform(PxVec3(0.f, 0.f, 1.f), leftRot));
+//			joint->setChildPose(PxTransform(PxVec3(0.0f, 0.0f, 1.0f), leftRot));
 //			joint->setMotion(PxArticulationAxis::eTWIST, PxArticulationMotion::eLIMITED);
 //			joint->setLimit(PxArticulationAxis::eTWIST, -angle, PxPi);
 
 			PintActorHandle rightLink;
 			{
-				const Point Extents(0.05f, 0.05f, 1.f);
+				const Point Extents(0.05f, 0.05f, 1.0f);
 				PINT_BOX_CREATE BoxDesc(Extents);
-				BoxDesc.mRenderer	= CreateBoxRenderer(Extents);
+				BoxDesc.mRenderer	= CreateRenderer(BoxDesc);
 
 				PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
 				ObjectDesc.mMass			= 1.0f;
-				ObjectDesc.mPosition		= pos + Point(0.f, sinAng*(2 * i + 1), 0.f);
+				ObjectDesc.mPosition		= pos + Point(0.0f, sinAng*(2 * i + 1), 0.0f);
 				ObjectDesc.mRotation		= rightRot;
+//LastRightLinkPose = PR(ObjectDesc.mPosition, ObjectDesc.mRotation);
+
 				ObjectDesc.mCollisionGroup	= Layer0_Group;
 
-				PINT_RC_ARTICULATED_BODY_CREATE ArticulatedDesc;
-				ArticulatedDesc.mJointType	= PINT_JOINT_HINGE;
-				ArticulatedDesc.mAxisIndex	= X_;
-				if(SetupLimits)
-				{
-					ArticulatedDesc.mMinLimit	= -angle;
-					ArticulatedDesc.mMaxLimit	= PI;
-				}
-				else
-				{
-					ArticulatedDesc.mMinLimit	= -PI;
-					ArticulatedDesc.mMaxLimit	= PI;
-				}
-				ArticulatedDesc.mParent		= currRight;
-
-				ArticulatedDesc.mLocalPivot0.mPos	= TransformInv(pint, currRight, rightAnchorLocation);
-				ArticulatedDesc.mLocalPivot0.mRot	= rightParentRot;
-				ArticulatedDesc.mLocalPivot1.mPos	= Point(0.f, 0.f, 1.f);
-				ArticulatedDesc.mLocalPivot1.mRot	= leftRot;
-				rightLink = pint.CreateRCArticulatedObject(ObjectDesc, ArticulatedDesc, RCA);
+				rightLink = CreateHingedBodyPart(pint, RCA, ObjectDesc, currRight,
+					PR(TransformInv(pint, currRight, rightAnchorLocation), rightParentRot),
+					PR(Point(0.0f, 0.0f, 1.0f), leftRot),
+					SetupLimits, -angle, PI);
 			}
 
 			rightParentRot = rightRot;
 
-			{
-//			PxD6Joint* d6joint = PxD6JointCreate(*gPhysics, leftLink, PxTransform(PxIdentity), rightLink, PxTransform(PxIdentity));
-//			d6joint->setMotion(PxD6Axis::eTWIST, PxD6Motion::eFREE);
-//			d6joint->setMotion(PxD6Axis::eSWING1, PxD6Motion::eFREE);
-//			d6joint->setMotion(PxD6Axis::eSWING2, PxD6Motion::eFREE);
-				PINT_SPHERICAL_JOINT_CREATE Desc;
-				Desc.mObject0	= leftLink;
-				Desc.mObject1	= rightLink;
-				PintJointHandle JointHandle = pint.CreateJoint(Desc);
-				ASSERT(JointHandle);
-			}
+			CreateLoopJoint(pint, leftLink, rightLink, Point(0.0f, 0.0f, 0.0f), Point(0.0f, 0.0f, 0.0f));
 
 			currLeft = rightLink;
 			currRight = leftLink;
 		}
 	
 #ifdef TOSEE
-		PxArticulationLink* leftTop = gArticulation->createLink(currLeft, currLeft->getGlobalPose().transform(PxTransform(PxVec3(-0.5f, 0.f, -1.0f), leftParentRot)));
+		PxArticulationLink* leftTop = gArticulation->createLink(currLeft, currLeft->getGlobalPose().transform(PxTransform(PxVec3(-0.5f, 0.0f, -1.0f), leftParentRot)));
 		PxRigidActorExt::createExclusiveShape(*leftTop, PxBoxGeometry(0.5f, 0.05f, 0.05f), *gMaterial);
-		PxRigidBodyExt::updateMassAndInertia(*leftTop, 1.f);
+		PxRigidBodyExt::updateMassAndInertia(*leftTop, 1.0f);
 
 		joint = static_cast<PxArticulationJointReducedCoordinate*>(leftTop->getInboundJoint());
-		joint->setParentPose(PxTransform(PxVec3(0.f, 0.f, -1.f), currLeft->getGlobalPose().q.getConjugate()));
-		joint->setChildPose(PxTransform(PxVec3(0.5f, 0.f, 0.f), leftTop->getGlobalPose().q.getConjugate()));
+		joint->setParentPose(PxTransform(PxVec3(0.0f, 0.0f, -1.0f), currLeft->getGlobalPose().q.getConjugate()));
+		joint->setChildPose(PxTransform(PxVec3(0.5f, 0.0f, 0.0f), leftTop->getGlobalPose().q.getConjugate()));
 		joint->setJointType(PxArticulationJointType::eREVOLUTE);
 		joint->setMotion(PxArticulationAxis::eTWIST, PxArticulationMotion::eFREE);
-		//joint->setDrive(PxArticulationAxis::eTWIST, 0.f, 10.f, PX_MAX_F32);
+		//joint->setDrive(PxArticulationAxis::eTWIST, 0.0f, 10.0f, PX_MAX_F32);
 #endif
-
-/*
--		combo	{q={x=0.000000000 y=0.000000000 z=0.000000000 ...} p={x=-1.78813934e-007 y=3.46533942 z=-0.900000334 } }	physx::PxTransform
--		q	{x=0.000000000 y=0.000000000 z=0.000000000 ...}	physx::PxQuat
-		x	0.000000000	float
-		y	0.000000000	float
-		z	0.000000000	float
-		w	1.00000012	float
--		p	{x=-1.78813934e-007 y=3.46533942 z=-0.900000334 }	physx::PxVec3
-		x	-1.78813934e-007	float
-		y	3.46533942	float
-		z	-0.900000334	float
-
--		qq	{x=-0.000000000 y=-0.000000000 z=-0.000000000 ...}	physx::PxQuat
-		x	-0.000000000	float
-		y	-0.000000000	float
-		z	-0.000000000	float
-		w	1.00000000	float
-*/
 
 		PintActorHandle leftTop;
 		{
 			const Point Extents(0.5f, 0.05f, 0.05f);
 			PINT_BOX_CREATE BoxDesc(Extents);
-			BoxDesc.mRenderer	= CreateBoxRenderer(Extents);
+			BoxDesc.mRenderer	= CreateRenderer(BoxDesc);
 
+			// ### this pose is wrong for MuJoCo because you cannot call GetWorldTransform() before the model has been compiled :(
 			PR tmp0 = pint.GetWorldTransform(currLeft);
-			PR tmp1(Point(-0.5f, 0.f, -1.0f), leftParentRot);
+//tmp0 = LastRightLinkPose;
+			PR tmp1(Point(-0.5f, 0.0f, -1.0f), leftParentRot);
 			Matrix4x4 M0 = tmp0;
 			Matrix4x4 M1 = tmp1;
 			Matrix4x4 M = M1 * M0;
@@ -389,38 +498,30 @@ START_TEST(ScissorLift, CATEGORY_RCARTICULATIONS, gDesc_ScissorLift)
 
 			PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
 			ObjectDesc.mMass			= 1.0f;
-//			ObjectDesc.mPosition		= Transform(pint, currLeft, Point(-0.5f, 0.f, -1.0f));
+//			ObjectDesc.mPosition		= Transform(pint, currLeft, Point(-0.5f, 0.0f, -1.0f));
 //			ObjectDesc.mRotation		= leftParentRot;
 			ObjectDesc.mPosition		= combo.mPos;
 			ObjectDesc.mRotation		= combo.mRot;
 			ObjectDesc.mCollisionGroup	= Layer0_Group;
 
-			PINT_RC_ARTICULATED_BODY_CREATE ArticulatedDesc;
-			ArticulatedDesc.mJointType	= PINT_JOINT_HINGE;
-			ArticulatedDesc.mAxisIndex	= X_;
-			ArticulatedDesc.mMinLimit	= -PI;
-			ArticulatedDesc.mMaxLimit	= PI;
-			ArticulatedDesc.mParent		= currLeft;
-
-			ArticulatedDesc.mLocalPivot0.mPos	= Point(0.f, 0.f, -1.f);
-			ArticulatedDesc.mLocalPivot0.mRot	= GetConjugateQ(pint, currLeft);
-			ArticulatedDesc.mLocalPivot1.mPos	= Point(0.5f, 0.f, 0.f);
-			ArticulatedDesc.mLocalPivot1.mRot	= combo.mRot.GetConjugate();//GetConjugateQ(pint, leftTop);
-			leftTop = pint.CreateRCArticulatedObject(ObjectDesc, ArticulatedDesc, RCA);
+			leftTop = CreateHingedBodyPart(pint, RCA, ObjectDesc, currLeft,
+				PR(Point(0.0f, 0.0f, -1.0f), GetConjugateQ(pint, currLeft)),
+				PR(Point(0.5f, 0.0f, 0.0f), combo.mRot.GetConjugate()),	//GetConjugateQ(pint, leftTop);
+				false, 0.0f, 0.0f);
 		}
 
 #ifdef TOSEE
-		PxArticulationLink* rightTop = gArticulation->createLink(currRight, currRight->getGlobalPose().transform(PxTransform(PxVec3(-0.5f, 0.f, 1.0f), rightParentRot)));
+		PxArticulationLink* rightTop = gArticulation->createLink(currRight, currRight->getGlobalPose().transform(PxTransform(PxVec3(-0.5f, 0.0f, 1.0f), rightParentRot)));
 		PxRigidActorExt::createExclusiveShape(*rightTop, PxCapsuleGeometry(0.05f, 0.8f), *gMaterial);
 		//PxRigidActorExt::createExclusiveShape(*rightTop, PxBoxGeometry(0.5f, 0.05f, 0.05f), *gMaterial);
-		PxRigidBodyExt::updateMassAndInertia(*rightTop, 1.f);
+		PxRigidBodyExt::updateMassAndInertia(*rightTop, 1.0f);
 
 		joint = static_cast<PxArticulationJointReducedCoordinate*>(rightTop->getInboundJoint());
-		joint->setParentPose(PxTransform(PxVec3(0.f, 0.f, 1.f), currRight->getGlobalPose().q.getConjugate()));
-		joint->setChildPose(PxTransform(PxVec3(0.5f, 0.f, 0.f), rightTop->getGlobalPose().q.getConjugate()));
+		joint->setParentPose(PxTransform(PxVec3(0.0f, 0.0f, 1.0f), currRight->getGlobalPose().q.getConjugate()));
+		joint->setChildPose(PxTransform(PxVec3(0.5f, 0.0f, 0.0f), rightTop->getGlobalPose().q.getConjugate()));
 		joint->setJointType(PxArticulationJointType::eREVOLUTE);
 		joint->setMotion(PxArticulationAxis::eTWIST, PxArticulationMotion::eFREE);
-		//joint->setDrive(PxArticulationAxis::eTWIST, 0.f, 10.f, PX_MAX_F32);
+		//joint->setDrive(PxArticulationAxis::eTWIST, 0.0f, 10.0f, PX_MAX_F32);
 #endif
 
 //#define FOR_IMM_MODE
@@ -433,7 +534,7 @@ START_TEST(ScissorLift, CATEGORY_RCARTICULATIONS, gDesc_ScissorLift)
 #else
 //			PINT_CAPSULE_CREATE CapsuleDesc(0.05f, 0.8f);
 			PINT_CAPSULE_CREATE CapsuleDesc(0.05f, 0.5f);
-			CapsuleDesc.mRenderer	= CreateCapsuleRenderer(CapsuleDesc.mRadius, CapsuleDesc.mHalfHeight*2.0f);
+			CapsuleDesc.mRenderer	= CreateRenderer(CapsuleDesc);
 			Matrix3x3 CapsuleRot;
 //			CapsuleRot.RotX(90.0f * DEGTORAD);
 //			CapsuleRot.RotY(90.0f * DEGTORAD);
@@ -441,7 +542,8 @@ START_TEST(ScissorLift, CATEGORY_RCARTICULATIONS, gDesc_ScissorLift)
 			CapsuleDesc.mLocalRot = CapsuleRot;
 #endif
 			PR tmp0 = pint.GetWorldTransform(currRight);
-			PR tmp1(Point(-0.5f, 0.f, 1.0f), rightParentRot);
+//tmp0 = LastLeftLinkPose;
+			PR tmp1(Point(-0.5f, 0.0f, 1.0f), rightParentRot);
 			Matrix4x4 M0 = tmp0;
 			Matrix4x4 M1 = tmp1;
 			Matrix4x4 M = M1 * M0;
@@ -454,30 +556,17 @@ START_TEST(ScissorLift, CATEGORY_RCARTICULATIONS, gDesc_ScissorLift)
 			ObjectDesc.SetShape(&CapsuleDesc);
 #endif
 			ObjectDesc.mMass			= 1.0f;
-//			ObjectDesc.mPosition		= Transform(pint, currLeft, Point(-0.5f, 0.f, -1.0f));
+//			ObjectDesc.mPosition		= Transform(pint, currLeft, Point(-0.5f, 0.0f, -1.0f));
 //			ObjectDesc.mRotation		= leftParentRot;
 			ObjectDesc.mPosition		= combo.mPos;
 			ObjectDesc.mRotation		= combo.mRot;
 			ObjectDesc.mCollisionGroup	= Layer0_Group;
 
-			PINT_RC_ARTICULATED_BODY_CREATE ArticulatedDesc;
-			ArticulatedDesc.mJointType	= PINT_JOINT_HINGE;
-			ArticulatedDesc.mAxisIndex	= X_;
-			ArticulatedDesc.mMinLimit	= -PI;
-			ArticulatedDesc.mMaxLimit	= PI;
-			ArticulatedDesc.mParent		= currRight;
-
-//		joint->setParentPose(PxTransform(PxVec3(0.f, 0.f, 1.f), currRight->getGlobalPose().q.getConjugate()));
-//		joint->setChildPose(PxTransform(PxVec3(0.5f, 0.f, 0.f), rightTop->getGlobalPose().q.getConjugate()));
-
-			ArticulatedDesc.mLocalPivot0.mPos	= Point(0.f, 0.f, 1.f);
-			ArticulatedDesc.mLocalPivot0.mRot	= GetConjugateQ(pint, currRight);
-			ArticulatedDesc.mLocalPivot1.mPos	= Point(0.5f, 0.f, 0.f);
-			ArticulatedDesc.mLocalPivot1.mRot	= combo.mRot.GetConjugate();//GetConjugateQ(pint, leftTop);
-			rightTop = pint.CreateRCArticulatedObject(ObjectDesc, ArticulatedDesc, RCA);
+			rightTop = CreateHingedBodyPart(pint, RCA, ObjectDesc, currRight,
+				PR(Point(0.0f, 0.0f, 1.0f), GetConjugateQ(pint, currRight)),
+				PR(Point(0.5f, 0.0f, 0.0f), combo.mRot.GetConjugate()),	//GetConjugateQ(pint, rightTop)
+				false, 0.0f, 0.0f);
 		}
-
-
 
 		currLeft = leftRoot;
 		currRight = rightRoot;
@@ -487,263 +576,121 @@ START_TEST(ScissorLift, CATEGORY_RCARTICULATIONS, gDesc_ScissorLift)
 
 		for(udword i=0; i<linkHeight; ++i)
 		{
-			const Point pos(-0.5f, 0.55f + 0.1f*(1 + i), 0.f);
+			const Point pos(-0.5f, 0.55f + 0.1f*(1 + i), 0.0f);
 
-	//		PxArticulationLink* leftLink = gArticulation->createLink(currLeft, PxTransform(pos + PxVec3(0.f, sinAng*(2 * i + 1), 0.f), leftRot));
-	//		PxRigidActorExt::createExclusiveShape(*leftLink, PxBoxGeometry(0.05f, 0.05f, 1.f), *gMaterial);
-	//		PxRigidBodyExt::updateMassAndInertia(*leftLink, 1.f);
+	//		PxArticulationLink* leftLink = gArticulation->createLink(currLeft, PxTransform(pos + PxVec3(0.0f, sinAng*(2 * i + 1), 0.0f), leftRot));
+	//		PxRigidActorExt::createExclusiveShape(*leftLink, PxBoxGeometry(0.05f, 0.05f, 1.0f), *gMaterial);
+	//		PxRigidBodyExt::updateMassAndInertia(*leftLink, 1.0f);
 
-			const Point leftAnchorLocation = pos + Point(0.f, sinAng*(2 * i), -0.9f);
+			const Point leftAnchorLocation = pos + Point(0.0f, sinAng*(2 * i), -0.9f);
 
 	//		joint = static_cast<PxArticulationJointReducedCoordinate*>(leftLink->getInboundJoint());
 	//		joint->setJointType(PxArticulationJointType::eREVOLUTE);
 	//		joint->setParentPose(PxTransform(currLeft->getGlobalPose().transformInv(leftAnchorLocation), leftParentRot));
-	//		joint->setChildPose(PxTransform(PxVec3(0.f, 0.f, -1.f), rightRot));
+	//		joint->setChildPose(PxTransform(PxVec3(0.0f, 0.0f, -1.0f), rightRot));
 	//			joint->setMotion(PxArticulationAxis::eTWIST, PxArticulationMotion::eLIMITED);
 	//			joint->setLimit(PxArticulationAxis::eTWIST, -PxPi, angle);
 
 			PintActorHandle leftLink;
 			{
-				const Point Extents(0.05f, 0.05f, 1.f);
+				const Point Extents(0.05f, 0.05f, 1.0f);
 				PINT_BOX_CREATE BoxDesc(Extents);
 				BoxDesc.mRenderer	= CreateBoxRenderer(Extents);
 
 				PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
 				ObjectDesc.mMass			= 1.0f;
-				ObjectDesc.mPosition		= pos + Point(0.f, sinAng*(2 * i + 1), 0.f);
+				ObjectDesc.mPosition		= pos + Point(0.0f, sinAng*(2 * i + 1), 0.0f);
 				ObjectDesc.mRotation		= leftRot;
 				ObjectDesc.mCollisionGroup	= Layer0_Group;
 
-				PINT_RC_ARTICULATED_BODY_CREATE ArticulatedDesc;
-				ArticulatedDesc.mJointType	= PINT_JOINT_HINGE;
-				ArticulatedDesc.mAxisIndex	= X_;
-				if(SetupLimits)
-				{
-					ArticulatedDesc.mMinLimit	= -PI;
-					ArticulatedDesc.mMaxLimit	= angle;
-				}
-				else
-				{
-					ArticulatedDesc.mMinLimit	= -PI;
-					ArticulatedDesc.mMaxLimit	= PI;
-				}
-				ArticulatedDesc.mParent		= currLeft;
-
-				ArticulatedDesc.mLocalPivot0.mPos	= TransformInv(pint, currLeft, leftAnchorLocation);
-				ArticulatedDesc.mLocalPivot0.mRot	= leftParentRot;
-				ArticulatedDesc.mLocalPivot1.mPos	= Point(0.f, 0.f, -1.f);
-				ArticulatedDesc.mLocalPivot1.mRot	= rightRot;
-				leftLink = pint.CreateRCArticulatedObject(ObjectDesc, ArticulatedDesc, RCA);
+				leftLink = CreateHingedBodyPart(pint, RCA, ObjectDesc, currLeft,
+					PR(TransformInv(pint, currLeft, leftAnchorLocation), leftParentRot),
+					PR(Point(0.0f, 0.0f, -1.0f), rightRot),
+					SetupLimits, -PI, angle);
 			}
 
 			leftParentRot = leftRot;
 
-	//		PxArticulationLink* rightLink = gArticulation->createLink(currRight, PxTransform(pos + PxVec3(0.f, sinAng*(2 * i + 1), 0.f), rightRot));
-	//		PxRigidActorExt::createExclusiveShape(*rightLink, PxBoxGeometry(0.05f, 0.05f, 1.f), *gMaterial);
-	//		PxRigidBodyExt::updateMassAndInertia(*rightLink, 1.f);
+	//		PxArticulationLink* rightLink = gArticulation->createLink(currRight, PxTransform(pos + PxVec3(0.0f, sinAng*(2 * i + 1), 0.0f), rightRot));
+	//		PxRigidActorExt::createExclusiveShape(*rightLink, PxBoxGeometry(0.05f, 0.05f, 1.0f), *gMaterial);
+	//		PxRigidBodyExt::updateMassAndInertia(*rightLink, 1.0f);
 
-			const Point rightAnchorLocation = pos + Point(0.f, sinAng*(2 * i), 0.9f);
+			const Point rightAnchorLocation = pos + Point(0.0f, sinAng*(2 * i), 0.9f);
 
 	//		joint = static_cast<PxArticulationJointReducedCoordinate*>(rightLink->getInboundJoint());
 	//		joint->setParentPose(PxTransform(currRight->getGlobalPose().transformInv(rightAnchorLocation), rightParentRot));
 	//		joint->setJointType(PxArticulationJointType::eREVOLUTE);
-	//		joint->setChildPose(PxTransform(PxVec3(0.f, 0.f, 1.f), leftRot));
+	//		joint->setChildPose(PxTransform(PxVec3(0.0f, 0.0f, 1.0f), leftRot));
 	//		joint->setMotion(PxArticulationAxis::eTWIST, PxArticulationMotion::eLIMITED);
 	//		joint->setLimit(PxArticulationAxis::eTWIST, -angle, PxPi);
 
 			PintActorHandle rightLink;
 			{
-				const Point Extents(0.05f, 0.05f, 1.f);
+				const Point Extents(0.05f, 0.05f, 1.0f);
 				PINT_BOX_CREATE BoxDesc(Extents);
-				BoxDesc.mRenderer	= CreateBoxRenderer(Extents);
+				BoxDesc.mRenderer	= CreateRenderer(BoxDesc);
 
 				PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
 				ObjectDesc.mMass			= 1.0f;
-				ObjectDesc.mPosition		= pos + Point(0.f, sinAng*(2 * i + 1), 0.f);
+				ObjectDesc.mPosition		= pos + Point(0.0f, sinAng*(2 * i + 1), 0.0f);
 				ObjectDesc.mRotation		= rightRot;
 				ObjectDesc.mCollisionGroup	= Layer0_Group;
 
-				PINT_RC_ARTICULATED_BODY_CREATE ArticulatedDesc;
-				ArticulatedDesc.mJointType	= PINT_JOINT_HINGE;
-				ArticulatedDesc.mAxisIndex	= X_;
-				if(SetupLimits)
-				{
-					ArticulatedDesc.mMinLimit	= -angle;
-					ArticulatedDesc.mMaxLimit	= PI;
-				}
-				else
-				{
-					ArticulatedDesc.mMinLimit	= -PI;
-					ArticulatedDesc.mMaxLimit	= PI;
-				}
-				ArticulatedDesc.mParent		= currRight;
-
-				ArticulatedDesc.mLocalPivot0.mPos	= TransformInv(pint, currRight, rightAnchorLocation);
-				ArticulatedDesc.mLocalPivot0.mRot	= rightParentRot;
-				ArticulatedDesc.mLocalPivot1.mPos	= Point(0.f, 0.f, 1.f);
-				ArticulatedDesc.mLocalPivot1.mRot	= leftRot;
-				rightLink = pint.CreateRCArticulatedObject(ObjectDesc, ArticulatedDesc, RCA);
+				rightLink = CreateHingedBodyPart(pint, RCA, ObjectDesc, currRight,
+					PR(TransformInv(pint, currRight, rightAnchorLocation), rightParentRot),
+					PR(Point(0.0f, 0.0f, 1.0f), leftRot),
+					SetupLimits, -angle, PI);
 			}
 
 			rightParentRot = rightRot;
-			{
-//			PxD6Joint* d6joint = PxD6JointCreate(*gPhysics, leftLink, PxTransform(PxIdentity), rightLink, PxTransform(PxIdentity));
-//			d6joint->setMotion(PxD6Axis::eTWIST, PxD6Motion::eFREE);
-//			d6joint->setMotion(PxD6Axis::eSWING1, PxD6Motion::eFREE);
-//			d6joint->setMotion(PxD6Axis::eSWING2, PxD6Motion::eFREE);
-				PINT_SPHERICAL_JOINT_CREATE Desc;
-				Desc.mObject0	= leftLink;
-				Desc.mObject1	= rightLink;
-				PintJointHandle JointHandle = pint.CreateJoint(Desc);
-				ASSERT(JointHandle);
-			}
+
+			CreateLoopJoint(pint, leftLink, rightLink, Point(0.0f, 0.0f, 0.0f), Point(0.0f, 0.0f, 0.0f));
 
 			currLeft = rightLink;
 			currRight = leftLink;
 		}
 
-		{
-/*		PxD6Joint* d6joint = PxD6JointCreate(*gPhysics, currLeft, PxTransform(PxVec3(0.f, 0.f, -1.f)), leftTop, PxTransform(PxVec3(-0.5f, 0.f, 0.f)));
-		d6joint->setMotion(PxD6Axis::eTWIST, PxD6Motion::eFREE);
-		d6joint->setMotion(PxD6Axis::eSWING1, PxD6Motion::eFREE);
-		d6joint->setMotion(PxD6Axis::eSWING2, PxD6Motion::eFREE);
-	*/
-				PINT_SPHERICAL_JOINT_CREATE Desc;
-				Desc.mObject0			= currLeft;
-				Desc.mLocalPivot0.mPos	= Point(0.f, 0.f, -1.f);
-				Desc.mObject1			= leftTop;
-				Desc.mLocalPivot1.mPos	= Point(-0.5f, 0.f, 0.f);
-				PintJointHandle JointHandle = pint.CreateJoint(Desc);
-				ASSERT(JointHandle);
-		}
+		CreateLoopJoint(pint, currLeft, leftTop, Point(0.0f, 0.0f, -1.0f), Point(-0.5f, 0.0f, 0.0f));
 
 		// TODO: double-check pivots here
-		{
-				PINT_SPHERICAL_JOINT_CREATE Desc;
-				Desc.mObject0			= currRight;
-				Desc.mLocalPivot0.mPos	= Point(0.f, 0.f, 1.f);
-				Desc.mObject1			= rightTop;
-				Desc.mLocalPivot1.mPos	= Point(-0.5f, 0.f, 0.f);
-				PintJointHandle JointHandle = pint.CreateJoint(Desc);
-				ASSERT(JointHandle);
-		}
+		CreateLoopJoint(pint, currRight, rightTop, Point(0.0f, 0.0f, 1.0f), Point(-0.5f, 0.0f, 0.0f));
 
 #ifdef TOSEE
-		const PxTransform topPose(PxVec3(0.f, leftTop->getGlobalPose().p.y + 0.15f, 0.f));
+		const PxTransform topPose(PxVec3(0.0f, leftTop->getGlobalPose().p.y + 0.15f, 0.0f));
 
 		PxArticulationLink* top = gArticulation->createLink(leftTop, topPose);
 		PxRigidActorExt::createExclusiveShape(*top, PxBoxGeometry(0.5f, 0.1f, 1.5f), *gMaterial);
-		PxRigidBodyExt::updateMassAndInertia(*top, 1.f);
+		PxRigidBodyExt::updateMassAndInertia(*top, 1.0f);
 
 		joint = static_cast<PxArticulationJointReducedCoordinate*>(top->getInboundJoint());
 		joint->setJointType(PxArticulationJointType::eFIX);
-		joint->setParentPose(PxTransform(PxVec3(0.f, 0.0f, 0.f)));
-		joint->setChildPose(PxTransform(PxVec3(0.f, -0.15f, -0.9f)));
+		joint->setParentPose(PxTransform(PxVec3(0.0f, 0.0f, 0.0f)));
+		joint->setChildPose(PxTransform(PxVec3(0.0f, -0.15f, -0.9f)));
 
 		gScene->addArticulation(*gArticulation);
 #endif
 
-			PintActorHandle top;
-			{
-				const PR topTransform = pint.GetWorldTransform(leftTop);
-
-				const Point topPose(0.f, topTransform.mPos.y + 0.15f, 0.f);
-
-				const Point Extents(0.5f, 0.1f, 1.5f);
-				PINT_BOX_CREATE BoxDesc(Extents);
-				BoxDesc.mRenderer	= CreateBoxRenderer(Extents);
-
-				PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
-				ObjectDesc.mMass			= 1.0f;
-				ObjectDesc.mPosition		= topPose;
-//				ObjectDesc.mCollisionGroup	= Layer0_Group;
-
-				PINT_RC_ARTICULATED_BODY_CREATE ArticulatedDesc;
-				ArticulatedDesc.mJointType	= PINT_JOINT_FIXED;
-				ArticulatedDesc.mParent		= leftTop;
-
-				ArticulatedDesc.mLocalPivot0.mPos	= Point(0.0f, 0.0f, 0.0f);
-				ArticulatedDesc.mLocalPivot1.mPos	= Point(0.f, -0.15f, -0.9f);
-				top = pint.CreateRCArticulatedObject(ObjectDesc, ArticulatedDesc, RCA);
-			}
-
-		pint.AddRCArticulationToScene(RCA);
-
-#ifdef TOSEE
-		for (PxU32 i = 0; i < gArticulation->getNbLinks(); ++i)
+		PintActorHandle top;
 		{
-			PxArticulationLink* link;
-			gArticulation->getLinks(&link, 1, i);
+			const PR topTransform = pint.GetWorldTransform(leftTop);
 
-			link->setLinearDamping(0.2f);
-			link->setAngularDamping(0.2f);
+			const Point topPose(0.0f, topTransform.mPos.y + 0.15f, 0.0f);
 
-			link->setMaxAngularVelocity(20.f);
-			link->setMaxLinearVelocity(100.f);
+			const Point Extents(0.5f, 0.1f, 1.5f);
+			PINT_BOX_CREATE BoxDesc(Extents);
+			BoxDesc.mRenderer	= CreateRenderer(BoxDesc);
 
-			if (link != top)
-			{
-				for (PxU32 b = 0; b < link->getNbShapes(); ++b)
-				{
-					PxShape* shape;
-					link->getShapes(&shape, 1, b);
+			PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
+			ObjectDesc.mMass			= 1.0f;
+			ObjectDesc.mPosition		= topPose;
+//			ObjectDesc.mCollisionGroup	= Layer0_Group;
 
-					shape->setSimulationFilterData(PxFilterData(0, 0, 1, 0));
-				}
-			}
+			top = CreateFixedBodyPart(pint, RCA, ObjectDesc, leftTop, Point(0.0f, 0.0f, 0.0f), Point(0.0f, -0.15f, -0.9f));
 		}
 
-		const PxVec3 halfExt(0.25f);
-		const PxReal density(0.5f);
+		if(RCA)
+			pint.AddRCArticulationToScene(RCA);
 
-		PxRigidDynamic* box0 = gPhysics->createRigidDynamic(PxTransform(PxVec3(-0.25f, 5.f, 0.5f)));
-		PxRigidActorExt::createExclusiveShape(*box0, PxBoxGeometry(halfExt), *gMaterial);
-		PxRigidBodyExt::updateMassAndInertia(*box0, density);
-
-		gScene->addActor(*box0);
-
-		PxRigidDynamic* box1 = gPhysics->createRigidDynamic(PxTransform(PxVec3(0.25f, 5.f, 0.5f)));
-		PxRigidActorExt::createExclusiveShape(*box1, PxBoxGeometry(halfExt), *gMaterial);
-		PxRigidBodyExt::updateMassAndInertia(*box1, density);
-
-		gScene->addActor(*box1);
-
-		PxRigidDynamic* box2 = gPhysics->createRigidDynamic(PxTransform(PxVec3(-0.25f, 4.5f, 0.5f)));
-		PxRigidActorExt::createExclusiveShape(*box2, PxBoxGeometry(halfExt), *gMaterial);
-		PxRigidBodyExt::updateMassAndInertia(*box2, density);
-
-		gScene->addActor(*box2);
-
-		PxRigidDynamic* box3 = gPhysics->createRigidDynamic(PxTransform(PxVec3(0.25f, 4.5f, 0.5f)));
-		PxRigidActorExt::createExclusiveShape(*box3, PxBoxGeometry(halfExt), *gMaterial);
-		PxRigidBodyExt::updateMassAndInertia(*box3, density);
-
-		gScene->addActor(*box3);
-
-		PxRigidDynamic* box4 = gPhysics->createRigidDynamic(PxTransform(PxVec3(-0.25f, 5.f, 0.f)));
-		PxRigidActorExt::createExclusiveShape(*box4, PxBoxGeometry(halfExt), *gMaterial);
-		PxRigidBodyExt::updateMassAndInertia(*box4, density);
-
-		gScene->addActor(*box4);
-
-		PxRigidDynamic* box5 = gPhysics->createRigidDynamic(PxTransform(PxVec3(0.25f, 5.f, 0.f)));
-		PxRigidActorExt::createExclusiveShape(*box5, PxBoxGeometry(halfExt), *gMaterial);
-		PxRigidBodyExt::updateMassAndInertia(*box5, density);
-
-		gScene->addActor(*box5);
-
-		PxRigidDynamic* box6 = gPhysics->createRigidDynamic(PxTransform(PxVec3(-0.25f, 4.5f, 0.f)));
-		PxRigidActorExt::createExclusiveShape(*box6, PxBoxGeometry(halfExt), *gMaterial);
-		PxRigidBodyExt::updateMassAndInertia(*box6, density);
-
-		gScene->addActor(*box6);
-
-		PxRigidDynamic* box7 = gPhysics->createRigidDynamic(PxTransform(PxVec3(0.25f, 4.5f, 0.f)));
-		PxRigidActorExt::createExclusiveShape(*box7, PxBoxGeometry(halfExt), *gMaterial);
-		PxRigidBodyExt::updateMassAndInertia(*box7, density);
-
-		gScene->addActor(*box7);
-#endif
 		return true;
 	}
 
