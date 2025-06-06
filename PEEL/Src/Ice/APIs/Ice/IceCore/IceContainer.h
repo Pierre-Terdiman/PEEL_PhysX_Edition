@@ -634,4 +634,6 @@
 				float			mGrowthFactor;		//!< Resize: new number of entries = old number * mGrowthFactor
 	};
 
+	#define ICE_RESERVE(type, container)	reinterpret_cast<type*>((container).Reserve(sizeof(type)/sizeof(udword)));
+
 #endif // ICECONTAINER_H

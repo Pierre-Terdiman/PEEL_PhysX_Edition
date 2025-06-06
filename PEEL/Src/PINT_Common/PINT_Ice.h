@@ -70,6 +70,4 @@
 	using namespace IceRenderer;
 	using namespace IceTerrain;
 
-	#define ICE_RESERVE(type, container)	reinterpret_cast<type*>((container).Reserve(sizeof(type)/sizeof(udword)));
-
 #endif
