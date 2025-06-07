@@ -46,7 +46,7 @@ void ActorManager::Add(PxRigidActor* actor)
 	const udword Index = Actors->GetNbEntries()/ACTOR_DATA_SIZE;
 	ActorData* AD = reinterpret_cast<ActorData*>(Actors->Reserve(ACTOR_DATA_SIZE));
 	AD->mActor = actor;
-	AD->mSingleShape = null;
+	AD->mShapeData = 0;
 
 	if(actor->getNbShapes()==1)
 	{
@@ -57,7 +57,15 @@ void ActorManager::Add(PxRigidActor* actor)
 			if(LocalPose.p.x==0.0f && LocalPose.p.y==0.0f && LocalPose.p.z==0.0f
 				&& LocalPose.q.x==0.0f && LocalPose.q.y==0.0f && LocalPose.q.z==0.0f && LocalPose.q.w==1.0f)
 			{
-				AD->mSingleShape = shape;
+#if PHYSX_SUPPORT_DIRECT_SHAPE_GET_GEOMETRY
+				const PxGeometryType::Enum geomType = shape->getGeometry().getType();	// ### VCALL
+#else
+				const PxGeometryType::Enum geomType = shape->getGeometryType();	// ### VCALL
+#endif
+				size_t shapeData = size_t(shape);
+				PX_ASSERT(!(shapeData & 15));	// 4 bits must be free there, as everything is at least 16-bytes aligned
+				PX_COMPILE_TIME_ASSERT(PxGeometryType::eGEOMETRY_COUNT < 16);
+				AD->mShapeData = shapeData | size_t(geomType);
 			}
 		}
 	}

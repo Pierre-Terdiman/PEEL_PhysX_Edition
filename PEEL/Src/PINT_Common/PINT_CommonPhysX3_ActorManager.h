@@ -12,7 +12,11 @@
 	struct ActorData
 	{
 		PxRigidActor*	mActor;
-		PxShape*		mSingleShape;	// Valid if non-compound, and local-pose == identity
+		//PxShape*		mSingleShape;	// Valid if non-compound, and local-pose == identity
+		size_t			mShapeData;		// Encoded shape pointer + type
+
+		inline_	PxShape*				GetShape()		const	{ return reinterpret_cast<PxShape*>(mShapeData & (~15));	}
+		inline_	PxGeometryType::Enum	GetShapeType()	const	{ return PxGeometryType::Enum(mShapeData & 15);				}
 	};
 	#define	ACTOR_DATA_SIZE	(sizeof(ActorData)/sizeof(udword))
 

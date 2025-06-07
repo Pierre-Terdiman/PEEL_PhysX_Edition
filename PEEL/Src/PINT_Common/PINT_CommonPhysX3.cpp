@@ -1913,8 +1913,10 @@ void SharedPhysX::SetDisabledGroups(udword nb_groups, const PintDisabledGroups* 
 		PhysX3_SetGroupCollisionFlag(groups[i].mGroup0, groups[i].mGroup1, false);
 }
 
+static float gGroundOffset = 0.0f;
 PintActorHandle SharedPhysX::CreateGroundPlane(const PINT_OBJECT_CREATE& desc)
 {
+	gGroundOffset = desc.mPosition.y;
 	PxRigidStatic* actor = mPhysics->createRigidStatic(PxTransform(PxIdentity));
 	ASSERT(actor);
 
@@ -1932,9 +1934,6 @@ PintActorHandle SharedPhysX::CreateGroundPlane(const PINT_OBJECT_CREATE& desc)
 	NewShape->setLocalPose(PxTransform(q));
 
 	SetupShape(*this, mParams, desc.GetFirstShape(), *NewShape, desc.mCollisionGroup, PhysX3::IsDebugVizEnabled());
-
-	// Make sure we don't use the given renderer, which was for a box and a different rotation
-	NewShape->userData = null;
 
 	AddActorToScene(actor);
 	return CreateHandle(actor);
@@ -3827,7 +3826,7 @@ static void RenderShapeGeneric(PintRender& renderer, PxShape* shape, const PR& I
 	else ASSERT(0);
 }
 
-static inline_ void RenderShape(PintRender& renderer, PxShape* shape, const PxTransform& shapePose)
+static inline_ void RenderShape(PintRender& renderer, PxShape* shape, PxGeometryType::Enum geomType, const PxTransform& shapePose)
 {
 	if(!renderer.SetCurrentShape(PintShapeHandle(shape)))
 		return;
@@ -3842,12 +3841,12 @@ static inline_ void RenderShape(PintRender& renderer, PxShape* shape, const PxTr
 	if(shape->userData)
 	{
 		PintShapeRenderer* shapeRenderer = reinterpret_cast<PintShapeRenderer*>(shape->userData);
-#if PHYSX_SUPPORT_DIRECT_SHAPE_GET_GEOMETRY
-		const PxGeometryType::Enum geomType = shape->getGeometry().getType();	// ### VCALL
-#else
-		const PxGeometryType::Enum geomType = shape->getGeometryType();	// ### VCALL
-#endif
-		if(geomType!=PxGeometryType::eCAPSULE)
+		if(geomType==PxGeometryType::ePLANE)
+		{
+			// Special codepath to properly render the ground-box when an actual ground plane was used. Hacky. To revisit.
+			renderer.DrawShape(shapeRenderer, PR(Point(0.0f, gGroundOffset, 0.0f), Quat(Idt)));
+		}
+		else if(geomType!=PxGeometryType::eCAPSULE)
 		{
 //			shapeRenderer->Render(IcePose);
 			renderer.DrawShape(shapeRenderer, IcePose);
@@ -3965,7 +3964,7 @@ void SharedPhysX::Render(PintRender& renderer, PintRenderPass render_pass)
 						nbVisibleActors++;
 					}
 
-					if(CurrentActor.mSingleShape)
+					if(CurrentActor.mShapeData)
 					{
 						// TODO: keep current poses in actor manager (for sleeping objects)
 #ifdef USE_ACTOR_MANAGER_CACHE
@@ -3973,7 +3972,7 @@ void SharedPhysX::Render(PintRender& renderer, PintRenderPass render_pass)
 #else
 						const PxTransform Pose = rigidActor->getGlobalPose();
 #endif
-						RenderShape(renderer, CurrentActor.mSingleShape, Pose);
+						RenderShape(renderer, CurrentActor.GetShape(), CurrentActor.GetShapeType(), Pose);
 					}
 					else
 					{
@@ -3999,7 +3998,12 @@ void SharedPhysX::Render(PintRender& renderer, PintRenderPass render_pass)
 #endif*/
 							const PxTransform Pose = ActorPose * shape->getLocalPose();
 
-							RenderShape(renderer, shape, Pose);
+#if PHYSX_SUPPORT_DIRECT_SHAPE_GET_GEOMETRY
+							const PxGeometryType::Enum geomType = shape->getGeometry().getType();	// ### VCALL
+#else
+							const PxGeometryType::Enum geomType = shape->getGeometryType();	// ### VCALL
+#endif
+							RenderShape(renderer, shape, geomType, Pose);
 						}
 					}
 				}
