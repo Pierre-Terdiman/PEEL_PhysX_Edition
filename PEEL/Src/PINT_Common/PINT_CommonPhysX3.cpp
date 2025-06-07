@@ -2802,8 +2802,8 @@ static PxTriangleMesh* CreatePhysXMesh(PxPhysics* physics,
 	{
 		const_cast<PxCookingParams&>(cookingParams).meshPreprocessParams |= PxMeshPreprocessingFlag::eENABLE_INERTIA;
 
-		//sdfDesc.spacing = 0.05f;
-		sdfDesc.spacing = 0.005f;
+		sdfDesc.spacing = 0.05f;
+		//sdfDesc.spacing = 0.005f;
 		//sdfDesc.spacing = 0.0025f;
 		//sdfDesc.spacing = 0.001f;
 		//sdfDesc.spacing = 0.0005f;
