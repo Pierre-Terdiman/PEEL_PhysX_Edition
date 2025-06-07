@@ -1101,6 +1101,11 @@ void PhysXPlugIn::ApplyTestUIParams(const char* test_name)
 		EP.mEnableRaycastCCDStatic = gCheckBox_Generic2->IsChecked();
 		EP.mEnableRaycastCCDDynamic = gCheckBox_Generic2->IsChecked();
 #endif
+
+#if PHYSX_SUPPORT_GYROSCOPIC_FORCES
+		if(strcmp(test_name, "CCDTest_ThinRods")==0)
+			EP.mGyro = true;
+#endif
 		return;
 	}
 
