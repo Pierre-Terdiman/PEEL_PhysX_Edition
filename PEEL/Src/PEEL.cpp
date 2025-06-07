@@ -2177,6 +2177,7 @@ static char* gFolders[] = {
 	"../Media/#VehicleData/%s",
 	"../Media/#Vehicles/%s",
 	"../Media/NutsAndBolts/%s",
+	"../Media/MuJoCoMenagerie/%s",
 	"../Media/Zcb/%s",
 	"../Excel/%s",
 	"../Screenshots/%s",
