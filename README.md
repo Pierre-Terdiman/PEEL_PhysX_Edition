@@ -7,11 +7,22 @@ PEEL was a tool designed to evaluate, compare and benchmark physics engines. See
 
 This is PEEL 2.0, dedicated to PhysX.
 
-For now this is mainly a private backup of the code online. Feel free to look at it but there is no documentation, it is not easy to compile, it is unsupported, you're on your own.
+For now this is mainly a private backup of the code online.
 
-Because the project supports both very old and very new engines, building everything with the same compiler is basically impossible. Some old engines whose source code has never been made public require e.g. Visual Studio 2010, while brand new engines only support Visual Studio 2019 and C++17. I have no good build solution for this project. Included here on GitHub are various manually maintained Visual Studio solutions. I tend to use VS2008 for Win32 builds, VS2017 for x64 builds, and VS2019 for new engines like Jolt (included here as an example).
+Because the project supports both very old and very new engines, building everything with the same compiler is basically impossible. Some old engines whose source code has never been made public require e.g. Visual Studio 2010, while brand new engines only support Visual Studio 2019 or C++17. I have no good build solution for this project and no time or motivation to investigate. Included here on GitHub are various manually maintained Visual Studio solutions.
 
-This "PhysX edition" currently only includes plugins for PhysX 4.1.2, PhysX 5.1.0, PhysX 5.4.2, PhysX 5.5.0, PhysX 5.6.0. The older versions are not included so far. Due to the size limits enforced by Github on binary files, the GPU DLLs have been zipped. Just unzip them locally if you need them. You should still be able to run the precompiled binaries on the CPU.
+This "PhysX edition" currently mostly includes plugins for recent PhysX versions, but also a couple of guests:
+
+- PhysX 4.1.2
+- PhysX 5.1.0
+- PhysX 5.4.2
+- PhysX 5.5.0
+- PhysX 5.6.0
+- Jolt 5.2.0
+- MuJoCo 3.3.2
+- Opcode 2.1 (binaries only)
+
+The older PhysX versions are not included so far. Due to the size limits enforced by Github on binary files, the GPU DLLs have been zipped. Just unzip them locally if you need them. You should still be able to run the precompiled binaries on the CPU.
 
 Videos:
 
@@ -27,6 +38,7 @@ https://www.youtube.com/watch?v=6dATi4-wb3o
 
 Screenshots:
 
+![alt text](/Screenshots/AnymalC.jpg?raw=true)
 ![alt text](/Screenshots/LegoTechnicBuggy.jpg?raw=true)
 ![alt text](/Screenshots/LegoTechnicKart.jpg?raw=true)
 ![alt text](/Screenshots/JacobsLadder.jpg?raw=true)
