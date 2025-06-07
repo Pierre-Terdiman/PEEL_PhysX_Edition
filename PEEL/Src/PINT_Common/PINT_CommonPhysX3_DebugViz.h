@@ -42,5 +42,15 @@
 				bool		mEnabled;
 	};
 
+	class DebugVizHelper
+	{
+		public:
+		inline_	void		Release()	{ mVerts.Empty();	}
+
+				void		RenderDebugData(PintRender& renderer, const PxRenderBuffer& RenderBuffer);
+
+				Vertices	mVerts;
+	};
+
 #endif
 
