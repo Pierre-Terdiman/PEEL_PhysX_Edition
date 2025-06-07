@@ -1927,6 +1927,9 @@ PintActorHandle SharedPhysX::CreateGroundPlane(const PINT_OBJECT_CREATE& desc)
 
 	SetupShape(*this, mParams, desc.GetFirstShape(), *NewShape, desc.mCollisionGroup, PhysX3::IsDebugVizEnabled());
 
+	// Make sure we don't use the given renderer, which was for a box and a different rotation
+	NewShape->userData = null;
+
 	AddActorToScene(actor);
 	return CreateHandle(actor);
 }
