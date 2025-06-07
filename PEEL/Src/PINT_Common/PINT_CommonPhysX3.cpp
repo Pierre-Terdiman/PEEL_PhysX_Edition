@@ -76,6 +76,9 @@ static const char* gDebugVizNames[] =
 	"Visualize collision dynamics",
 	"Visualize joint local frames",
 	"Visualize joint limits",
+#if PHYSX_SUPPORT_DYNAMIC_MESHES
+	"Visualize SDF",
+#endif
 #ifndef IS_PHYSX_3_2
 	"Visualize MBP regions",
 #endif
@@ -101,6 +104,7 @@ static PxVisualizationParameter::Enum gDebugVizIndex[] =
 	PxVisualizationParameter::eCOLLISION_DYNAMIC,
 	PxVisualizationParameter::eJOINT_LOCAL_FRAMES,
 	PxVisualizationParameter::eJOINT_LIMITS,
+	PxVisualizationParameter::eSDF,
 #ifndef IS_PHYSX_3_2
 	PxVisualizationParameter::eMBP_REGIONS,
 #endif
