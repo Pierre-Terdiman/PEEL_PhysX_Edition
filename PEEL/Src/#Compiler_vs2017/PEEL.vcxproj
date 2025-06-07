@@ -542,6 +542,7 @@
     <ClCompile Include="..\MatcapShader.cpp" />
     <ClCompile Include="..\MeshCleaner.cpp" />
     <ClCompile Include="..\MinimalRegionManager.cpp" />
+    <ClCompile Include="..\MuJoCoConverter.cpp" />
     <ClCompile Include="..\MyConvex.cpp" />
     <ClCompile Include="..\PEEL.cpp" />
     <ClCompile Include="..\PEEL_MenuBar.cpp" />
@@ -926,6 +927,7 @@
     <ClInclude Include="..\MatcapShader.h" />
     <ClInclude Include="..\MeshCleaner.h" />
     <ClInclude Include="..\MinimalRegionManager.h" />
+    <ClInclude Include="..\MuJoCoConverter.h" />
     <ClInclude Include="..\MyConvex.h" />
     <ClInclude Include="..\PEEL.h" />
     <ClInclude Include="..\PEEL_MenuBar.h" />

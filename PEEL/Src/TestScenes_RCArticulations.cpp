@@ -1250,60 +1250,6 @@ static void SetupLink(PINT_OBJECT_CREATE& desc, const char* name, const Point& p
 	desc.SetShape(shapes);
 }
 
-class MatrixStack
-{
-	public:
-			MatrixStack();
-
-	void	Transform(Point& pos, Quat& rot);
-	void	Push(const Point& pos, const Quat& rot);
-	void	Pop();
-
-	private:
-	udword		mNbMatrices;
-	Matrix4x4	mMat[64];
-};
-
-MatrixStack::MatrixStack() : mNbMatrices(0)
-{
-}
-
-void MatrixStack::Transform(Point& pos, Quat& rot)
-{
-	if(!mNbMatrices)
-		return;
-
-	Matrix4x4 Combo;
-	Combo.Identity();
-/*	for(udword i=0;i<mNbMatrices;i++)
-	{
-		Combo *= mMat[i];
-	}*/
-	Combo = mMat[mNbMatrices-1];
-
-	Matrix4x4 M = rot;
-	M.SetTrans(pos);
-
-	Matrix4x4 tmp0 = Combo * M;
-	Matrix4x4 tmp1 = M * Combo;
-	PR FinalPose = tmp0;
-	pos = FinalPose.mPos;
-	rot = FinalPose.mRot;
-}
-
-void MatrixStack::Push(const Point& pos, const Quat& rot)
-{
-	Matrix4x4 M = rot;
-	M.SetTrans(pos);
-	mMat[mNbMatrices++] = M;
-}
-
-void MatrixStack::Pop()
-{
-	mNbMatrices--;
-}
-
-
 static const char* gDesc_MujocoHumanoid = "Humanoid model from Mujoco.";
 
 START_TEST(MujocoHumanoid, CATEGORY_RCARTICULATIONS, gDesc_MujocoHumanoid)

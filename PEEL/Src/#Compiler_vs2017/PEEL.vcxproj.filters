@@ -793,6 +793,9 @@
     <ClCompile Include="..\RockInit.cpp">
       <Filter>Source Files\Main\#PEEL</Filter>
     </ClCompile>
+    <ClCompile Include="..\MuJoCoConverter.cpp">
+      <Filter>Source Files\Main\Import_Export</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\LegoLib\LegoLib.h">
@@ -1656,6 +1659,9 @@
     </ClInclude>
     <ClInclude Include="..\RockInit.h">
       <Filter>Source Files\Main\#PEEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MuJoCoConverter.h">
+      <Filter>Source Files\Main\Import_Export</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
