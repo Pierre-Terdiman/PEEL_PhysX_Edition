@@ -321,7 +321,7 @@ in each engine, for the same torque.";
 
 START_TEST(AddLocalTorque, CATEGORY_API, gDesc_AddLocalTorque)
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		return CreateOverrideTabControl("AddLocalTorque", 20);
 	}
@@ -657,6 +657,56 @@ END_TEST(Compound)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static const char* gDesc_CapsuleCompound = "Capsule compound - to check capsule's orientations. Make sure the rendering matches the collision shapes.";
+
+START_TEST(CapsuleCompound, CATEGORY_API, gDesc_CapsuleCompound)
+
+	virtual	float	GetRenderData(Point& center)	const	{ return 20.0f;	}
+
+	virtual void	GetSceneParams(PINT_WORLD_CREATE& desc)
+	{
+		TestBase::GetSceneParams(desc);
+		desc.mCamera[0] = PintCameraPose(Point(-0.73f, 1.76f, 3.48f), Point(0.24f, -0.26f, -0.94f));
+		SetDefEnv(desc, true);
+	}
+
+	virtual bool	Setup(Pint& pint, const PintCaps& caps)
+	{
+		if(!caps.mSupportRigidBodySimulation || !caps.mSupportCompounds)
+			return false;
+
+		const Point X(1.0f, 0.0f, 0.0f);
+		const Point Y(0.0f, 1.0f, 0.0f);
+		const Point Z(0.0f, 0.0f, 1.0f);
+
+		PINT_CAPSULE_CREATE CapsuleDesc(0.1f, 1.0f);
+		CapsuleDesc.mRenderer = CreateRenderer(CapsuleDesc);
+		PINT_CAPSULE_CREATE CapsuleDesc2(CapsuleDesc);
+		PINT_CAPSULE_CREATE CapsuleDesc3(CapsuleDesc);
+
+		CapsuleDesc.SetNext(&CapsuleDesc2);
+		CapsuleDesc2.SetNext(&CapsuleDesc3);
+
+		CapsuleDesc.mName = "CapsuleY";
+
+		CapsuleDesc2.mName = "CapsuleX";
+		CapsuleDesc2.mLocalRot = ShortestRotation(Y, X);
+
+		CapsuleDesc3.mName = "CapsuleZ";
+		CapsuleDesc3.mLocalRot = ShortestRotation(Y, Z);
+
+		PINT_OBJECT_CREATE ObjectDesc(&CapsuleDesc);
+		ObjectDesc.mMass		= 1.0f;
+		ObjectDesc.mPosition	= Point(0.0f, 2.0f, 0.0f);
+		CreatePintObject(pint, ObjectDesc);
+
+		return true;
+	}
+
+END_TEST(CapsuleCompound)
+
+///////////////////////////////////////////////////////////////////////////////
+
 static Quat FromEuler(const float* src)
 {
 	float euler[3];
@@ -698,7 +748,7 @@ START_TEST(CylinderCompounds, CATEGORY_API, gDesc_CylinderCompounds)
 
 	virtual	float	GetRenderData(Point& center)	const	{ return 20.0f;	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		return CreateOverrideTabControl("CylinderCompounds", 20);
 	}
@@ -815,7 +865,7 @@ END_TEST(CylinderCompounds)
 /*static const char* gDesc_ContactAndRestOffsets = "Contact and rest offsets.";
 START_TEST(ContactAndRestOffsets, CATEGORY_API, gDesc_ContactAndRestOffsets)
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		return CreateOverrideTabControl("ContactAndRestOffsets", 20);
 	}
@@ -929,7 +979,7 @@ class Heightfield : public HeightfieldTest
 
 	virtual	float	GetRenderData(Point& center)	const	{ return 200.0f;	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		return CreateOverrideTabControl("Heightfield", 20);
 	}
