@@ -1613,7 +1613,7 @@ void SharedPhysX::CreateCooking(const PxTolerancesScale& scale, PxMeshPreprocess
 	Params.gaussMapLimit = mParams.mGaussMapLimit;
 #endif
 
-#ifdef PHYSX_SUPPORT_GPU
+#if PHYSX_SUPPORT_GPU
 	if(mParams.mUseGPU)
 		Params.BUILD_GPU_DATA = true;
 #endif
@@ -4447,7 +4447,7 @@ enum PhysXGUIElement
 	PHYSX_GUI_USE_PVD,
 	PHYSX_GUI_USE_FULL_PVD_CONNECTION,
 //	PHYSX_GUI_DRAW_MBP_REGIONS,
-#ifdef PHYSX_SUPPORT_GPU
+#if PHYSX_SUPPORT_GPU
 	PHYSX_GUI_USE_GPU,
 	#if PHYSX_SUPPORT_DIRECT_GPU
 	PHYSX_GUI_USE_DIRECT_GPU,
@@ -4581,7 +4581,7 @@ EditableParams::EditableParams() :
 	mUsePVD						(false),
 #endif
 	mUseFullPvdConnection		(true),
-#ifdef PHYSX_SUPPORT_GPU
+#if PHYSX_SUPPORT_GPU
 	mUseGPU						(false),
 	#if PHYSX_SUPPORT_DIRECT_GPU
 	mUseDirectGPU				(false),
@@ -4942,6 +4942,10 @@ namespace
 #if PHYSX_SUPPORT_VEHICLE_SWEEP_INFLATION
 		EditBoxPtr		mEditBox_SweepInflation;
 #endif
+#if PHYSX_SUPPORT_GPU
+		EditBoxPtr		mEditBox_NbGpuPartitions;
+		EditBoxPtr		mEditBox_GpuBuffersSizeMultiplier;
+#endif
 #if PHYSX_SUPPORT_FLUIDS
 		EditBoxPtr		mEditBox_FluidFriction;
 		EditBoxPtr		mEditBox_FluidDamping;
@@ -5192,6 +5196,11 @@ void PhysX3::GetOptionsFromGUI(const char* test_name)
 	Common_GetFromEditBox(gParams.mSweepInflation, gPhysXUI->mEditBox_SweepInflation, 0.0f, FLT_MAX);
 #endif
 
+#if PHYSX_SUPPORT_GPU
+	Common_GetFromEditBox(gParams.mNbGpuPartitions, gPhysXUI->mEditBox_NbGpuPartitions);
+	Common_GetFromEditBox(gParams.mGpuBuffersSizeMultiplier, gPhysXUI->mEditBox_GpuBuffersSizeMultiplier);
+#endif
+
 #if PHYSX_SUPPORT_FLUIDS
 	Common_GetFromEditBox(gParams.mFluidFriction, gPhysXUI->mEditBox_FluidFriction, -FLT_MAX, FLT_MAX);
 	Common_GetFromEditBox(gParams.mFluidDamping, gPhysXUI->mEditBox_FluidDamping, -FLT_MAX, FLT_MAX);
@@ -5331,7 +5340,7 @@ void PhysX3::GetOptionsFromOverride(PintOverride* overrideParams)
 		if(overrideParams->mSleeping!=INVALID_ID)
 			gParams.mEnableSleeping = overrideParams->mSleeping!=0;
 
-#ifdef PHYSX_SUPPORT_GPU
+#if PHYSX_SUPPORT_GPU
 		if(overrideParams->mUseGPU!=INVALID_ID)
 			gParams.mUseGPU = overrideParams->mUseGPU!=0;
 #endif
@@ -5559,7 +5568,7 @@ static void gCheckBoxCallback(const IceCheckBox& check_box, bool checked, void* 
 		case PHYSX_GUI_USE_FULL_PVD_CONNECTION:
 			gParams.mUseFullPvdConnection = checked;
 			break;
-#ifdef PHYSX_SUPPORT_GPU
+#if PHYSX_SUPPORT_GPU
 		case PHYSX_GUI_USE_GPU:
 			gParams.mUseGPU = checked;
 			break;
@@ -5712,13 +5721,14 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 	enum TabIndex
 	{
 		TAB_MAIN,
+		//TAB_COLLISION,
 		TAB_DYNAMICS,
 		TAB_JOINTS,
 		TAB_SCENE_QUERIES,
 		TAB_COOKING,
 		TAB_VEHICLES,
-#if PHYSX_SUPPORT_FLUIDS
-		TAB_FLUIDS,
+#if PHYSX_SUPPORT_GPU
+		TAB_GPU,
 #endif
 		TAB_DEBUG_VIZ,
 		TAB_COUNT,
@@ -5752,13 +5762,14 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 			Tabs[i] = Tab;
 		}
 		TabControl->Add(Tabs[TAB_MAIN], "Main");
+		//TabControl->Add(Tabs[TAB_COLLISION], "Collision");
 		TabControl->Add(Tabs[TAB_DYNAMICS], "Dynamics");
 		TabControl->Add(Tabs[TAB_JOINTS], "Joints");
 		TabControl->Add(Tabs[TAB_SCENE_QUERIES], "Scene queries");
 		TabControl->Add(Tabs[TAB_COOKING], "Cooking");
 		TabControl->Add(Tabs[TAB_VEHICLES], "Vehicles");
-#if PHYSX_SUPPORT_FLUIDS
-		TabControl->Add(Tabs[TAB_FLUIDS], "Fluids");
+#if PHYSX_SUPPORT_GPU
+		TabControl->Add(Tabs[TAB_GPU], "GPU");
 #endif
 		TabControl->Add(Tabs[TAB_DEBUG_VIZ], "Debug vis.");
 
@@ -5823,7 +5834,10 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 
 			const udword x2 = 200;
 			{
-				gPhysXUI->mCheckBox_GroundPlane = helper.CreateCheckBox(TabWindow, PHYSX_GUI_GROUND_PLANE, 200, y+8, CheckBoxWidth, 20, "Ground plane instead of box", gPhysXUI->mPhysXGUI, gParams.mGroundPlane, gCheckBoxCallback);
+				y += 8;
+
+				gPhysXUI->mCheckBox_GroundPlane = helper.CreateCheckBox(TabWindow, PHYSX_GUI_GROUND_PLANE, 4, y, CheckBoxWidth, 20, "Ground plane instead of box", gPhysXUI->mPhysXGUI, gParams.mGroundPlane, gCheckBoxCallback);
+				y += YStepCB;
 
 				gPhysXUI->mCheckBox_CCD = helper.CreateCheckBox(TabWindow, PHYSX_GUI_ENABLE_CCD, 4, y, CheckBoxWidth, 20, "Enable CCD", gPhysXUI->mPhysXGUI, gParams.mEnableCCD, gCheckBoxCallback);
 				y += YStepCB;
@@ -5884,17 +5898,9 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 #endif
 			y += YStepCB;
 
-#ifdef PHYSX_SUPPORT_GPU
-			helper.CreateCheckBox(TabWindow, PHYSX_GUI_USE_GPU, 4, y, CheckBoxWidth, 20, "Use GPU", gPhysXUI->mPhysXGUI, gParams.mUseGPU, gCheckBoxCallback);
-			y += YStepCB;
-	#if PHYSX_SUPPORT_DIRECT_GPU
-			helper.CreateCheckBox(TabWindow, PHYSX_GUI_USE_DIRECT_GPU, 4, y, CheckBoxWidth, 20, "Use direct GPU", gPhysXUI->mPhysXGUI, gParams.mUseDirectGPU, gCheckBoxCallback);
-			y += YStepCB;
-	#endif
-#endif
 			y += YStepCB;
 
-			y = 120;
+			y = 100;
 
 			const sdword EditBoxX = 130;
 			const sdword LabelWidth = 130;
@@ -5903,13 +5909,13 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 //		gPhysXUI->mEditBox_GlobalBoxSize = helper.CreateEditBox(TabWindow, PHYSX_GUI_GLOBAL_BOX_SIZE, 4+EditBoxX, y, EditBoxWidth, 20, helper.Convert(gGlobalBoxSize), gPhysXUI->mPhysXGUI, EDITBOX_FLOAT_POSITIVE, null);
 //		y += YStep;
 
+#if PHYSX_SUPPORT_SUBSTEPS
+			gPhysXUI->mEditBox_NbSubsteps = CreateEditBox(helper, TabWindow, x2, y, "Nb substeps:", _F("%d", gParams.mNbSubsteps), EDITBOX_INTEGER_POSITIVE, LabelWidth, EditBoxX);
+#endif
 			gPhysXUI->mEditBox_ContactOffset = CreateEditBox(helper, TabWindow, x2, y, "Contact offset:", helper.Convert(gParams.mContactOffset), EDITBOX_FLOAT, LabelWidth, EditBoxX);
 			gPhysXUI->mEditBox_RestOffset = CreateEditBox(helper, TabWindow, x2, y, "Rest offset:", helper.Convert(gParams.mRestOffset), EDITBOX_FLOAT, LabelWidth, EditBoxX);
 #if PHYSX_SUPPORT_CONTACT_NOTIFICATIONS
 			gPhysXUI->mEditBox_ContactNotifThreshold = CreateEditBox(helper, TabWindow, x2, y, "Contact notif threshold:", helper.Convert(gParams.mContactNotifThreshold), EDITBOX_FLOAT, LabelWidth, EditBoxX);
-#endif
-#if PHYSX_SUPPORT_SUBSTEPS
-			gPhysXUI->mEditBox_NbSubsteps = CreateEditBox(helper, TabWindow, x2, y, "Nb substeps:", _F("%d", gParams.mNbSubsteps), EDITBOX_INTEGER_POSITIVE, LabelWidth, EditBoxX);
 #endif
 #if PHYSX_SUPPORT_PX_BROADPHASE_TYPE
 			gPhysXUI->mEditBox_MBPSubdivLevel = CreateEditBox(helper, TabWindow, x2, y, "MBP subdiv level:", _F("%d", gParams.mMBPSubdivLevel), EDITBOX_INTEGER_POSITIVE, LabelWidth, EditBoxX);
@@ -6423,28 +6429,65 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 			// TODO: add vehicle params here
 		}
 
-#if PHYSX_SUPPORT_FLUIDS
-		// TAB_FLUIDS
+#if PHYSX_SUPPORT_GPU
+		// TAB_GPU
 		{
-			const sdword EditBoxX = 100;
+			const sdword EditBoxX = 130;
+			const sdword LabelWidth = 130;
 
-			IceWindow* TabWindow = Tabs[TAB_FLUIDS];
+			IceWindow* TabWindow = Tabs[TAB_GPU];
 			sdword y = YStart;
+			sdword YSaved = y;
 
-			gPhysXUI->mEditBox_FluidFriction = CreateEditBox(helper, TabWindow, 4, y, "Friction:", helper.Convert(gParams.mFluidFriction), EDITBOX_FLOAT, 90, EditBoxX);
-			gPhysXUI->mEditBox_FluidDamping = CreateEditBox(helper, TabWindow, 4, y, "Damping:", helper.Convert(gParams.mFluidDamping), EDITBOX_FLOAT, 90, EditBoxX);
-			gPhysXUI->mEditBox_FluidAdhesion = CreateEditBox(helper, TabWindow, 4, y, "Adhesion:", helper.Convert(gParams.mFluidAdhesion), EDITBOX_FLOAT, 90, EditBoxX);
-			gPhysXUI->mEditBox_FluidViscosity = CreateEditBox(helper, TabWindow, 4, y, "Viscosity:", helper.Convert(gParams.mFluidViscosity), EDITBOX_FLOAT, 90, EditBoxX);
-			gPhysXUI->mEditBox_FluidVorticityConfinement = CreateEditBox(helper, TabWindow, 4, y, "Vorticity:", helper.Convert(gParams.mFluidVorticityConfinement), EDITBOX_FLOAT, 90, EditBoxX);
-			gPhysXUI->mEditBox_FluidSurfaceTension = CreateEditBox(helper, TabWindow, 4, y, "Surface tension:", helper.Convert(gParams.mFluidSurfaceTension), EDITBOX_FLOAT, 90, EditBoxX);
-			gPhysXUI->mEditBox_FluidCohesion = CreateEditBox(helper, TabWindow, 4, y, "Cohesion:", helper.Convert(gParams.mFluidCohesion), EDITBOX_FLOAT, 90, EditBoxX);
-			gPhysXUI->mEditBox_FluidLift = CreateEditBox(helper, TabWindow, 4, y, "Lift:", helper.Convert(gParams.mFluidLift), EDITBOX_FLOAT, 90, EditBoxX);
-			gPhysXUI->mEditBox_FluidDrag = CreateEditBox(helper, TabWindow, 4, y, "Drag:", helper.Convert(gParams.mFluidDrag), EDITBOX_FLOAT, 90, EditBoxX);
-			gPhysXUI->mEditBox_FluidCflCoefficient = CreateEditBox(helper, TabWindow, 4, y, "Cfl coeff:", helper.Convert(gParams.mFluidCflCoefficient), EDITBOX_FLOAT, 90, EditBoxX);
-			gPhysXUI->mEditBox_FluidGravityScale = CreateEditBox(helper, TabWindow, 4, y, "Gravity scale:", helper.Convert(gParams.mFluidGravityScale), EDITBOX_FLOAT, 90, EditBoxX);
-			gPhysXUI->mEditBox_FluidParticleMass = CreateEditBox(helper, TabWindow, 4, y, "Particle mass:", helper.Convert(gParams.mFluidParticleMass), EDITBOX_FLOAT, 90, EditBoxX);
-			gPhysXUI->mCheckBox_FluidParticleCCD = helper.CreateCheckBox(TabWindow, PHYSX_GUI_FLUID_PARTICLE_CCD, 4, y, CheckBoxWidth, 20, "Particle CCD", gPhysXUI->mPhysXGUI, gParams.mFluidParticleCCD, gCheckBoxCallback);
+			helper.CreateCheckBox(TabWindow, PHYSX_GUI_USE_GPU, 4, y, CheckBoxWidth, 20, "Use GPU", gPhysXUI->mPhysXGUI, gParams.mUseGPU, gCheckBoxCallback);
 			y += YStepCB;
+	#if PHYSX_SUPPORT_DIRECT_GPU
+			helper.CreateCheckBox(TabWindow, PHYSX_GUI_USE_DIRECT_GPU, 4, y, CheckBoxWidth, 20, "Use direct GPU", gPhysXUI->mPhysXGUI, gParams.mUseDirectGPU, gCheckBoxCallback);
+			y += YStepCB;
+	#endif
+			gPhysXUI->mEditBox_NbGpuPartitions = CreateEditBox(helper, TabWindow, 4, y, "Nb GPU partitions:", _F("%d", gParams.mNbGpuPartitions), EDITBOX_INTEGER_POSITIVE, LabelWidth, EditBoxX);
+			gPhysXUI->mEditBox_GpuBuffersSizeMultiplier = CreateEditBox(helper, TabWindow, 4, y, "GPU buffer size multiplier:", _F("%d", gParams.mGpuBuffersSizeMultiplier), EDITBOX_INTEGER_POSITIVE, LabelWidth, EditBoxX);
+
+	#if PHYSX_SUPPORT_FLUIDS
+			//const sdword EditBoxX = 100;
+
+			const sdword xf = 200;
+			y = YSaved;
+
+			y += 30;
+			const sdword x = 220;
+
+			gPhysXUI->mEditBox_FluidFriction = CreateEditBox(helper, TabWindow, x, y, "Friction:", helper.Convert(gParams.mFluidFriction), EDITBOX_FLOAT, 90, EditBoxX);
+			gPhysXUI->mEditBox_FluidDamping = CreateEditBox(helper, TabWindow, x, y, "Damping:", helper.Convert(gParams.mFluidDamping), EDITBOX_FLOAT, 90, EditBoxX);
+			gPhysXUI->mEditBox_FluidAdhesion = CreateEditBox(helper, TabWindow, x, y, "Adhesion:", helper.Convert(gParams.mFluidAdhesion), EDITBOX_FLOAT, 90, EditBoxX);
+			gPhysXUI->mEditBox_FluidViscosity = CreateEditBox(helper, TabWindow, x, y, "Viscosity:", helper.Convert(gParams.mFluidViscosity), EDITBOX_FLOAT, 90, EditBoxX);
+			gPhysXUI->mEditBox_FluidVorticityConfinement = CreateEditBox(helper, TabWindow, x, y, "Vorticity:", helper.Convert(gParams.mFluidVorticityConfinement), EDITBOX_FLOAT, 90, EditBoxX);
+			gPhysXUI->mEditBox_FluidSurfaceTension = CreateEditBox(helper, TabWindow, x, y, "Surface tension:", helper.Convert(gParams.mFluidSurfaceTension), EDITBOX_FLOAT, 90, EditBoxX);
+			gPhysXUI->mEditBox_FluidCohesion = CreateEditBox(helper, TabWindow, x, y, "Cohesion:", helper.Convert(gParams.mFluidCohesion), EDITBOX_FLOAT, 90, EditBoxX);
+			gPhysXUI->mEditBox_FluidLift = CreateEditBox(helper, TabWindow, x, y, "Lift:", helper.Convert(gParams.mFluidLift), EDITBOX_FLOAT, 90, EditBoxX);
+			gPhysXUI->mEditBox_FluidDrag = CreateEditBox(helper, TabWindow, x, y, "Drag:", helper.Convert(gParams.mFluidDrag), EDITBOX_FLOAT, 90, EditBoxX);
+			gPhysXUI->mEditBox_FluidCflCoefficient = CreateEditBox(helper, TabWindow, x, y, "Cfl coeff:", helper.Convert(gParams.mFluidCflCoefficient), EDITBOX_FLOAT, 90, EditBoxX);
+			gPhysXUI->mEditBox_FluidGravityScale = CreateEditBox(helper, TabWindow, x, y, "Gravity scale:", helper.Convert(gParams.mFluidGravityScale), EDITBOX_FLOAT, 90, EditBoxX);
+			gPhysXUI->mEditBox_FluidParticleMass = CreateEditBox(helper, TabWindow, x, y, "Particle mass:", helper.Convert(gParams.mFluidParticleMass), EDITBOX_FLOAT, 90, EditBoxX);
+			gPhysXUI->mCheckBox_FluidParticleCCD = helper.CreateCheckBox(TabWindow, PHYSX_GUI_FLUID_PARTICLE_CCD, x, y, CheckBoxWidth, 20, "Particle CCD", gPhysXUI->mPhysXGUI, gParams.mFluidParticleCCD, gCheckBoxCallback);
+			y += YStepCB;
+
+			{
+				// Cannot use helper function here because "mType" is missing from wrapper.
+				EditBoxDesc EBD;
+				EBD.mParent		= TabWindow;
+				EBD.mX			= xf;
+				EBD.mY			= YSaved;
+				EBD.mWidth		= 250;
+				EBD.mHeight		= 300;
+				EBD.mLabel		= "============ Fluids settings ============";
+				EBD.mFilter		= EDITBOX_TEXT;
+				EBD.mType		= EDITBOX_READ_ONLY;
+				IceEditBox* EB = ICE_NEW(IceEditBox)(EBD);
+				EB->SetVisible(true);
+				gPhysXUI->mPhysXGUI->Register(EB);
+			}
+	#endif
 		}
 #endif
 
