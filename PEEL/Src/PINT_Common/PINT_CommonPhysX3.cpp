@@ -1489,7 +1489,7 @@ void SharedPhysX::InitCommon()
 
 void SharedPhysX::CloseCommon()
 {
-	mDebugVizHelper.Empty();
+	mDebugVizHelper.Release();
 
 #ifdef SHARED_SHAPES_USE_HASH
 	DELETESINGLE(mSphereShapes);
@@ -4270,57 +4270,8 @@ void SharedPhysX::RenderDebugData(PintRender& renderer)
 
 	const PxRenderBuffer& RenderBuffer = mScene->getRenderBuffer();
 //	const PxRenderBuffer& RenderBuffer = mScene->fillRenderBuffer();
-	udword NbLines = RenderBuffer.getNbLines();
-	const PxDebugLine* Lines = RenderBuffer.getLines();
 
-	if(0)
-	{
-		for(udword i=0;i<NbLines;i++)
-		{
-			Point LineColor;
-			LineColor.z = float(Lines[i].color0&0xff)/255.0f;
-			LineColor.y = float((Lines[i].color0>>8)&0xff)/255.0f;
-			LineColor.x = float((Lines[i].color0>>16)&0xff)/255.0f;
-			renderer.DrawLine(ToPoint(Lines[i].pos0), ToPoint(Lines[i].pos1), LineColor);
-		}
-	}
-	else
-	{
-		mDebugVizHelper.Reset();
-
-		Point CurrentColor(0.0f, 0.0f, 0.0f);
-		udword PrevColor = 0;
-
-		//printf("NbLines: %d\n", NbLines);
-
-		for(udword i=0;i<NbLines;i++)
-		{
-			const udword NextColor = Lines[i].color0;
-			if(NextColor!=PrevColor)
-			{
-				renderer.DrawLines(mDebugVizHelper.GetNbVertices()/2, mDebugVizHelper.GetVertices(), CurrentColor);
-				mDebugVizHelper.Reset();
-
-				PrevColor = NextColor;
-				CurrentColor.z = float(NextColor&0xff)/255.0f;
-				CurrentColor.y = float((NextColor>>8)&0xff)/255.0f;
-				CurrentColor.x = float((NextColor>>16)&0xff)/255.0f;
-			}
-
-			mDebugVizHelper.AddVertex(ToPoint(Lines[i].pos0));
-			mDebugVizHelper.AddVertex(ToPoint(Lines[i].pos1));
-		}
-		renderer.DrawLines(mDebugVizHelper.GetNbVertices()/2, mDebugVizHelper.GetVertices(), CurrentColor);
-		mDebugVizHelper.Reset();
-	}
-
-	udword NbTris = RenderBuffer.getNbTriangles();
-	const PxDebugTriangle* Triangles = RenderBuffer.getTriangles();
-	const Point TrisColor(1.0f, 1.0f, 1.0f);
-	for(udword i=0;i<NbTris;i++)
-	{
-		renderer.DrawTriangle(ToPoint(Triangles[i].pos0), ToPoint(Triangles[i].pos1), ToPoint(Triangles[i].pos2), TrisColor);
-	}
+	mDebugVizHelper.RenderDebugData(renderer, RenderBuffer);
 
 #if PHYSX_SUPPORT_PX_BROADPHASE_TYPE
 	if(gVisualizeMBPRegions && mParams.mBroadPhaseType == PxBroadPhaseType::eMBP)

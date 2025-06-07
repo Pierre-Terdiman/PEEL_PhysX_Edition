@@ -23,6 +23,7 @@
 #include "PINT_CommonPhysX3_Joint.h"
 #include "PINT_CommonPhysX3_Mesh.h"
 #include "PINT_CommonPhysX3_FilterShader.h"
+#include "PINT_CommonPhysX3_DebugViz.h"
 #include "PINT_CommonPhysX_FoundationAPI.h"
 #include "PINT_CommonPhysX_Names.h"
 
@@ -236,7 +237,7 @@
 		bool							mFlushSimulation;
 		bool							mUsePVD;
 		bool							mUseFullPvdConnection;
-#ifdef PHYSX_SUPPORT_GPU
+#if PHYSX_SUPPORT_GPU
 		bool							mUseGPU;
 		inline_	PxConvexFlags			GetConvexFlags()	const
 		{
@@ -859,8 +860,7 @@
 				PxHashSet<PintActorHandle>*	mInvisibles;
 				//Rock::CoalescedHashSet<PintActorHandle>*	mInvisibles;
 #endif
-
-				Vertices					mDebugVizHelper;
+				DebugVizHelper				mDebugVizHelper;
 
 				Names						mNames;
 	};
