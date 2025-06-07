@@ -17,6 +17,314 @@
 #include "MyConvex.h"
 #include "GUI_Helpers.h"
 #include "GLFontRenderer.h"
+#include "MuJoCoConverter.h"
+
+///////////////////////////////////////////////////////////////////////////////
+
+static const char* gDesc_RCA_Drives = "RCA drives. A test to explore the drive/motor/actuator behavior of different engines. Beware: linear damping in main UI may affect angular velocities here.";
+
+// Velocity drive:
+// - a damping value of 0.2 in MuJoCo gives the exact same angular velocity as a linear damping of 0.1 and angular damping of 0.0 in PhysX (for all actuators damping values).
+
+class RCADrives : public TestBase
+{
+	class LocalTestData : public TestData
+	{
+		public:
+			LocalTestData() : mDynamicObject(null)	{}
+			PintActorHandle	mDynamicObject;
+	};
+
+			CheckBoxPtr		mCheckBox_EnableMotor;
+			CheckBoxPtr		mCheckBox_EnableUpdate;
+			CheckBoxPtr		mCheckBox_Velocity;
+			CheckBoxPtr		mCheckBox_Position;
+			EditBoxPtr		mEditBox_TargetVel;
+			EditBoxPtr		mEditBox_TargetPos;
+			EditBoxPtr		mEditBox_Stiffness;
+			EditBoxPtr		mEditBox_Damping;
+			ComboBoxPtr		mComboBox_Preset;
+			SliderPtr		mSlider;
+
+	public:
+							RCADrives()					{									}
+	virtual					~RCADrives()				{									}
+	virtual	const char*		GetName()			const	{ return "RCADrives";				}
+	virtual	const char*		GetDescription()	const	{ return gDesc_RCA_Drives;			}
+	virtual	TestCategory	GetCategory()		const	{ return CATEGORY_RCARTICULATIONS;	}
+
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
+	{
+		const sdword Width = 220;
+		IceWindow* UI = CreateTestWindow(Width, 320);
+
+		Widgets& UIElems = GetUIElements();
+
+		const sdword EditBoxWidth = 60;
+		const sdword LabelWidth = 60;
+		const sdword OffsetX = LabelWidth + 10;
+		const sdword LabelOffsetY = 2;
+		const sdword YStep = 20;
+		const bool InitialEnabled = true;
+		sdword y = 0;
+		{
+			mCheckBox_EnableMotor = helper.CreateCheckBox(UI, 0, 4, y, 100, 20, "Enable motor", &UIElems, true, null, null);
+			y += YStep;
+
+			mCheckBox_EnableUpdate = helper.CreateCheckBox(UI, 0, 4, y, 150, 20, "Enable motor update", &UIElems, true, null, null);
+			y += YStep;
+
+			mCheckBox_Velocity = helper.CreateCheckBox(UI, 0, 4, y, 150, 20, "Velocity drive", &UIElems, true, null, null);
+			y += YStep;
+
+			mCheckBox_Position = helper.CreateCheckBox(UI, 0, 4, y, 150, 20, "Position drive", &UIElems, true, null, null);
+			y += YStep;
+
+			helper.CreateLabel(UI, 4, y+LabelOffsetY, LabelWidth, 20, "Target vel.:", &UIElems);
+			mEditBox_TargetVel = helper.CreateEditBox(UI, 1, 4+OffsetX, y, EditBoxWidth, 20, "0.0", &UIElems, EDITBOX_FLOAT, null, null);
+			mEditBox_TargetVel->SetEnabled(InitialEnabled);
+			y += YStep;
+
+			helper.CreateLabel(UI, 4, y+LabelOffsetY, LabelWidth, 20, "Target pos.:", &UIElems);
+			mEditBox_TargetPos = helper.CreateEditBox(UI, 1, 4+OffsetX, y, EditBoxWidth, 20, "0.0", &UIElems, EDITBOX_FLOAT, null, null);
+			mEditBox_TargetPos->SetEnabled(InitialEnabled);
+			y += YStep;
+
+			helper.CreateLabel(UI, 4, y+LabelOffsetY, LabelWidth, 20, "Stiffness:", &UIElems);
+			mEditBox_Stiffness = helper.CreateEditBox(UI, 1, 4+OffsetX, y, EditBoxWidth, 20, "0.0", &UIElems, EDITBOX_FLOAT, null, null);
+			mEditBox_Stiffness->SetEnabled(InitialEnabled);
+			y += YStep;
+
+			helper.CreateLabel(UI, 4, y+LabelOffsetY, LabelWidth, 20, "Damping:", &UIElems);
+			mEditBox_Damping = helper.CreateEditBox(UI, 1, 4+OffsetX, y, EditBoxWidth, 20, "0.0", &UIElems, EDITBOX_FLOAT, null, null);
+			mEditBox_Damping->SetEnabled(InitialEnabled);
+			y += YStep;
+
+			{
+				helper.CreateLabel(UI, 4, y+LabelOffsetY, LabelWidth, 20, "Preset:", &UIElems);
+
+				class MyComboBox : public IceComboBox
+				{
+					RCADrives&		mTest;
+					public:
+									MyComboBox(const ComboBoxDesc& desc, RCADrives& test) : IceComboBox(desc), mTest(test)	{}
+					virtual			~MyComboBox()																			{}
+
+					virtual	void	OnComboBoxEvent(ComboBoxEvent event)
+					{
+						if(event==CBE_SELECTION_CHANGED)
+						{
+							const udword SelectedIndex = GetSelectedIndex();
+							if(SelectedIndex == 1)
+							{
+								mTest.mCheckBox_Velocity->SetChecked(true);
+								mTest.mCheckBox_Position->SetChecked(false);
+								mTest.mEditBox_TargetVel->SetLabel("4.0");
+								mTest.mEditBox_TargetPos->SetLabel("0.0");
+								mTest.mEditBox_Stiffness->SetLabel("0.0");
+								mTest.mEditBox_Damping->SetLabel("10.0");
+							}
+							else if(SelectedIndex == 2)
+							{
+								mTest.mCheckBox_Velocity->SetChecked(false);
+								mTest.mCheckBox_Position->SetChecked(true);
+								mTest.mEditBox_TargetVel->SetLabel("0.0");
+								mTest.mEditBox_TargetPos->SetLabel("1.0");
+								mTest.mEditBox_Stiffness->SetLabel("1000.0");
+								mTest.mEditBox_Damping->SetLabel("100.0");
+							}
+							mTest.mMustResetTest = true;
+						}
+					}
+				};
+
+				ComboBoxDesc CBBD;
+				CBBD.mID		= 0;
+				CBBD.mParent	= UI;
+				CBBD.mX			= 4+OffsetX;
+				CBBD.mY			= y;
+				CBBD.mWidth		= 120;
+				CBBD.mHeight	= 20;
+				CBBD.mLabel		= "Presets";
+				mComboBox_Preset = ICE_NEW(MyComboBox)(CBBD, *this);
+				RegisterUIElement(mComboBox_Preset);
+				mComboBox_Preset->Add("User-defined");
+				mComboBox_Preset->Add("Velocity drive");
+				mComboBox_Preset->Add("Position drive");
+				mComboBox_Preset->Select(0);
+				mComboBox_Preset->SetVisible(true);
+				y += YStep;
+			}
+
+		}
+
+		{
+			y += YStep;
+			SliderDesc SD;
+			SD.mStyle	= SLIDER_HORIZONTAL;
+			SD.mID		= 0;
+			SD.mParent	= UI;
+			SD.mX		= 4;
+			SD.mY		= y;
+			SD.mWidth	= Width - 30;
+			SD.mHeight	= 20;
+			SD.mLabel	= "RCADriveSlider";
+			mSlider		= ICE_NEW(IceSlider)(SD);
+			mSlider->SetRange(0.0f, 1.0f, 100);
+			mSlider->SetValue(1.0f);
+			UIElems.Register(mSlider);
+			y += YStep;
+		}
+
+		y += YStep;
+		AddResetButton(UI, 4, y, Width);
+
+		return null;
+	}
+
+	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)	override
+	{
+		TestBase::GetSceneParams(desc);
+		desc.mCamera[0] = PintCameraPose(Point(5.93f, 20.16f, 5.70f), Point(-0.65f, -0.09f, -0.75f));
+		desc.mGravity.Zero();
+		SetDefEnv(desc, false);
+	}
+
+	virtual bool	Setup(Pint& pint, const PintCaps& caps)	override
+	{
+		if(!caps.mSupportRigidBodySimulation || !caps.mSupportRCArticulations)
+			return false;
+
+		const Point static_pos(0.0f, 20.0f, 0.0f);
+		const Point local_axis(0.0f, 0.0f, 1.0f);
+
+		const float BoxSize = 1.0f;
+		const Point Extents(BoxSize, BoxSize, BoxSize);
+
+		PINT_BOX_CREATE BoxDesc(Extents);
+		BoxDesc.mRenderer = CreateRenderer(BoxDesc);
+
+		const Point Disp(BoxSize*2.0f, -BoxSize*2.0f, 0.0f);
+//		const Point Disp(0.0f, 0.0f, 0.0f);
+		const Point DynamicPos = static_pos + Disp;
+
+		PintArticHandle RCA = pint.CreateRCArticulation(PINT_RC_ARTICULATION_CREATE(true));
+		if(!RCA)
+			return false;
+
+		PintActorHandle StaticObject;
+		{
+			PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
+			ObjectDesc.mMass			= RCA ? 1.0f : 0.0f;
+			ObjectDesc.mPosition		= static_pos;
+//			ObjectDesc.mCollisionGroup	= 1;
+
+			PINT_RC_ARTICULATED_BODY_CREATE ArticulatedDesc;
+			ArticulatedDesc.mFrictionCoeff = 0.0f;
+			StaticObject = pint.CreateRCArticulatedObject(ObjectDesc, ArticulatedDesc, RCA);
+		}
+
+		const bool EnableMotor = mCheckBox_EnableMotor ? mCheckBox_EnableMotor->IsChecked() : true;
+
+		PintActorHandle DynamicObject;
+		{
+			PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
+			ObjectDesc.mMass			= 1.0f;
+			ObjectDesc.mPosition		= DynamicPos;
+//			ObjectDesc.mCollisionGroup	= 1;
+
+			const Point Pivot0	= Disp*0.5f;
+			const Point Pivot1	= -Disp*0.5f;
+			const float TargetVel = GetFloat(0.0f, mEditBox_TargetVel);
+			const float TargetPos = GetFloat(0.0f, mEditBox_TargetPos);
+			const float Stiffness = GetFloat(0.0f, mEditBox_Stiffness);
+			const float Damping = GetFloat(0.0f, mEditBox_Damping);
+
+			{
+				PINT_RC_ARTICULATED_BODY_CREATE Desc;
+
+				Desc.mJointType			= PINT_JOINT_HINGE;
+				Desc.mParent			= StaticObject;
+				Desc.mAxisIndex			= Z_;
+				Desc.mLocalPivot0.mPos	= Pivot0;
+				Desc.mLocalPivot1.mPos	= Pivot1;
+				Desc.mFrictionCoeff		= 0.0f;
+
+				if(0)
+				{
+					Desc.mMinLimit	= -PI/4.0f;
+					Desc.mMaxLimit	= PI/4.0f;
+				}
+
+				if(EnableMotor)
+				{
+					udword Flags = PINT_MOTOR_NONE;
+					if(mCheckBox_Velocity && mCheckBox_Velocity->IsChecked())
+						Flags |= PINT_MOTOR_VELOCITY;
+					if(mCheckBox_Position && mCheckBox_Position->IsChecked())
+						Flags |= PINT_MOTOR_POSITION;
+
+					Desc.mMotorFlags		= PintMotorFlags(Flags);
+					Desc.mMotor.mStiffness	= Stiffness;
+					Desc.mMotor.mDamping	= Damping;
+					Desc.mTargetVel			= TargetVel;
+					Desc.mTargetPos			= TargetPos;
+				}
+
+				DynamicObject = pint.CreateRCArticulatedObject(ObjectDesc, Desc, RCA);
+
+				LocalTestData* LTD = ICE_NEW(LocalTestData);
+				RegisterTestData(LTD);
+				LTD->mDynamicObject = DynamicObject;
+				pint.mUserData		= LTD;
+			}
+		}
+
+		pint.AddRCArticulationToScene(RCA);
+
+		return true;
+	}
+
+	virtual	udword		Update(Pint& pint, float dt)	override
+	{
+		const bool EnableUpdate = mCheckBox_EnableUpdate ? mCheckBox_EnableUpdate->IsChecked() : true;
+		if(EnableUpdate)
+		{
+			const bool EnableMotor = mCheckBox_EnableMotor ? mCheckBox_EnableMotor->IsChecked() : true;
+			const LocalTestData* LTD = reinterpret_cast<const LocalTestData*>(pint.mUserData);
+			if(LTD)
+			{
+				const float Coeff = mSlider ? mSlider->GetValue() : 1.0f;
+				const float TargetVel = Coeff * GetFloat(0.0f, mEditBox_TargetVel);
+				const float TargetPos = Coeff * GetFloat(0.0f, mEditBox_TargetPos);
+	//			printf("TargetVel: %f\n", TargetVel);
+				pint.SetRCADriveEnabled(LTD->mDynamicObject, EnableMotor);
+				if(EnableMotor)
+				{
+					pint.SetRCADriveVelocity(LTD->mDynamicObject, TargetVel);
+					pint.SetRCADrivePosition(LTD->mDynamicObject, TargetPos);
+				}
+			}
+		}
+		return 0;
+	}
+
+	virtual	float		DrawDebugText(Pint& pint, GLFontRenderer& renderer, float y, float text_scale)	override
+	{
+		const LocalTestData* LTD = reinterpret_cast<const LocalTestData*>(pint.mUserData);
+		if(LTD && LTD->mDynamicObject)
+		{
+			const Point AngVel = pint.GetAngularVelocity(LTD->mDynamicObject);
+	//		renderer.print(0.0f, y, text_scale, _F("Angular velocity: %.3f | %.3f | %.3f\n", Float(AngVel.x), Float(AngVel.y), Float(AngVel.z)));
+			renderer.print(0.0f, y, text_scale, _F("Angular velocity: %f\n", AngVel.z));
+			//renderer.print(0.0f, y, text_scale, _F("Angular velocity: %f %f %f\n", AngVel.x, AngVel.y, AngVel.z));
+			y -= text_scale;
+	//		return PrintTwistAngle(pint, renderer, y, text_scale);
+		}
+		return y;
+	}
+
+END_TEST(RCADrives)
 
 ///////////////////////////////////////////////////////////////////////////////
 
