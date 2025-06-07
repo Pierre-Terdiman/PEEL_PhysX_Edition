@@ -1,7 +1,6 @@
 #ifndef ROCK_ARRAY_H
 #define ROCK_ARRAY_H
 
-#include <Core/RockCommon.h>
 #include <Core/RockAllocator.h>
 
 namespace Rock
