@@ -104,7 +104,9 @@ static PxVisualizationParameter::Enum gDebugVizIndex[] =
 	PxVisualizationParameter::eCOLLISION_DYNAMIC,
 	PxVisualizationParameter::eJOINT_LOCAL_FRAMES,
 	PxVisualizationParameter::eJOINT_LIMITS,
+#if PHYSX_SUPPORT_DYNAMIC_MESHES
 	PxVisualizationParameter::eSDF,
+#endif
 #ifndef IS_PHYSX_3_2
 	PxVisualizationParameter::eMBP_REGIONS,
 #endif
