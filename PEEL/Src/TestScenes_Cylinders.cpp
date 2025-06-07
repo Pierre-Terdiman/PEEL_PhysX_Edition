@@ -24,19 +24,10 @@ class CylinderTest : public TestBase
 					CylinderTest()	{}
 	virtual			~CylinderTest()	{}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 300;
-		WD.mHeight	= 160;
-		WD.mLabel	= "Cylinder";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 300;
+		IceWindow* UI = CreateTestWindow(Width, 160);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -59,7 +50,7 @@ class CylinderTest : public TestBase
 		}
 
 		y += YStep;
-		AddResetButton(UI, 4, y, 300-16);
+		AddResetButton(UI, 4, y, Width);
 
 		return null;
 	}
@@ -280,7 +271,7 @@ START_CYLINDER_TEST(CDStack, CATEGORY_BEHAVIOR, gDesc_CDStack)
 //	virtual	float	GetRenderData(Point& center)	const	{ return 5.0f;	}
 	virtual	float	GetRenderData(Point& center)	const	{ return 20.0f;	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		CylinderTest::InitUI(helper);
 		return CreateOverrideTabControl("CDStack", 20);

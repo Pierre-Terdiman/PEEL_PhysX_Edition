@@ -42,19 +42,10 @@ class DominosConfigurable : public TestBase
 	virtual	const char*		GetDescription()	const	{ return gDesc_DominosConfigurable;	}
 	virtual	TestCategory	GetCategory()		const	{ return CATEGORY_BEHAVIOR;			}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 350;
-		WD.mHeight	= 250;
-		WD.mLabel	= "Dominos";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 350;
+		IceWindow* UI = CreateTestWindow(Width, 250);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -153,7 +144,7 @@ class DominosConfigurable : public TestBase
 			y += YStep;
 
 			y += YStep;
-			AddResetButton(UI, 4, y, WD.mWidth-4*2*2);
+			AddResetButton(UI, 4, y, Width);
 		}
 		return null;
 	}
@@ -314,7 +305,7 @@ static const char* gDesc_DoubleDominoEffect = "Double domino effect.";
 
 START_TEST(DoubleDominoEffect, CATEGORY_BEHAVIOR, gDesc_DoubleDominoEffect)
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		return CreateOverrideTabControl("DoubleDominoEffect", 20);
 	}
@@ -770,7 +761,7 @@ Increase the number of solver iterations or select more accurate solvers in the 
 
 START_TEST(HighMassRatio, CATEGORY_BEHAVIOR, gDesc_HighMassRatio)
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		return CreateOverrideTabControl("High mass ratio settings", 20);
 	}
@@ -828,7 +819,7 @@ gently, without objects exploding. In PhysX, this test shows the effect of the '
 
 START_TEST(InitialPenetration, CATEGORY_BEHAVIOR, gDesc_InitialPenetration)
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		return CreateOverrideTabControl("Initial penetration settings", 20);
 	}
@@ -896,7 +887,7 @@ Note that some engines like PhysX support several friction models, and the defau
 
 START_TEST(FrictionRamp, CATEGORY_BEHAVIOR, gDesc_FrictionRamp)
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		return CreateOverrideTabControl("FrictionRamp", 20);
 	}
@@ -956,7 +947,7 @@ Note that some engines like PhysX support several friction models, and the defau
 
 START_TEST(FrictionRamp2, CATEGORY_BEHAVIOR, gDesc_FrictionRamp2)
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		return CreateOverrideTabControl("FrictionRamp2", 20);
 	}
@@ -1019,7 +1010,7 @@ Note that some engines like PhysX support several friction models, and the defau
 
 START_TEST(FrictionRamp3, CATEGORY_BEHAVIOR, gDesc_FrictionRamp3)
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		return CreateOverrideTabControl("FrictionRamp3", 20);
 	}
@@ -1258,7 +1249,7 @@ START_TEST(ConvexCompoundsChain, CATEGORY_BEHAVIOR, gDesc_ConvexCompoundsChain)
 
 			ConvexCreate[s].mNbVerts	= NbPtsSmallCircle*2;
 			ConvexCreate[s].mVerts		= &ConvexPts[Offset];
-			ConvexCreate[s].mRenderer	= CreateConvexRenderer(ConvexCreate[s].mNbVerts, ConvexCreate[s].mVerts);
+			ConvexCreate[s].mRenderer	= CreateRenderer(ConvexCreate[s]);
 			if(s!=NbSlices-1)
 				ConvexCreate[s].SetNext(&ConvexCreate[s+1]);
 			Offset += NbPtsSmallCircle*2;
@@ -1267,7 +1258,7 @@ START_TEST(ConvexCompoundsChain, CATEGORY_BEHAVIOR, gDesc_ConvexCompoundsChain)
 			PINT_CONVEX_CREATE ConvexCreate;
 			ConvexCreate.mNbVerts	= NbPtsSmallCircle*2;
 			ConvexCreate.mVerts		= ConvexPts;
-			ConvexCreate.mRenderer	= CreateConvexRenderer(ConvexCreate.mNbVerts, ConvexPts);
+			ConvexCreate.mRenderer	= CreateRenderer(ConvexCreate);
 
 			const Point pos(0.0f, 10.0f, 0.0f);
 			PintActorHandle Handle = CreateDynamicObject(pint, &ConvexCreate, pos);
@@ -1433,7 +1424,7 @@ START_TEST(CompoundTowerTweaked, CATEGORY_BEHAVIOR, gDesc_CompoundTowerTweaked)
 
 	virtual	float	GetRenderData(Point& center)	const	{ return 400.0f;	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		return CreateOverrideTabControl("CompoundTowerTweaked", 20);
 	}
@@ -1443,6 +1434,7 @@ START_TEST(CompoundTowerTweaked, CATEGORY_BEHAVIOR, gDesc_CompoundTowerTweaked)
 		TestBase::GetSceneParams(desc);
 		desc.mCamera[0] = PintCameraPose(Point(7.54f, 70.68f, 8.23f), Point(-0.42f, -0.81f, -0.42f));
 		desc.mCamera[1] = PintCameraPose(Point(50.08f, 0.78f, 45.65f), Point(-0.64f, 0.46f, -0.62f));
+		desc.mCamera[2] = PintCameraPose(Point(32.39f, 32.87f, 50.78f), Point(-0.53f, -0.00f, -0.85f));
 		SetDefEnv(desc, true);
 	}
 
@@ -1550,7 +1542,7 @@ START_TEST(CardHouse, CATEGORY_BEHAVIOR, gDesc_CardHouse)
 
 	virtual	float	GetRenderData(Point& center)	const	{ return 20.0f;	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		return CreateOverrideTabControl("CardHouse", 20);
 	}
@@ -1653,7 +1645,7 @@ START_TEST(Dzhanibekov, CATEGORY_BEHAVIOR, gDesc_Dzhanibekov)
 
 	virtual	float	GetRenderData(Point& center)	const	{ return 20.0f;	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		return CreateOverrideTabControl("Dzhanibekov", 20);
 	}
@@ -1684,7 +1676,7 @@ START_TEST(Dzhanibekov, CATEGORY_BEHAVIOR, gDesc_Dzhanibekov)
 
 		PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
 		ObjectDesc.mMass	= 0.1f;
-		ObjectDesc.mAngularVelocity	= Point(30.f, 20.1f, 0.0f)*0.25f;
+		ObjectDesc.mAngularVelocity	= Point(30.0f, 20.1f, 0.0f)*0.25f;
 		CreatePintObject(pint, ObjectDesc);
 		return true;
 	}
@@ -1697,7 +1689,7 @@ static const char* gDesc_ThinRods = "Motion of thin rods.";
 
 START_TEST(ThinRods, CATEGORY_BEHAVIOR, gDesc_ThinRods)
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		return CreateOverrideTabControl("ThinRods", 20);
 	}
@@ -1751,7 +1743,7 @@ START_TEST(NewtonCradle, CATEGORY_BEHAVIOR, gDesc_NewtonCradle)
 		SetDefEnv(desc, true);
 	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		return CreateOverrideTabControl("NewtonCradle", 100);
 	}

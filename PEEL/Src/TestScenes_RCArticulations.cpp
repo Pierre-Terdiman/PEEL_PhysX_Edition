@@ -792,7 +792,7 @@ static void createMotorizedArm(Pint& pint, float x, float y, float z, udword nb_
 
 /*					ArticulatedDesc.mLocalPivot0.mPos	= TransformInv(pint, currLeft, leftAnchorLocation);
 				ArticulatedDesc.mLocalPivot0.mRot	= leftParentRot;
-				ArticulatedDesc.mLocalPivot1.mPos	= Point(0.f, 0.f, -1.f);
+				ArticulatedDesc.mLocalPivot1.mPos	= Point(0.0f, 0.0f, -1.0f);
 				ArticulatedDesc.mLocalPivot1.mRot	= rightRot;*/
 
 				ArticulatedDesc.mLocalPivot0.mPos	= localAnchor0;
@@ -1314,19 +1314,10 @@ START_TEST(MujocoHumanoid, CATEGORY_RCARTICULATIONS, gDesc_MujocoHumanoid)
 	EditBoxPtr		mEditBox_MaxJointVelocity;
 	EditBoxPtr		mEditBox_Timestep;
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 300;
-		WD.mHeight	= 200;
-		WD.mLabel	= "MujocoHumanoid";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 300;
+		IceWindow* UI = CreateTestWindow(Width, 200);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -1362,7 +1353,7 @@ START_TEST(MujocoHumanoid, CATEGORY_RCARTICULATIONS, gDesc_MujocoHumanoid)
 		}
 
 		y += YStep;
-		AddResetButton(UI, 4, y, 300-16);
+		AddResetButton(UI, 4, y, Width);
 
 		return null;
 	}

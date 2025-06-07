@@ -96,19 +96,10 @@ class ConfigurableSceneRaycastVsShapes : public SceneRaycastVsShapes
 	virtual	const char*		GetName()			const	{ return "SceneRaycastVsShapes";		}
 	virtual	const char*		GetDescription()	const	{ return gDesc_SceneRaycastVsShapes;	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 300;
-		WD.mHeight	= 200;
-		WD.mLabel	= "SceneRaycastVsShapes";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 300;
+		IceWindow* UI = CreateTestWindow(Width, 200);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -138,7 +129,7 @@ class ConfigurableSceneRaycastVsShapes : public SceneRaycastVsShapes
 		}
 
 		y += YStep;
-		AddResetButton(UI, 4, y, 300-16);
+		AddResetButton(UI, 4, y, Width);
 
 		return null;
 	}
@@ -1511,19 +1502,10 @@ class ValveRaycasts : public TestBase
 	virtual bool			IsPrivate()			const	{ return true;							}
 	virtual	udword			Update(Pint& pint, float dt){ return DoBatchRaycasts(*this, pint);	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 300;
-		WD.mHeight	= 120;
-		WD.mLabel	= "ValveRaycasts";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 300;
+		IceWindow* UI = CreateTestWindow(Width, 120);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -1550,7 +1532,7 @@ class ValveRaycasts : public TestBase
 		}
 
 		y += YStep;
-		AddResetButton(UI, 4, y, 300-16);
+		AddResetButton(UI, 4, y, Width);
 
 		return null;
 	}

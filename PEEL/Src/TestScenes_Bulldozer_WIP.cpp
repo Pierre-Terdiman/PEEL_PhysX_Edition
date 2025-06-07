@@ -726,7 +726,7 @@ START_VEHICLE_TEST(BulldozerTest, CATEGORY_WIP, gDesc_BulldozerTest)
 				C[i].LoadFile(i);
 				ConvexCreate[i].mNbVerts	= C[i].mNbVerts;
 				ConvexCreate[i].mVerts		= C[i].mVerts;
-				ConvexCreate[i].mRenderer	= CreateConvexRenderer(ConvexCreate[i].mNbVerts, ConvexCreate[i].mVerts);
+				ConvexCreate[i].mRenderer	= CreateRenderer(ConvexCreate[i]);
 			}
 
 			const float Amplitude = 1.5f;

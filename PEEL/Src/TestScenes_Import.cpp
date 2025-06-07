@@ -537,19 +537,10 @@ class LegoStaticMesh : public ImportSceneFromFile
 	virtual	TestCategory	GetCategory()		const	{ return CATEGORY_STATIC_SCENE;		}
 	virtual	const char*		GetDescription()	const	{ return gDesc_LegoStaticScenes;	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 450;
-		WD.mHeight	= 150;
-		WD.mLabel	= "Choose a scene";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 450;
+		IceWindow* UI = CreateTestWindow(Width, 150);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -602,7 +593,7 @@ class LegoStaticMesh : public ImportSceneFromFile
 		}
 
 		y += YStep;
-		AddResetButton(UI, 4, y, WD.mWidth-16);
+		AddResetButton(UI, 4, y, Width);
 
 		return null;
 	}

@@ -217,7 +217,7 @@ START_VEHICLE_TEST(VehicleTest, CATEGORY_WIP, gDesc_VehicleTest)
 		return 1000.0f;
 	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		return CreateOverrideTabControl("VehicleTest settings", 20);
 	}
@@ -2293,19 +2293,10 @@ class MultiBodyVehicle : public VehicleInput
 	virtual	const char*		GetDescription()	const	{ return gDesc_MultiBodyVehicle;	}
 	virtual	TestCategory	GetCategory()		const	{ return CATEGORY_RCARTICULATIONS;	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 400;
-		WD.mHeight	= 600;
-		WD.mLabel	= "Multibody vehicle settings";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 400;
+		IceWindow* UI = CreateTestWindow(Width, 600);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -2316,7 +2307,7 @@ class MultiBodyVehicle : public VehicleInput
 		const sdword YStep = 20;
 		sdword y = 0;
 		y += YStep;
-		AddResetButton(UI, 4, y, WD.mWidth - 16);
+		AddResetButton(UI, 4, y, Width);
 
 		// Tab control
 		IceTabControl* TabControl;
@@ -2338,7 +2329,7 @@ class MultiBodyVehicle : public VehicleInput
 			TCD.mX		= 4;
 			TCD.mY		= 0;
 			TCD.mY		= y + 50;
-			TCD.mWidth	= WD.mWidth - 16;
+			TCD.mWidth	= Width - 16;
 			TCD.mHeight	= 450;
 			TabControl = ICE_NEW(IceTabControl)(TCD);
 			RegisterUIElement(TabControl);
@@ -2822,7 +2813,7 @@ class MultiBodyVehicle : public VehicleInput
 			SD.mParent		= TabWindow;
 			SD.mX			= 4;
 			SD.mY			= y;
-			SD.mWidth		= WD.mWidth - SD.mX*2 - 32;
+			SD.mWidth		= Width - SD.mX*2 - 32;
 			SD.mHeight		= 20;
 			SD.mLabel		= "test";
 			mSteerSlider	= ICE_NEW(IceSlider)(SD);

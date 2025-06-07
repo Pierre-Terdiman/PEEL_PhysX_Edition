@@ -70,7 +70,7 @@
 			desc.mNbSimulateCallsPerFrame = GetInt(mValues.mNbSimCallsPerRenderFrame, mEditBox_NbSimCalls);
 		}
 
-		virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+		virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 		{
 			const sdword Width = 300;
 			IceWindow* UI = CreateTestWindow(Width, 400);
@@ -158,7 +158,7 @@ class ArticulatedChain : public ConfigurableArticulationTest
 		SetDefEnv(desc, false);
 	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		IceTabControl* TabControl = ConfigurableArticulationTest::InitUI(helper);
 		mEditBox_InitialAngularVel->SetEnabled(false);
@@ -635,7 +635,7 @@ class SwingSet : public ConfigurableArticulationTest
 							}
 	virtual					~SwingSet()			{	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		IceTabControl* TabControl = ConfigurableArticulationTest::InitUI(helper);
 		mCheckBox_Articulations->SetEnabled(false);
@@ -751,7 +751,7 @@ class Crane : public ConfigurableArticulationTest
 							}
 	virtual					~Crane()					{	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		IceTabControl* TabControl = ConfigurableArticulationTest::InitUI(helper);
 		mCheckBox_Articulations->SetEnabled(false);
@@ -958,7 +958,7 @@ for the chain is better for collision detection. You should be able to pick the 
 
 START_TEST(ConnectedMCArticulations, CATEGORY_MCARTICULATIONS, gDesc_ConnectedMCArticulations)
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		return CreateOverrideTabControl("ConnectedMCArticulations", 20);
 	}
@@ -1123,7 +1123,7 @@ static const char* gDesc_Winch = "Revisited PEEL 1.1 winch test, using MC articu
 
 START_TEST(Winch, CATEGORY_MCARTICULATIONS, gDesc_Winch)
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		return CreateOverrideTabControl("Winch", 20);
 	}
@@ -1400,21 +1400,12 @@ START_TEST(ArticulationDriveTest, CATEGORY_MCARTICULATIONS, gDesc_ArticulationDr
 
 	WheelTestData	mData;
 
-	virtual	IceTabControl*		InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*		InitUI(PintGUIHelper& helper)	override
 	{
 		udword ID = 0;
 
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 300;
-		WD.mHeight	= 250;
-		WD.mLabel	= "Articulation drive";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 300;
+		IceWindow* UI = CreateTestWindow(Width, 250);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -1475,7 +1466,7 @@ START_TEST(ArticulationDriveTest, CATEGORY_MCARTICULATIONS, gDesc_ArticulationDr
 		}
 
 		y += YStep;
-		AddResetButton(UI, 4, y, 300-16);
+		AddResetButton(UI, 4, y, Width);
 
 		return null;
 	}
@@ -1628,7 +1619,7 @@ START_TEST(ArticulationDriveVsStaticObstacle, CATEGORY_MCARTICULATIONS, gDesc_Ar
 
 	// We don't expose the shape's contact offset in the PINT API because it's a PhysX setting not supported by all engines,
 	// so we'll customize this in the per-test UI instead.
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		return CreateOverrideTabControl("ArticulationDriveVsStaticObstacle", 0);
 	}
@@ -1931,19 +1922,10 @@ class ArticulatedVehicle : public TestBase
 		SetDefEnv(desc, false);
 	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 300;
-		WD.mHeight	= 400;
-		WD.mLabel	= "ArticulatedVehicle";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 300;
+		IceWindow* UI = CreateTestWindow(Width, 400);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -2019,7 +2001,7 @@ class ArticulatedVehicle : public TestBase
 		}
 
 		y += YStep;
-		AddResetButton(UI, 4, y, 300-16);
+		AddResetButton(UI, 4, y, Width);
 
 		return null;
 	}

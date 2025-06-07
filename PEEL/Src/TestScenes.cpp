@@ -102,7 +102,7 @@ void PhysicsTest::AddResetButton(IceWindow* parent, sdword x, sdword y, sdword w
 	BD.mParent		= parent;
 	BD.mX			= x;
 	BD.mY			= y;
-	BD.mWidth		= width;
+	BD.mWidth		= width - 16 - 8;	// ### -8 for new MSVCs
 	BD.mHeight		= 20;
 	BD.mLabel		= title;
 	IceButton* IB = ICE_NEW(ResetButton)(*this, BD);
@@ -512,7 +512,7 @@ IceWindow* TestBase::CreateTestWindow(sdword width, sdword height)
 
 IceTabControl* TestBase::CreateTestTabControlAndResetButton(IceWindow* ui, sdword width, sdword y, udword extra_size)
 {
-	AddResetButton(ui, 4, y, width - 16 - 8);	// ### -8 for new MSVCs
+	AddResetButton(ui, 4, y, width);
 
 	IceTabControl* TabControl;
 	{

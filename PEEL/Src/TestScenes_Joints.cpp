@@ -127,7 +127,7 @@ class GearJoint : public TestBase
 			y += YStep;
 
 			y += YStep;
-			AddResetButton(UI, 4, y, WD.mWidth-4*2*2);
+			AddResetButton(UI, 4, y, Width);
 		}
 		return null;
 	}
@@ -471,19 +471,10 @@ class TwoLegoGears : public TestBase
 	virtual	const char*		GetDescription()	const	{ return gDesc_TwoLegoGears;	}
 	virtual	TestCategory	GetCategory()		const	{ return CATEGORY_JOINTS;		}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 300;
-		WD.mHeight	= 300;
-		WD.mLabel	= "Two Lego Gears";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 300;
+		IceWindow* UI = CreateTestWindow(Width, 300);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -535,7 +526,7 @@ class TwoLegoGears : public TestBase
 		y += YStep;
 
 		y += YStep;
-		AddResetButton(UI, 4, y, WD.mWidth-4*2*2);
+		AddResetButton(UI, 4, y, Width);
 
 		return null;
 	}
@@ -1644,7 +1635,7 @@ class JacobsLadder : public TestBase
 
 	virtual	float	GetRenderData(Point& center)const	{ return 20.0f;					}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		const sdword Width = 280;
 		IceWindow* UI = CreateTestWindow(Width, 300);
@@ -2383,7 +2374,7 @@ static const char* gDesc_FixedJointCantilever = "Cantilever beam.";
 
 START_TEST(FixedJointCantilever, CATEGORY_JOINTS, gDesc_FixedJointCantilever)
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		return CreateOverrideTabControl("FixedJointCantilever", 20);
 	}
@@ -2726,7 +2717,7 @@ class FixedJointsTorus : public TestBase
 			return 200.0f;
 	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		const sdword Width = 350;
 		IceWindow* UI = CreateTestWindow(Width, 520);
@@ -3698,19 +3689,10 @@ class RagdollConfigurable : public TestBase
 	virtual	const char*		GetDescription()	const	{ return gDesc_RagdollConfigurable;	}
 	virtual	TestCategory	GetCategory()		const	{ return CATEGORY_JOINTS;			}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 280;
-		WD.mHeight	= 160;
-		WD.mLabel	= "Ragdolls";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 280;
+		IceWindow* UI = CreateTestWindow(Width, 160);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -3790,7 +3772,7 @@ class RagdollConfigurable : public TestBase
 			y += YStep;
 
 			y += YStep;
-			AddResetButton(UI, 4, y, 264);
+			AddResetButton(UI, 4, y, Width);
 		}
 
 		return null;
@@ -4114,7 +4096,7 @@ START_TEST(ConfigurableSphericalChain, CATEGORY_JOINTS, gDesc_ConfigurableSpheri
 		}
 	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		const sdword Width = 450;
 		IceWindow* UI = CreateTestWindow(Width, 500);
@@ -4502,19 +4484,10 @@ START_TEST(CaterpillarTrack, CATEGORY_JOINTS, gDesc_CaterpillarTrack)
 	PtrContainer	mTrackObjects;
 	EditBoxPtr		mEditBox_Multiplier;
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 300;
-		WD.mHeight	= 200;
-		WD.mLabel	= "Caterpillar track";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 300;
+		IceWindow* UI = CreateTestWindow(Width, 200);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -4530,7 +4503,7 @@ START_TEST(CaterpillarTrack, CATEGORY_JOINTS, gDesc_CaterpillarTrack)
 		y += YStep;
 
 		y += YStep;
-		AddResetButton(UI, 4, y, 300-16);
+		AddResetButton(UI, 4, y, Width);
 
 		return null;
 	}
@@ -4625,19 +4598,10 @@ START_TEST(CaterpillarTrackOnBridge, CATEGORY_JOINTS, gDesc_CaterpillarTrackOnBr
 	EditBoxPtr		mEditBox_NbX;
 	EditBoxPtr		mEditBox_NbZ;
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 300;
-		WD.mHeight	= 200;
-		WD.mLabel	= "Caterpillar track";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 300;
+		IceWindow* UI = CreateTestWindow(Width, 200);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -4661,7 +4625,7 @@ START_TEST(CaterpillarTrackOnBridge, CATEGORY_JOINTS, gDesc_CaterpillarTrackOnBr
 		y += YStep;
 
 		y += YStep;
-		AddResetButton(UI, 4, y, 300-16);
+		AddResetButton(UI, 4, y, Width);
 
 		return null;
 	}
@@ -5365,7 +5329,7 @@ class LegoTechnicKart : public LegoTechnicVehicle
 	virtual	const char*		GetName()			const	{ return "LegoTechnicKart";		}
 	virtual	const char*		GetDescription()	const	{ return gDesc_LegoTechnicKart;	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		return CreateOverrideTabControl("Lego Technic Kart", 20);
 	}
@@ -5707,7 +5671,7 @@ class LegoTechnicBuggy : public LegoTechnicVehicle
 	virtual	const char*		GetName()			const	{ return "LegoTechnicBuggy";		}
 	virtual	const char*		GetDescription()	const	{ return gDesc_LegoTechnicBuggy;	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		const sdword Width = 300;
 		IceWindow* UI = CreateTestWindow(Width, 500);
@@ -6232,7 +6196,7 @@ C.Scale(2.0f, 2.0f, 2.0f);
 				C.LoadFile(i);
 
 				PINT_CONVEX_CREATE ConvexCreate(C.mNbVerts, C.mVerts);
-				ConvexCreate.mRenderer	= CreateConvexRenderer(ConvexCreate.mNbVerts, ConvexCreate.mVerts);
+				ConvexCreate.mRenderer	= CreateRenderer(ConvexCreate);
 
 				const float Amplitude = 1.5f;
 				const udword NbX = nb_x;
@@ -6395,7 +6359,7 @@ class ChainFountain : public TestBase
 	virtual	const char*		GetDescription()	const	{ return gDesc_ChainFountain;	}
 	virtual	TestCategory	GetCategory()		const	{ return CATEGORY_JOINTS;		}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		const sdword Width = 300;
 		IceWindow* UI = CreateTestWindow(Width, 410);

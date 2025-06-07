@@ -734,19 +734,10 @@ class KinematicCharacter : public KinematicCharacterTest
 								return Status ? PROFILING_TEST_UPDATE : PROFILING_SIM_UPDATE;
 							}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 350;
-		WD.mHeight	= 400;
-		WD.mLabel	= "KinematicCharacter";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 350;
+		IceWindow* UI = CreateTestWindow(Width, 400);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -870,7 +861,7 @@ class KinematicCharacter : public KinematicCharacterTest
 		}
 
 		y += YStep;
-		AddResetButton(UI, 4, y, 350-16);
+		AddResetButton(UI, 4, y, Width);
 
 		return null;
 	}
@@ -1281,7 +1272,7 @@ START_TEST(Walker, CATEGORY_KINEMATICS, gDesc_Walker)
 	Point		mPos;
 	WalkCycle*	mWalkCycle[2];
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		return CreateOverrideTabControl("Walker", 20);
 	}

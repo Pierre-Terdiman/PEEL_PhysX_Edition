@@ -116,19 +116,10 @@ class OverlapShapesVsShapes : public TestBase
 	virtual	TestCategory	GetCategory()		const	{ return CATEGORY_OVERLAP;				}
 	virtual	udword			GetProfilingFlags()	const	{ return PROFILING_TEST_UPDATE;			}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 300;
-		WD.mHeight	= 240;
-		WD.mLabel	= "OverlapShapesVsShapes";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 300;
+		IceWindow* UI = CreateTestWindow(Width, 240);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -186,7 +177,7 @@ class OverlapShapesVsShapes : public TestBase
 		}
 
 		y += YStep;
-		AddResetButton(UI, 4, y, 300-16);
+		AddResetButton(UI, 4, y, Width);
 
 		return null;
 	}

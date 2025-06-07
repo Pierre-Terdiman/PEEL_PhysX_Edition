@@ -9,6 +9,7 @@
 #include "stdafx.h"
 #include "PEEL.h"
 #include "TestScenes.h"
+#include "TestScenesHelpers.h"
 #include "PintObjectsManager.h"
 #include "MyConvex.h"
 #include "GUI_Helpers.h"
@@ -187,19 +188,10 @@ class VoronoiFracture2 : public TestBase, public PintContactNotifyCallback
 
 	virtual	float	GetRenderData(Point& center)	const	{ return 50.0f;	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 256;
-		WD.mHeight	= 256;
-		WD.mLabel	= "VoronoiFracture";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 256;
+		IceWindow* UI = CreateTestWindow(Width, 256);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -257,7 +249,7 @@ class VoronoiFracture2 : public TestBase, public PintContactNotifyCallback
 		}
 
 		y += YStep;
-		AddResetButton(UI, 4, y, 256-16);
+		AddResetButton(UI, 4, y, Width);
 
 		return null;
 	}
@@ -648,7 +640,7 @@ class VoronoiFracture3 : public VoronoiFracture2
 		desc.mCreateDefaultEnvironment	= true;
 	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		return CreateOverrideTabControl("Fracturable box stack", 20);
 		//return VoronoiFracture2::InitUI(helper);
@@ -736,7 +728,6 @@ class VoronoiFracture3 : public VoronoiFracture2
 		return true;
 	}
 
-
 END_TEST(VoronoiFracture3)
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -753,7 +744,7 @@ class VoronoiFracture4 : public VoronoiFracture2
 	virtual void	GetSceneParams(PINT_WORLD_CREATE& desc)
 	{
 		TestBase::GetSceneParams(desc);
-		desc.mCamera[0] = PintCameraPose(Point(1.71f, 3.22f, 3.57f), Point(-0.43f, -0.30f, -0.85f));
+		desc.mCamera[0] = PintCameraPose(Point(-2.92f, 13.42f, -0.73f), Point(0.49f, -0.78f, 0.38f));
 		desc.mContactNotifyCallback		= this;
 		desc.mCreateDefaultEnvironment	= true;
 	}

@@ -257,19 +257,10 @@ class ConfigurableSceneSweepVsShapes : public SceneSweepVsShapes
 	virtual	const char*		GetName()			const	{ return "SceneSweepVsShapes";		}
 	virtual	const char*		GetDescription()	const	{ return gDesc_SceneSweepsVsShapes;	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 300;
-		WD.mHeight	= 200;
-		WD.mLabel	= "SceneSweepVsShapes";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 300;
+		IceWindow* UI = CreateTestWindow(Width, 200);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -307,7 +298,7 @@ class ConfigurableSceneSweepVsShapes : public SceneSweepVsShapes
 		}
 
 		y += YStep;
-		AddResetButton(UI, 4, y, 300-16);
+		AddResetButton(UI, 4, y, Width);
 
 		return null;
 	}
@@ -383,19 +374,10 @@ class SceneConvexSweepVsStaticConvexes : public SceneSweepVsShapes
 	virtual	const char*		GetName()			const	{ return "SceneConvexSweepVsStaticConvexes";		}
 	virtual	const char*		GetDescription()	const	{ return gDesc_SceneConvexSweepVsStaticConvexes;	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 256;
-		WD.mHeight	= 160;
-		WD.mLabel	= "SceneConvexSweepVsStaticConvexes";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 256;
+		IceWindow* UI = CreateTestWindow(Width, 160);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -423,7 +405,7 @@ class SceneConvexSweepVsStaticConvexes : public SceneSweepVsShapes
 		}
 
 		y += YStep;
-		AddResetButton(UI, 4, y, 256-16);
+		AddResetButton(UI, 4, y, Width);
 
 		return null;
 	}
@@ -674,19 +656,10 @@ class SceneLongSweepVsSeaOfStatics : public TestBase
 		SetDefEnv(desc, false);
 	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 300;
-		WD.mHeight	= 100;
-		WD.mLabel	= "SceneLongSweepVsSeaOfStatics";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 300;
+		IceWindow* UI = CreateTestWindow(Width, 100);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -705,7 +678,7 @@ class SceneLongSweepVsSeaOfStatics : public TestBase
 		}
 
 		y += YStep;
-		AddResetButton(UI, 4, y, 300-16);
+		AddResetButton(UI, 4, y, Width);
 
 		return null;
 	}
@@ -833,19 +806,10 @@ class ConfigurableSceneSweepVsSingleTriangle : public TestBase
 		SetDefEnv(desc, false);
 	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 300;
-		WD.mHeight	= 160;
-		WD.mLabel	= "SceneSweepVsSingleTriangle";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 300;
+		IceWindow* UI = CreateTestWindow(Width, 160);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -878,7 +842,7 @@ class ConfigurableSceneSweepVsSingleTriangle : public TestBase
 		}
 
 		y += YStep;
-		AddResetButton(UI, 4, y, 300-16);
+		AddResetButton(UI, 4, y, Width);
 
 		return null;
 	}
@@ -1615,17 +1579,8 @@ class SceneSphereSweepVsStaticMeshes_TessBunny_Base : public TestBase
 
 	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 350;
-		WD.mHeight	= 150;
-		WD.mLabel	= "SceneSphereSweepVsStaticMeshes_TessBunny";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 350;
+		IceWindow* UI = CreateTestWindow(Width, 150);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -1648,7 +1603,7 @@ class SceneSphereSweepVsStaticMeshes_TessBunny_Base : public TestBase
 
 		{
 			y += YStep;
-			AddResetButton(UI, 4, y, WD.mWidth-4*2*2);
+			AddResetButton(UI, 4, y, Width);
 		}
 		return null;
 	}

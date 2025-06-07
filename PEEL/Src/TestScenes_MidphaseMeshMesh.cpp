@@ -161,19 +161,10 @@ class MeshMesh : public MidphaseMeshMeshTest, public ZB2CreationCallback
 	virtual	const char*		GetName()			const	{ return "MeshMesh";		}
 	virtual	const char*		GetDescription()	const	{ return gDesc_MeshMesh;	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 300;
-		WD.mHeight	= 150;
-		WD.mLabel	= "Mesh-vs-mesh scenes";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 300;
+		IceWindow* UI = CreateTestWindow(Width, 150);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -205,10 +196,11 @@ class MeshMesh : public MidphaseMeshMeshTest, public ZB2CreationCallback
 		}
 
 		y += YStep;
-		AddResetButton(UI, 4, y, 300-16);
+		AddResetButton(UI, 4, y, Width);
 
 		return null;
 	}
+
 	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)	override
 	{
 		const char* Filename = null;
@@ -231,7 +223,7 @@ class MeshMesh : public MidphaseMeshMeshTest, public ZB2CreationCallback
 			else if(Index==MESH_MESH_MULTI_BUDDHAS)
 				Filename = "MeshMesh_MultiBuddhas.zb2";
 			else if(Index==MESH_MESH_MEGA_BUDDHAS)
-				Filename = "MeshMesh_MegaBuddhas.zb2";	
+				Filename = "MeshMesh_MegaBuddhas.zb2";
 		}
 
 		if(Filename)
@@ -250,8 +242,7 @@ class MeshMesh : public MidphaseMeshMeshTest, public ZB2CreationCallback
 
 	virtual bool	CommonSetup()	override
 	{
-		TestBase::CommonSetup();
-		return true;
+		return TestBase::CommonSetup();
 	}
 
 	virtual	void	NotifyCreatedObjects(Pint& pint, const ZB2CreatedObjects& objects, ZCB2Factory*)

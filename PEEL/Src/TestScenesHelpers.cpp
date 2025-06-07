@@ -550,7 +550,7 @@ bool GenerateArrayOfConvexes(Pint& pint, const PintCaps& caps, bool is_static, f
 	C.LoadFile(i);
 
 	PINT_CONVEX_CREATE ConvexCreate(C.mNbVerts, C.mVerts);
-	ConvexCreate.mRenderer	= CreateConvexRenderer(ConvexCreate.mNbVerts, ConvexCreate.mVerts);
+	ConvexCreate.mRenderer	= CreateRenderer(ConvexCreate);
 
 	const float AltitudeC = 10.0f;
 	const float OneOverNbX = OneOverNb(nb_x);

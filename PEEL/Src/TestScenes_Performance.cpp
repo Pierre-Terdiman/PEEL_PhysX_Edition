@@ -40,7 +40,7 @@ class BoxStackConfigurable : public TestBase//, public PintContactNotifyCallback
 
 	virtual	float			GetRenderData(Point& center)	const	{ return 400.0f;	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		const sdword Width = 320;
 		IceWindow* UI = CreateTestWindow(Width, 300);
@@ -231,19 +231,10 @@ class BoxContainerConfigurable : public TestBase
 	virtual	const char*		GetDescription()	const	{ return gDesc_BoxContainerConfigurable;}
 	virtual	TestCategory	GetCategory()		const	{ return CATEGORY_PERFORMANCE;			}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 400;
-		WD.mHeight	= 270;
-		WD.mLabel	= "Box container";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 400;
+		IceWindow* UI = CreateTestWindow(Width, 270);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -348,7 +339,7 @@ class BoxContainerConfigurable : public TestBase
 			y += YStep;
 
 			y += YStep;
-			AddResetButton(UI, 4, y, WD.mWidth-24);
+			AddResetButton(UI, 4, y, Width);
 		}
 		return null;
 	}
@@ -1087,7 +1078,7 @@ START_TEST(ConvexGalore, CATEGORY_PERFORMANCE, gDesc_ConvexGalore)
 			C[i].LoadFile(i);
 			ConvexCreate[i].mNbVerts	= C[i].mNbVerts;
 			ConvexCreate[i].mVerts		= C[i].mVerts;
-			ConvexCreate[i].mRenderer	= CreateConvexRenderer(ConvexCreate[i].mNbVerts, ConvexCreate[i].mVerts);
+			ConvexCreate[i].mRenderer	= CreateRenderer(ConvexCreate[i]);
 		}
 
 		const float Amplitude = 1.5f;
@@ -1146,7 +1137,7 @@ START_TEST(ConvexGalore2, CATEGORY_PERFORMANCE, gDesc_ConvexGalore2)
 			C[i].LoadFile(i);
 			ConvexCreate[i].mNbVerts	= C[i].mNbVerts;
 			ConvexCreate[i].mVerts		= C[i].mVerts;
-			ConvexCreate[i].mRenderer	= CreateConvexRenderer(ConvexCreate[i].mNbVerts, ConvexCreate[i].mVerts);
+			ConvexCreate[i].mRenderer	= CreateRenderer(ConvexCreate[i]);
 		}
 
 		const float Amplitude = 1.5f;
@@ -1205,7 +1196,7 @@ START_TEST(ConvexGalore3, CATEGORY_PERFORMANCE, gDesc_ConvexGalore3)
 			C[i].LoadFile(i);
 			ConvexCreate[i].mNbVerts	= C[i].mNbVerts;
 			ConvexCreate[i].mVerts		= C[i].mVerts;
-			ConvexCreate[i].mRenderer	= CreateConvexRenderer(ConvexCreate[i].mNbVerts, ConvexCreate[i].mVerts);
+			ConvexCreate[i].mRenderer	= CreateRenderer(ConvexCreate[i]);
 		}
 
 		const float Amplitude = 1.5f;
@@ -1286,7 +1277,7 @@ START_TEST(Convex12K, CATEGORY_PERFORMANCE, gDesc_Convex12K)
 		C.LoadFile(i);
 		ConvexCreate.mNbVerts	= C.mNbVerts;
 		ConvexCreate.mVerts		= C.mVerts;
-		ConvexCreate.mRenderer	= CreateConvexRenderer(ConvexCreate.mNbVerts, ConvexCreate.mVerts);
+		ConvexCreate.mRenderer	= CreateRenderer(ConvexCreate);
 
 		const float Amplitude = 1.5f;
 		const udword NbLayers = 44;
@@ -1443,19 +1434,10 @@ class ConvexClash : public TestBase
 
 	virtual	float			GetRenderData(Point& center)	const	{ return 1000.0f;	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 256;
-		WD.mHeight	= 160;
-		WD.mLabel	= "ConvexClash";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 256;
+		IceWindow* UI = CreateTestWindow(Width, 160);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -1483,7 +1465,7 @@ class ConvexClash : public TestBase
 		}
 
 		y += YStep;
-		AddResetButton(UI, 4, y, 256-16);
+		AddResetButton(UI, 4, y, Width);
 
 		return null;
 	}
@@ -1515,7 +1497,7 @@ class ConvexClash : public TestBase
 			C.LoadFile(i);
 
 			PINT_CONVEX_CREATE ConvexCreate(C.mNbVerts, C.mVerts);
-			ConvexCreate.mRenderer	= CreateConvexRenderer(ConvexCreate.mNbVerts, ConvexCreate.mVerts);
+			ConvexCreate.mRenderer	= CreateRenderer(ConvexCreate);
 
 			const float Amplitude = 1.5f;
 			const udword NbX = nb_x;
@@ -1666,19 +1648,10 @@ class DynamicsOnMeshLevel : public TestBase
 
 	virtual	float	GetRenderData(Point& center)	const	{ return 2000.0f;	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 400;
-		WD.mHeight	= 300;
-		WD.mLabel	= "DynamicsOnMeshLevel";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 400;
+		IceWindow* UI = CreateTestWindow(Width, 300);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -1820,7 +1793,7 @@ class DynamicsOnMeshLevel : public TestBase
 		}
 
 		y += YStep;
-		AddResetButton(UI, 4, y, 400-16);
+		AddResetButton(UI, 4, y, Width);
 
 		return null;
 	}
@@ -1978,7 +1951,7 @@ class DynamicsOnMeshLevel : public TestBase
 			C.Scale(ShapeSize, ShapeSize, ShapeSize);
 
 			PINT_CONVEX_CREATE ConvexCreate(C.mNbVerts, C.mVerts);
-			ConvexCreate.mRenderer	= CreateConvexRenderer(ConvexCreate.mNbVerts, ConvexCreate.mVerts);
+			ConvexCreate.mRenderer	= CreateRenderer(ConvexCreate);
 
 			for(udword i=0;i<NbLayers;i++)
 			{
@@ -2870,7 +2843,7 @@ START_TEST(AddDynamicConvexes, CATEGORY_PERFORMANCE, gDesc_AddDynamicConvexes)
 		}
 
 		PINT_CONVEX_CREATE ConvexCreate(8, Verts);
-		ConvexCreate.mRenderer	= CreateConvexRenderer(ConvexCreate.mNbVerts, ConvexCreate.mVerts);
+		ConvexCreate.mRenderer	= CreateRenderer(ConvexCreate);
 
 		PINT_OBJECT_CREATE ObjectDesc(&ConvexCreate);
 		ObjectDesc.mMass		= 1.0f;
@@ -3415,19 +3388,10 @@ class Avalanche : public TestBase
 		SetDefEnv(desc, false);
 	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 256;
-		WD.mHeight	= 160;
-		WD.mLabel	= "Avalanche";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 256;
+		IceWindow* UI = CreateTestWindow(Width, 160);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -3457,7 +3421,7 @@ class Avalanche : public TestBase
 		}
 
 		y += YStep;
-		AddResetButton(UI, 4, y, 256-16);
+		AddResetButton(UI, 4, y, Width);
 
 		return null;
 	}
@@ -3518,7 +3482,7 @@ class Avalanche : public TestBase
 //			C.LoadFile(13);
 			ConvexCreate.mNbVerts	= C.mNbVerts;
 			ConvexCreate.mVerts		= C.mVerts;
-			ConvexCreate.mRenderer	= CreateConvexRenderer(ConvexCreate.mNbVerts, ConvexCreate.mVerts);
+			ConvexCreate.mRenderer	= CreateRenderer(ConvexCreate);
 		}
 
 //		const Point SpawnPt(-4226.25f, 1799.95f, 258.09f);

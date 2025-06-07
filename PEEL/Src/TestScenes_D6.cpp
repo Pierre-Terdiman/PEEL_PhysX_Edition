@@ -156,19 +156,10 @@ class D6Joint_PrismaticDrive : public TestBase
 	virtual	const char*		GetDescription()	const	{ return gDesc_D6Joint_PrismaticDrive;	}
 	virtual	TestCategory	GetCategory()		const	{ return CATEGORY_JOINTS_D6_BASICS;		}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 280;
-		WD.mHeight	= 200;
-		WD.mLabel	= "Prismatic Drive";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 280;
+		IceWindow* UI = CreateTestWindow(Width, 200);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -260,7 +251,7 @@ class D6Joint_PrismaticDrive : public TestBase
 
 		}*/
 		y += YStep;
-		AddResetButton(UI, 4, y, 264);
+		AddResetButton(UI, 4, y, Width);
 
 		return null;
 	}
@@ -458,19 +449,10 @@ class D6Joint_PrismaticPosDrive : public TestBase
 	virtual	const char*		GetDescription()	const	{ return gDesc_D6Joint_PrismaticPosDrive;	}
 	virtual	TestCategory	GetCategory()		const	{ return CATEGORY_JOINTS_D6_BASICS;			}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 280;
-		WD.mHeight	= 200;
-		WD.mLabel	= "Prismatic Drive";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 280;
+		IceWindow* UI = CreateTestWindow(Width, 200);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -516,7 +498,7 @@ class D6Joint_PrismaticPosDrive : public TestBase
 		}
 
 		y += YStep;
-		AddResetButton(UI, 4, y, 264);
+		AddResetButton(UI, 4, y, Width);
 
 		return null;
 	}

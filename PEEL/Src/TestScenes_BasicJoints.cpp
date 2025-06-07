@@ -88,19 +88,10 @@ class BasicJointAPI : public TestBase
 	virtual	const char*		GetDescription()	const	{ return gDesc_BasicJointAPI;		}
 	virtual	TestCategory	GetCategory()		const	{ return CATEGORY_JOINTS_BASICS;	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 300;
-		WD.mHeight	= 100;
-		WD.mLabel	= "Basic joint API";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 300;
+		IceWindow* UI = CreateTestWindow(Width, 100);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -152,7 +143,7 @@ class BasicJointAPI : public TestBase
 			y += YStep;
 
 			y += YStep;
-			AddResetButton(UI, 4, y, WD.mWidth-4*2*2);
+			AddResetButton(UI, 4, y, Width);
 		}
 		return null;
 	}
@@ -579,19 +570,10 @@ class ConfigurableLimitedHingeJoint : public TestBase
 	virtual	const char*		GetDescription()		const	{ return gDesc_ConfigurableLimitedHingeJoint;	}
 	virtual	TestCategory	GetCategory()			const	{ return CATEGORY_JOINTS_BASICS;				}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 300;
-		WD.mHeight	= 100;
-		WD.mLabel	= "ConfigurableLimitedHingeJoint";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 300;
+		IceWindow* UI = CreateTestWindow(Width, 100);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -608,7 +590,7 @@ class ConfigurableLimitedHingeJoint : public TestBase
 		}
 
 		y += YStep;
-		AddResetButton(UI, 4, y, WD.mWidth-4*2*2);
+		AddResetButton(UI, 4, y, Width);
 
 		return null;
 	}
@@ -871,19 +853,10 @@ class HingeJointMotor : public TestBase
 	virtual	const char*		GetDescription()	const	{ return gDesc_HingeJointMotor;		}
 	virtual	TestCategory	GetCategory()		const	{ return CATEGORY_JOINTS_BASICS;	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 280+10;
-		WD.mHeight	= 220+30;
-		WD.mLabel	= "HingeJointMotor";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 290;
+		IceWindow* UI = CreateTestWindow(Width, 250);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -935,7 +908,7 @@ class HingeJointMotor : public TestBase
 			SD.mParent	= UI;
 			SD.mX		= 4;
 			SD.mY		= y;
-			SD.mWidth	= WD.mWidth - 30;
+			SD.mWidth	= Width - 30;
 			SD.mHeight	= 20;
 			SD.mLabel	= "test";
 			mSlider		= ICE_NEW(IceSlider)(SD);
@@ -946,7 +919,7 @@ class HingeJointMotor : public TestBase
 		}
 
 		y += YStep;
-		AddResetButton(UI, 4, y, 264);
+		AddResetButton(UI, 4, y, Width);
 
 		return null;
 	}
@@ -1144,7 +1117,7 @@ or enabling angular CCD could improve the behavior on impact.";
 
 START_TEST(HingeJointMotorVsObstacle, CATEGORY_JOINTS_BASICS, gDesc_HingeJointMotorVsObstacle)
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		return CreateOverrideTabControl("HingeJointMotorVsObstacle", 0);
 	}

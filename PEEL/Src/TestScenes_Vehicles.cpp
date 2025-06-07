@@ -431,19 +431,10 @@ class VehicleSDK : public VehicleInput
 
 			TerrainStreamingUI	mTerrainStreamingUI;
 
-	virtual	IceTabControl*		InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*		InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 500;
-		WD.mHeight	= 500+100;
-		WD.mLabel	= "VehicleSDK";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 500;
+		IceWindow* UI = CreateTestWindow(Width, 600);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -458,9 +449,9 @@ class VehicleSDK : public VehicleInput
 			y += YStep;
 		}
 
-		const udword ButtonSize = 500-16;
+		const udword ButtonSize = Width - 16;
 		//y += YStep;
-		AddResetButton(UI, 4, y, ButtonSize);
+		AddResetButton(UI, 4, y, Width);
 
 		{
 			y += YStep;
@@ -510,7 +501,7 @@ class VehicleSDK : public VehicleInput
 			TCD.mY		= 0;
 			//TCD.mY		= y + 50;
 			TCD.mY		= y + 40;
-			TCD.mWidth	= WD.mWidth - 16;
+			TCD.mWidth	= Width - 16;
 			TCD.mHeight	= 300+100+40;
 			IceTabControl* TabControl = ICE_NEW(IceTabControl)(TCD);
 			RegisterUIElement(TabControl);
@@ -3435,7 +3426,7 @@ class name : public LegoVehicle														\
 	virtual					~name()						{}							\
 	virtual	const char*		GetName()			const	{ return #name;			}	\
 	virtual	const char*		GetDescription()	const	{ return gDesc_##name;	}	\
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)							\
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override				\
 	{																				\
 		IceTabControl* tc = LegoVehicle::InitUI(helper);							\
 		if(pvf)																		\

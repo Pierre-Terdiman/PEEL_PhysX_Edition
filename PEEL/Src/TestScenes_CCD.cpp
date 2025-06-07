@@ -24,7 +24,7 @@
 		virtual	const char*		GetName()			const	{ return #name;			}	\
 		virtual	const char*		GetDescription()	const	{ return desc;			}	\
 		virtual	TestCategory	GetCategory()		const	{ return CATEGORY_CCD;	}	\
-		virtual	IceTabControl*	InitUI(PintGUIHelper& helper)							\
+		virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override				\
 		{																				\
 			return CreateOverrideTabControl("CCD Test", 200);							\
 		}
@@ -207,7 +207,7 @@ START_CCD_TEST(CCDTest_GameLevelStressTest, gDesc_CCDTest_GameLevel)
 		C.LoadFile(i);
 
 		PINT_CONVEX_CREATE ConvexCreate(C.mNbVerts, C.mVerts);
-		ConvexCreate.mRenderer	= CreateConvexRenderer(ConvexCreate.mNbVerts, ConvexCreate.mVerts);
+		ConvexCreate.mRenderer	= CreateRenderer(ConvexCreate);
 
 		const udword NbX = 32;
 		const udword NbY = 32;
@@ -256,7 +256,7 @@ START_CCD_TEST(CCDTest_SmallConvexes, gDesc_CCDTest_SmallConvexes)
 			C.mVerts[i] *= 0.1f;
 
 		PINT_CONVEX_CREATE ConvexCreate(C.mNbVerts, C.mVerts);
-		ConvexCreate.mRenderer	= CreateConvexRenderer(ConvexCreate.mNbVerts, ConvexCreate.mVerts);
+		ConvexCreate.mRenderer	= CreateRenderer(ConvexCreate);
 
 		const udword NbX = 32;
 		const udword NbY = 32;
@@ -306,7 +306,7 @@ START_CCD_TEST(CCDTest_BehaviorAfterImpact, gDesc_CCDTest_BehaviorAfterImpact)
 			C.mVerts[i] *= 0.1f;
 
 		PINT_CONVEX_CREATE ConvexCreate(C.mNbVerts, C.mVerts);
-		ConvexCreate.mRenderer	= CreateConvexRenderer(ConvexCreate.mNbVerts, ConvexCreate.mVerts);
+		ConvexCreate.mRenderer	= CreateRenderer(ConvexCreate);
 
 		const udword NbX = 2;
 		const udword NbY = 2;
@@ -686,7 +686,7 @@ START_CCD_TEST(CCDTest_ConvexCascade, gDesc_CCDTest_ConvexCascade)
 		C.LoadFile(1);
 
 		PINT_CONVEX_CREATE ConvexCreate(C.mNbVerts, C.mVerts);
-		ConvexCreate.mRenderer	= CreateConvexRenderer(ConvexCreate.mNbVerts, ConvexCreate.mVerts);
+		ConvexCreate.mRenderer	= CreateRenderer(ConvexCreate);
 
 		const Point Extents(10.0f, 0.1f, 10.0f);
 		PINT_BOX_CREATE BoxDesc(Extents);

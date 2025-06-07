@@ -360,19 +360,10 @@ class StaticMesh : public TestBase
 	virtual	const char*		GetDescription()	const	{ return gDesc_StaticMeshes;	}
 	virtual	TestCategory	GetCategory()		const	{ return CATEGORY_STATIC_SCENE;	}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 300;
-		WD.mHeight	= 150;
-		WD.mLabel	= "Static mesh";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 300;
+		IceWindow* UI = CreateTestWindow(Width, 150);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -421,7 +412,7 @@ class StaticMesh : public TestBase
 		}
 
 		y += YStep;
-		AddResetButton(UI, 4, y, 300-16);
+		AddResetButton(UI, 4, y, Width);
 
 		return null;
 	}
@@ -603,19 +594,10 @@ class CustomerMesh : public TestBase
 	virtual	const char*		GetDescription()	const	{ return gDesc_CustomerStaticMeshes;	}
 	virtual	TestCategory	GetCategory()		const	{ return CATEGORY_STATIC_SCENE;			}
 
-	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		WindowDesc WD;
-		WD.mParent	= null;
-		WD.mX		= 50;
-		WD.mY		= 50;
-		WD.mWidth	= 300;
-		WD.mHeight	= 150;
-		WD.mLabel	= "Customer static mesh";
-		WD.mType	= WINDOW_DIALOG;
-		IceWindow* UI = ICE_NEW(IceWindow)(WD);
-		RegisterUIElement(UI);
-		UI->SetVisible(true);
+		const sdword Width = 300;
+		IceWindow* UI = CreateTestWindow(Width, 150);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -644,7 +626,7 @@ class CustomerMesh : public TestBase
 		}
 
 		y += YStep;
-		AddResetButton(UI, 4, y, 300-16);
+		AddResetButton(UI, 4, y, Width);
 
 		return null;
 	}
