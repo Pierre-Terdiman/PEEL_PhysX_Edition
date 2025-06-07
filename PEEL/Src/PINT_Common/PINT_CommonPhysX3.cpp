@@ -2741,7 +2741,7 @@ bool SharedPhysX::DeleteConvexObject(PintConvexHandle handle, const PintConvexIn
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static PxTriangleMesh* CreatePhysXMesh(PxPhysics* physics,
+static PxTriangleMesh* CreatePhysXMesh(PxPhysics* physics, const EditableParams& params,
 #if PHYSX_SUPPORT_IMMEDIATE_COOKING
 	const PxCookingParams& cookingParams,
 #else
@@ -2808,11 +2808,7 @@ static PxTriangleMesh* CreatePhysXMesh(PxPhysics* physics,
 	{
 		const_cast<PxCookingParams&>(cookingParams).meshPreprocessParams |= PxMeshPreprocessingFlag::eENABLE_INERTIA;
 
-		sdfDesc.spacing = 0.05f;
-		//sdfDesc.spacing = 0.005f;
-		//sdfDesc.spacing = 0.0025f;
-		//sdfDesc.spacing = 0.001f;
-		//sdfDesc.spacing = 0.0005f;
+		sdfDesc.spacing = params.mSDFSpacing;
 		sdfDesc.subgridSize = 6;
 		sdfDesc.bitsPerSubgridPixel = PxSdfBitsPerSubgridPixel::e16_BIT_PER_PIXEL;
 		sdfDesc.numThreadsForSdfConstruction = 16;
@@ -2933,7 +2929,7 @@ bool SharedPhysX::DeleteMeshObject(PintMeshHandle handle, const PintMeshIndex* i
 
 PxTriangleMesh* SharedPhysX::CreatePhysXMesh(const PintSurfaceInterface& surface, bool deformable, bool dynamic)
 {
-	return ::CreatePhysXMesh(mPhysics, GetCooking(), surface, deformable, dynamic);
+	return ::CreatePhysXMesh(mPhysics, mParams, GetCooking(), surface, deformable, dynamic);
 }
 
 /*PxTriangleMesh* SharedPhysX::CreateTriangleMesh(const SurfaceInterface& surface, PintShapeRenderer* renderer, bool deformable)
@@ -4594,6 +4590,9 @@ EditableParams::EditableParams() :
 #if PHYSX_SUPPORT_CONTACT_NOTIFICATIONS
 	mContactNotifThreshold		(0.0f),
 #endif
+#if PHYSX_SUPPORT_DYNAMIC_MESHES
+	mSDFSpacing					(0.05f),
+#endif
 #if PHYSX_SUPPORT_SUBSTEPS
 	mNbSubsteps					(1),
 #endif
@@ -4875,6 +4874,9 @@ namespace
 #if PHYSX_SUPPORT_CONTACT_NOTIFICATIONS
 		EditBoxPtr		mEditBox_ContactNotifThreshold;
 #endif
+#if PHYSX_SUPPORT_DYNAMIC_MESHES
+		EditBoxPtr		mEditBox_SDF_Spacing;
+#endif
 #if PHYSX_SUPPORT_SUBSTEPS
 		EditBoxPtr		mEditBox_NbSubsteps;
 		EditBoxPtr		mEditBox_ConfigDesc;
@@ -5131,6 +5133,9 @@ void PhysX3::GetOptionsFromGUI(const char* test_name)
 	Common_GetFromEditBox(gParams.mRestOffset, gPhysXUI->mEditBox_RestOffset, -FLT_MAX, FLT_MAX);
 #if PHYSX_SUPPORT_CONTACT_NOTIFICATIONS
 	Common_GetFromEditBox(gParams.mContactNotifThreshold, gPhysXUI->mEditBox_ContactNotifThreshold, 0.0f, FLT_MAX);
+#endif
+#if PHYSX_SUPPORT_DYNAMIC_MESHES
+	Common_GetFromEditBox(gParams.mSDFSpacing, gPhysXUI->mEditBox_SDF_Spacing, 0.0f, FLT_MAX);
 #endif
 #if PHYSX_SUPPORT_SUBSTEPS
 	Common_GetFromEditBox(gParams.mNbSubsteps, gPhysXUI->mEditBox_NbSubsteps);
@@ -5916,6 +5921,9 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 			gPhysXUI->mEditBox_RestOffset = CreateEditBox(helper, TabWindow, x2, y, "Rest offset:", helper.Convert(gParams.mRestOffset), EDITBOX_FLOAT, LabelWidth, EditBoxX);
 #if PHYSX_SUPPORT_CONTACT_NOTIFICATIONS
 			gPhysXUI->mEditBox_ContactNotifThreshold = CreateEditBox(helper, TabWindow, x2, y, "Contact notif threshold:", helper.Convert(gParams.mContactNotifThreshold), EDITBOX_FLOAT, LabelWidth, EditBoxX);
+#endif
+#if PHYSX_SUPPORT_DYNAMIC_MESHES
+			gPhysXUI->mEditBox_SDF_Spacing = CreateEditBox(helper, TabWindow, x2, y, "SDF spacing:", helper.Convert(gParams.mSDFSpacing), EDITBOX_FLOAT_POSITIVE, LabelWidth, EditBoxX);
 #endif
 #if PHYSX_SUPPORT_PX_BROADPHASE_TYPE
 			gPhysXUI->mEditBox_MBPSubdivLevel = CreateEditBox(helper, TabWindow, x2, y, "MBP subdiv level:", _F("%d", gParams.mMBPSubdivLevel), EDITBOX_INTEGER_POSITIVE, LabelWidth, EditBoxX);

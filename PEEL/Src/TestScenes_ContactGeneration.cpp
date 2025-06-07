@@ -1373,6 +1373,11 @@ START_TEST(NutAndBolt, CATEGORY_CONTACT_GENERATION, gDesc_NutAndBolt)
 
 	WavefrontDatabase	mOBJ;
 
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
+	{
+		return CreateOverrideTabControl("NutAndBolt", 20);
+	}
+
 /*	virtual	float	GetRenderData(Point& center)	const
 	{
 		center = gOffset;

@@ -941,6 +941,32 @@ static IceWindow* CreateUI_AnymalC(IceWidget* parent, PintGUIHelper& helper, Wid
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static IceWindow* CreateUI_NutAndBolt(IceWidget* parent, PintGUIHelper& helper, Widgets& owner)
+{
+	IceWindow* TabWindow = CreateTabWindow(parent, owner);
+
+	sdword y = 4;
+	sdword x = 4;
+
+	struct Override{ static void NutAndBolt(const IceCheckBox& check_box, bool checked, void* user_data)
+	{
+		gEditBox_Generic0->SetEnabled(checked);
+	}};
+	ASSERT(!gCheckBox_Override);
+	gCheckBox_Override = helper.CreateCheckBox(TabWindow, 0, x, y, 200, 20, "Override main panel settings", &owner, true, Override::NutAndBolt, null);
+	y += YStep;
+
+#if PHYSX_SUPPORT_DYNAMIC_MESHES
+	helper.CreateLabel(TabWindow, 4, y+LabelOffsetY, LabelWidth, 20, "SDF spacing:", &owner);
+	ASSERT(!gEditBox_Generic0);
+	gEditBox_Generic0 = helper.CreateEditBox(TabWindow, 0, 4+EditBoxX, y, EditBoxWidth, 20, "0.005", &owner, EDITBOX_FLOAT_POSITIVE, null, null);
+	y += YStep;
+#endif
+	return TabWindow;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 static bool IsCCDTest(const char* test_name)
 {
 	return strncmp(test_name, "CCDTest_", 8)==0;
@@ -977,6 +1003,9 @@ IceWindow* PhysXPlugIn::InitTestGUI(const char* test_name, IceWidget* parent, Pi
 
 	if(	strcmp(test_name, "AnymalC")==0)
 		return CreateUI_AnymalC(parent, helper, owner);
+
+	if(	strcmp(test_name, "NutAndBolt")==0)
+		return CreateUI_NutAndBolt(parent, helper, owner);
 
 	if(	strcmp(test_name, "CompoundTowerTweaked")==0)
 		return CreateUI_SolverIterPos_Substeps(parent, helper, owner, 32, 2);
@@ -1133,6 +1162,14 @@ void PhysXPlugIn::ApplyTestUIParams(const char* test_name)
 		EP.mGyro = gCheckBox_Generic0->IsChecked();
 #endif
 		EP.mAngularDamping = 0.0f;
+		return;
+	}
+
+	if(	strcmp(test_name, "NutAndBolt")==0)
+	{
+#if PHYSX_SUPPORT_DYNAMIC_MESHES
+		Common_GetFromEditBox(EP.mSDFSpacing, gEditBox_Generic0, 0.0f, MAX_FLOAT);
+#endif
 		return;
 	}
 

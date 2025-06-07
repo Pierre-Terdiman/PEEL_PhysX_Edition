@@ -258,6 +258,9 @@
 #if PHYSX_SUPPORT_CONTACT_NOTIFICATIONS
 		float							mContactNotifThreshold;
 #endif
+#if PHYSX_SUPPORT_DYNAMIC_MESHES
+		float							mSDFSpacing;
+#endif
 #if PHYSX_SUPPORT_SUBSTEPS
 		udword							mNbSubsteps;
 #endif
