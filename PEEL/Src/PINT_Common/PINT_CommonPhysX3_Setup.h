@@ -12,6 +12,11 @@
 	void	SetupSceneDesc(	PxSceneDesc& sceneDesc, const PINT_WORLD_CREATE& desc, const EditableParams& params,
 							//PxDefaultCpuDispatcher* cpu_dispatcher, PxSimulationEventCallback* secb, PxContactModifyCallback* cmcb);
 							PxCpuDispatcher* cpu_dispatcher, PxSimulationEventCallback* secb, PxContactModifyCallback* cmcb);
+
+#if PHYSX_SUPPORT_GPU
+	PxCudaContextManager*	SetupGPU(PxSceneDesc& sceneDesc, const EditableParams& mParams, PxFoundation& foundation);
+#endif
+
 	void	SetupBroadphase(const PINT_WORLD_CREATE& desc, const EditableParams& mParams, PxScene* mScene);
 
 #endif

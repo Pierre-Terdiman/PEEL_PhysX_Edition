@@ -414,7 +414,10 @@
 #if PHYSX_SUPPORT_VEHICLE_SWEEP_INFLATION
 		float							mSweepInflation;
 #endif
-
+#if PHYSX_SUPPORT_GPU
+		udword							mNbGpuPartitions;
+		udword							mGpuBuffersSizeMultiplier;
+#endif
 #if PHYSX_SUPPORT_FLUIDS
 		// Fluids
 		float							mFluidFriction;

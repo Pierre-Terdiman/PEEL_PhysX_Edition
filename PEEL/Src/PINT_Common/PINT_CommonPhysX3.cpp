@@ -4787,6 +4787,10 @@ EditableParams::EditableParams() :
 #if PHYSX_SUPPORT_VEHICLE_SWEEP_INFLATION
 	mSweepInflation				(0.01f),
 #endif
+#if PHYSX_SUPPORT_GPU
+	mNbGpuPartitions			(8),
+	mGpuBuffersSizeMultiplier	(2),
+#endif
 #if PHYSX_SUPPORT_FLUIDS
 	// Fluids
 	mFluidFriction				(0.05f),

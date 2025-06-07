@@ -153,6 +153,76 @@ void SetupSceneDesc(PxSceneDesc& sceneDesc, const PINT_WORLD_CREATE& desc, const
 	sceneDesc.solverBatchSize = mParams.mSolverBatchSize;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+#if PHYSX_SUPPORT_GPU
+PxCudaContextManager* SetupGPU(PxSceneDesc& sceneDesc, const EditableParams& mParams, PxFoundation& foundation)
+{
+	if(!mParams.mUseGPU)
+		return null;
+
+	printf("Using GPU\n");
+	sceneDesc.flags |= PxSceneFlag::eENABLE_GPU_DYNAMICS;
+#if PHYSX_SUPPORT_DIRECT_GPU
+	if(mParams.mUseDirectGPU)
+		sceneDesc.flags |= PxSceneFlag::eENABLE_DIRECT_GPU_API;
+#endif		
+	sceneDesc.broadPhaseType = PxBroadPhaseType::eGPU;
+	sceneDesc.gpuMaxNumPartitions = mParams.mNbGpuPartitions;
+
+	const udword Multiplier = mParams.mGpuBuffersSizeMultiplier;
+
+/*		sceneDesc.gpuDynamicsConfig.patchStreamCapacity *= 2; //KS - must increase because we can exceed the default 4MB buffer with the arena demo!
+	sceneDesc.gpuDynamicsConfig.contactStreamCapacity *= 2; //KS - must increase because we can exceed the default 4MB buffer with the arena demo!
+	sceneDesc.gpuDynamicsConfig.contactStreamCapacity *= 2;
+	sceneDesc.gpuDynamicsConfig.forceStreamCapacity *= 2;
+//			sceneDesc.gpuDynamicsConfig.frictionBufferCapacity *= 2;
+	sceneDesc.gpuDynamicsConfig.patchStreamCapacity *= 2;
+	sceneDesc.gpuDynamicsConfig.tempBufferCapacity *= 2;*/
+
+#if PHYSX_SUPPORT_GPU_NEW_MEMORY_CONFIG
+	sceneDesc.gpuDynamicsConfig.maxRigidContactCount *= Multiplier;
+	sceneDesc.gpuDynamicsConfig.maxRigidPatchCount *= Multiplier;
+#else
+	sceneDesc.gpuDynamicsConfig.constraintBufferCapacity *= Multiplier;
+	sceneDesc.gpuDynamicsConfig.contactBufferCapacity *= Multiplier;
+	sceneDesc.gpuDynamicsConfig.contactStreamSize *= Multiplier;
+	sceneDesc.gpuDynamicsConfig.patchStreamSize *= Multiplier;
+	sceneDesc.gpuDynamicsConfig.forceStreamCapacity *= Multiplier;
+#endif
+	sceneDesc.gpuDynamicsConfig.tempBufferCapacity *= Multiplier;
+	sceneDesc.gpuDynamicsConfig.heapCapacity *= Multiplier;
+	sceneDesc.gpuDynamicsConfig.foundLostPairsCapacity *= Multiplier;
+#if PHYSX_SUPPORT_GPU_AGG_MEMORY_CONFIG
+	sceneDesc.gpuDynamicsConfig.foundLostAggregatePairsCapacity *= Multiplier;
+	sceneDesc.gpuDynamicsConfig.totalAggregatePairsCapacity *= Multiplier;
+#endif
+
+#ifdef TEST_FLUIDS
+	//sceneDesc.gpuDynamicsConfig.maxParticleContacts *= 2;
+#endif
+
+	PxCudaContextManagerDesc cudaContextManagerDesc;
+#if PHYSX_SUPPORT_CUDA_GL_INTEROP
+	cudaContextManagerDesc.interopMode = PxCudaInteropMode::OGL_INTEROP;
+#endif
+//printf("Checkpoint 00\n");
+	PxCudaContextManager* CudaContextManager = PxCreateCudaContextManager(foundation, cudaContextManagerDesc, PxGetProfilerCallback());
+//printf("Checkpoint 01\n");
+	if(CudaContextManager && !CudaContextManager->contextIsValid())
+	{
+		CudaContextManager->release();
+		CudaContextManager = null;
+	}	
+//		if(CudaContextManager)
+//			sceneDesc.gpuDispatcher = CudaContextManager->getGpuDispatcher();	//Set the GPU dispatcher, used by GRB to dispatch CUDA kernels.
+	sceneDesc.cudaContextManager = CudaContextManager;
+	return CudaContextManager;
+}
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
+
 namespace
 {
 	class MyBroadPhaseCallback : public PxBroadPhaseCallback
