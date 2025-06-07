@@ -2347,3 +2347,1105 @@ left_footPos = ObjectDesc.mPosition;
 END_TEST(MujocoHumanoid)
 
 ///////////////////////////////////////////////////////////////////////////////
+
+// Adapted from https://github.com/google-deepmind/mujoco/issues/172
+static const char* gDesc_FourBarLinkage = "4-bar linkage (closed loop RCA using loop joints).";
+
+START_TEST(FourBarLinkage, CATEGORY_RCARTICULATIONS, gDesc_FourBarLinkage)
+
+	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)	override
+	{
+		TestBase::GetSceneParams(desc);
+		desc.mCamera[0] = PintCameraPose(Point(-6.52f, 3.94f, 4.43f), Point(0.91f, -0.17f, -0.38f));
+	    //<option gravity="0 0 0" timestep="0.002" />
+		desc.mGravity = Point(0.0f, 0.0f, 0.0f);
+		desc.mTimestep	= 0.002f;
+		//desc.mNbSimulateCallsPerFrame	= udword((1.0f/60.0f) / desc.mTimestep);
+		SetDefEnv(desc, false);
+	}
+
+	virtual bool	CommonSetup()	override
+	{
+		return TestBase::CommonSetup();
+	}
+
+	virtual	void	CommonRelease()	override
+	{
+		TestBase::CommonRelease();
+	}
+
+	virtual bool	Setup(Pint& pint, const PintCaps& caps)	override
+	{
+		if(!caps.mSupportRCArticulations || !caps.mSupportRigidBodySimulation || !caps.mSupportCompounds || !caps.mSupportCylinders)
+			return false;
+
+		MuJoCoConverter compiler(pint);
+		//compiler.mJointMapping = reinterpret_cast<JointMapping*>(pint.mUserData);
+		compiler.mUseRCA = true;
+		compiler.mUseRobotAggregate = false;
+		compiler.mShowCollisionShapes = true;
+		compiler.mShowVisualMeshes  = true;
+		//compiler.mSuperAggregate = super_aggregate;
+		//compiler.mStiffness = Stiffness;
+		//compiler.mDamping = Damping;
+
+		if(compiler.StartModel(true))
+		{
+			// In MuJoCo's XML files the quats appear in WXYZ order by default (what MuJoCo uses internally).
+			// So the identity quat in these files is "1 0 0 0". The ICE quaternion uses the same format, so
+			// creating a Quat with the same quat data as in the file (same order) already converts from the
+			// MuJoCo ordering to the ICE ordering.
+			// Note that I'm talking about the ordering in the Quat ctor, the memory order is different...
+
+			Quat q;
+
+			//<body name="link_1" pos="0 0 0">
+			compiler.StartBody("link_1", Point(0.0f, 0.0f, 0.0f), Quat(1.0f, 0.0f, 0.0f, 0.0f), 1.0f);
+
+				//<geom type="cylinder" size=".2    2" pos="0 0 2" euler="0 0 0" material="red__" />
+				q = compiler.FromEuler(0.0f, 0.0f, 0.0f);
+				compiler.AddCylinderShape(0.2f, 2.0f, &Point(0.0f, 0.0f, 2.0f), &q);
+
+				//<geom type="cylinder" size=".25 .25" pos="0 0 4" euler="0 90 0" material="red__" />
+				q = compiler.FromEuler(0.0f, 90.0f, 0.0f);
+				compiler.AddCylinderShape(0.25f, 0.25f, &Point(0.0f, 0.0f, 4.0f), &q);
+
+				//<geom type="cylinder" size=".25 .25" pos="0 0 0" euler="0 90 0" material="red__" />
+				q = compiler.FromEuler(0.0f, 90.0f, 0.0f);
+				compiler.AddCylinderShape(0.25f, 0.25f, &Point(0.0f, 0.0f, 0.0f), &q);
+
+				//<body name="link_2" pos="0.5 0 0" euler="0 0 0">
+				compiler.StartBody("link_2", Point(0.5f, 0.0f, 0.0f), Quat(1.0f, 0.0f, 0.0f, 0.0f), 1.0f);
+
+					//<joint name="hinge_1" pos="0 0 0" axis="1 0 0" />
+					compiler.SetHingeJoint("hinge_1", Point(1.0f, 0.0f, 0.0f), PI, -PI);	// ### limits
+
+					//<geom type="cylinder" size=".2    2" pos="0 2 0" euler="90 0 0" material="blue_" />
+					q = compiler.FromEuler(90.0f, 0.0f, 0.0f);
+					compiler.AddCylinderShape(0.2f, 2.0f, &Point(0.0f, 2.0f, 0.0f), &q);
+
+					//<geom type="cylinder" size=".25 .25" pos="0 4 0" euler="0 90 0" material="blue_" />
+					q = compiler.FromEuler(0.0f, 90.0f, 0.0f);
+					compiler.AddCylinderShape(0.25f, 0.25f, &Point(0.0f, 4.0f, 0.0f), &q);
+
+					//<geom type="cylinder" size=".25 .25" pos="0 0 0" euler="0 90 0" material="blue_" />
+					q = compiler.FromEuler(0.0f, 90.0f, 0.0f);
+					compiler.AddCylinderShape(0.25f, 0.25f, &Point(0.0f, 0.0f, 0.0f), &q);
+
+					//<body name="link_3" pos="-0.5 4 0" euler="0 0 0">
+					compiler.StartBody("link_3", Point(-0.5f, 4.0f, 0.0f), Quat(1.0f, 0.0f, 0.0f, 0.0f), 1.0f);
+
+						//<joint name="hinge_2" pos="0 0 0" axis="1 0 0" />
+						compiler.SetHingeJoint("hinge_2", Point(1.0f, 0.0f, 0.0f), PI, -PI);	// ### limits
+
+						//<geom type="cylinder" size=".2    2" pos="0 0 2" euler="0 0 0" material="green" />
+						q = compiler.FromEuler(0.0f, 0.0f, 0.0f);
+						compiler.AddCylinderShape(0.2f, 2.0f, &Point(0.0f, 0.0f, 2.0f), &q);
+
+						//<geom type="cylinder" size=".25 .25" pos="0 0 0" euler="0 90 0" material="green" />
+						q = compiler.FromEuler(0.0f, 90.0f, 0.0f);
+						compiler.AddCylinderShape(0.25f, 0.25f, &Point(0.0f, 0.0f, 0.0f), &q);
+
+						//<geom type="cylinder" size=".25 .25" pos="0 0 4" euler="0 90 0" material="green" />
+						q = compiler.FromEuler(0.0f, 90.0f, 0.0f);
+						compiler.AddCylinderShape(0.25f, 0.25f, &Point(0.0f, 0.0f, 4.0f), &q);
+
+						//<body name="link_4" pos="0.5 0 4" euler="0 0 0">
+						compiler.StartBody("link_4", Point(0.5f, 0.0f, 4.0f), Quat(1.0f, 0.0f, 0.0f, 0.0f), 1.0f);
+
+							//<joint name="hinge_3" pos="0 0 0" axis="1 0 0" />
+							compiler.SetHingeJoint("hinge_3", Point(1.0f, 0.0f, 0.0f), PI, -PI);	// ### limits
+
+							//<geom type="cylinder" size=".2    2" pos="0 -2 0" euler="90 0 0" material="white" />
+							q = compiler.FromEuler(90.0f, 0.0f, 0.0f);
+							compiler.AddCylinderShape(0.2f, 2.0f, &Point(0.0f, -2.0f, 0.0f), &q);
+
+							//<geom type="cylinder" size=".25 .25" pos="0 0 0" euler="0 90 0" material="white" />
+							q = compiler.FromEuler(0.0f, 90.0f, 0.0f);
+							compiler.AddCylinderShape(0.25f, 0.25f, &Point(0.0f, 0.0f, 0.0f), &q);
+
+							//<geom type="cylinder" size=".25 .25" pos="0 -4 0" euler="0 90 0" material="white" />
+							q = compiler.FromEuler(0.0f, 90.0f, 0.0f);
+							compiler.AddCylinderShape(0.25f, 0.25f, &Point(0.0f, -4.0f, 0.0f), &q);
+
+						//</body>
+						compiler.EndBody();
+
+					//</body>
+					compiler.EndBody();
+
+				//</body>
+				compiler.EndBody();
+
+			//</body>
+			compiler.EndBody();
+
+			compiler.EndModel();
+
+			//<equality>
+			//<connect name="kinematic_link" active="true" body1="link_1" body2="link_4" anchor="0 0 4" />
+			compiler.AddEqualityConstraint("kinematic_link", "link_1", "link_4", Point(0.0f, 0.0f, 4.0f));
+			//</equality>
+		}
+
+		return true;
+	}
+
+	virtual void	Close(Pint& pint)	override
+	{
+		TestBase::Close(pint);
+	}
+
+END_TEST(FourBarLinkage)
+
+///////////////////////////////////////////////////////////////////////////////
+
+#include "Loader_OBJ.h"
+#include "TextureManager.h"
+#include "Devil.h"
+
+static const char* gDesc_AnymalC = "Anybotics Anymal C";
+
+#define NB_ACTUATORS_ANYMALC	12
+
+START_TEST(AnymalC, CATEGORY_RCARTICULATIONS, gDesc_AnymalC)
+
+	WavefrontDatabase	mOBJ;
+	CheckBoxPtr			mCheckBox_UseRCA;
+	CheckBoxPtr			mCheckBox_UseRobotAggregate;
+	//CheckBoxPtr			mCheckBox_UseWorldAggregate;
+	CheckBoxPtr			mCheckBox_ApplyTestForces;
+	CheckBoxPtr			mCheckBox_AddConvexGround;
+	CheckBoxPtr			mCheckBox_ShowCollisionShapes;
+	CheckBoxPtr			mCheckBox_ShowVisualMeshes;
+	CheckBoxPtr			mCheckBox_ShowTextures;
+	EditBoxPtr			mEditBox_NbEnvs;
+	EditBoxPtr			mEditBox_Stiffness;
+	EditBoxPtr			mEditBox_Damping;
+	ComboBoxPtr			mComboBox;
+	SliderPtr			mSlider;
+	float				mActuatorTarget[NB_ACTUATORS_ANYMALC];
+	udword				mCurrentSlider;
+
+	void ResetActuators()
+	{
+		for(udword i=0; i<NB_ACTUATORS_ANYMALC; i++)
+			mActuatorTarget[i] = 0.0f;
+	}
+
+	class JointMapping : public JointMapingCallback, public Allocateable
+	{
+		public:
+				JointMapping()	{}
+		virtual	~JointMapping()	{}
+
+		virtual	void	RegisterJointMapping(const char* name, PintActorHandle handle)	override
+		{
+			Mapping* M = ICE_RESERVE(Mapping, mData);
+			M->mName	= name;
+			M->mHandle	= handle;
+		}
+
+		struct Mapping
+		{
+			const char*		mName;
+			PintActorHandle	mHandle;
+		};
+		Container	mData;
+	};
+
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
+	{
+		udword extra_size = 350;
+		const char* name = "AnymalC";
+
+		const sdword Width = 300;
+		IceWindow* UI = CreateTestWindow(Width, 200 + extra_size);
+
+		Widgets& UIElems = GetUIElements();
+
+		const sdword EditBoxWidth = 60;
+		const sdword LabelWidth = 100;
+		const sdword OffsetX = LabelWidth + 10;
+		const sdword LabelOffsetY = 2;
+		const sdword YStep = 20;
+		sdword y = 0;
+
+		mCheckBox_UseRCA = helper.CreateCheckBox(UI, 0, 4, y, 150, 20, "Use RCA", &UIElems, true, null, null);
+		y += YStep;
+
+		mCheckBox_UseRobotAggregate = helper.CreateCheckBox(UI, 0, 4, y, 150, 20, "Use robot aggregate", &UIElems, true, null, null);
+		y += YStep;
+
+		//mCheckBox_UseWorldAggregate = helper.CreateCheckBox(UI, 0, 4, y, 150, 20, "Use world aggregate", &UIElems, false, null, null);
+		//y += YStep;
+
+		mCheckBox_ApplyTestForces = helper.CreateCheckBox(UI, 0, 4, y, 150, 20, "Apply test forces", &UIElems, false, null, null);
+		y += YStep;
+
+		mCheckBox_AddConvexGround = helper.CreateCheckBox(UI, 0, 4, y, 150, 20, "Add convex ground", &UIElems, false, null, null);
+		y += YStep;
+
+		mCheckBox_ShowCollisionShapes = helper.CreateCheckBox(UI, 0, 4, y, 150, 20, "Show collision shapes", &UIElems, false, null, null);
+		y += YStep;
+
+		mCheckBox_ShowVisualMeshes = helper.CreateCheckBox(UI, 0, 4, y, 150, 20, "Show visual meshes", &UIElems, true, null, null);
+		y += YStep;
+
+		mCheckBox_ShowTextures = helper.CreateCheckBox(UI, 0, 4, y, 150, 20, "Show textures", &UIElems, true, null, null);
+		y += YStep;
+
+		helper.CreateLabel(UI, 4, y+LabelOffsetY, LabelWidth, 20, "sqrt(nb envs):", &UIElems);
+		mEditBox_NbEnvs = helper.CreateEditBox(UI, 1, 4+OffsetX, y, EditBoxWidth, 20, "1", &UIElems, EDITBOX_INTEGER_POSITIVE, null, null);
+		y += YStep;
+
+		helper.CreateLabel(UI, 4, y+LabelOffsetY, LabelWidth, 20, "Stiffness:", &UIElems);
+		mEditBox_Stiffness = helper.CreateEditBox(UI, 1, 4+OffsetX, y, EditBoxWidth, 20, "500.0", &UIElems, EDITBOX_FLOAT, null, null);
+		y += YStep;
+
+		helper.CreateLabel(UI, 4, y+LabelOffsetY, LabelWidth, 20, "Damping:", &UIElems);
+		mEditBox_Damping = helper.CreateEditBox(UI, 1, 4+OffsetX, y, EditBoxWidth, 20, "5.0", &UIElems, EDITBOX_FLOAT, null, null);
+		y += YStep;
+
+		class LocalComboBox : public IceComboBox
+		{
+			AnymalC&		mTest;
+			public:
+							LocalComboBox(const ComboBoxDesc& desc, AnymalC& test) : IceComboBox(desc), mTest(test)	{}
+			virtual			~LocalComboBox()																		{}
+
+			virtual	void	OnComboBoxEvent(ComboBoxEvent event)
+			{
+				if(event==CBE_SELECTION_CHANGED)
+				{
+					const udword SelectedIndex = GetSelectedIndex();
+					if(mTest.mSlider)
+					{
+						mTest.mSlider->SetValue(mTest.mActuatorTarget[SelectedIndex]);
+						mTest.mCurrentSlider = SelectedIndex;
+					}
+				}
+			}
+		};
+
+		y += 4;
+		ComboBoxDesc CBBD;
+		CBBD.mID		= 0;
+		CBBD.mParent	= UI;
+		CBBD.mX			= 4;
+		CBBD.mY			= y;
+		CBBD.mWidth		= 100;
+		CBBD.mHeight	= 20;
+		CBBD.mLabel		= "Presets";
+		mComboBox = ICE_NEW(LocalComboBox)(CBBD, *this);
+		RegisterUIElement(mComboBox);
+		mComboBox->Add("LF_HAA");
+		mComboBox->Add("LF_HFE");
+		mComboBox->Add("LF_KFE");
+		mComboBox->Add("RF_HAA");
+		mComboBox->Add("RF_HFE");
+		mComboBox->Add("RF_KFE");
+		mComboBox->Add("LH_HAA");
+		mComboBox->Add("LH_HFE");
+		mComboBox->Add("LH_KFE");
+		mComboBox->Add("RH_HAA");
+		mComboBox->Add("RH_HFE");
+		mComboBox->Add("RH_KFE");
+		mComboBox->Select(0);
+		mComboBox->SetVisible(true);
+
+		mCurrentSlider = 0;
+		{
+			SliderDesc SD;
+			SD.mStyle	= SLIDER_HORIZONTAL;
+			SD.mID		= 0;
+			SD.mParent	= UI;
+			SD.mX		= 110;
+			SD.mY		= y;
+			SD.mWidth	= Width/2;//Width - 30;
+			SD.mHeight	= 30;
+			SD.mLabel	= "test";
+			mSlider		= ICE_NEW(IceSlider)(SD);
+			mSlider->SetRange(-2.0f, 2.0f, 100);
+			mSlider->SetValue(0.0f);
+			UIElems.Register(mSlider);
+			y += YStep;
+		}
+
+		y += YStep;
+
+		{
+			class LocalButton : public IceButton
+			{
+				public:
+									LocalButton(AnymalC& test, const ButtonDesc& desc) : IceButton(desc), mTest(test)	{}
+				virtual				~LocalButton()																		{}
+
+				virtual	void		OnClick()
+				{
+					mTest.mSlider->SetValue(0.0f);
+					mTest.ResetActuators();
+				}
+
+						AnymalC&	mTest;
+			};
+
+			ButtonDesc BD;
+			BD.mID			= 0;
+			BD.mParent		= UI;
+			BD.mX			= 4;
+			BD.mY			= y;
+			BD.mWidth		= Width - 24;
+			BD.mHeight		= 20;
+			BD.mLabel		= "Reset actuators";
+			IceButton* IB = ICE_NEW(LocalButton)(*this, BD);
+			RegisterUIElement(IB);
+			IB->SetVisible(true);
+		}
+
+		y += YStep;
+		y += YStep;
+
+		return CreateTestTabControlAndResetButton(UI, Width, y, extra_size);
+
+		//return CreateOverrideTabControl("AnymalC", 100);
+	}
+
+	virtual	float	GetRenderData(Point& center)	const	override	{ return 10000.0f;	}
+
+	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)	override
+	{
+		TestBase::GetSceneParams(desc);
+		desc.mCamera[0] = PintCameraPose(Point(-0.43f, 1.60f, 0.42f), Point(-0.52f, -0.41f, -0.75f));
+		SetDefEnv(desc, true);
+	}
+
+	PintShapeRenderer*	LoadMesh(const char* mesh_name, const char* texture_name, const WavefrontLoaderParams& Params)
+	{
+		const ManagedTexture* MT = null;
+		if(texture_name && mCheckBox_ShowTextures->IsChecked())
+		{
+			const udword NbToSearch = GetNbManagedTextures();
+			for(udword i=0; i<NbToSearch; i++)
+			{
+				const ManagedTexture* Candidate = GetManagedTexture(i);
+				if(Candidate->mFilename == texture_name)
+				{
+					MT = Candidate;
+					printf("Found already existing texture %s ...", texture_name);
+					break;
+				}
+			}
+
+			if(!MT)
+			{
+				const char* Filename = FindPEELFile(texture_name);
+				if(Filename)
+				{
+					printf("Loading new texture %s ...", texture_name);
+					Picture Pic;
+					if(LoadWithDevil(Filename, Pic))
+						MT = CreateManagedTexture(Pic.GetWidth(), Pic.GetHeight(), Pic.GetPixels(), texture_name);
+				}
+			}
+		}
+
+		LoadObj(mesh_name, Params, mOBJ);
+
+		PintShapeRenderer* renderer = null;
+
+		const udword NbMeshes = mOBJ.mMeshes.GetNbEntries();
+		if(NbMeshes)
+		{
+			const WavefrontMesh* Mesh = (const WavefrontMesh*)mOBJ.mMeshes[0];
+			if(MT && Mesh->GetNbTVerts())
+			{
+				MultiSurface MS;
+				MS.IndexedSurface::Init(Mesh->GetNbTris(), Mesh->GetNbVerts(), Mesh->GetVerts(), (const IndexedTriangle*)Mesh->GetIndices());
+				{
+					IndexedSurface* UVSurface = MS.AddExtraSurface(SURFACE_UVS);
+					//UVSurface->Init(Mesh->GetNbTTris(), Mesh->GetNbTVerts());
+					UVSurface->Init(Mesh->GetNbTris(), Mesh->GetNbTVerts());
+
+					IndexedTriangle* TFaces = (IndexedTriangle*)UVSurface->GetFaces();
+					//CopyMemory(TFaces, Mesh->GetTIndices(), Mesh->GetNbTTris()*sizeof(IndexedTriangle));
+					CopyMemory(TFaces, Mesh->GetIndices(), Mesh->GetNbTris()*sizeof(IndexedTriangle));
+
+					Point* uvs = (Point*)UVSurface->GetVerts();
+					CopyMemory(uvs, Mesh->GetTVerts(), Mesh->GetNbTVerts()*sizeof(Point));
+				}
+
+	//			if(Actor->mMaterial && Actor->mMaterial->mEffect && Actor->mMaterial->mEffect->mImage)
+	//				MT = Actor->mMaterial->mEffect->mImage->mTexture;
+				renderer = CreateMeshRenderer(MS, true, true);
+			}
+			else
+			{
+				const SurfaceInterface SI(Mesh->GetNbVerts(), Mesh->GetVerts(), Mesh->GetNbTris(), Mesh->GetIndices(), null);
+				renderer = CreateMeshRenderer(PintSurfaceInterface(SI), null, true, true);
+			}
+		}
+
+		mOBJ.Release();
+
+		if(renderer)
+		{
+			const RGBAColor Diffuse(1.0f, 1.0f, 1.0f, 1.0f);
+			renderer = CreateColorShapeRenderer(renderer, Diffuse, MT);
+		}
+
+		return renderer;
+	}
+
+	PintShapeRenderer*	mMeshes[32];	//####
+
+	virtual bool	CommonSetup()	override
+	{
+		ResetActuators();
+		if(mSlider)
+			mSlider->SetValue(0.0f);
+
+		WavefrontLoaderParams Params;
+		Params.mScale = 1.0f;
+		Params.mMergeMeshes = true;
+		Params.mRecenter = false;
+		Params.mFlipYZ = true;
+
+		if(mCheckBox_ShowVisualMeshes->IsChecked())
+		{
+			mMeshes[0] = LoadMesh("anybotics_anymal_c/assets/base_0.obj", "anybotics_anymal_c/assets/base.png", Params);
+			mMeshes[1] = LoadMesh("anybotics_anymal_c/assets/base_1.obj", "anybotics_anymal_c/assets/base.png", Params);
+			mMeshes[2] = LoadMesh("anybotics_anymal_c/assets/base_2.obj", "anybotics_anymal_c/assets/base.png", Params);
+			mMeshes[3] = LoadMesh("anybotics_anymal_c/assets/base_3.obj", "anybotics_anymal_c/assets/base.png", Params);
+			mMeshes[4] = LoadMesh("anybotics_anymal_c/assets/base_4.obj", "anybotics_anymal_c/assets/base.png", Params);
+			mMeshes[5] = LoadMesh("anybotics_anymal_c/assets/base_5.obj", "anybotics_anymal_c/assets/base.png", Params);
+
+			mMeshes[6] = LoadMesh("anybotics_anymal_c/assets/top_shell.obj", "anybotics_anymal_c/assets/top_shell.png", Params);
+			mMeshes[7] = LoadMesh("anybotics_anymal_c/assets/bottom_shell.obj", "anybotics_anymal_c/assets/bottom_shell.png", Params);
+			mMeshes[8] = LoadMesh("anybotics_anymal_c/assets/remote.obj", "anybotics_anymal_c/assets/remote.png", Params);
+			mMeshes[9] = LoadMesh("anybotics_anymal_c/assets/handle.obj", "anybotics_anymal_c/assets/handle.png", Params);
+			mMeshes[10] = LoadMesh("anybotics_anymal_c/assets/face.obj", "anybotics_anymal_c/assets/face.png", Params);
+
+			mMeshes[11] = LoadMesh("anybotics_anymal_c/assets/depth_camera.obj", "anybotics_anymal_c/assets/depth_camera.png", Params);
+			mMeshes[12] = LoadMesh("anybotics_anymal_c/assets/wide_angle_camera.obj", "anybotics_anymal_c/assets/wide_angle_camera.png", Params);
+
+			mMeshes[13] = LoadMesh("anybotics_anymal_c/assets/battery.obj", "anybotics_anymal_c/assets/battery.png", Params);
+			mMeshes[14] = LoadMesh("anybotics_anymal_c/assets/lidar_cage.obj", "anybotics_anymal_c/assets/lidar_cage.png", Params);
+			mMeshes[15] = LoadMesh("anybotics_anymal_c/assets/lidar.obj", "anybotics_anymal_c/assets/lidar.png", Params);
+			mMeshes[16] = LoadMesh("anybotics_anymal_c/assets/drive.obj", "anybotics_anymal_c/assets/drive.png", Params);
+			mMeshes[17] = LoadMesh("anybotics_anymal_c/assets/hatch.obj", "anybotics_anymal_c/assets/hatch.png", Params);
+
+			mMeshes[18] = LoadMesh("anybotics_anymal_c/assets/hip_l.obj", "anybotics_anymal_c/assets/hip_l.png", Params);
+			mMeshes[19] = LoadMesh("anybotics_anymal_c/assets/hip_r.obj", "anybotics_anymal_c/assets/hip_r.png", Params);
+			mMeshes[20] = LoadMesh("anybotics_anymal_c/assets/thigh.obj", "anybotics_anymal_c/assets/thigh.png", Params);
+			mMeshes[21] = LoadMesh("anybotics_anymal_c/assets/shank_l.obj", "anybotics_anymal_c/assets/shank_l.png", Params);
+			mMeshes[22] = LoadMesh("anybotics_anymal_c/assets/shank_r.obj", "anybotics_anymal_c/assets/shank_r.png", Params);
+			mMeshes[23] = LoadMesh("anybotics_anymal_c/assets/foot.obj", "anybotics_anymal_c/assets/foot.png", Params);
+		}
+		return TestBase::CommonSetup();
+	}
+
+	virtual	void	CommonRelease()	override
+	{
+		mOBJ.Release();
+		TestBase::CommonRelease();
+	}
+
+	virtual bool	Setup(Pint& pint, const PintCaps& caps)	override
+	{
+		if(!caps.mSupportRCArticulations || !caps.mSupportRigidBodySimulation || !caps.mSupportCompounds || !caps.mSupportCylinders)
+			return false;
+
+		const udword NbEnvs = GetInt(1, mEditBox_NbEnvs);
+
+		PintAggregateHandle SuperAggregate = null;//pint.CreateAggregate(128*Nb*Nb, false);
+
+		const bool AddConvex = mCheckBox_AddConvexGround->IsChecked() && caps.mSupportConvexes;
+
+		PINT_CONVEX_CREATE ConvexCreate;
+		MyConvex C;
+		if(AddConvex)
+		{
+			C.LoadFile(4);
+			C.Scale(2.0f, 1.0f, 2.0f);
+			ConvexCreate.mNbVerts	= C.mNbVerts;
+			ConvexCreate.mVerts		= C.mVerts;
+			ConvexCreate.mRenderer	= CreateRenderer(ConvexCreate);
+		}
+
+		JointMapping* JP = ICE_NEW(JointMapping);
+		pint.mUserData = JP;
+
+		BasicRandom Rnd(42);
+		//const float Altitude = AddConvex ? 0.5f : 0.0f;
+		const float Altitude = -1.0f;
+		//const float Spacing = 2.0f;
+		const float Spacing = 3.0f;
+		const float Offset = 0.5f * (float(NbEnvs) * Spacing);
+		for(udword j=0; j<NbEnvs; j++)
+		{
+			for(udword i=0; i<NbEnvs; i++)
+			{
+				const float RndX = Rnd.RandomFloat();
+				const float RndY = Rnd.RandomFloat();
+				const Point Pos(RndX + float(i)*Spacing - Offset, RndY + float(j)*Spacing - Offset, Altitude);
+				CreateRobot(pint, caps, Pos, SuperAggregate);
+
+				if(AddConvex)
+					CreateStaticObject(pint, &ConvexCreate, Point(Pos.x, 0.0f + Rnd.RandomFloat() * 0.5f, Pos.y));
+			}
+		}
+
+		if(SuperAggregate)
+			pint.AddAggregateToScene(SuperAggregate);
+
+		return true;
+	}
+
+	virtual void	Close(Pint& pint)	override
+	{
+		JointMapping* JM = reinterpret_cast<JointMapping*>(pint.mUserData);
+		DELETESINGLE(JM);
+		pint.mUserData = null;
+
+		TestBase::Close(pint);
+	}
+
+	bool CreateRobot(Pint& pint, const PintCaps& caps, const Point& offset, PintAggregateHandle super_aggregate = null)
+	{
+		if(0)
+		{
+			{
+				MuJoCoConverter compiler(pint);
+				if(compiler.StartModel(false))
+				{
+					//<body name="cylinder1" pos="0 0 0.62" childclass="cylinder">
+					compiler.StartBody("base", Point(0.0f, 0.0f, 0.62f), Quat(1.0f, 0.0f, 0.0f, 0.0f), 1.0f);
+
+						//<geom class="collision" size="0.07 0.06"/>
+						compiler.AddCylinderShape(0.07f, 0.06f);
+					compiler.EndBody();
+					compiler.EndModel();
+				}
+			}
+			{
+				MuJoCoConverter compiler(pint);
+				if(compiler.StartModel(false))
+				{
+					//<body name="cylinder2" pos="0.4 0 0.62" quat="0 0 0 1" childclass="cylinder">
+					compiler.StartBody("base", Point(0.4f, 0.0f, 0.62f), Quat(0.0f, 0.0f, 0.0f, 1.0f), 1.0f);
+
+						//<geom class="collision" size="0.07 0.06"/>
+						compiler.AddCylinderShape(0.07f, 0.06f);
+					compiler.EndBody();
+					compiler.EndModel();
+				}
+			}
+		}
+
+		if(1)
+		{
+		MuJoCoConverter compiler(pint);
+		compiler.mJointMapping = reinterpret_cast<JointMapping*>(pint.mUserData);
+		compiler.mUseRCA = mCheckBox_UseRCA->IsChecked();
+		compiler.mUseRobotAggregate = mCheckBox_UseRobotAggregate->IsChecked();
+		//compiler.mUseWorldAggregate = mCheckBox_UseWorldAggregate->IsChecked();
+		compiler.mShowCollisionShapes = mCheckBox_ShowCollisionShapes->IsChecked();
+		compiler.mShowVisualMeshes  = mCheckBox_ShowVisualMeshes->IsChecked();
+		compiler.mSuperAggregate = super_aggregate;
+		const float Stiffness = GetFloat(0.0f, mEditBox_Stiffness);
+		const float Damping = GetFloat(0.0f, mEditBox_Damping);
+		compiler.mStiffness = Stiffness;
+		compiler.mDamping = Damping;
+
+		if(!compiler.StartModel(false))
+			return false;
+
+		// <compiler angle="radian" autolimits="true"/>
+
+/*
+  <default>
+    <default class="anymal_c">
+      <joint damping="1" frictionloss="0.1"/>
+ 
+      <default class="collision">
+        <geom group="2" type="cylinder"/>
+        <default class="foot">
+          <geom type="sphere" size="0.03" pos="0 0 0.02325" priority="1" solimp="0.015 1 0.03" condim="6"
+            friction="0.8 0.02 0.01"/>
+        </default>
+      </default>
+
+      <default class="affine">
+		<position kp="100" ctrlrange="-6.28 6.28" forcerange="-80 80"/>
+      </default>
+    </default>
+  </default>
+*/
+			const Quat visual_zflip(0.0f, 0.0f, 0.0f, 1.0f);
+
+			Matrix3x3 initRot;
+			initRot.RotZ(PI/4.0f);
+			Quat qq = initRot;
+			qq.Identity();
+
+			//<body name="base" pos="0 0 0.62" quat="0 0 0 1" childclass="anymal_c">
+			//compiler.StartBody("base", offset + Point(0.0f, 0.0f, 0.62f), Quat(0.0f, 0.0f, 0.0f, 1.0f), 19.2035f);
+			compiler.StartBody("base", offset + Point(0.0f, 0.0f, 2.62f), qq, 19.2035f);
+			//<freejoint/>
+			//<inertial mass="19.2035" pos="0.0025 0 0.0502071" quat="0.5 0.5 0.5 0.5" diaginertia="0.639559 0.624031 0.217374"/>
+			compiler.SetInertia(19.2035f, Point(0.0025f, 0.0f, 0.0502071f), Quat(0.5f, 0.5f, 0.5f, 0.5f), Point(0.639559f, 0.624031f, 0.217374f));
+
+				//<geom mesh="base_0" material="green" class="visual"/>
+				//<geom mesh="base_1" material="yellow" class="visual"/>
+				//<geom mesh="base_2" material="red" class="visual"/>
+				//<geom mesh="base_3" material="black_plastic" class="visual"/>
+				//<geom mesh="base_4" material="lwl" class="visual"/>
+				//<geom mesh="base_5" material="base" class="visual"/>
+				compiler.AddVisual(mMeshes[0]);
+				compiler.AddVisual(mMeshes[1]);
+				compiler.AddVisual(mMeshes[2]);
+				compiler.AddVisual(mMeshes[3]);
+				compiler.AddVisual(mMeshes[4]);
+				compiler.AddVisual(mMeshes[5]);
+
+			//<geom class="collision" size="0.29 0.07 0.09" type="box"/>
+			compiler.AddBoxShape(0.29f, 0.07f, 0.09f);
+			//<geom class="collision" size="0.09 0.0725" pos="0.2175 0.07 0" quat="1 0 1 0"/>
+			compiler.AddCylinderShape(0.09f, 0.0725f, &Point(0.2175f, 0.07f, 0.0f), &Quat(1.0f, 0.0f, 1.0f, 0.0f));
+			//<geom class="collision" size="0.09 0.0725" pos="-0.2175 0.07 0" quat="1 0 1 0"/>
+			compiler.AddCylinderShape(0.09f, 0.0725f, &Point(-0.2175f, 0.07f, 0.0f), &Quat(1.0f, 0.0f, 1.0f, 0.0f));
+			//<geom class="collision" size="0.09 0.0725" pos="0.2175 -0.07 0" quat="1 0 1 0"/>
+			compiler.AddCylinderShape(0.09f, 0.0725f, &Point(0.2175f, -0.07f, 0.0f), &Quat(1.0f, 0.0f, 1.0f, 0.0f));
+			//<geom class="collision" size="0.09 0.0725" pos="-0.2175 -0.07 0" quat="1 0 1 0"/>
+			compiler.AddCylinderShape(0.09f, 0.0725f, &Point(-0.2175f, -0.07f, 0.0f), &Quat(1.0f, 0.0f, 1.0f, 0.0f));
+
+				//<geom material="top_shell" mesh="top_shell" class="visual"/>
+				//<geom material="bottom_shell" mesh="bottom_shell" class="visual"/>
+				//<geom material="remote" mesh="remote" class="visual"/>
+				//<geom material="handle" mesh="handle" class="visual"/>
+				//<geom pos="0.4145 0 0" material="face" mesh="face" class="visual"/>
+				compiler.AddVisual(mMeshes[6]);
+				compiler.AddVisual(mMeshes[7]);
+				compiler.AddVisual(mMeshes[8]);
+				compiler.AddVisual(mMeshes[9]);
+				compiler.AddVisual(mMeshes[10], &Point(0.4145f, 0.0f, 0.0f));
+
+			//<geom class="collision" size="0.055 0.07 0.09" pos="0.4695 0 0" type="box"/>
+			compiler.AddBoxShape(0.055f, 0.07f, 0.09f, &Point(0.4695f, 0.0f, 0.0f));
+			//<geom class="collision" size="0.09 0.055" pos="0.4695 0.07 0" quat="1 0 1 0"/>
+			compiler.AddCylinderShape(0.09f, 0.055f, &Point(0.4695f, 0.07f, 0.0f), &Quat(1.0f, 0.0f, 1.0f, 0.0f));
+			//<geom class="collision" size="0.09 0.055" pos="0.4695 -0.07 0" quat="1 0 1 0"/>
+			compiler.AddCylinderShape(0.09f, 0.055f, &Point(0.4695f, -0.07f, 0.0f), &Quat(1.0f, 0.0f, 1.0f, 0.0f));
+
+				//<geom pos="0.46165 0 -0.0292" quat="0.965926 0 0.258819 0" material="depth_camera" mesh="depth_camera" class="visual"/>
+				compiler.AddVisual(mMeshes[11], &Point(0.46165f, 0.0f, -0.0292f), &Quat(0.965926f, 0.0f, 0.258819f, 0.0f));
+
+				//<geom pos="0.513 0 0.01497" material="wide_angle_camera" mesh="wide_angle_camera" class="visual"/>
+				compiler.AddVisual(mMeshes[12], &Point(0.513f, 0.0f, 0.01497f));
+
+				//<geom pos="-0.4145 0 0" material="face" mesh="face" class="visual_zflip"/>
+				compiler.AddVisual(mMeshes[10], &Point(-0.4145f, 0.0f, 0.0f), &visual_zflip);
+
+			//<geom class="collision" size="0.055 0.07 0.09" pos="-0.4695 0 0" quat="0 0 0 1" type="box"/>
+			compiler.AddBoxShape(0.055f, 0.07f, 0.09f, &Point(-0.4695f, 0.0f, 0.0f), &Quat(0.0f, 0.0f, 0.0f, 1.0f));
+			//<geom class="collision" size="0.09 0.055" pos="-0.4695 -0.07 0" quat="0 -1 0 1"/>
+			compiler.AddCylinderShape(0.09f, 0.055f, &Point(-0.4695f, -0.07f, 0.0f), &Quat(0.0f, -1.0f, 0.0f, 1.0f));
+			//<geom class="collision" size="0.09 0.055" pos="-0.4695 0.07 0" quat="0 -1 0 1"/>
+			compiler.AddCylinderShape(0.09f, 0.055f, &Point(-0.4695f, 0.07f, 0.0f), &Quat(0.0f, -1.0f, 0.0f, 1.0f));
+
+				//<geom pos="-0.46165 0 -0.0292" quat="0 -0.258819 0 0.965926" material="depth_camera" mesh="depth_camera" class="visual"/>
+				compiler.AddVisual(mMeshes[11], &Point(-0.46165f, 0.0f, -0.0292f), &Quat(0.0f, -0.258819f, 0.0f, 0.965926f));
+
+				//<geom pos="-0.513 0 0.01497" material="wide_angle_camera" mesh="wide_angle_camera" class="visual_zflip"/>
+				compiler.AddVisual(mMeshes[12], &Point(-0.513f, 0.0f, 0.01497f), &visual_zflip);
+
+				//<geom material="battery" mesh="battery" class="visual"/>
+				compiler.AddVisual(mMeshes[13]);
+
+				//<geom pos="0 0.07646 0.02905" quat="0.683013 -0.183013 0.183013 0.683013" material="depth_camera" mesh="depth_camera" class="visual"/>
+				compiler.AddVisual(mMeshes[11], &Point(0.0f, 0.07646f, 0.02905f), &Quat(0.683013f, -0.183013f, 0.183013f, 0.683013f));
+
+				//<geom pos="0 -0.07646 0.02905" quat="0.683013 0.183013 0.183013 -0.683013" material="depth_camera" mesh="depth_camera" class="visual"/>
+				compiler.AddVisual(mMeshes[11], &Point(0.0f, -0.07646f, 0.02905f), &Quat(0.683013f, 0.183013f, 0.183013f, -0.683013f));
+
+				//<geom pos="-0.364 0 0.0735" material="lidar_cage" mesh="lidar_cage" class="visual"/>
+				compiler.AddVisual(mMeshes[14], &Point(-0.364f, 0.0f, 0.0735f));
+
+			//<geom class="collision" size="0.07 0.06" pos="-0.364 0 0.1335"/>
+			compiler.AddCylinderShape(0.07f, 0.06f, &Point(-0.364f, 0.0f, 0.1335f));
+
+				//<geom pos="-0.364 0 0.1422" quat="1 0 0 -1" material="lidar" mesh="lidar" class="visual"/>
+				compiler.AddVisual(mMeshes[15], &Point(-0.364f, 0.0f, 0.1422f), &Quat(1.0f, 0.0f, 0.0f, -1.0f));
+
+				//<geom pos="0.2999 0.104 0" quat="0.258819 0.965926 0 0" material="drive" mesh="drive" class="visual"/>
+				compiler.AddVisual(mMeshes[16], &Point(0.2999f, 0.104f, 0.0f), &Quat(0.258819f, 0.965926f, 0.0f, 0.0f));
+
+				//<geom pos="0.2999 -0.104 0" quat="0.258819 -0.965926 0 0" material="drive" mesh="drive" class="visual"/>
+				compiler.AddVisual(mMeshes[16], &Point(0.2999f, -0.104f, 0.0f), &Quat(0.258819f, -0.965926f, 0.0f, 0.0f));
+
+				//<geom pos="-0.2999 0.104 0" quat="0 0 0.965926 -0.258819" material="drive" mesh="drive" class="visual"/>
+				compiler.AddVisual(mMeshes[16], &Point(-0.2999f, 0.104f, 0.0f), &Quat(0.0f, 0.0f, 0.965926f, -0.258819f));
+
+				//<geom pos="-0.2999 -0.104 0" quat="0 0 -0.965926 -0.258819" material="drive" mesh="drive" class="visual"/>
+				compiler.AddVisual(mMeshes[16], &Point(-0.2999f, -0.104f, 0.0f), &Quat(0.0f, 0.0f, -0.965926f, -0.258819f));
+
+				//<geom pos="0.116 0 0.073" material="hatch" mesh="hatch" class="visual"/>
+				compiler.AddVisual(mMeshes[17], &Point(0.116f, 0.0f, 0.073f));
+
+				//<body name="LF_HIP" pos="0.2999 0.104 0" quat="0.258819 0.965926 0 0">
+				compiler.StartBody("LF_HIP", Point(0.2999f, 0.104f, 0.0f), Quat(0.258819f, 0.965926f, 0.0f, 0.0f), 2.781f);
+				//compiler.StartBody("LF_HIP", Point(0.2999f, 0.104f, 0.0f), Quat(1.0f, 0.0f, 0.0f, 0.0f), 2.781f);
+				//<inertial mass="2.781" pos="0.0566606 -0.015294 -0.00829784" quat="-0.127978 0.709783 -0.135278 0.679359" diaginertia="0.00585729 0.00491868 0.00329081"/>
+				compiler.SetInertia(2.781f, Point(0.0566606f, -0.015294f, -0.00829784f), Quat(-0.127978f, 0.709783f, -0.135278f, 0.679359f), Point(0.00585729f, 0.00491868f, 0.00329081f));
+				//<joint name="LF_HAA" axis="1 0 0" range="-0.72 0.49"/>
+				compiler.SetHingeJoint("LF_HAA", Point(1.0f, 0.0f, 0.0f), -0.72f, 0.49f);
+		 
+					//<geom quat="0.258819 -0.965926 0 0" material="hip_l" mesh="hip_l" class="visual"/>
+					compiler.AddVisual(mMeshes[18], null, &Quat(0.258819f, -0.965926f, 0.0f, 0.0f));
+					//<geom pos="0.0599 -0.0725816 -0.041905" quat="0.183013 -0.683013 0.683013 0.183013" material="drive" mesh="drive" class="visual"/>
+					compiler.AddVisual(mMeshes[16], &Point(0.0599f, -0.0725816f, -0.041905f), &Quat(0.183013f, -0.683013f, 0.683013f, 0.183013f));
+
+				//<geom class="collision" size="0.05 0.07" pos="0.0599 -0.0119598 -0.006905" quat="-0.353553 -0.612372 0.612372 -0.353553"/>
+				compiler.AddCylinderShape(0.05f, 0.07f, &Point(0.0599f, -0.0119598f, -0.006905f), &Quat(-0.353553f, -0.612372f, 0.612372f, -0.353553f));
+
+					//<body name="LF_THIGH" pos="0.0599 -0.0725816 -0.041905" quat="0.183013 -0.683013 0.683013 0.183013">
+					compiler.StartBody("LF_THIGH", Point(0.0599f, -0.0725816f, -0.041905f), Quat(0.183013f, -0.683013f, 0.683013f, 0.183013f), 3.071f);
+					//<inertial mass="3.071" pos="0.0308147 4.64995e-05 -0.245696" quat="0.993166 -0.00515309 -0.0806592 0.0841972" diaginertia="0.03025 0.0298943 0.00418465"/>
+					compiler.SetInertia(3.071f, Point(0.0308147f, 4.64995e-05f, -0.245696f), Quat(0.993166f, -0.00515309f, -0.0806592f, 0.0841972f), Point(0.03025f, 0.0298943f, 0.00418465f));
+					//<joint name="LF_HFE" axis="1 0 0" range="-9.42478 9.42478"/>
+					compiler.SetHingeJoint("LF_HFE", Point(1.0f, 0.0f, 0.0f), -9.42478f, 9.42478f);
+		  
+						//<geom quat="1 0 0 -1" material="thigh" mesh="thigh" class="visual"/>
+						compiler.AddVisual(mMeshes[20], null, &Quat(1.0f, 0.0f, 0.0f, -1.0f));
+
+					//<geom class="collision" size="0.065 0.04" pos="0.04 0 0" quat="0.5 0.5 -0.5 -0.5"/>
+					compiler.AddCylinderShape(0.065f, 0.04f, &Point(0.04f, 0.0f, 0.0f), &Quat(0.5f, 0.5f, -0.5f, -0.5f));
+					//<geom class="collision" size="0.0375 0.03 0.141314" pos="0.03 0 -0.141314" quat="1 0 0 -1" type="box"/>
+					compiler.AddBoxShape(0.0375f, 0.03f, 0.141314f, &Point(0.03f, 0.0f, -0.141314f), &Quat(1.0f, 0.0f, 0.0f, -1.0f));
+
+						//<geom pos="0.1003 0 -0.285" material="drive" mesh="drive" class="visual"/>
+						compiler.AddVisual(mMeshes[16], &Point(0.1003f, 0.0f, -0.285f));
+
+					//<geom class="collision" size="0.05 0.07" pos="0.0303 0 -0.285" quat="1 0 1 0"/>
+					compiler.AddCylinderShape(0.05f, 0.07f, &Point(0.0303f, 0.0f, -0.285f), &Quat(1.0f, 0.0f, 1.0f, 0.0f));
+
+						//<body name="LF_SHANK" pos="0.1003 0 -0.285">
+						compiler.StartBody("LF_SHANK", Point(0.1003f, 0.0f, -0.285f), Quat(1.0f, 0.0f, 0.0f, 0.0f), 0.58842f);
+						//<inertial mass="0.58842" pos="0.005462 -0.0612528 -0.0806598" quat="0.992934 -0.115904 -0.00105487 -0.0254421" diaginertia="0.0101637 0.00923838 0.00111927"/>
+						compiler.SetInertia(0.58842f, Point(0.005462f, -0.0612528f, -0.0806598f), Quat(0.992934f, -0.115904f, -0.00105487f, -0.0254421f), Point(0.0101637f, 0.00923838f, 0.00111927f));
+						//<joint name="LF_KFE" axis="1 0 0" range="-9.42478 9.42478"/>
+						compiler.SetHingeJoint("LF_KFE", Point(1.0f, 0.0f, 0.0f), -9.42478f, 9.42478f);
+
+							//<geom quat="1 0 0 -1" material="shank_l" mesh="shank_l" class="visual"/>
+							compiler.AddVisual(mMeshes[21], null, &Quat(1.0f, 0.0f, 0.0f, -1.0f));
+
+						//<geom class="collision" size="0.06 0.02" pos="0.02 0 0" quat="0.5 0.5 -0.5 -0.5"/>
+						compiler.AddCylinderShape(0.06f, 0.02f, &Point(0.02f, 0.0f, 0.0f), &Quat(0.5f, 0.5f, -0.5f, -0.5f));
+						//<geom class="collision" size="0.057499 0.03375 0.019" pos="0.02 -0.057499 0" quat="0.5 0.5 -0.5 -0.5" type="box"/>
+						compiler.AddBoxShape(0.057499f, 0.03375f, 0.019f, &Point(0.02f, -0.057499f, 0.0f), &Quat(0.5f, 0.5f, -0.5f, -0.5f));
+
+							//<geom pos="0.01305 -0.08795 -0.33797" quat="0.382683 0 0 -0.92388" material="foot" mesh="foot" class="visual"/>
+							compiler.AddVisual(mMeshes[23], &Point(0.01305f, -0.08795f, -0.33797f), &Quat(0.382683f, 0.0f, 0.0f, -0.92388f));
+
+						//<geom class="collision" size="0.0175 0.141252" pos="0.01305 -0.08795 -0.168985" quat="1 0 0 -1"/>
+						compiler.AddCylinderShape(0.0175f, 0.141252f, &Point(0.01305f, -0.08795f, -0.168985f), &Quat(1.0f, 0.0f, 0.0f, -1.0f));
+						//<geom class="foot" pos="0.01305 -0.08795 -0.31547" quat="1 0 0 -1"/>
+						compiler.AddSphereShape(0.03f, &Point(0.01305f, -0.08795f, -0.31547f), &Quat(1.0f, 0.0f, 0.0f, -1.0f));
+
+						//</body>
+						compiler.EndBody();
+					//</body>
+					compiler.EndBody();
+				//</body>
+				compiler.EndBody();
+
+				//<body name="RF_HIP" pos="0.2999 -0.104 0" quat="0.258819 -0.965926 0 0">
+				compiler.StartBody("RF_HIP", Point(0.2999f, -0.104f, 0.0f), Quat(0.258819f, -0.965926f, 0.0f, 0.0f), 2.781f);
+				//<inertial mass="2.781" pos="0.0567633 0.015294 -0.00829784" quat="0.13524 0.679072 0.127985 0.710065" diaginertia="0.00585928 0.0049205 0.00329064"/>
+				compiler.SetInertia(2.781f, Point(0.0567633f, 0.015294f, -0.00829784f), Quat(0.13524f, 0.679072f, 0.127985f, 0.710065f), Point(0.00585928f, 0.0049205f, 0.00329064f));
+				//<joint name="RF_HAA" axis="1 0 0" range="-0.49 0.72"/>
+				compiler.SetHingeJoint("RF_HAA", Point(1.0f, 0.0f, 0.0f), -0.49f, 0.72f);
+		
+					//<geom quat="0.258819 0.965926 0 0" material="hip_r" mesh="hip_r" class="visual"/>
+					compiler.AddVisual(mMeshes[19], null, &Quat(0.258819f, 0.965926f, 0.0f, 0.0f));
+					//<geom pos="0.0599 0.0725816 -0.041905" quat="0.183013 0.683013 0.683013 -0.183013" material="drive" mesh="drive" class="visual"/>
+					compiler.AddVisual(mMeshes[16], &Point(0.0599f, 0.0725816f, -0.041905f), &Quat(0.183013f, 0.683013f, 0.683013f, -0.183013f));
+
+				//<geom class="collision" size="0.05 0.07" pos="0.0599 0.0119598 -0.006905" quat="-0.353553 0.612372 0.612372 0.353553"/>*/
+				compiler.AddCylinderShape(0.05f, 0.07f, &Point(0.0599f, 0.0119598f, -0.006905f), &Quat(-0.353553f, 0.612372f, 0.612372f, 0.353553f));
+
+					//<body name="RF_THIGH" pos="0.0599 0.0725816 -0.041905" quat="0.183013 0.683013 0.683013 -0.183013">
+					compiler.StartBody("RF_THIGH", Point(0.0599f, 0.0725816f, -0.041905f), Quat(0.183013f, 0.683013f, 0.683013f, -0.183013f), 3.071f);
+					//<inertial mass="3.071" pos="0.0308147 4.64995e-05 -0.245696" quat="0.992775 -0.00512735 -0.0806685 0.0886811" diaginertia="0.0302511 0.0298933 0.0041845"/>
+					compiler.SetInertia(3.071f, Point(0.0308147f, 4.64995e-05f, -0.245696f), Quat(0.992775f, -0.00512735f, -0.0806685f, 0.0886811f), Point(0.0302511f, 0.0298933f, 0.0041845f));
+					//<joint name="RF_HFE" axis="-1 0 0" range="-9.42478 9.42478"/>
+					compiler.SetHingeJoint("RF_HFE", Point(-1.0f, 0.0f, 0.0f), -9.42478f, 9.42478f);
+
+						//<geom quat="1 0 0 -1" material="thigh" mesh="thigh" class="visual"/>
+						compiler.AddVisual(mMeshes[20], null, &Quat(1.0f, 0.0f, 0.0f, -1.0f));
+
+					//<geom class="collision" size="0.065 0.04" pos="0.04 0 0" quat="0.5 0.5 0.5 0.5"/>
+					compiler.AddCylinderShape(0.065f, 0.04f, &Point(0.04f, 0.0f, 0.0f), &Quat(0.5f, 0.5f, 0.5f, 0.5f));
+					//<geom class="collision" size="0.0375 0.03 0.141314" pos="0.03 0 -0.141314" quat="1 0 0 1" type="box"/>
+					compiler.AddBoxShape(0.0375f, 0.03f, 0.141314f, &Point(0.03f, 0.0f, -0.141314f), &Quat(1.0f, 0.0f, 0.0f, 1.0f));
+
+						//<geom pos="0.1003 0 -0.285" material="drive" mesh="drive" class="visual"/>
+						compiler.AddVisual(mMeshes[16], &Point(0.1003f, 0.0f, -0.285f));
+
+					//<geom class="collision" size="0.05 0.07" pos="0.0303 0 -0.285" quat="1 0 1 0"/>
+					compiler.AddCylinderShape(0.05f, 0.07f, &Point(0.0303f, 0.0f, -0.285f), &Quat(1.0f, 0.0f, 1.0f, 0.0f));
+
+						//<body name="RF_SHANK" pos="0.1003 0 -0.285">
+						compiler.StartBody("RF_SHANK", Point(0.1003f, 0.0f, -0.285f), Quat(1.0f, 0.0f, 0.0f, 0.0f), 0.58842f);
+						//<inertial mass="0.58842" pos="0.005462 0.0612528 -0.0806598" quat="0.992934 0.115904 -0.00105487 0.0254421" diaginertia="0.0101637 0.00923838 0.00111927"/>
+						compiler.SetInertia(0.58842f, Point(0.005462f, 0.0612528f, -0.0806598f), Quat(0.992934f, 0.115904f, -0.00105487f, 0.0254421f), Point(0.0101637f, 0.00923838f, 0.00111927f));
+						//<joint name="RF_KFE" axis="-1 0 0" range="-9.42478 9.42478"/>
+						compiler.SetHingeJoint("RF_KFE", Point(-1.0f, 0.0f, 0.0f), -9.42478f, 9.42478f);
+
+							//<geom quat="1 0 0 1" material="shank" mesh="shank_r" class="visual"/>
+							compiler.AddVisual(mMeshes[22], null, &Quat(1.0f, 0.0f, 0.0f, 1.0f));
+
+						//<geom class="collision" size="0.06 0.02" pos="0.02 0 0" quat="0.5 0.5 0.5 0.5"/>
+						compiler.AddCylinderShape(0.06f, 0.02f, &Point(0.02f, 0.0f, 0.0f), &Quat(0.5f, 0.5f, 0.5f, 0.5f));
+						//<geom class="collision" size="0.057499 0.03375 0.019" pos="0.02 0.057499 0" quat="0.5 0.5 0.5 0.5" type="box"/>
+						compiler.AddBoxShape(0.057499f, 0.03375f, 0.019f, &Point(0.02f, 0.057499f, 0.0f), &Quat(0.5f, 0.5f, 0.5f, 0.5f));
+
+							//<geom pos="0.01305 0.08795 -0.33797" quat="0.382683 0 0 0.92388" material="foot" mesh="foot" class="visual"/>
+							compiler.AddVisual(mMeshes[23], &Point(0.01305f, 0.08795f, -0.33797f), &Quat(0.382683f, 0.0f, 0.0f, 0.92388f));
+
+						//<geom class="collision" size="0.0175 0.141252" pos="0.01305 0.08795 -0.168985" quat="1 0 0 1"/>
+						compiler.AddCylinderShape(0.0175f, 0.141252f, &Point(0.01305f, 0.08795f, -0.168985f), &Quat(1.0f, 0.0f, 0.0f, 1.0f));
+						//<geom class="foot" pos="0.01305 0.08795 -0.31547" quat="1 0 0 1"/>
+						compiler.AddSphereShape(0.03f, &Point(0.01305f, 0.08795f, -0.31547f), &Quat(1.0f, 0.0f, 0.0f, 1.0f));
+						//</body>
+						compiler.EndBody();
+					//</body>
+					compiler.EndBody();
+				//</body>
+				compiler.EndBody();
+
+				//<body name="LH_HIP" pos="-0.2999 0.104 0" quat="0 0 0.965926 -0.258819">
+				compiler.StartBody("LH_HIP", Point(-0.2999f, 0.104f, 0.0f), Quat(0.0f, 0.0f, 0.965926f, -0.258819f), 2.781f);
+				//<inertial mass="2.781" pos="0.0567633 0.015294 -0.00829784" quat="0.13524 0.679072 0.127985 0.710065" diaginertia="0.00585928 0.0049205 0.00329064"/>
+				compiler.SetInertia(2.781f, Point(0.0567633f, 0.015294f, -0.00829784f), Quat(0.13524f, 0.679072f, 0.127985f, 0.710065f), Point(0.00585928f, 0.0049205f, 0.00329064f));
+				//<joint name="LH_HAA" axis="-1 0 0" range="-0.72 0.49"/>
+				compiler.SetHingeJoint("LH_HAA", Point(-1.0f, 0.0f, 0.0f), -0.72f, 0.49f);
+
+					//<geom quat="-0.258819 -0.965926 0 0" material="hip_r" mesh="hip_r" class="visual"/>
+					compiler.AddVisual(mMeshes[19], null, &Quat(-0.258819f, -0.965926f, 0.0f, 0.0f));
+					//<geom pos="0.0599 0.0725816 -0.041905" quat="0.183013 0.683013 0.683013 -0.183013" material="drive" mesh="drive" class="visual"/>
+					compiler.AddVisual(mMeshes[16], &Point(0.0599f, 0.0725816f, -0.041905f), &Quat(0.183013f, 0.683013f, 0.683013f, -0.183013f));
+
+				//<geom class="collision" size="0.05 0.07" pos="0.0599 0.0119598 -0.006905" quat="-0.353553 0.612372 0.612372 0.353553"/>
+				compiler.AddCylinderShape(0.05f, 0.07f, &Point(0.0599f, 0.0119598f, -0.006905f), &Quat(-0.353553f, 0.612372f, 0.612372f, 0.353553f));
+
+					//<body name="LH_THIGH" pos="0.0599 0.0725816 -0.041905" quat="0.183013 0.683013 0.683013 -0.183013">
+					compiler.StartBody("LH_THIGH", Point(0.0599f, 0.0725816f, -0.041905f), Quat(0.183013f, 0.683013f, 0.683013f, -0.183013f), 3.071f);
+					//<inertial mass="3.071" pos="0.0308147 4.64995e-05 -0.245696" quat="0.992775 -0.00512735 -0.0806685 0.0886811" diaginertia="0.0302511 0.0298933 0.0041845"/>
+					compiler.SetInertia(3.071f, Point(0.0308147f, 4.64995e-05f, -0.245696f), Quat(0.992775f, -0.00512735f, -0.0806685f, 0.0886811f), Point(0.0302511f, 0.0298933f, 0.0041845f));
+					//<joint name="LH_HFE" axis="1 0 0" range="-9.42478 9.42478"/>
+					compiler.SetHingeJoint("LH_HFE", Point(1.0f, 0.0f, 0.0f), -9.42478f, 9.42478f);
+
+						//<geom quat="1 0 0 -1" material="thigh" mesh="thigh" class="visual"/>
+						compiler.AddVisual(mMeshes[20], null, &Quat(1.0f, 0.0f, 0.0f, -1.0f));
+
+					//<geom class="collision" size="0.065 0.04" pos="0.04 0 0" quat="0.5 0.5 -0.5 -0.5"/>
+					compiler.AddCylinderShape(0.065f, 0.04f, &Point(0.04f, 0.0f, 0.0f), &Quat(0.5f, 0.5f, -0.5f, -0.5f));
+					//<geom class="collision" size="0.0375 0.03 0.141314" pos="0.03 0 -0.141314" quat="1 0 0 -1" type="box"/>
+					compiler.AddBoxShape(0.0375f, 0.03f, 0.141314f, &Point(0.03f, 0.0f, -0.141314f), &Quat(1.0f, 0.0f, 0.0f, -1.0f));
+
+						//<geom pos="0.1003 0 -0.285" material="drive" mesh="drive" class="visual"/>
+						compiler.AddVisual(mMeshes[16], &Point(0.1003f, 0.0f, -0.285f));
+
+					//<geom class="collision" size="0.05 0.07" pos="0.0303 0 -0.285" quat="1 0 1 0"/>
+					compiler.AddCylinderShape(0.05f, 0.07f, &Point(0.0303f, 0.0f, -0.285f), &Quat(1.0f, 0.0f, 1.0f, 0.0f));
+
+						//<body name="LH_SHANK" pos="0.1003 0 -0.285">
+						compiler.StartBody("LH_SHANK", Point(0.1003f, 0.0f, -0.285f), Quat(1.0f, 0.0f, 0.0f, 0.0f), 0.58842f);
+						//<inertial mass="0.58842" pos="0.005462 0.0612528 -0.0806598" quat="0.992934 0.115904 -0.00105487 0.0254421" diaginertia="0.0101637 0.00923838 0.00111927"/>
+						compiler.SetInertia(0.58842f, Point(0.005462f, 0.0612528f, -0.0806598f), Quat(0.992934f, 0.115904f, -0.00105487f, 0.0254421f), Point(0.0101637f, 0.00923838f, 0.00111927f));
+						//<joint name="LH_KFE" axis="1 0 0" range="-9.42478 9.42478"/>
+						compiler.SetHingeJoint("LH_KFE", Point(1.0f, 0.0f, 0.0f), -9.42478f, 9.42478f);
+
+							//<geom quat="-1 0 0 -1" material="shank" mesh="shank_r" class="visual"/>
+							compiler.AddVisual(mMeshes[22], null, &Quat(-1.0f, 0.0f, 0.0f, -1.0f));
+
+						//<geom class="collision" size="0.06 0.02" pos="0.02 0 0" quat="0.5 0.5 -0.5 -0.5"/>
+						compiler.AddCylinderShape(0.06f, 0.02f, &Point(0.02f, 0.0f, 0.0f), &Quat(0.5f, 0.5f, -0.5f, -0.5f));
+						//<geom class="collision" size="0.057499 0.03375 0.019" pos="0.02 0.057499 0" quat="0.5 0.5 -0.5 -0.5" type="box"/>
+						compiler.AddBoxShape(0.057499f, 0.03375f, 0.019f, &Point(0.02f, 0.057499f, 0.0f), &Quat(0.5f, 0.5f, -0.5f, -0.5f));
+
+							//<geom pos="0.01305 0.08795 -0.33797" quat="-0.382683 0 0 -0.92388" material="foot" mesh="foot" class="visual"/>
+							compiler.AddVisual(mMeshes[23], &Point(0.01305f, 0.08795f, -0.33797f), &Quat(-0.382683f, 0.0f, 0.0f, -0.92388f));
+
+						//<geom class="collision" size="0.0175 0.141252" pos="0.01305 0.08795 -0.168985" quat="1 0 0 -1"/>
+						compiler.AddCylinderShape(0.0175f, 0.141252f, &Point(0.01305f, 0.08795f, -0.168985f), &Quat(1.0f, 0.0f, 0.0f, -1.0f));
+						//<geom class="foot" pos="0.01305 0.08795 -0.31547" quat="1 0 0 -1"/>
+						compiler.AddSphereShape(0.03f, &Point(0.01305f, 0.08795f, -0.31547f), &Quat(1.0f, 0.0f, 0.0f, -1.0f));
+						//</body>
+						compiler.EndBody();
+
+					//</body>
+					compiler.EndBody();
+				//</body>
+				compiler.EndBody();
+
+				//<body name="RH_HIP" pos="-0.2999 -0.104 0" quat="0 0 -0.965926 -0.258819">
+				compiler.StartBody("RH_HIP", Point(-0.2999f, -0.104f, 0.0f), Quat(0.0f, 0.0f, -0.965926f, -0.258819f), 2.781f);
+				//<inertial mass="2.781" pos="0.0566606 -0.015294 -0.00829784" quat="-0.127978 0.709783 -0.135278 0.679359" diaginertia="0.00585729 0.00491868 0.00329081"/>
+				compiler.SetInertia(2.781f, Point(0.0566606f, -0.015294f, -0.00829784f), Quat(-0.127978f, 0.709783f, -0.135278f, 0.679359f), Point(0.00585729f, 0.00491868f, 0.00329081f));
+				//<joint name="RH_HAA" axis="-1 0 0" range="-0.49 0.72"/>
+				compiler.SetHingeJoint("RH_HAA", Point(-1.0f, 0.0f, 0.0f), -0.49f, 0.72f);
+
+					//<geom quat="-0.258819 0.965926 0 0" material="hip_l" mesh="hip_l" class="visual"/>
+					compiler.AddVisual(mMeshes[18], null, &Quat(-0.258819f, 0.965926f, 0.0f, 0.0f));
+					//<geom pos="0.0599 -0.0725816 -0.041905" quat="-0.183013 0.683013 -0.683013 -0.183013" material="drive" mesh="drive" class="visual"/>
+					compiler.AddVisual(mMeshes[16], &Point(0.0599f, -0.0725816f, -0.041905f), &Quat(-0.183013f, 0.683013f, -0.683013f, -0.183013f));
+
+				//<geom class="collision" size="0.05 0.07" pos="0.0599 -0.0119598 -0.006905" quat="0.353553 0.612372 -0.612372 0.353553"/>
+				compiler.AddCylinderShape(0.05f, 0.07f, &Point(0.0599f, -0.0119598f, -0.006905f), &Quat(0.353553f, 0.612372f, -0.612372f, 0.353553f));
+
+					//<body name="RH_THIGH" pos="0.0599 -0.0725816 -0.041905" quat="-0.183013 0.683013 -0.683013 -0.183013">
+					compiler.StartBody("RH_THIGH", Point(0.0599f, -0.0725816f, -0.041905f), Quat(-0.183013f, 0.683013f, -0.683013f, -0.183013f), 3.071f);
+					//<inertial mass="3.071" pos="0.0308147 4.64995e-05 -0.245696" quat="0.993166 -0.00515309 -0.0806592 0.0841972" diaginertia="0.03025 0.0298943 0.00418465"/>
+					compiler.SetInertia(3.071f, Point(0.0308147f, 4.64995e-05f, -0.245696f), Quat(0.993166f, -0.00515309f, -0.0806592f, 0.0841972f), Point(0.03025f, 0.0298943f, 0.00418465f));
+					//<joint name="RH_HFE" axis="-1 0 0" range="-9.42478 9.42478"/>
+					compiler.SetHingeJoint("RH_HFE", Point(-1.0f, 0.0f, 0.0f), -9.42478f, 9.42478f);
+
+						//<geom quat="1 0 0 -1" material="thigh" mesh="thigh" class="visual"/>
+						compiler.AddVisual(mMeshes[20], null, &Quat(1.0f, 0.0f, 0.0f, -1.0f));
+
+					//<geom class="collision" size="0.065 0.04" pos="0.04 0 0" quat="0.5 0.5 0.5 0.5"/>
+					compiler.AddCylinderShape(0.065f, 0.04f, &Point(0.04f, 0.0f, 0.0f), &Quat(0.5f, 0.5f, 0.5f, 0.5f));
+					//<geom class="collision" size="0.0375 0.03 0.141314" pos="0.03 0 -0.141314" quat="1 0 0 1" type="box"/>
+					compiler.AddBoxShape(0.0375f, 0.03f, 0.141314f, &Point(0.03f, 0.0f, -0.141314f), &Quat(1.0f, 0.0f, 0.0f, 1.0f));
+
+						//<geom pos="0.1003 0 -0.285" material="drive" mesh="drive" class="visual"/>
+						compiler.AddVisual(mMeshes[16], &Point(0.1003f, 0.0f, -0.285f));
+
+					//<geom class="collision" size="0.05 0.07" pos="0.0303 0 -0.285" quat="1 0 1 0"/>
+					compiler.AddCylinderShape(0.05f, 0.07f, &Point(0.0303f, 0.0f, -0.285f), &Quat(1.0f, 0.0f, 1.0f, 0.0f));
+
+						//<body name="RH_SHANK" pos="0.1003 0 -0.285">
+						compiler.StartBody("RH_SHANK", Point(0.1003f, 0.0f, -0.285f), Quat(1.0f, 0.0f, 0.0f, 0.0f), 0.58842f);
+						//<inertial mass="0.58842" pos="0.005462 -0.0612528 -0.0806598" quat="0.992934 -0.115904 -0.00105487 -0.0254421" diaginertia="0.0101637 0.00923838 0.00111927"/>
+						compiler.SetInertia(0.58842f, Point(0.005462f, -0.0612528f, -0.0806598f), Quat(0.992934f, -0.115904f, -0.00105487f, -0.0254421f), Point(0.0101637f, 0.00923838f, 0.00111927f));
+						//<joint name="RH_KFE" axis="-1 0 0" range="-9.42478 9.42478"/>
+						compiler.SetHingeJoint("RH_KFE", Point(-1.0f, 0.0f, 0.0f), -9.42478f, 9.42478f);
+
+							//<geom quat="1 0 0 -1" material="shank_l" mesh="shank_l" class="visual"/>
+							compiler.AddVisual(mMeshes[21], null, &Quat(1.0f, 0.0f, 0.0f, -1.0f));
+
+						//<geom class="collision" size="0.06 0.02" pos="0.02 0 0" quat="0.5 0.5 0.5 0.5"/>
+						compiler.AddCylinderShape(0.06f, 0.02f, &Point(0.02f, 0.0f, 0.0f), &Quat(0.5f, 0.5f, 0.5f, 0.5f));
+						//<geom class="collision" size="0.057499 0.03375 0.019" pos="0.02 -0.057499 0" quat="0.5 0.5 0.5 0.5" type="box"/>
+						compiler.AddBoxShape(0.057499f, 0.03375f, 0.019f, &Point(0.02f, -0.057499f, 0.0f), &Quat(0.5f, 0.5f, 0.5f, 0.5f));
+
+							//<geom pos="0.01305 -0.08795 -0.33797" quat="0.382683 0 0 -0.92388" material="foot" mesh="foot" class="visual"/>
+							compiler.AddVisual(mMeshes[23], &Point(0.01305f, -0.08795f, -0.33797f), &Quat(0.382683f, 0.0f, 0.0f, -0.92388f));
+
+						//<geom class="collision" size="0.0175 0.141252" pos="0.01305 -0.08795 -0.168985" quat="1 0 0 1"/>
+						compiler.AddCylinderShape(0.0175f, 0.141252f, &Point(0.01305f, -0.08795f, -0.168985f), &Quat(1.0f, 0.0f, 0.0f, 1.0f));
+						//<geom class="foot" pos="0.01305 -0.08795 -0.31547" quat="1 0 0 1"/>
+						compiler.AddSphereShape(0.03f, &Point(0.01305f, -0.08795f, -0.31547f), &Quat(1.0f, 0.0f, 0.0f, 1.0f));
+
+						//</body>
+						compiler.EndBody();
+
+					//</body>
+					compiler.EndBody();
+				//</body>
+				compiler.EndBody();
+
+			compiler.EndBody();
+		compiler.EndModel();
+		}
+/*
+
+  <contact>
+    <exclude body1="base" body2="LF_THIGH"/>
+    <exclude body1="base" body2="RF_THIGH"/>
+    <exclude body1="base" body2="LH_THIGH"/>
+    <exclude body1="base" body2="RH_THIGH"/>
+  </contact>
+
+  <actuator>
+    <position class="affine" joint="LF_HAA" name="LF_HAA"/>
+    <position class="affine" joint="LF_HFE" name="LF_HFE"/>
+    <position class="affine" joint="LF_KFE" name="LF_KFE"/>
+    <position class="affine" joint="RF_HAA" name="RF_HAA"/>
+    <position class="affine" joint="RF_HFE" name="RF_HFE"/>
+    <position class="affine" joint="RF_KFE" name="RF_KFE"/>
+    <position class="affine" joint="LH_HAA" name="LH_HAA"/>
+    <position class="affine" joint="LH_HFE" name="LH_HFE"/>
+    <position class="affine" joint="LH_KFE" name="LH_KFE"/>
+    <position class="affine" joint="RH_HAA" name="RH_HAA"/>
+    <position class="affine" joint="RH_HFE" name="RH_HFE"/>
+    <position class="affine" joint="RH_KFE" name="RH_KFE"/>
+  </actuator>
+*/
+		return true;
+	}
+
+	virtual	udword		Update(Pint& pint, float dt)	override
+	{
+		const JointMapping* JM = reinterpret_cast<const JointMapping*>(pint.mUserData);
+		if(JM && mSlider && mComboBox)
+		{
+			const udword Nb = JM->mData.GetNbEntries() / (sizeof(JointMapping::Mapping)/sizeof(udword));
+			const JointMapping::Mapping* Mappings = (const JointMapping::Mapping*)JM->mData.GetEntries();
+			//printf("%d\n", Nb);
+
+			if(mCheckBox_ApplyTestForces && mCheckBox_ApplyTestForces->IsChecked())
+			{
+				const float Coeff = TWOPI / float(NB_ACTUATORS_ANYMALC);
+				for(udword i=0; i<Nb; i++)
+				{
+					const udword ActuatorIndex = i % NB_ACTUATORS_ANYMALC;
+					const float Phase = Coeff * float(ActuatorIndex);
+					pint.SetRCADrivePosition(Mappings[i].mHandle, sinf(Phase + mCurrentTime * 2.0f) * 0.5f);
+				}
+			}
+			else
+			{
+				//const udword Selected = mComboBox->GetSelectedIndex();
+				const float SliderValue = mSlider->GetValue();
+				//printf("Selected: %d (%f)\n", Selected, SliderValue);
+				mActuatorTarget[mCurrentSlider] = SliderValue;
+
+				for(udword i=0;i<Nb;i++)
+				{
+					const udword ActuatorIndex = i % NB_ACTUATORS_ANYMALC;
+					//Mappings[i].mName
+					pint.SetRCADrivePosition(Mappings[i].mHandle, mActuatorTarget[ActuatorIndex]);
+				}
+			}
+		}
+
+
+		/*const bool EnableUpdate = mCheckBox_EnableUpdate ? mCheckBox_EnableUpdate->IsChecked() : true;
+		if(EnableUpdate)
+		{
+			const bool EnableMotor = mCheckBox_EnableMotor ? mCheckBox_EnableMotor->IsChecked() : true;
+			const LocalTestData* LTD = (const LocalTestData*)pint.mUserData;
+			if(LTD)
+			{
+				const float Coeff = mSlider ? mSlider->GetValue() : 1.0f;
+				const float TargetVel = Coeff * GetFloat(0.0f, mEditBox_TargetVel);
+				const float TargetPos = Coeff * GetFloat(0.0f, mEditBox_TargetPos);
+	//			printf("TargetVel: %f\n", TargetVel);
+				pint.SetRCADriveEnabled(LTD->mDynamicObject, EnableMotor);
+				if(EnableMotor)
+				{
+					pint.SetRCADriveVelocity(LTD->mDynamicObject, TargetVel);
+					pint.SetRCADrivePosition(LTD->mDynamicObject, TargetPos);
+				}
+			}
+		}*/
+		return 0;
+	}
+
+END_TEST(AnymalC)
+
+///////////////////////////////////////////////////////////////////////////////
