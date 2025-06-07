@@ -123,11 +123,14 @@ using namespace physx;
 #define	PHYSX_SUPPORT_FLUIDS								0
 
 
-#define PHYSX_SUPPORT_GPU
-#ifdef PHYSX_SUPPORT_GPU
+	#define PHYSX_SUPPORT_GPU					1
+	#define PHYSX_SUPPORT_DIRECT_GPU			0
+	#define PHYSX_SUPPORT_GPU_NEW_MEMORY_CONFIG	0
+	#define PHYSX_SUPPORT_GPU_AGG_MEMORY_CONFIG	0
+
+#if PHYSX_SUPPORT_GPU
 	#define BUILD_GPU_DATA	buildGPUData
 #endif
-#define BUILD_GPU_DATA	buildGPUData
 #define PHYSX_NUM_PRIMS_PER_LEAF	numPrimsPerLeaf
 //#define PHYSX_SUPPORT_LINEAR_COEFF
 #define NEW_D6_API

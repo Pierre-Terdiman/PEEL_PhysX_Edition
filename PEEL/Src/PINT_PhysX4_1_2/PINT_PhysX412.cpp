@@ -168,7 +168,7 @@ static PxCpuDispatcher* gDefaultCPUDispatcher = null;
 static PVDHelper* gPVDHelper = null;
 #endif
 
-#ifdef PHYSX_SUPPORT_GPU
+#if PHYSX_SUPPORT_GPU
 static PxCudaContextManager* gCudaContextManager = NULL;
 #endif
 
@@ -436,48 +436,9 @@ void PhysX::Init(const PINT_WORLD_CREATE& desc)
 		sceneDesc.filterShader				= ContactModifySimulationFilterShader;
 #endif
 
-#ifdef PHYSX_SUPPORT_GPU
-		if(mParams.mUseGPU)
-		{
-			printf("Using GPU\n");
-			sceneDesc.flags |= PxSceneFlag::eENABLE_GPU_DYNAMICS;
-			sceneDesc.broadPhaseType = PxBroadPhaseType::eGPU;
-			// TODO: expose this. More partitions = slower.
-			sceneDesc.gpuMaxNumPartitions = 8;
-//			sceneDesc.gpuMaxNumPartitions = 32;
-/*			sceneDesc.gpuDynamicsConfig.patchStreamCapacity *= 2; //KS - must increase because we can exceed the default 4MB buffer with the arena demo!
-			sceneDesc.gpuDynamicsConfig.contactStreamCapacity *= 2; //KS - must increase because we can exceed the default 4MB buffer with the arena demo!
-			sceneDesc.gpuDynamicsConfig.contactStreamCapacity *= 2;
-			sceneDesc.gpuDynamicsConfig.forceStreamCapacity *= 2;
-//			sceneDesc.gpuDynamicsConfig.frictionBufferCapacity *= 2;
-			sceneDesc.gpuDynamicsConfig.patchStreamCapacity *= 2;
-			sceneDesc.gpuDynamicsConfig.tempBufferCapacity *= 2;*/
-			sceneDesc.gpuDynamicsConfig.constraintBufferCapacity *= 2;
-			sceneDesc.gpuDynamicsConfig.contactBufferCapacity *= 2;
-			sceneDesc.gpuDynamicsConfig.tempBufferCapacity *= 2;
-			sceneDesc.gpuDynamicsConfig.contactStreamSize *= 2;
-			sceneDesc.gpuDynamicsConfig.patchStreamSize *= 2;
-			sceneDesc.gpuDynamicsConfig.forceStreamCapacity *= 2;
-			sceneDesc.gpuDynamicsConfig.heapCapacity *= 2;
-			sceneDesc.gpuDynamicsConfig.foundLostPairsCapacity *= 2;
-
-			PxCudaContextManagerDesc cudaContextManagerDesc;
-			cudaContextManagerDesc.interopMode = PxCudaInteropMode::OGL_INTEROP;
-			gCudaContextManager = PxCreateCudaContextManager(*mFoundation, cudaContextManagerDesc, PxGetProfilerCallback());
-			if(gCudaContextManager)
-			{
-				if(!gCudaContextManager->contextIsValid())
-				{
-					gCudaContextManager->release();
-					gCudaContextManager = NULL;
-				}
-			}	
-//			if(gCudaContextManager)
-//				sceneDesc.gpuDispatcher = gCudaContextManager->getGpuDispatcher();	//Set the GPU dispatcher, used by GRB to dispatch CUDA kernels.
-				sceneDesc.cudaContextManager = gCudaContextManager;
-		}
+#if PHYSX_SUPPORT_GPU
+		gCudaContextManager = SetupGPU(sceneDesc, mParams, *mFoundation);
 #endif
-
 		mScene = mPhysics->createScene(sceneDesc);
 		ASSERT(mScene);
 	}
@@ -791,7 +752,7 @@ void PhysX::Close()
 	PxCloseExtensions();
 
 	SAFE_RELEASE(mPhysics)
-#ifdef PHYSX_SUPPORT_GPU
+#if PHYSX_SUPPORT_GPU
 	SAFE_RELEASE(gCudaContextManager);
 #endif
 //	SAFE_RELEASE(mProfileZoneManager)
