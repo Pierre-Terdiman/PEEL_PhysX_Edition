@@ -19,6 +19,8 @@
 	#define UINT8_MAX MAX_UBYTE
 #endif
 
+#define PX_ENABLE_FEATURES_UNDER_CONSTRUCTION	0
+
 #include "PxPhysicsAPI.h"
 #include "foundation/PxFoundation.h"
 #include "foundation/PxUtilities.h"
@@ -65,7 +67,7 @@ using namespace physx;
 #define PHYSX_SUPPORT_RCA_CFM_SCALE							1
 #define PHYSX_SUPPORT_RCA_DOF_SCALE							0
 #define PHYSX_SUPPORT_RCA_ARMATURE							1
-#define PHYSX_SUPPORT_RCA_NEW_LIMIT_API						0
+#define PHYSX_SUPPORT_RCA_NEW_LIMIT_API						1
 // Convexes
 #define PHYSX_SUPPORT_USER_DEFINED_GAUSSMAP_LIMIT			1
 #define PHYSX_SUPPORT_TIGHT_CONVEX_BOUNDS					1
@@ -114,16 +116,16 @@ using namespace physx;
 // Fluids
 #define	PHYSX_SUPPORT_FLUIDS								1
 
-
 #if PX_SUPPORT_GPU_PHYSX
-	#define PHYSX_SUPPORT_GPU	1
+	#define PHYSX_SUPPORT_GPU					1
+	#define PHYSX_SUPPORT_DIRECT_GPU			0
+	#define PHYSX_SUPPORT_GPU_NEW_MEMORY_CONFIG	1
+	#define PHYSX_SUPPORT_GPU_AGG_MEMORY_CONFIG	1
 #endif
 
-#define PHYSX_SUPPORT_GPU_NEW_MEMORY_CONFIG	1
 #if PHYSX_SUPPORT_GPU
 	#define BUILD_GPU_DATA	buildGPUData
 #endif
-#define BUILD_GPU_DATA	buildGPUData
 #define PHYSX_NUM_PRIMS_PER_LEAF	numPrimsPerLeaf
 //#define PHYSX_SUPPORT_LINEAR_COEFF
 #define NEW_D6_API
@@ -142,7 +144,7 @@ using namespace physx;
 
 #define PxIdtQuat						PxQuat(PxIdentity)
 #define	PxConvexFlag_eGPU_COMPATIBLE	PxConvexFlag::eGPU_COMPATIBLE
-#define PHYSX_CREATE_AGGREGATE_PARAMS	max_size, enable_self_collision
+#define PHYSX_CREATE_AGGREGATE_PARAMS	max_size, max_size, enable_self_collision
 #define PHYSX_CONTACT_DISTANCE			contactDistance_deprecated
 
 //#define PHYSX_SUPPORT_PMAP_XP

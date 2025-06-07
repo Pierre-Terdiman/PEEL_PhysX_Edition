@@ -342,8 +342,6 @@ static PEEL_SimulationEventCallback gSimulationEventCallback;
 void PhysX::Init(const PINT_WORLD_CREATE& desc)
 //PintSceneHandle PhysX::Init(const PINT_WORLD_CREATE& desc)
 {
-	PhysX3::GetOptionsFromOverride(desc.mOverride);
-
 #ifdef USE_LOAD_LIBRARY
 /*	udword FPUEnv[256];
 	FillMemory(FPUEnv, 256*4, 0xff);
@@ -450,64 +448,11 @@ void PhysX::Init(const PINT_WORLD_CREATE& desc)
 		sceneDesc.contactModifyCallback		= &gContactModifyCallback;
 		sceneDesc.filterShader				= ContactModifySimulationFilterShader;
 #endif
-
 #if PHYSX_SUPPORT_GPU
-		if(mParams.mUseGPU)
-		{
-			printf("Using GPU\n");
-			sceneDesc.flags |= PxSceneFlag::eENABLE_GPU_DYNAMICS;
-			sceneDesc.broadPhaseType = PxBroadPhaseType::eGPU;
-			// TODO: expose this. More partitions = slower.
-			sceneDesc.gpuMaxNumPartitions = 8;
-//			sceneDesc.gpuMaxNumPartitions = 32;
-/*			sceneDesc.gpuDynamicsConfig.patchStreamCapacity *= 2; //KS - must increase because we can exceed the default 4MB buffer with the arena demo!
-			sceneDesc.gpuDynamicsConfig.contactStreamCapacity *= 2; //KS - must increase because we can exceed the default 4MB buffer with the arena demo!
-			sceneDesc.gpuDynamicsConfig.contactStreamCapacity *= 2;
-			sceneDesc.gpuDynamicsConfig.forceStreamCapacity *= 2;
-//			sceneDesc.gpuDynamicsConfig.frictionBufferCapacity *= 2;
-			sceneDesc.gpuDynamicsConfig.patchStreamCapacity *= 2;
-			sceneDesc.gpuDynamicsConfig.tempBufferCapacity *= 2;*/
-
-	#if PHYSX_SUPPORT_GPU_NEW_MEMORY_CONFIG
-			sceneDesc.gpuDynamicsConfig.maxRigidContactCount *= 2;
-			sceneDesc.gpuDynamicsConfig.maxRigidPatchCount *= 2;
-	#else
-			sceneDesc.gpuDynamicsConfig.constraintBufferCapacity *= 2;
-			sceneDesc.gpuDynamicsConfig.contactBufferCapacity *= 2;
-			sceneDesc.gpuDynamicsConfig.contactStreamSize *= 2;
-			sceneDesc.gpuDynamicsConfig.patchStreamSize *= 2;
-			sceneDesc.gpuDynamicsConfig.forceStreamCapacity *= 2;
-	#endif
-			sceneDesc.gpuDynamicsConfig.tempBufferCapacity *= 2;
-			sceneDesc.gpuDynamicsConfig.heapCapacity *= 2;
-			sceneDesc.gpuDynamicsConfig.foundLostPairsCapacity *= 2;
-
-#ifdef TEST_FLUIDS
-			//sceneDesc.gpuDynamicsConfig.maxParticleContacts *= 2;
+		gCudaContextManager = SetupGPU(sceneDesc, mParams, *mFoundation);
 #endif
-
-			PxCudaContextManagerDesc cudaContextManagerDesc;
-#if PHYSX_SUPPORT_CUDA_GL_INTEROP
-			cudaContextManagerDesc.interopMode = PxCudaInteropMode::OGL_INTEROP;
-#endif
-//printf("Checkpoint 00\n");
-			gCudaContextManager = PxCreateCudaContextManager(*mFoundation, cudaContextManagerDesc, PxGetProfilerCallback());
-//printf("Checkpoint 01\n");
-			if(gCudaContextManager && !gCudaContextManager->contextIsValid())
-			{
-				gCudaContextManager->release();
-				gCudaContextManager = null;
-			}	
-//			if(gCudaContextManager)
-//				sceneDesc.gpuDispatcher = gCudaContextManager->getGpuDispatcher();	//Set the GPU dispatcher, used by GRB to dispatch CUDA kernels.
-				sceneDesc.cudaContextManager = gCudaContextManager;
-		}
-#endif
-
 		if(gUseCustomSQ)
-		{
 			sceneDesc.sceneQuerySystem = gSceneQuerySystem = CreatePEELCustomSceneQuerySystem();
-		}
 
 		mScene = mPhysics->createScene(sceneDesc);
 		ASSERT(mScene);
