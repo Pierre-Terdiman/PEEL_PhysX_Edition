@@ -449,7 +449,7 @@ static const bool gHingeDriveIsAcceleration = false;
 
 PintJointHandle SharedPhysX::CreateJoint(PxPhysics& physics, const PINT_JOINT_CREATE& desc)
 {
-	const bool use_d6_joint = mParams.mUseD6Joint;
+	const bool use_d6_joint = mParams.mUseD6Joints;
 #if PHYSX_SUPPORT_JOINT_PROJECTION
 	const bool enable_projection = mParams.mEnableJointProjection;
 	const float projection_linear_tolerance = mParams.mProjectionLinearTolerance;
@@ -4708,7 +4708,7 @@ EditableParams::EditableParams() :
 #if PHYSX_SUPPORT_JOINT_CONTACT_DISTANCE
 //	mEnableJointContactDistance	(false),
 #endif
-	mUseD6Joint					(false),
+	mUseD6Joints				(false),
 #if PHYSX_SUPPORT_DISABLE_PREPROCESSING
 	mDisablePreprocessing		(false),
 #endif
@@ -5419,7 +5419,7 @@ static void gCheckBoxCallback(const IceCheckBox& check_box, bool checked, void* 
 			break;
 #endif
 		case PHYSX_GUI_USE_D6_JOINT:
-			gParams.mUseD6Joint = checked;
+			gParams.mUseD6Joints = checked;
 			break;
 #if PHYSX_SUPPORT_DISABLE_PREPROCESSING
 		case PHYSX_GUI_DISABLE_PREPROCESSING:
@@ -5712,6 +5712,8 @@ static IceEditBox* CreateEditBox(PintGUIHelper& helper, IceWindow* parent, sdwor
 
 	return EB;
 }
+
+static const char*	gTooltip_d6 = "Use generic D6 joints instead of specific joints. D6 joints are the only ones that are GPU-accelerated.";
 
 IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICallback& callback)
 {
@@ -6174,7 +6176,7 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 
 			const sdword xj = 4;
 
-			helper.CreateCheckBox(TabWindow, PHYSX_GUI_USE_D6_JOINT, xj, y, CheckBoxWidth, 20, "Use D6 joint if possible", gPhysXUI->mPhysXGUI, gParams.mUseD6Joint, gCheckBoxCallback);
+			helper.CreateCheckBox(TabWindow, PHYSX_GUI_USE_D6_JOINT, xj, y, CheckBoxWidth, 20, "Use D6 joint if possible", gPhysXUI->mPhysXGUI, gParams.mUseD6Joints, gCheckBoxCallback, gTooltip_d6);
 			y += YStepCB;
 
 #if PHYSX_SUPPORT_DISABLE_PREPROCESSING

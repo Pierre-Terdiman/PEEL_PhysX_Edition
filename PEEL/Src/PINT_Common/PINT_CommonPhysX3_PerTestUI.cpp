@@ -1281,7 +1281,7 @@ void PhysXPlugIn::ApplyTestUIParams(const char* test_name)
 		EP.mTGS = gCheckBox_Generic0->IsChecked();
 #endif
 		EP.mEnableAngularCCD = gCheckBox_Generic1->IsChecked();
-		EP.mUseD6Joint = gCheckBox_Generic2->IsChecked();
+		EP.mUseD6Joints = gCheckBox_Generic2->IsChecked();
 
 		Local::OverrideSolverIterationCount(EP, gEditBox_Generic0);
 		return;

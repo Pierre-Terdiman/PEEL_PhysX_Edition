@@ -332,7 +332,7 @@
 #if PHYSX_SUPPORT_JOINT_CONTACT_DISTANCE
 //		bool							mEnableJointContactDistance;
 #endif
-		bool							mUseD6Joint;
+		bool							mUseD6Joints;
 #if PHYSX_SUPPORT_DISABLE_PREPROCESSING
 		bool							mDisablePreprocessing;
 #endif
