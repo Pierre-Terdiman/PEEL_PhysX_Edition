@@ -142,6 +142,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <OutputFile>.\Debug\$(ProjectName)_D.dll</OutputFile>
@@ -179,6 +180,7 @@ copy ..\..\..\..\PEEL_Externals\5_5_0_GitHub\vc12win32\debug\PhysXFoundation_32.
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <OutputFile>.\Debug\PINT_PhysX550GitHub_VS2017_64_D.dll</OutputFile>
@@ -220,6 +222,7 @@ copy ..\..\..\..\PEEL_Externals\5_5_0_GitHub\bin\win.x86_64.vc142.mt\debug\PhysX
       <BrowseInformation>true</BrowseInformation>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <OutputFile>.\Release\$(ProjectName).dll</OutputFile>
@@ -267,6 +270,7 @@ copy ..\..\..\..\PEEL_Externals\5_5_0_GitHub\vc12win32\release\PhysXFoundation_3
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <BrowseInformation>true</BrowseInformation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <OutputFile>.\Release\PINT_PhysX550GitHub_VS2017_64.dll</OutputFile>
@@ -310,6 +314,7 @@ copy ..\..\..\..\PEEL_Externals\5_5_0_GitHub\bin\win.x86_64.vc142.mt\release\Phy
       <BrowseInformation>true</BrowseInformation>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>..\..\Ice\Lib\IceCore.lib;..\..\Ice\Lib\IceMaths.lib;..\..\Ice\Lib\Contact.lib;..\..\Ice\Lib\Meshmerizer.lib;..\..\Ice\Lib\IceImageWork.lib;..\..\Ice\Lib\IceGUI.lib;..\..\Ice\Lib\IML.lib;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Lib\vc12win32\PhysXPROFILE_x86.lib;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Lib\vc12win32\PhysXCommonPROFILE_x86.lib;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Lib\vc12win32\PhysXCookingPROFILE_x86.lib;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Lib\vc12win32\PhysXVehiclePROFILE_x86.lib;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Lib\vc12win32\PhysXGpuPROFILE_x86.lib;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Lib\vc12win32\PhysXFoundationPROFILE_x86.lib;..\..\..\..\PEEL_Externals\5_5_0_GitHub\Lib\vc12win32\PhysXPvdSDKPROFILE_x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -358,6 +363,7 @@ copy ..\..\..\..\PEEL_Externals\5_5_0_GitHub\Bin\vc12win32\PhysXFoundationPROFIL
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <BrowseInformation>true</BrowseInformation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>

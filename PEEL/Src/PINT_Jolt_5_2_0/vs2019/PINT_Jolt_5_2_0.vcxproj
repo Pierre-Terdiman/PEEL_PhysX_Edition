@@ -141,6 +141,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>..\..\Ice\Lib\IceCore.lib;..\..\Ice\Lib\IceMaths.lib;..\..\Ice\Lib\Contact.lib;..\..\Ice\Lib\Meshmerizer.lib;..\..\Ice\Lib\IceImageWork.lib;..\..\Ice\Lib\IceGUI.lib;..\..\Ice\Lib\IML.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -171,6 +172,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>..\..\Ice\Lib\IceCore.lib;..\..\Ice\Lib\IceMaths.lib;..\..\Ice\Lib\Contact.lib;..\..\Ice\Lib\Meshmerizer.lib;..\..\Ice\Lib\IceImageWork.lib;..\..\Ice\Lib\IceGUI.lib;..\..\Ice\Lib\IML.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -206,6 +208,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CallingConvention>Cdecl</CallingConvention>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>..\..\Ice\Lib\IceCore.lib;..\..\Ice\Lib\IceMaths.lib;..\..\Ice\Lib\Contact.lib;..\..\Ice\Lib\Meshmerizer.lib;..\..\Ice\Lib\IceImageWork.lib;..\..\Ice\Lib\IceGUI.lib;..\..\Ice\Lib\IML.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -286,6 +289,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CallingConvention>Cdecl</CallingConvention>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>..\..\Ice\Lib\IceCore.lib;..\..\Ice\Lib\IceMaths.lib;..\..\Ice\Lib\Contact.lib;..\..\Ice\Lib\Meshmerizer.lib;..\..\Ice\Lib\IceImageWork.lib;..\..\Ice\Lib\IceGUI.lib;..\..\Ice\Lib\IML.lib;%(AdditionalDependencies)</AdditionalDependencies>

@@ -140,6 +140,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>..\..\Ice\Lib\IceCore.lib;..\..\Ice\Lib\IceMaths.lib;..\..\Ice\Lib\Contact.lib;..\..\Ice\Lib\Meshmerizer.lib;..\..\Ice\Lib\IceImageWork.lib;..\..\Ice\Lib\IceGUI.lib;..\..\Ice\Lib\IML.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc12win32\debug\PhysX_32.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc12win32\debug\PhysXCommon_32.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc12win32\debug\PhysXCooking_32.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc12win32\debug\PhysXVehicle_static_32.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc12win32\debug\PhysXFoundation_32.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc12win32\debug\PhysXGpu_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -179,6 +180,7 @@ copy ..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc12win32\debug\PhysXFou
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>..\..\Ice\Lib64\IceCore64.lib;..\..\Ice\Lib64\IceMaths64.lib;..\..\Ice\Lib64\Contact64.lib;..\..\Ice\Lib64\Meshmerizer64.lib;..\..\Ice\Lib64\IceImageWork64.lib;..\..\Ice\Lib64\IceGUI64.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc15win64\debug\PhysX_64.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc15win64\debug\PhysXCommon_64.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc15win64\debug\PhysXCooking_64.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc15win64\debug\PhysXVehicle_static_64.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc15win64\debug\PhysXFoundation_64.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc15win64\debug\PhysXGpu_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -223,6 +225,7 @@ copy ..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc15win64\debug\PhysXFou
       <BrowseInformation>true</BrowseInformation>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>..\..\Ice\Lib\IceCore.lib;..\..\Ice\Lib\IceMaths.lib;..\..\Ice\Lib\Contact.lib;..\..\Ice\Lib\Meshmerizer.lib;..\..\Ice\Lib\IceImageWork.lib;..\..\Ice\Lib\IceGUI.lib;..\..\Ice\Lib\IML.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc12win32\release\PhysX_32.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc12win32\release\PhysXCommon_32.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc12win32\release\PhysXCooking_32.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc12win32\release\PhysXVehicle_static_32.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc12win32\release\PhysXFoundation_32.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc12win32\release\PhysXGpu_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -270,6 +273,7 @@ copy ..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc12win32\release\PhysXF
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat />
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>..\..\Ice\Lib64\IceCore64.lib;..\..\Ice\Lib64\IceMaths64.lib;..\..\Ice\Lib64\Contact64.lib;..\..\Ice\Lib64\Meshmerizer64.lib;..\..\Ice\Lib64\IceImageWork64.lib;..\..\Ice\Lib64\IceGUI64.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc15win64\release\PhysX_64.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc15win64\release\PhysXCommon_64.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc15win64\release\PhysXCooking_64.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc15win64\release\PhysXVehicle_static_64.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc15win64\release\PhysXFoundation_64.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc15win64\release\PhysXGpu_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -314,6 +318,7 @@ copy ..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\vc15win64\release\PhysXF
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat />
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>..\..\Ice\Lib\IceCore.lib;..\..\Ice\Lib\IceMaths.lib;..\..\Ice\Lib\Contact.lib;..\..\Ice\Lib\Meshmerizer.lib;..\..\Ice\Lib\IceImageWork.lib;..\..\Ice\Lib\IceGUI.lib;..\..\Ice\Lib\IML.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\Lib\vc12win32\PhysXPROFILE_x86.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\Lib\vc12win32\PhysXCommonPROFILE_x86.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\Lib\vc12win32\PhysXCookingPROFILE_x86.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\Lib\vc12win32\PhysXVehiclePROFILE_x86.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\Lib\vc12win32\PhysXGpuPROFILE_x86.lib;..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\Lib\vc12win32\PhysXFoundationPROFILE_x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -361,6 +366,7 @@ copy ..\..\..\..\PEEL_Externals\4_1_2\PhysX-4.1.2_Trunk\Bin\vc12win32\PhysXFound
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat />
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>..\..\Ice\Lib\IceCore.lib;..\..\Ice\Lib\IceMaths.lib;..\..\Ice\Lib\Contact.lib;..\..\Ice\Lib\Meshmerizer.lib;..\..\Ice\Lib\IceImageWork.lib;..\..\Ice\Lib\IceGUI.lib;..\..\Ice\Lib\IML.lib;..\PhysX-3.3_Trunk\Lib\win32\PhysX3PROFILE_x86.lib;..\PhysX-3.3_Trunk\Lib\win32\PhysX3CharacterKinematicPROFILE_x86.lib;..\PhysX-3.3_Trunk\Lib\win32\PhysX3CommonPROFILE_x86.lib;..\PhysX-3.3_Trunk\Lib\win32\PhysX3CookingPROFILE_x86.lib;..\PhysX-3.3_Trunk\Lib\win32\PhysX3ExtensionsPROFILE.lib;..\PhysX-3.3_Trunk\Lib\win32\PhysX3VehiclePROFILE.lib;..\PhysX-3.3_Trunk\Lib\win32\PxTaskPROFILE.lib;..\PhysX-3.3_Trunk\Lib\win32\PhysXVisualDebuggerSDKPROFILE.lib;..\PhysX-3.3_Trunk\Lib\win32\PhysXProfileSDKPROFILE.lib;%(AdditionalDependencies)</AdditionalDependencies>
