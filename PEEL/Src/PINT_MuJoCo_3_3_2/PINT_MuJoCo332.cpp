@@ -2257,6 +2257,8 @@ static void gCheckBoxCallback(const IceCheckBox& check_box, bool checked, void* 
 	}
 }
 
+static const char* gTooltip_Substeps = "Timestep will be (1/60) divided by the number os substeps (e.g. 2 substeps = 120 Hz sim frequency)";
+
 IceWindow* MuJoCo_InitGUI(IceWidget* parent, PintGUIHelper& helper)
 {
 	IceWindow* Main = helper.CreateMainWindow(gMuJoCoGUI, parent, MUJOCO_GUI_MAIN, "MuJoCo options");
@@ -2334,6 +2336,8 @@ IceWindow* MuJoCo_InitGUI(IceWidget* parent, PintGUIHelper& helper)
 	gEditBox_Gap				= CreateEditBox(helper, Main, y, "Gap:", _F("%f", gGap), EDITBOX_FLOAT);
 	gEditBox_Kv					= CreateEditBox(helper, Main, y, "Kv multiplier:", _F("%f", gKv), EDITBOX_FLOAT);
 	gEditBox_Kp					= CreateEditBox(helper, Main, y, "Kp multiplier:", _F("%f", gKp), EDITBOX_FLOAT);
+
+	gEditBox_Substeps->AddToolTip(gTooltip_Substeps);
 
 	y += YStepCB;
 
