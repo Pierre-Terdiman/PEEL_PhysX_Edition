@@ -96,7 +96,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\Ice\APIs\Ice;..\HACD;..\Glut\include;..\..\..\PEEL_Externals;..\DevIL\include;..\foundation;..\foundation\include;..\;..\..\Private\NVD;%(AdditionalIncludeDirectories);..\Rock\Src\APIs</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;GLUT_NO_LIB_PRAGMA;PX_PHYSX_STATIC_LIB;%(PreprocessorDefinitions);ROCK_NO_DLL</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>false</ExceptionHandling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -128,7 +128,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\Ice\APIs\Ice\#Plugins\FlexineSDK;..\Ice\APIs\Ice;..\HACD;..\Glut\include;..\..\..\PEEL_Externals;..\DevIL\include;..\foundation;..\foundation\include;..\;%(AdditionalIncludeDirectories);..\Rock\Src\APIs</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;GLUT_NO_LIB_PRAGMA;PX_PHYSX_STATIC_LIB;%(PreprocessorDefinitions);ROCK_NO_DLL</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>false</ExceptionHandling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
