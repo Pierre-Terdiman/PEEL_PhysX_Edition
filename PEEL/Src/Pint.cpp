@@ -35,14 +35,17 @@ PintCaps::PintCaps() :
 
 	// True for libraries supporting triangles meshes.
 	// These are typically defined by a set of vertices and a set of triangle indices.
+	// This covers both static triangle meshes in rigid body simulation and just for scene queries.
 	mSupportMeshes				(false),
 
 	// True for libraries supporting dynamic triangles meshes, i.e. rigid body simulation
-	// and contact generation on triangle mesh shapes.
+	// and contact generation on dynamic triangle mesh shapes. The cap is for "dynamic meshes",
+	// NOT e.g. for "SDFs", as an engine could very well support dynamic meshes without SDFs.
+	// SDFs are an implementation detail, a means to an end.
 	mSupportDynamicMeshes		(false),
 
 	// True for libraries supporting deformable triangles meshes. This is not the same as
-	// a dynamic mesh, as this can be supported for static meshes like terrains.
+	// a "dynamic mesh", as this can be supported for static meshes like terrains.
 	mSupportDeformableMeshes	(false),
 
 	// True for libraries supporting heightfields.
