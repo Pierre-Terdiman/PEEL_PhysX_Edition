@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 #include "PortalJoint5.h"
-#include "Extensions\ExtConstraintHelper.h"
+#include "ExtConstraintHelper.h"
 #include "PxPhysics.h"
 #include "common/PxTolerancesScale.h"
 

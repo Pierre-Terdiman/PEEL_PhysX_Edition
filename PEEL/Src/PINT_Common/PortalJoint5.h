@@ -4,7 +4,7 @@
 // Revisited implementation after changes in PhysX 5
 
 #include "PxPortalJoint.h"
-#include "Extensions\ExtJoint.h"
+#include "ExtJoint.h"
 //#include "CmUtils.h"
 
 namespace physx

@@ -28,7 +28,7 @@
 
 #include "common/PxBase.h"
 #include "common/PxCollection.h"
-#include "extensions/PxRepXSimpleType.h"
+//#include "extensions/PxRepXSimpleType.h"
 
 //#include "PxVehicleMetaDataObjects.h"
 //#include "PxVehicleSerialization.h"
