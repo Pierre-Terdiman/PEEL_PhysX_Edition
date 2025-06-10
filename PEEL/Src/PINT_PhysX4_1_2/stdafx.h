@@ -142,8 +142,6 @@ using namespace physx;
 #define PHYSX_SUPPORT_RACK_JOINT_OLD	1
 #define PHYSX_NO_USERDATA_RCA_JOINT
 
-//#define USE_RAYCASTS_API
-
 #define PxArray							physx::shdfnd::Array
 #define PxHashMap						physx::shdfnd::HashMap
 #define PxHashSet						physx::shdfnd::HashSet

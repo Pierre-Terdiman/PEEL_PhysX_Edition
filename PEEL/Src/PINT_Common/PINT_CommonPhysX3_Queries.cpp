@@ -63,9 +63,6 @@ udword SharedPhysX::BatchRaycasts(PintSQThreadContext context, udword nb, PintRa
 	const PxSceneQueryFlags sqFlags = GetRaycastQueryFlags(mParams);
 	PxQueryFilterCallback* FCB = GetSQFilterCallback();
 
-//#define RAYCAST_XP
-//#define USE_RAYCASTS_API
-
 #ifndef PHYSX_SUPPORT_VEHICLE5
 	if(0)
 	{
@@ -116,92 +113,23 @@ udword SharedPhysX::BatchRaycasts(PintSQThreadContext context, udword nb, PintRa
 	else
 #endif
 	{
-#ifdef USE_RAYCASTS_API
-		PxQueryFilterData fd1 = PF;
-	#ifndef PHYSX_REMOVED_CLIENT_ID
-		fd1.clientId = PX_DEFAULT_CLIENT;
-	#endif
-
-	#define BATCH_SIZE	32
-		Point	Origins[BATCH_SIZE];
-		Point	Dirs[BATCH_SIZE];
-		float	MaxDists[BATCH_SIZE];
-		PxRaycastBuffer buf[BATCH_SIZE];
-
-		udword NbTotalHits = 0;
-
-		while(nb)
-		{
-			udword NbToGo = nb;
-			if(NbToGo>BATCH_SIZE)
-				NbToGo = BATCH_SIZE;
-			for(udword i=0;i<NbToGo;i++)
-			{
-				Origins[i] = raycasts->mOrigin;
-				Dirs[i] = raycasts->mDir;
-				MaxDists[i] = raycasts->mMaxDist;
-				buf[i].hasBlock = false;
-				raycasts++;
-			}
-
-			udword NbBatchHits = mScene->raycasts(NbToGo, (const PxVec3*)Origins, (const PxVec3*)Dirs, MaxDists, buf, sqFlags, fd1, FCB);
-			NbTotalHits += NbBatchHits;
-			nb-=NbToGo;
-			for(udword i=0;i<NbToGo;i++)
-			{
-				if(buf[i].hasBlock)
-					FillResultStruct(*dest, buf[i].block);
-				else
-					dest->SetNoHit();
-				dest++;
-			}
-		}
-		return NbTotalHits;
-#else
-	#ifndef RAYCAST_XP
 		PxRaycastBuffer buf;
-	#endif
 		PxQueryFilterData fd1 = PF;
-	#ifndef PHYSX_REMOVED_CLIENT_ID
+#ifndef PHYSX_REMOVED_CLIENT_ID
 		fd1.clientId = PX_DEFAULT_CLIENT;
-	#endif
+#endif
 
-//PxSceneQueryCache Cache;
 		udword NbHits = 0;
 		while(nb--)
 		{
-//bool blockingHit;
-//PxRaycastHit HitBuffer[256];
-//if(mScene->raycastMultiple(ToPxVec3(raycasts->mOrigin), ToPxVec3(raycasts->mDir), raycasts->mMaxDist, sqFlags, HitBuffer, 256, blockingHit, PF))
-
-//			if(mScene->raycast(ToPxVec3(raycasts->mOrigin), ToPxVec3(raycasts->mDir), raycasts->mMaxDist, buf, sqFlags, fd1))
-	#ifdef RAYCAST_XP
-			PxRaycastHit Hit;
-			if(mScene->raycastClosest((const PxVec3&)(raycasts->mOrigin), (const PxVec3&)(raycasts->mDir), raycasts->mMaxDist, Hit, sqFlags, fd1, null))
-	#else
 			if(mScene->raycast((const PxVec3&)(raycasts->mOrigin), (const PxVec3&)(raycasts->mDir), raycasts->mMaxDist, buf, sqFlags, fd1, FCB, null
-		#if PHYSX_SUPPORT_SIMD_GUARD_FLAG
+#if PHYSX_SUPPORT_SIMD_GUARD_FLAG
 				, PxGeometryQueryFlag::Enum(0)
-		#endif
+#endif
 				))
-	#endif
-//			hit = buf.block;
-//			if(buf.hasBlock)
-/*			PxRaycastHit Hit;
-			if(raycastSingle(mScene, ToPxVec3(raycasts->mOrigin), ToPxVec3(raycasts->mDir), raycasts->mMaxDist, sqFlags, Hit, PF
-//, null, Cache.shape ? &Cache : null
-									))*/
 			{
 				NbHits++;
-//				FillResultStruct(*dest, Hit);
-	#ifdef RAYCAST_XP
-				FillResultStruct(*dest, Hit);
-	#else
 				FillResultStruct(*dest, buf.block);
-	#endif
-//FillResultStruct(*dest, HitBuffer[0]);
-//Cache.shape	= Hit.shape;
-//Cache.actor	= Hit.actor;
 			}
 			else
 			{
@@ -212,7 +140,6 @@ udword SharedPhysX::BatchRaycasts(PintSQThreadContext context, udword nb, PintRa
 			dest++;
 		}
 		return NbHits;
-#endif
 	}
 }
 

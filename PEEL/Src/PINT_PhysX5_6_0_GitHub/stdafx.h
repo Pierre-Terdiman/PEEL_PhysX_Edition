@@ -152,8 +152,6 @@ using namespace physx;
 #define PHYSX_SUPPORT_CHARACTERS2
 #define PHYSX_REMOVED_CLIENT_ID
 
-//#define USE_RAYCASTS_API
-
 //#define PHYSX_SUPPORT_VEHICLE_FIX
 //#define PHYSX_SUPPORT_VEHICLE_XP
 
