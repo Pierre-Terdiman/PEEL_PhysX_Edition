@@ -1620,7 +1620,6 @@
 		virtual	udword				BatchRaycasts				(PintSQThreadContext context, udword nb, PintRaycastHit* dest, const PintRaycastData* raycasts)							{ return NotImplemented("BatchRaycasts");	}
 		virtual	udword				BatchRaycastAny				(PintSQThreadContext context, udword nb, PintBooleanHit* dest, const PintRaycastData* raycasts)							{ return NotImplemented("BatchRaycastAny");	}
 		virtual	udword				BatchRaycastAll				(PintSQThreadContext context, udword nb, PintMultipleHits* dest, Container& stream, const PintRaycastData* raycasts)	{ return NotImplemented("BatchRaycastAll");	}
-//		virtual	bool				Picking						(PintSQThreadContext context, PintRaycastHit* dest, const PintRaycastData& raycast, PintQueryFilterCallback* cb)		{ return NotImplemented("Picking");			}
 		// Sweeps
 		virtual	udword				BatchBoxSweeps				(PintSQThreadContext context, udword nb, PintRaycastHit* dest, const PintBoxSweepData* sweeps)					{ NotImplemented("BatchBoxSweeps");		return 0;	}
 		virtual	udword				BatchSphereSweeps			(PintSQThreadContext context, udword nb, PintRaycastHit* dest, const PintSphereSweepData* sweeps)				{ NotImplemented("BatchSphereSweeps");	return 0;	}
