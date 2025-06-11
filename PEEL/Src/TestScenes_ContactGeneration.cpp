@@ -1372,10 +1372,35 @@ static const float gSceneScale = 0.5f;
 START_TEST(NutAndBolt, CATEGORY_CONTACT_GENERATION, gDesc_NutAndBolt)
 
 	WavefrontDatabase	mOBJ;
+	CheckBoxPtr			mCheckBox_HACD;
+	EditBoxPtr			mEditBox_Friction;
 
 	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		return CreateOverrideTabControl("NutAndBolt", 20);
+		const sdword Width = 300;
+		IceWindow* UI = CreateTestWindow(Width, 400);
+
+		Widgets& UIElems = GetUIElements();
+
+		const sdword EditBoxWidth = 60;
+		const sdword LabelWidth = 60;
+		const sdword OffsetX = LabelWidth + 10;
+		const sdword LabelOffsetY = 2;
+		const sdword YStep = 20;
+		sdword y = 10;
+		{
+			mCheckBox_HACD = helper.CreateCheckBox(UI, 0, 4, y, 400, 20, "Use convex decomposition", &UIElems, false, null, null);
+			mCheckBox_HACD->SetEnabled(false);	// Disabled because convex decomp freezes forever on these meshes
+			y += YStep;
+
+			helper.CreateLabel(UI, 4, y+LabelOffsetY, LabelWidth, 20, "Friction:", &UIElems);
+			mEditBox_Friction = helper.CreateEditBox(UI, 1, 4+OffsetX, y, EditBoxWidth, 20, "0.1", &UIElems, EDITBOX_FLOAT_POSITIVE, null, null);
+			y += YStep;
+		}
+
+		y += YStep;
+
+		return CreateTestTabControlAndResetButton(UI, Width, y, 0);
 	}
 
 /*	virtual	float	GetRenderData(Point& center)	const
@@ -1387,9 +1412,7 @@ START_TEST(NutAndBolt, CATEGORY_CONTACT_GENERATION, gDesc_NutAndBolt)
 	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
 	{
 		TestBase::GetSceneParams(desc);
-		desc.mCamera[0] = PintCameraPose(Point(-0.30f, 1.13f, 1.10f), Point(0.25f, -0.46f, -0.85f));
-		//desc.mGravity	= Point(0.0f, -1.0f, 0.0f);
-		SetDefEnv(desc, false);
+		desc.mCamera[0] = PintCameraPose(Point(-0.31f, 1.26f, 1.06f), Point(0.26f, -0.46f, -0.85f));
 		SetDefEnv(desc, true);
 	}
 
@@ -1406,10 +1429,11 @@ START_TEST(NutAndBolt, CATEGORY_CONTACT_GENERATION, gDesc_NutAndBolt)
 
 		if(1)
 		{
-			//bool status = LoadObj("nut_m4_tight.obj", Params, mOBJ);
 			bool status = LoadObj("nut_m4.obj", Params, mOBJ);
-			//bool status2 = LoadObj("bolt_m4_tight.obj", Params, mOBJ);
 			bool status2 = LoadObj("bolt_m4_loose.obj", Params, mOBJ);
+
+			//bool status = LoadObj("nut_m4_tight.obj", Params, mOBJ);
+			//bool status2 = LoadObj("bolt_m4_tight.obj", Params, mOBJ);
 		}
 
 		if(0)
@@ -1431,6 +1455,10 @@ START_TEST(NutAndBolt, CATEGORY_CONTACT_GENERATION, gDesc_NutAndBolt)
 		if(!caps.mSupportRigidBodySimulation || !caps.mSupportDynamicMeshes)
 			return false;
 
+		const bool UseHACD = mCheckBox_HACD && mCheckBox_HACD->IsChecked();
+		const float Friction = GetFloat(0.1f, mEditBox_Friction);
+		PINT_MATERIAL_CREATE Material(0.0f, Friction, 0.0f);
+
 		const udword NbMeshes = mOBJ.mMeshes.GetNbEntries();
 
 		if(0)
@@ -1449,7 +1477,7 @@ START_TEST(NutAndBolt, CATEGORY_CONTACT_GENERATION, gDesc_NutAndBolt)
 		{
 			const WavefrontMesh* Part = (const WavefrontMesh*)mOBJ.mMeshes[i];
 
-			if(0)
+			if(UseHACD)
 			{
 				const bool IsDynamic = i==0;
 
@@ -1462,8 +1490,6 @@ START_TEST(NutAndBolt, CATEGORY_CONTACT_GENERATION, gDesc_NutAndBolt)
 			}
 			else
 			{
-				PINT_MATERIAL_CREATE Material(0.0f, 0.1f, 0.0f);
-
 				PINT_MESH_CREATE MeshCreate;
 				MeshCreate.SetSurfaceData(Part->GetNbVerts(), Part->GetVerts(), Part->GetNbTris(), Part->GetIndices(), null);
 				MeshCreate.mRenderer = CreateMeshRenderer(MeshCreate.GetSurface());
@@ -1475,9 +1501,9 @@ START_TEST(NutAndBolt, CATEGORY_CONTACT_GENERATION, gDesc_NutAndBolt)
 					const float Radius = 0.002f*gSceneScale;
 					PintShapeRenderer* R = CreateSphereRenderer(Radius);
 
-					PINT_BOX_CREATE BoxCreate(Point(0.01f, 0.01f, 0.01f));
-					BoxCreate.mMaterial	= &Material;
-					BoxCreate.mRenderer	= MeshCreate.mRenderer;
+					//PINT_BOX_CREATE BoxCreate(Point(0.01f, 0.01f, 0.01f));
+					//BoxCreate.mMaterial	= &Material;
+					//BoxCreate.mRenderer	= MeshCreate.mRenderer;
 
 					const udword NbSpheres = Part->GetNbVerts();
 					PINT_SPHERE_CREATE* SphereCreate = ICE_NEW(PINT_SPHERE_CREATE)[NbSpheres];
@@ -1490,30 +1516,29 @@ START_TEST(NutAndBolt, CATEGORY_CONTACT_GENERATION, gDesc_NutAndBolt)
 						if(j!=NbSpheres-1)
 							SphereCreate[j].SetNext(&SphereCreate[j+1]);
 						//else
-						//	SphereCreate[j].mNext	= &BoxCreate;
+						//	SphereCreate[j].SetNext(&BoxCreate);
 					}
 
-				PINT_OBJECT_CREATE ObjectDesc(SphereCreate);
-				ObjectDesc.mMass		= i==0 ? 1.0f : 0.0f;
-	//				ObjectDesc.mPosition	= Point(float(i)*3.0f, 0.0f, 0.0f);
-				ObjectDesc.mPosition	= Part->mPos;
-	//			if(i==0)
+					PINT_OBJECT_CREATE ObjectDesc(SphereCreate);
+					ObjectDesc.mMass		= i==0 ? 1.0f : 0.0f;
+					ObjectDesc.mPosition	= Part->mPos;
 					ObjectDesc.mPosition.y += 1.7f*gSceneScale;
-				CreatePintObject(pint, ObjectDesc);
-
+					CreatePintObject(pint, ObjectDesc);
 				}
 				else
 				{
+					PINT_OBJECT_CREATE ObjectDesc(&MeshCreate);
+					ObjectDesc.mMass		= i==0 ? 1.0f : 0.0f;
+					//ObjectDesc.mMass		= 1.0f;
+					ObjectDesc.mPosition	= Part->mPos;
+					// Move the nut above the bolt
+					if(i==0)
+						ObjectDesc.mPosition.y += 1.8f*gSceneScale;
 
-				PINT_OBJECT_CREATE ObjectDesc(&MeshCreate);
-				ObjectDesc.mMass		= i==0 ? 1.0f : 0.0f;
-				//ObjectDesc.mMass		= 1.0f;
-	//				ObjectDesc.mPosition	= Point(float(i)*3.0f, 0.0f, 0.0f);
-				ObjectDesc.mPosition	= Part->mPos;
-				if(i==0)
-					ObjectDesc.mPosition.y += 1.8f*gSceneScale;
-				CreatePintObject(pint, ObjectDesc);
+					// Move both objects up, otherwise the bolt starts in the ground
+					ObjectDesc.mPosition.y += 0.2f;
 
+					CreatePintObject(pint, ObjectDesc);
 				}
 			}
 		}

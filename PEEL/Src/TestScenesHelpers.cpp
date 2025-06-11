@@ -87,7 +87,7 @@ void CreateSingleTriangleMesh(SurfaceManager& test, float scale, Triangle* tri, 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool CreateBoxStack(Pint& pint, const PintCaps& caps, const udword nb_stacks, udword nb_base_boxes, bool use_convexes)
+bool CreateBoxStack(Pint& pint, const PintCaps& caps, const udword nb_stacks, udword nb_base_boxes, const Point* offset, bool use_convexes)
 {
 	if(!caps.mSupportRigidBodySimulation)
 		return false;
@@ -104,14 +104,14 @@ bool CreateBoxStack(Pint& pint, const PintCaps& caps, const udword nb_stacks, ud
 		Point Pts[8];
 		Bounds.ComputePoints(Pts);
 
-		ConvexDesc.mNbVerts	= 8;
-		ConvexDesc.mVerts	= Pts;
-		ConvexDesc.mRenderer = CreateConvexRenderer(8, Pts);
+		ConvexDesc.mNbVerts		= 8;
+		ConvexDesc.mVerts		= Pts;
+		ConvexDesc.mRenderer	= CreateRenderer(ConvexDesc);
 	}
 	else
 	{
 		BoxDesc.mExtents	= Point(BoxExtent, BoxExtent, BoxExtent);
-		BoxDesc.mRenderer = CreateBoxRenderer(BoxDesc.mExtents);
+		BoxDesc.mRenderer	= CreateRenderer(BoxDesc);
 	}
 
 	PINT_OBJECT_CREATE ObjectDesc;
@@ -139,6 +139,8 @@ bool CreateBoxStack(Pint& pint, const PintCaps& caps, const udword nb_stacks, ud
 				ObjectDesc.mPosition.x	= CoeffX * BoxExtent * 2.0f;
 				ObjectDesc.mPosition.y	= BoxPosY;
 				ObjectDesc.mPosition.z	= CoeffZ * BoxExtent * 4.0f;
+				if(offset)
+					ObjectDesc.mPosition += *offset;
 
 				//ObjectDesc.mPosition.z += (UnitRandomFloat()-0.5f)*0.01f;
 

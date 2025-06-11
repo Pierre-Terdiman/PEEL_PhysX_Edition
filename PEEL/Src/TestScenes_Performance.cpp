@@ -181,7 +181,7 @@ class BoxStackConfigurable : public TestBase//, public PintContactNotifyCallback
 		const bool UseConvexes = mCheckBox_UseConvexes ? mCheckBox_UseConvexes->IsChecked() : false;
 		const udword NbBaseBoxes = GetInt(1, mEditBox_NbBaseBoxes);
 		const udword NbStacks = GetInt(1, mEditBox_NbStacks);
-		return CreateBoxStack(pint, caps, NbStacks, NbBaseBoxes, UseConvexes);
+		return CreateBoxStack(pint, caps, NbStacks, NbBaseBoxes, null, UseConvexes);
 	}
 
 /*	virtual	bool	BufferContacts()		const	{ return false;			}

@@ -796,6 +796,9 @@
     <ClCompile Include="..\MuJoCoConverter.cpp">
       <Filter>Source Files\Main\Import_Export</Filter>
     </ClCompile>
+    <ClCompile Include="..\TestScenes_Determinism.cpp">
+      <Filter>Source Files\Main\Test scenes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\LegoLib\LegoLib.h">

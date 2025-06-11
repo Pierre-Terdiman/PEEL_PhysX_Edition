@@ -4430,6 +4430,7 @@ enum PhysXGUIElement
 	PHYSX_GUI_ENABLE_CONTACT_NOTIF,
 #endif
 	PHYSX_GUI_FLUSH_SIMULATION,
+	PHYSX_GUI_ENHANCED_DETERMINISM,
 #if PHYSX_SUPPORT_IMPROVED_PATCH_FRICTION
 	PHYSX_GUI_IMPROVED_PATCH_FRICTION,
 #endif
@@ -4575,6 +4576,7 @@ EditableParams::EditableParams() :
 	mEnableContactNotif			(false),
 #endif
 	mFlushSimulation			(false),
+	mEnhancedDeterminism		(false),
 #ifdef PINT_SUPPORT_PVD	// Defined in project's properties
 	mUsePVD						(true),
 #else
@@ -5543,6 +5545,9 @@ static void gCheckBoxCallback(const IceCheckBox& check_box, bool checked, void* 
 		case PHYSX_GUI_FLUSH_SIMULATION:
 			gParams.mFlushSimulation = checked;
 			break;
+		case PHYSX_GUI_ENHANCED_DETERMINISM:
+			gParams.mEnhancedDeterminism = checked;
+			break;
 #if PHYSX_SUPPORT_IMPROVED_PATCH_FRICTION
 		case PHYSX_GUI_IMPROVED_PATCH_FRICTION:
 			gParams.mImprovedPatchFriction = checked;
@@ -5739,7 +5744,7 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 #if PHYSX_SUPPORT_GPU
 		TAB_GPU,
 #endif
-		TAB_DEBUG_VIZ,
+		TAB_DEBUG,
 		TAB_COUNT,
 	};
 	IceWindow* Tabs[TAB_COUNT];
@@ -5780,7 +5785,7 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 #if PHYSX_SUPPORT_GPU
 		TabControl->Add(Tabs[TAB_GPU], "GPU");
 #endif
-		TabControl->Add(Tabs[TAB_DEBUG_VIZ], "Debug vis.");
+		TabControl->Add(Tabs[TAB_DEBUG], "Debug");
 
 		// TAB_MAIN
 		{
@@ -5895,16 +5900,7 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 			helper.CreateCheckBox(TabWindow, PHYSX_GUI_FLUSH_SIMULATION, 4, y, CheckBoxWidth, 20, "Flush simulation buffers", gPhysXUI->mPhysXGUI, gParams.mFlushSimulation, gCheckBoxCallback);
 			y += YStepCB;
 
-			gPhysXUI->mCheckBox_PVD = helper.CreateCheckBox(TabWindow, PHYSX_GUI_USE_PVD, 4, y, CheckBoxWidth, 20, "Use PVD", gPhysXUI->mPhysXGUI, gParams.mUsePVD, gCheckBoxCallback);
-			y += YStepCB;
-
-			gPhysXUI->mCheckBox_FullPVD = helper.CreateCheckBox(TabWindow, PHYSX_GUI_USE_FULL_PVD_CONNECTION, 4, y, CheckBoxWidth, 20, "Full connection", gPhysXUI->mPhysXGUI, gParams.mUseFullPvdConnection, gCheckBoxCallback);
-#ifdef PINT_SUPPORT_PVD	// Defined in project's properties
-//			gPhysXUI->mCheckBox_FullPVD->SetEnabled(gUsePVD);
-#else
-			gPhysXUI->mCheckBox_PVD->SetEnabled(false);
-			gPhysXUI->mCheckBox_FullPVD->SetEnabled(false);
-#endif
+			helper.CreateCheckBox(TabWindow, PHYSX_GUI_ENHANCED_DETERMINISM, 4, y, CheckBoxWidth, 20, "Enhanced determinism", gPhysXUI->mPhysXGUI, gParams.mEnhancedDeterminism, gCheckBoxCallback);
 			y += YStepCB;
 
 			y += YStepCB;
@@ -5925,9 +5921,6 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 			gPhysXUI->mEditBox_RestOffset = CreateEditBox(helper, TabWindow, x2, y, "Rest offset:", helper.Convert(gParams.mRestOffset), EDITBOX_FLOAT, LabelWidth, EditBoxX);
 #if PHYSX_SUPPORT_CONTACT_NOTIFICATIONS
 			gPhysXUI->mEditBox_ContactNotifThreshold = CreateEditBox(helper, TabWindow, x2, y, "Contact notif threshold:", helper.Convert(gParams.mContactNotifThreshold), EDITBOX_FLOAT, LabelWidth, EditBoxX);
-#endif
-#if PHYSX_SUPPORT_DYNAMIC_MESHES
-			gPhysXUI->mEditBox_SDF_Spacing = CreateEditBox(helper, TabWindow, x2, y, "SDF spacing:", helper.Convert(gParams.mSDFSpacing), EDITBOX_FLOAT_POSITIVE, LabelWidth, EditBoxX);
 #endif
 #if PHYSX_SUPPORT_PX_BROADPHASE_TYPE
 			gPhysXUI->mEditBox_MBPSubdivLevel = CreateEditBox(helper, TabWindow, x2, y, "MBP subdiv level:", _F("%d", gParams.mMBPSubdivLevel), EDITBOX_INTEGER_POSITIVE, LabelWidth, EditBoxX);
@@ -6384,9 +6377,11 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 #if PHYSX_SUPPORT_PX_MESH_MIDPHASE2
 			gPhysXUI->mEditBox_NbTrisPerLeaf = CreateEditBox(helper, TabWindow, 4, y, "Nb tris per leaf:", _F("%d", gParams.mNbTrisPerLeaf), EDITBOX_INTEGER_POSITIVE, 90, EditBoxX);
 #endif
-			y += YStepCB;
 #if PHYSX_SUPPORT_USER_DEFINED_GAUSSMAP_LIMIT
 			gPhysXUI->mEditBox_GaussMapLimit = CreateEditBox(helper, TabWindow, 4, y, "GaussMap limit:", _F("%d", gParams.mGaussMapLimit), EDITBOX_INTEGER_POSITIVE, 90, EditBoxX);
+#endif
+#if PHYSX_SUPPORT_DYNAMIC_MESHES
+			gPhysXUI->mEditBox_SDF_Spacing = CreateEditBox(helper, TabWindow, 4, y, "SDF spacing:", helper.Convert(gParams.mSDFSpacing), EDITBOX_FLOAT_POSITIVE, 90, EditBoxX);
 #endif
 #if PHYSX_SUPPORT_DISABLE_ACTIVE_EDGES_PRECOMPUTE
 			helper.CreateCheckBox(TabWindow, PHYSX_GUI_PRECOMPUTE_ACTIVE_EDGES, 4, y, CheckBoxWidth, 20, "Precompute active edges", gPhysXUI->mPhysXGUI, gParams.mPrecomputeActiveEdges, gCheckBoxCallback);
@@ -6503,7 +6498,7 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 		}
 #endif
 
-		// TAB_DEBUG_VIZ
+		// TAB_DEBUG
 		{
 			const sdword EditBoxX = 100;
 
@@ -6511,14 +6506,30 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 			bool* gDebugVizParams = gPhysXUI->mDebugVizParams;
 			const char** gDebugVizNames = gPhysXUI->mDebugVizNames;
 
-			IceWindow* TabWindow = Tabs[TAB_DEBUG_VIZ];
+			IceWindow* TabWindow = Tabs[TAB_DEBUG];
 			sdword y = YStart;
 
 			helper.CreateLabel(TabWindow, 4, y+LabelOffsetY, 90, 20, "Debug viz scale:", gPhysXUI->mPhysXGUI);
 			gPhysXUI->mEditBox_DebugVizScale = helper.CreateEditBox(TabWindow, PHYSX_GUI_DEBUG_VIZ_SCALE, 4+EditBoxX, y, EditBoxWidth, 20, _F("%f", gParams.mDebugVizScale), gPhysXUI->mPhysXGUI, EDITBOX_FLOAT_POSITIVE, Callbacks::EditBoxChange);
 			gPhysXUI->mEditBox_DebugVizScale->SetUserData(&callback);
-
 			y += YStep;
+
+			{
+				const sdword OffsetX = 300;
+				sdword SavedY = y;
+				gPhysXUI->mCheckBox_PVD = helper.CreateCheckBox(TabWindow, PHYSX_GUI_USE_PVD, 4+OffsetX, y, CheckBoxWidth, 20, "Use PVD", gPhysXUI->mPhysXGUI, gParams.mUsePVD, gCheckBoxCallback);
+				y += YStepCB;
+
+				gPhysXUI->mCheckBox_FullPVD = helper.CreateCheckBox(TabWindow, PHYSX_GUI_USE_FULL_PVD_CONNECTION, 4+OffsetX, y, CheckBoxWidth, 20, "Full connection", gPhysXUI->mPhysXGUI, gParams.mUseFullPvdConnection, gCheckBoxCallback);
+	#ifdef PINT_SUPPORT_PVD	// Defined in project's properties
+	//			gPhysXUI->mCheckBox_FullPVD->SetEnabled(gUsePVD);
+	#else
+				gPhysXUI->mCheckBox_PVD->SetEnabled(false);
+				gPhysXUI->mCheckBox_FullPVD->SetEnabled(false);
+	#endif
+				y += YStepCB;
+				y = SavedY;
+			}
 
 			sdword LastY = Common_CreateDebugVizUI(TabWindow, 10, y, gCheckBoxCallback, PHYSX_GUI_ENABLE_DEBUG_VIZ, NB_DEBUG_VIZ_PARAMS, gDebugVizParams, gDebugVizNames, gPhysXUI->mCheckBox_DebugVis, gPhysXUI->mPhysXGUI);
 		}

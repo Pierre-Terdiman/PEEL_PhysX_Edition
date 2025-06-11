@@ -341,13 +341,14 @@ START_CCD_TEST(CCDTest_BoxVsStack, gDesc_CCDTest_BoxVsStack)
 
 		const Point Extents(1.0f, 1.0f, 1.0f);
 		PINT_BOX_CREATE BoxDesc(Extents);
-		BoxDesc.mRenderer	= CreateBoxRenderer(Extents);
+		BoxDesc.mRenderer	= CreateRenderer(BoxDesc);
 
 		PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
 		ObjectDesc.mMass			= 1.0f;
 		ObjectDesc.mPosition		= Point(0.0f, 10.0f, 110.0f);
 		ObjectDesc.mLinearVelocity	= Point(0.0f, 0.0f, -1500.0f);
 		CreatePintObject(pint, ObjectDesc);
+
 		return true;
 	}
 
@@ -606,6 +607,7 @@ START_CCD_TEST(CCDTest_ObjectVsComplexMesh, gDesc_CCDTest_ObjectVsComplexMesh)
 	{
 		TestBase::GetSceneParams(desc);
 		desc.mCamera[0] = PintCameraPose(Point(45.24f, 27.75f, 55.62f), Point(-0.57f, -0.10f, -0.82f));
+		desc.mCamera[1] = PintCameraPose(Point(11.01f, 12.79f, 9.89f), Point(-0.98f, -0.18f, 0.08f));
 		SetDefEnv(desc, false);
 	}
 

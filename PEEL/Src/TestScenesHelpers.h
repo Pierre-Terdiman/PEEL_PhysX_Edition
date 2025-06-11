@@ -35,7 +35,7 @@
 
 	void				CreateSingleTriangleMesh			(SurfaceManager& test, const Triangle& tri, const PR* pose=null);
 	void				CreateSingleTriangleMesh			(SurfaceManager& test, float scale, Triangle* tri=null, bool reverse_winding=false);
-	bool				CreateBoxStack						(Pint& pint, const PintCaps& caps, const udword nb_stacks, udword nb_base_boxes, bool use_convexes=false);
+	bool				CreateBoxStack						(Pint& pint, const PintCaps& caps, const udword nb_stacks, udword nb_base_boxes, const Point* offset=null, bool use_convexes=false);
 	void				CreateBoxContainer					(Pint& pint, float box_height, float box_side, float box_depth);
 
 	// TODO: refactor CreateSeaOfStaticXXX functions

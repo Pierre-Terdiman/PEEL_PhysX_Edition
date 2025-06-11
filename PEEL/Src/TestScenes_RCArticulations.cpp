@@ -39,6 +39,7 @@ class RCADrives : public TestBase
 			CheckBoxPtr		mCheckBox_EnableUpdate;
 			CheckBoxPtr		mCheckBox_Velocity;
 			CheckBoxPtr		mCheckBox_Position;
+			CheckBoxPtr		mCheckBox_SetupLimits;
 			EditBoxPtr		mEditBox_TargetVel;
 			EditBoxPtr		mEditBox_TargetPos;
 			EditBoxPtr		mEditBox_Stiffness;
@@ -56,7 +57,7 @@ class RCADrives : public TestBase
 	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
 		const sdword Width = 220;
-		IceWindow* UI = CreateTestWindow(Width, 320);
+		IceWindow* UI = CreateTestWindow(Width, 340);
 
 		Widgets& UIElems = GetUIElements();
 
@@ -78,6 +79,9 @@ class RCADrives : public TestBase
 			y += YStep;
 
 			mCheckBox_Position = helper.CreateCheckBox(UI, 0, 4, y, 150, 20, "Position drive", &UIElems, true, null, null);
+			y += YStep;
+
+			mCheckBox_SetupLimits = helper.CreateCheckBox(UI, 0, 4, y, 150, 20, "Setup limits", &UIElems, false, null, null);
 			y += YStep;
 
 			helper.CreateLabel(UI, 4, y+LabelOffsetY, LabelWidth, 20, "Target vel.:", &UIElems);
@@ -155,7 +159,6 @@ class RCADrives : public TestBase
 				mComboBox_Preset->SetVisible(true);
 				y += YStep;
 			}
-
 		}
 
 		{
@@ -250,7 +253,7 @@ class RCADrives : public TestBase
 				Desc.mLocalPivot1.mPos	= Pivot1;
 				Desc.mFrictionCoeff		= 0.0f;
 
-				if(0)
+				if(mCheckBox_SetupLimits && mCheckBox_SetupLimits->IsChecked())
 				{
 					Desc.mMinLimit	= -PI/4.0f;
 					Desc.mMaxLimit	= PI/4.0f;

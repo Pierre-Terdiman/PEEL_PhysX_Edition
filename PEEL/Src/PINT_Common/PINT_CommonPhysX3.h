@@ -235,6 +235,7 @@
 		bool							mEnableContactNotif;
 #endif
 		bool							mFlushSimulation;
+		bool							mEnhancedDeterminism;
 		bool							mUsePVD;
 		bool							mUseFullPvdConnection;
 #if PHYSX_SUPPORT_GPU

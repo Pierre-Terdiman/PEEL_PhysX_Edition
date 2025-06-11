@@ -78,6 +78,10 @@ void SetupSceneDesc(PxSceneDesc& sceneDesc, const PINT_WORLD_CREATE& desc, const
 #if PHYSX_SUPPORT_EXTERNAL_FORCES_EVERY_ITERATION
 	SetSceneFlag(sceneDesc, PxSceneFlag::eENABLE_EXTERNAL_FORCES_EVERY_ITERATION_TGS, mParams.mExternalForcesEveryIteration);
 #endif
+#if PHYSX_SUPPORT_SOLVER_RESIDUALS
+	//SetSceneFlag(sceneDesc, PxSceneFlag::eENABLE_SOLVER_RESIDUAL_REPORTING,	true);
+#endif
+	SetSceneFlag(sceneDesc, PxSceneFlag::eENABLE_ENHANCED_DETERMINISM, mParams.mEnhancedDeterminism);
 
 //		SetSceneFlag(sceneDesc, PxSceneFlag::eDEPRECATED_TRIGGER_TRIGGER_REPORTS,				true);
 //	if(!gEnableSSE)

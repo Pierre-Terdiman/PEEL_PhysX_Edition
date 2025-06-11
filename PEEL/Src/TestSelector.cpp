@@ -142,6 +142,7 @@ PhysicsTest* RenderTestSelector(const GLFontRenderer& texter, float x, float tex
 				"(API)",
 				"(cooking)",
 				"(behavior)",
+				"(determinism)",
 				"(contact generation)",
 				"(joints-basics)",
 				"(joints-D6 basics)",

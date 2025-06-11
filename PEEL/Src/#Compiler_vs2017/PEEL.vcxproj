@@ -719,6 +719,7 @@
     <ClCompile Include="..\TestScenes_Cooking.cpp" />
     <ClCompile Include="..\TestScenes_Cylinders.cpp" />
     <ClCompile Include="..\TestScenes_D6.cpp" />
+    <ClCompile Include="..\TestScenes_Determinism.cpp" />
     <ClCompile Include="..\TestScenes_Fracture.cpp" />
     <ClCompile Include="..\TestScenes_Heightfield.cpp" />
     <ClCompile Include="..\TestScenes_Import.cpp" />
