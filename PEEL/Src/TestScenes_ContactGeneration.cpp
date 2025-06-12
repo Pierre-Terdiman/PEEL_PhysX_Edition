@@ -429,7 +429,28 @@ Ideally the box would slide smoothly until the end, in a straight trajectory. Ty
 
 START_TEST(BoxSlidingOnPlanarMesh, CATEGORY_CONTACT_GENERATION, gDesc_BoxSlidingOnPlanarMesh)
 
+	CheckBoxPtr		mCheckBox_UseDynamicMesh;
+
 	virtual	float	GetRenderData(Point& center)	const	{ return 400.0f;	}
+
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
+	{
+		const sdword Width = 300;
+		IceWindow* UI = CreateTestWindow(Width, 300);
+
+		Widgets& UIElems = GetUIElements();
+
+		const sdword YStep = 20;
+		sdword y = 0;
+		{
+			mCheckBox_UseDynamicMesh = helper.CreateCheckBox(UI, 0, 4, y, 400, 20, "Use dynamic mesh for the cube", &UIElems, false, null, null);
+			y += YStep;
+		}
+
+		y += YStep;
+		AddResetButton(UI, 4, y, Width);
+		return null;
+	}
 
 	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
 	{
@@ -455,6 +476,9 @@ START_TEST(BoxSlidingOnPlanarMesh, CATEGORY_CONTACT_GENERATION, gDesc_BoxSliding
 	virtual bool	Setup(Pint& pint, const PintCaps& caps)
 	{
 		if(!caps.mSupportMeshes || !caps.mSupportRigidBodySimulation)
+			return false;
+		const bool UseMesh = mCheckBox_UseDynamicMesh && mCheckBox_UseDynamicMesh->IsChecked();
+		if(UseMesh && !caps.mSupportDynamicMeshes)
 			return false;
 
 		const float Altitude = 1.0f;
@@ -491,9 +515,37 @@ START_TEST(BoxSlidingOnPlanarMesh, CATEGORY_CONTACT_GENERATION, gDesc_BoxSliding
 		ObjectDesc.mMass		= 0.0f;
 		CreatePintObject(pint, ObjectDesc);
 
-//		const float BoxExtent = 1.0f;
-		PintActorHandle CubeHandle = CreateDynamicBox(pint, 1.0f, 1.0f, 1.0f, Point(0.0f, 40.0f, -41.0f), &ObjectDesc.mRotation, &MatDesc);
-		ASSERT(CubeHandle);
+		const float BoxExtent = 1.0f;
+		const Point BoxPos(0.0f, 40.0f, -41.0f);
+		if(!UseMesh)
+		{
+			const PintActorHandle CubeHandle = CreateDynamicBox(pint, BoxExtent, BoxExtent, BoxExtent, BoxPos, &ObjectDesc.mRotation, &MatDesc);
+			ASSERT(CubeHandle);
+		}
+		else
+		{
+			AABB Box;
+			Box.SetMinMax(Point(-BoxExtent, -BoxExtent, -BoxExtent), Point(BoxExtent, BoxExtent, BoxExtent));
+
+			Point Pts[8];
+			Box.ComputePoints(Pts);
+
+			const udword* Indices = Box.GetTriangles();
+
+			IndexedSurface IS;
+			IS.Init(12, 8, Pts, reinterpret_cast<const IndexedTriangle*>(Indices));
+
+			PINT_MESH_DATA_CREATE MeshDataDesc;
+			MeshDataDesc.SetSurfaceData(IS.GetSurfaceInterface());
+			MeshDataDesc.mDynamic = true;
+
+			PINT_MESH_CREATE2 MeshDesc;
+			MeshDesc.mTriangleMesh	= pint.CreateMeshObject(MeshDataDesc);
+			MeshDesc.mRenderer		= CreateMeshRenderer(MeshDataDesc.GetSurface());
+			MeshDesc.mMaterial		= &MatDesc;
+
+			return CreateDynamicObject(pint, &MeshDesc, BoxPos, &ObjectDesc.mRotation);
+		}
 		return true;
 	}
 
