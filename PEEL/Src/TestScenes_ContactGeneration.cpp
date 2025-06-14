@@ -524,27 +524,8 @@ START_TEST(BoxSlidingOnPlanarMesh, CATEGORY_CONTACT_GENERATION, gDesc_BoxSliding
 		}
 		else
 		{
-			AABB Box;
-			Box.SetMinMax(Point(-BoxExtent, -BoxExtent, -BoxExtent), Point(BoxExtent, BoxExtent, BoxExtent));
-
-			Point Pts[8];
-			Box.ComputePoints(Pts);
-
-			const udword* Indices = Box.GetTriangles();
-
-			IndexedSurface IS;
-			IS.Init(12, 8, Pts, reinterpret_cast<const IndexedTriangle*>(Indices));
-
-			PINT_MESH_DATA_CREATE MeshDataDesc;
-			MeshDataDesc.SetSurfaceData(IS.GetSurfaceInterface());
-			MeshDataDesc.mDynamic = true;
-
-			PINT_MESH_CREATE2 MeshDesc;
-			MeshDesc.mTriangleMesh	= pint.CreateMeshObject(MeshDataDesc);
-			MeshDesc.mRenderer		= CreateMeshRenderer(MeshDataDesc.GetSurface());
-			MeshDesc.mMaterial		= &MatDesc;
-
-			return CreateDynamicObject(pint, &MeshDesc, BoxPos, &ObjectDesc.mRotation);
+			const PintActorHandle CubeHandle = CreateDynamicMeshBox(pint, BoxExtent, BoxExtent, BoxExtent, BoxPos, &ObjectDesc.mRotation, &MatDesc);
+			ASSERT(CubeHandle);
 		}
 		return true;
 	}
