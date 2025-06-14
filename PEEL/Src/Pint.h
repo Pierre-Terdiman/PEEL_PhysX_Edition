@@ -271,7 +271,9 @@
 						mName				(null),
 						mStaticFriction		(static_friction),
 						mDynamicFriction	(dynamic_friction),
-						mRestitution		(restitution)
+						mRestitution		(restitution),
+						mStiffness			(0.0f),
+						mDamping			(0.0f)
 					{
 					}
 
@@ -279,14 +281,20 @@
 						mName				(material.mName),
 						mStaticFriction		(material.mStaticFriction),
 						mDynamicFriction	(material.mDynamicFriction),
-						mRestitution		(material.mRestitution)
+						mRestitution		(material.mRestitution),
+						mStiffness			(material.mStiffness),
+						mDamping			(material.mDamping)
 					{
 					}
 
 		const char*	mName;
 		float		mStaticFriction;
 		float		mDynamicFriction;
+		// For rigid contacts - restitution is ignored if mStiffness or mDamping are non zero.
 		float		mRestitution;
+		// For soft/"compliant" contacts - zero for rigid contacts, non-zero for soft contacts.
+		float		mStiffness;
+		float		mDamping;
 	};
 
 	///////////////////////////////////////////////////////////////////////////

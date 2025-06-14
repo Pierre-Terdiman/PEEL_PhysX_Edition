@@ -1162,6 +1162,64 @@ START_TEST(Restitution, CATEGORY_BEHAVIOR, gDesc_Restitution)
 
 END_TEST(Restitution)
 
+static const char* gDesc_SoftContacts = "Same test but with soft / compliant contacts, with increasing stiffness.";
+
+START_TEST(SoftContacts, CATEGORY_BEHAVIOR, gDesc_SoftContacts)
+
+	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
+	{
+		TestBase::GetSceneParams(desc);
+		desc.mCamera[0] = PintCameraPose(Point(-2.39f, 16.89f, 28.34f), Point(0.01f, -0.36f, -0.93f));
+		SetDefEnv(desc, true);
+	}
+
+	virtual bool	Setup(Pint& pint, const PintCaps& caps)
+	{
+		if(!caps.mSupportRigidBodySimulation)
+			return false;
+
+		const float BoxExtent = 3.0f;
+		const float BoxPosY = BoxExtent;
+		const udword NbBoxes = 8;
+		const float Radius = 1.0f;
+
+		PintShapeRenderer* RenderObject = CreateSphereRenderer(Radius);
+
+		for(udword i=0;i<NbBoxes;i++)
+		{
+			const float Coeff = float(i+1)/float(NbBoxes-1);
+
+			PINT_MATERIAL_CREATE MatDesc(0.5f, 0.5f, 0.0f);
+			MatDesc.mStiffness = Coeff * 800.0f;
+			MatDesc.mDamping = 0.0f;
+
+			PINT_BOX_CREATE BoxDesc(BoxExtent*0.5f, 0.5f, BoxExtent);
+			BoxDesc.mMaterial	= &MatDesc;
+			BoxDesc.mRenderer	= CreateBoxRenderer(BoxDesc.mExtents);
+
+			const float x = (float(i)-float(NbBoxes)*0.5f)*BoxExtent*1.1f;
+
+			PINT_OBJECT_CREATE ObjectDesc(&BoxDesc);
+			ObjectDesc.mPosition.x	= x;
+			ObjectDesc.mPosition.y	= BoxPosY;
+			ObjectDesc.mPosition.z	= 0.0f;
+
+			ObjectDesc.mMass		= 0.0f;
+			PintActorHandle Handle = CreatePintObject(pint, ObjectDesc);
+			ASSERT(Handle);
+
+			PINT_SPHERE_CREATE SphereDesc(Radius);
+			SphereDesc.mMaterial	= &MatDesc;
+			SphereDesc.mRenderer	= RenderObject;
+			PintActorHandle SphereHandle = CreateDynamicObject(pint, &SphereDesc, Point(x, 20.0f, 0.0f));
+			ASSERT(SphereHandle);
+		}
+
+		return true;
+	}
+
+END_TEST(SoftContacts)
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static const char* gDesc_GravityRace = "A dynamic box is dropped 1000 units away from the origin, and falls towards it. In theory boxes simulated with different engines \

@@ -2242,6 +2242,7 @@ class MultiBodyVehicle : public VehicleInput
 			EditBoxPtr		mEditBox_WheelMass;
 			EditBoxPtr		mEditBox_WheelFrontFriction;
 //			EditBoxPtr		mEditBox_WheelRearFriction;
+			EditBoxPtr		mEditBox_WheelContactStiffness;
 			EditBoxPtr		mEditBox_WheelRadius;
 			EditBoxPtr		mEditBox_WheelWidth;
 			EditBoxPtr		mEditBox_WheelTessR;
@@ -2514,6 +2515,10 @@ class MultiBodyVehicle : public VehicleInput
 //			helper.CreateLabel(TabWindow, 4, y+LabelOffsetY, LabelWidth, 20, "Rear friction:", &UIElems);
 //			mEditBox_WheelRearFriction = helper.CreateEditBox(TabWindow, 1, 4+OffsetX, y, EditBoxWidth, 20, "1.0", &UIElems, EDITBOX_FLOAT_POSITIVE, null, null);
 //			y += YStep;
+
+			helper.CreateLabel(TabWindow, 4, y+LabelOffsetY, LabelWidth, 20, "Contact stiffness:", &UIElems);
+			mEditBox_WheelContactStiffness = helper.CreateEditBox(TabWindow, 1, 4+OffsetX, y, EditBoxWidth, 20, "0.0", &UIElems, EDITBOX_FLOAT_POSITIVE, null, null);
+			y += YStep;
 
 			mCheckBox_TweakWheelsInertia = helper.CreateCheckBox(TabWindow, 0, 4, y, 100, 20, "Tweak inertia", &UIElems, false, null);
 			y += YStep;
@@ -3049,6 +3054,7 @@ class MultiBodyVehicle : public VehicleInput
 		const float WheelMass = GetFloat(40.0f, mEditBox_WheelMass);
 		const float WheelFrontFriction = GetFloat(1.0f, mEditBox_WheelFrontFriction);
 //		const float WheelRearFriction = GetFloat(1.0f, mEditBox_WheelRearFriction);
+		const float WheelContactStiffness = GetFloat(0.0f, mEditBox_WheelContactStiffness);
 
 		const float SuspStiffness = GetFloat(40000.0f, mEditBox_SuspStiffness);
 		const float SuspDamping = GetFloat(1000.0f, mEditBox_SuspDamping);
@@ -3066,13 +3072,20 @@ class MultiBodyVehicle : public VehicleInput
 		const float ChassisFriction = GetFloat(1.0f, mEditBox_ChassisFriction);
 
 		const float Restitution = 0.0f;
-		//const float RestitutionWheels = -20000.0f;	// compliant contacts
-		const float RestitutionWheels = 0.0f;
 		const PINT_MATERIAL_CREATE ChassisMaterial(ChassisFriction, ChassisFriction, Restitution);
 		const PINT_MATERIAL_CREATE UserMaterial(Friction, Friction, Restitution);
 //		const PINT_MATERIAL_CREATE LowFrictionMaterial(0.2f, 0.2f, Restitution);
-		const PINT_MATERIAL_CREATE WheelFrontMaterial(WheelFrontFriction, WheelFrontFriction, RestitutionWheels);
-//		const PINT_MATERIAL_CREATE WheelRearMaterial(WheelRearFriction, WheelRearFriction, RestitutionWheels);
+
+		const float RestitutionWheels = 0.0f;
+		PINT_MATERIAL_CREATE WheelFrontMaterial(WheelFrontFriction, WheelFrontFriction, RestitutionWheels);
+//		PINT_MATERIAL_CREATE WheelRearMaterial(WheelRearFriction, WheelRearFriction, RestitutionWheels);
+
+		// For soft contacts
+		if(WheelContactStiffness!=0.0f)	// 0 for regular rigid contacts
+		{
+			WheelFrontMaterial.mStiffness = WheelContactStiffness;
+			//WheelRearMaterial.mStiffness = WheelContactStiffness;
+		}
 
 		const float AutoSpeed = GetFloat(0.0f, mEditBox_Speed);
 		const float MassInertiaCoeff = GetFloat(-1.0f, mEditBox_InertiaCoeff);
