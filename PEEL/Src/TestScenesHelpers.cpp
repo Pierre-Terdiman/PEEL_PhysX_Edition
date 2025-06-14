@@ -87,7 +87,31 @@ void CreateSingleTriangleMesh(SurfaceManager& test, float scale, Triangle* tri, 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool CreateBoxStack(Pint& pint, const PintCaps& caps, const udword nb_stacks, udword nb_base_boxes, const Point* offset, bool use_convexes)
+// ### we could share the renderer between plugins
+static void CreateMeshBox(Pint& pint, PINT_MESH_CREATE2& mesh_create, const Point& box_min, const Point& box_max)
+{
+	AABB Box;
+	Box.SetMinMax(box_min, box_max);
+
+	Point Pts[8];
+	Box.ComputePoints(Pts);
+
+	const udword* Indices = Box.GetTriangles();
+
+	IndexedSurface IS;
+	IS.Init(12, 8, Pts, reinterpret_cast<const IndexedTriangle*>(Indices));
+
+	PINT_MESH_DATA_CREATE MeshDataDesc;
+	MeshDataDesc.SetSurfaceData(IS.GetSurfaceInterface());
+	MeshDataDesc.mDynamic = true;
+
+	mesh_create.mTriangleMesh	= pint.CreateMeshObject(MeshDataDesc);
+	mesh_create.mRenderer		= CreateMeshRenderer(MeshDataDesc.GetSurface());
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+bool CreateBoxStack(Pint& pint, const PintCaps& caps, const udword nb_stacks, udword nb_base_boxes, const Point* offset, bool use_convexes, bool use_meshes)
 {
 	if(!caps.mSupportRigidBodySimulation)
 		return false;
@@ -96,9 +120,20 @@ bool CreateBoxStack(Pint& pint, const PintCaps& caps, const udword nb_stacks, ud
 
 	PINT_BOX_CREATE BoxDesc;
 	PINT_CONVEX_CREATE ConvexDesc;
+	PINT_MESH_CREATE2 MeshDesc;
 
-	if(use_convexes)
+	if(use_meshes)
 	{
+		if(!caps.mSupportDynamicMeshes)
+			return false;
+
+		CreateMeshBox(pint, MeshDesc, Point(-BoxExtent, -BoxExtent, -BoxExtent), Point(BoxExtent, BoxExtent, BoxExtent));
+	}
+	else if(use_convexes)
+	{
+		if(!caps.mSupportConvexes)
+			return false;
+
 		AABB Bounds;
 		Bounds.SetCenterExtents(Point(0.0f, 0.0f, 0.0f), Point(BoxExtent, BoxExtent, BoxExtent));
 		Point Pts[8];
@@ -115,7 +150,9 @@ bool CreateBoxStack(Pint& pint, const PintCaps& caps, const udword nb_stacks, ud
 	}
 
 	PINT_OBJECT_CREATE ObjectDesc;
-	if(use_convexes)
+	if(use_meshes)
+		ObjectDesc.SetShape(&MeshDesc);
+	else if(use_convexes)
 		ObjectDesc.SetShape(&ConvexDesc);
 	else
 		ObjectDesc.SetShape(&BoxDesc);
@@ -383,6 +420,15 @@ PintActorHandle CreateDynamicBox(Pint& pint, float size_x, float size_y, float s
 	BoxDesc.mRenderer	= CreateBoxRenderer(BoxDesc.mExtents);
 
 	return CreateDynamicObject(pint, &BoxDesc, pos, rot);
+}
+
+PintActorHandle CreateDynamicMeshBox(Pint& pint, float size_x, float size_y, float size_z, const Point& pos, const Quat* rot, const PINT_MATERIAL_CREATE* material)
+{
+	PINT_MESH_CREATE2 MeshDesc;
+	MeshDesc.mMaterial	= material;
+	CreateMeshBox(pint, MeshDesc, Point(-size_x, -size_y, -size_z), Point(size_x, size_y, size_z));
+
+	return CreateDynamicObject(pint, &MeshDesc, pos, rot);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
