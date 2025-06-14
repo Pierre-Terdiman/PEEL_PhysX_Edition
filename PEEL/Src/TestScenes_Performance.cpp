@@ -31,6 +31,7 @@ class BoxStackConfigurable : public TestBase//, public PintContactNotifyCallback
 			EditBoxPtr		mEditBox_NbBaseBoxes;
 			EditBoxPtr		mEditBox_NbStacks;
 			CheckBoxPtr		mCheckBox_UseConvexes;
+			CheckBoxPtr		mCheckBox_UseMeshes;
 	public:
 							BoxStackConfigurable()		{										}
 	virtual					~BoxStackConfigurable()		{										}
@@ -66,6 +67,9 @@ class BoxStackConfigurable : public TestBase//, public PintContactNotifyCallback
 
 			mCheckBox_UseConvexes = helper.CreateCheckBox(UI, 0, 4, y, 200, 20, "Use convexes", &UIElems, false, null, null);
 			y += YStep;
+
+			mCheckBox_UseMeshes = helper.CreateCheckBox(UI, 0, 4, y, 200, 20, "Use dynamic meshes", &UIElems, false, null, null);
+			y += YStep;
 		}
 		{
 			helper.CreateLabel(UI, 4, y+LabelOffsetY, LabelWidth, 20, "Presets:", &UIElems);
@@ -87,6 +91,7 @@ class BoxStackConfigurable : public TestBase//, public PintContactNotifyCallback
 						mTest.mEditBox_NbBaseBoxes->SetEnabled(Enabled);
 						mTest.mEditBox_NbStacks->SetEnabled(Enabled);
 						mTest.mCheckBox_UseConvexes->SetEnabled(Enabled);
+						mTest.mCheckBox_UseMeshes->SetEnabled(Enabled);
 
 						if(!Enabled && SelectedIndex<NB_BOX_STACKS_PRESETS)
 						{
@@ -179,9 +184,10 @@ class BoxStackConfigurable : public TestBase//, public PintContactNotifyCallback
 	virtual	bool			Setup(Pint& pint, const PintCaps& caps)
 	{
 		const bool UseConvexes = mCheckBox_UseConvexes ? mCheckBox_UseConvexes->IsChecked() : false;
+		const bool UseMeshes = mCheckBox_UseMeshes ? mCheckBox_UseMeshes->IsChecked() : false;
 		const udword NbBaseBoxes = GetInt(1, mEditBox_NbBaseBoxes);
 		const udword NbStacks = GetInt(1, mEditBox_NbStacks);
-		return CreateBoxStack(pint, caps, NbStacks, NbBaseBoxes, null, UseConvexes);
+		return CreateBoxStack(pint, caps, NbStacks, NbBaseBoxes, null, UseConvexes, UseMeshes);
 	}
 
 /*	virtual	bool	BufferContacts()		const	{ return false;			}
