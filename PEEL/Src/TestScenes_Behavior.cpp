@@ -819,9 +819,28 @@ gently, without objects exploding. In PhysX, this test shows the effect of the '
 
 START_TEST(InitialPenetration, CATEGORY_BEHAVIOR, gDesc_InitialPenetration)
 
+	CheckBoxPtr		mCheckBox_UseDynamicMesh;
+
 	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
 	{
-		return CreateOverrideTabControl("Initial penetration settings", 20);
+//		return CreateOverrideTabControl("Initial penetration settings", 20);
+
+		const sdword extra_size = 20;
+		const sdword Width = 300;
+		IceWindow* UI = CreateTestWindow(Width, 200 + extra_size);
+
+		Widgets& UIElems = GetUIElements();
+
+		const sdword YStep = 20;
+		sdword y = 0;
+		{
+			mCheckBox_UseDynamicMesh = helper.CreateCheckBox(UI, 0, 4, y, 400, 20, "Use dynamic box meshes", &UIElems, false, null, null);
+			y += YStep;
+		}
+
+		y += YStep;
+
+		return CreateTestTabControlAndResetButton(UI, Width, y, extra_size);
 	}
 
 	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
@@ -836,6 +855,10 @@ START_TEST(InitialPenetration, CATEGORY_BEHAVIOR, gDesc_InitialPenetration)
 		if(!caps.mSupportRigidBodySimulation)
 			return false;
 
+		const bool UseMeshes = mCheckBox_UseDynamicMesh && mCheckBox_UseDynamicMesh->IsChecked();
+		if(UseMeshes && !caps.mSupportDynamicMeshes)
+			return false;
+
 		const float Scale = 1.0f;
 		const float BoxExtent = 3.0f*Scale;
 		const float BoxPosY = BoxExtent;
@@ -845,9 +868,16 @@ START_TEST(InitialPenetration, CATEGORY_BEHAVIOR, gDesc_InitialPenetration)
 		for(udword i=0;i<NbBoxes;i++)
 		{
 			const float Coeff = float(i);
-			H = CreateDynamicBox(pint, BoxExtent, BoxExtent, BoxExtent, Point(0.0f, BoxPosY + Coeff*BoxExtent*1.5f, 0.0f));
-	//		H = CreateDynamicBox(pint, BoxExtent, BoxExtent, BoxExtent, Point(0.0f, BoxPosY + Coeff*BoxExtent*5.0f, 0.0f));
-//			ASSERT(H);
+			if(UseMeshes)
+			{
+				H = CreateDynamicMeshBox(pint, BoxExtent, BoxExtent, BoxExtent, Point(0.0f, BoxPosY + Coeff*BoxExtent*1.5f, 0.0f));
+			}
+			else
+			{
+				H = CreateDynamicBox(pint, BoxExtent, BoxExtent, BoxExtent, Point(0.0f, BoxPosY + Coeff*BoxExtent*1.5f, 0.0f));
+//				H = CreateDynamicBox(pint, BoxExtent, BoxExtent, BoxExtent, Point(0.0f, BoxPosY + Coeff*BoxExtent*5.0f, 0.0f));
+//				ASSERT(H);
+			}
 		}
 
 		{
