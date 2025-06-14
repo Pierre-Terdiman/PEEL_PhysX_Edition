@@ -69,6 +69,9 @@
 #ifndef PHYSX_SUPPORT_GYROSCOPIC_FORCES
 	#error Mandatory define missing: PHYSX_SUPPORT_GYROSCOPIC_FORCES
 #endif
+#ifndef PHYSX_SUPPORT_COMPLIANT_CONTACTS
+	#error Mandatory define missing: PHYSX_SUPPORT_COMPLIANT_CONTACTS
+#endif
 
 // Aggregates
 #ifndef PHYSX_SUPPORT_GPU_AGGREGATES
@@ -93,6 +96,9 @@
 #endif
 #ifndef PHYSX_SUPPORT_CUSTOM_GEOMETRY_PUBLIC_MEMBERS
 	#error Mandatory define missing: PHYSX_SUPPORT_CUSTOM_GEOMETRY_PUBLIC_MEMBERS
+#endif
+#ifndef PHYSX_SUPPORT_CONVEX_CORE_GEOMETRY
+	#error Mandatory define missing: PHYSX_SUPPORT_CONVEX_CORE_GEOMETRY
 #endif
 #ifndef PHYSX_SUPPORT_HEIGHTFIELDS
 	#error Mandatory define missing: PHYSX_SUPPORT_HEIGHTFIELDS

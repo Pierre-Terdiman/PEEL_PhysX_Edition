@@ -1472,7 +1472,13 @@ void SharedPhysX::InitCommon()
 
 	// Create default material
 	{
+#if PHYSX_SUPPORT_COMPLIANT_CONTACTS
+		PINT_MATERIAL_CREATE Desc(mParams.mDefaultStaticFriction, mParams.mDefaultDynamicFriction, mParams.mDefaultRestitution);
+		Desc.mStiffness	= mParams.mDefaultContactStiffness;
+		Desc.mDamping	= mParams.mDefaultContactDamping;
+#else
 		const PINT_MATERIAL_CREATE Desc(mParams.mDefaultStaticFriction, mParams.mDefaultDynamicFriction, mParams.mDefaultRestitution);
+#endif
 		mDefaultMaterial = CreateMaterial(Desc);
 		ASSERT(mDefaultMaterial);
 	}
@@ -3088,15 +3094,38 @@ PxMaterial* SharedPhysX::CreateMaterial(const PINT_MATERIAL_CREATE& desc)
 		PxMaterial* M = mMaterials[i];
 		if(		M->getRestitution()==desc.mRestitution
 			&&	M->getStaticFriction()==desc.mStaticFriction
-			&&	M->getDynamicFriction()==desc.mDynamicFriction)
+			&&	M->getDynamicFriction()==desc.mDynamicFriction
+#if PHYSX_SUPPORT_COMPLIANT_CONTACTS
+			&&	M->getDamping()==desc.mDamping
+			&&	M->getRestitution()==-desc.mStiffness	// ### awkward
+#endif
+			)
 		{
 			return M;
 		}
 	}
 
 	ASSERT(mPhysics);
-	PxMaterial* M = mPhysics->createMaterial(desc.mStaticFriction, desc.mDynamicFriction, desc.mRestitution);
+
+	float RestitutionOfStiffness = desc.mRestitution;
+
+#if PHYSX_SUPPORT_COMPLIANT_CONTACTS
+	const bool IsSoftcontact = desc.mStiffness!=0.0f || desc.mDamping!=0.0f;
+	if(IsSoftcontact)
+		RestitutionOfStiffness = -desc.mStiffness;	// ### awkward
+#endif
+
+	PxMaterial* M = mPhysics->createMaterial(desc.mStaticFriction, desc.mDynamicFriction, RestitutionOfStiffness);
 	ASSERT(M);
+
+#if PHYSX_SUPPORT_COMPLIANT_CONTACTS
+	if(IsSoftcontact)
+	{
+		const float DefaultDamping = M->getDamping();
+		M->setDamping(desc.mDamping);
+	}
+#endif
+
 	M->setFlag(PxMaterialFlag::eDISABLE_STRONG_FRICTION, mParams.mDisableStrongFriction);
 #if PHYSX_SUPPORT_IMPROVED_PATCH_FRICTION
 	M->setFlag(PxMaterialFlag::eIMPROVED_PATCH_FRICTION, mParams.mImprovedPatchFriction);
@@ -3260,6 +3289,27 @@ const CylinderCB* CustomCylinder = static_cast<const CylinderCB*>(geometry.callb
 }
 #endif
 
+#if PHYSX_SUPPORT_CONVEX_CORE_GEOMETRY
+PxShape* SharedPhysX::CreateConvexCoreShape(const PINT_CYLINDER_CREATE* create, PxRigidActor* actor, const PxConvexCoreGeometry& geometry, const PxMaterial& material, const PxTransform& local_pose, PxU16 collision_group)
+{
+	if(!create->CanShare(mParams.mShareShapes))
+		return CreateNonSharedShape(*this, create, actor, geometry, material, local_pose, collision_group, mParams);
+
+	PxShape* S = reinterpret_cast<PxShape*>(mCylinderShapes.FindShape(create->mRadius, create->mHalfHeight, &material, create->mRenderer, ToPR(local_pose), collision_group));
+	if(S)
+	{
+		//printf("Sharing shape\n");
+		actor->attachShape(*S);
+		return S;
+	}
+
+	PxShape* NewShape = CreateSharedShape(*this, mPhysics, create, actor, geometry, material, local_pose, collision_group, mParams);
+
+	mCylinderShapes.RegisterShape(create->mRadius, create->mHalfHeight, NewShape, &material, create->mRenderer, ToPR(local_pose), collision_group);
+	return NewShape;
+}
+#endif
+
 PxShape* SharedPhysX::CreateConvexShape(const PINT_SHAPE_CREATE* create, PxRigidActor* actor, const PxConvexMeshGeometry& geometry, const PxMaterial& material, const PxTransform& local_pose, PxU16 collision_group)
 {
 	if(!create->CanShare(mParams.mShareShapes))
@@ -3383,14 +3433,28 @@ void SharedPhysX::ReportShape(const PINT_SHAPE_CREATE& create, udword index, voi
 	{
 		const PINT_CYLINDER_CREATE& CylinderCreate = static_cast<const PINT_CYLINDER_CREATE&>(create);
 
-//			const PxCustomGeometry CustomGeom = InternalCustomCylinder::getGeometry(CylinderCreate.mHalfHeight * 2.0f, CylinderCreate.mRadius, 1, 0.0f);
-//PxCustomGeometryExt::Callbacks* cb = PxCustomGeometryExt::createCylinderCallbacks(CylinderCreate.mHalfHeight * 2.0f, CylinderCreate.mRadius, 1, 0.0f);
-//const PxCustomGeometry CustomGeom(*cb);
+	#if PHYSX_SUPPORT_CONVEX_CORE_GEOMETRY
+		// For cylinders we now have the choice between "custom geometry" and "convex core geometry"
+		if(mParams.mUseConvexCoreCylinders)
+		{
+			const PxQuat q = PxShortestRotation(PxVec3(1.0f, 0.0f, 0.0f), PxVec3(0.0f, 1.0f, 0.0f));
+			LocalPose.q *= q;
 
-CylinderCB* cb = PX_NEW(CylinderCB)(CylinderCreate.mHalfHeight * 2.0f, CylinderCreate.mRadius, 1, 0.0f);
-const PxCustomGeometry CustomGeom(*cb);
+			const PxConvexCoreGeometry cylinderGeom(PxConvexCore::Cylinder(CylinderCreate.mHalfHeight * 2.0f, CylinderCreate.mRadius), 0.0f);
+			shape = CreateConvexCoreShape(&CylinderCreate, actor, cylinderGeom, *ShapeMaterial, LocalPose, group);
+		}
+		else
+	#endif
+		{
+			//const PxCustomGeometry CustomGeom = InternalCustomCylinder::getGeometry(CylinderCreate.mHalfHeight * 2.0f, CylinderCreate.mRadius, 1, 0.0f);
+			//PxCustomGeometryExt::Callbacks* cb = PxCustomGeometryExt::createCylinderCallbacks(CylinderCreate.mHalfHeight * 2.0f, CylinderCreate.mRadius, 1, 0.0f);
+			//const PxCustomGeometry CustomGeom(*cb);
 
-		shape = CreateCylinderShape(&create, actor, CustomGeom, *ShapeMaterial, LocalPose, group);
+			CylinderCB* cb = PX_NEW(CylinderCB)(CylinderCreate.mHalfHeight * 2.0f, CylinderCreate.mRadius, 1, 0.0f);
+			const PxCustomGeometry CustomGeom(*cb);
+
+			shape = CreateCylinderShape(&create, actor, CustomGeom, *ShapeMaterial, LocalPose, group);
+		}
 	}
 #endif
 	else if(create.mType==PINT_SHAPE_CONVEX)
@@ -3846,7 +3910,11 @@ static inline_ void RenderShape(PintRender& renderer, PxShape* shape, PxGeometry
 			// Special codepath to properly render the ground-box when an actual ground plane was used. Hacky. To revisit.
 			renderer.DrawShape(shapeRenderer, PR(Point(0.0f, gGroundOffset, 0.0f), Quat(Idt)));
 		}
+#if PHYSX_SUPPORT_CONVEX_CORE_GEOMETRY
+		else if(geomType!=PxGeometryType::eCAPSULE && geomType!=PxGeometryType::eCONVEXCORE)
+#else
 		else if(geomType!=PxGeometryType::eCAPSULE)
+#endif
 		{
 //			shapeRenderer->Render(IcePose);
 			renderer.DrawShape(shapeRenderer, IcePose);
@@ -4408,6 +4476,9 @@ enum PhysXGUIElement
 #if PHYSX_SUPPORT_TIGHT_CONVEX_BOUNDS
 	PHYSX_GUI_TIGHT_CONVEX_BOUNDS,
 #endif
+#if PHYSX_SUPPORT_CONVEX_CORE_GEOMETRY
+	PHYSX_GUI_CONVEX_CORE_GEOMETRY,
+#endif
 	PHYSX_GUI_PCM,
 #if PHYSX_SUPPORT_ADAPTIVE_FORCE
 	PHYSX_GUI_ADAPTIVE_FORCE,
@@ -4566,6 +4637,9 @@ EditableParams::EditableParams() :
 #if PHYSX_SUPPORT_TIGHT_CONVEX_BOUNDS
 	mUseTightConvexBounds		(true),
 #endif
+#if PHYSX_SUPPORT_CONVEX_CORE_GEOMETRY
+	mUseConvexCoreCylinders		(false),
+#endif
 	mPCM						(true),
 #ifdef PHYSX_SUPPORT_SSE_FLAG
 	mEnableSSE					(true),
@@ -4608,6 +4682,10 @@ EditableParams::EditableParams() :
 	mDefaultStaticFriction		(0.5f),
 	mDefaultDynamicFriction		(0.5f),
 	mDefaultRestitution			(0.0f),
+#if PHYSX_SUPPORT_COMPLIANT_CONTACTS
+	mDefaultContactStiffness	(0.0f),
+	mDefaultContactDamping		(0.0f),
+#endif
 	mFrictionOffsetThreshold	(0.04f),
 #if PHYSX_SUPPORT_TORSION_FRICTION
 	mTorsionalPatchRadius		(0.0f),
@@ -4866,6 +4944,10 @@ namespace
 #endif
 		//EditBoxPtr	mEditBox_GlobalBoxSize;
 		EditBoxPtr		mEditBox_DefaultRestitution;
+#if PHYSX_SUPPORT_COMPLIANT_CONTACTS
+		EditBoxPtr		mEditBox_DefaultContactStiffness;
+		EditBoxPtr		mEditBox_DefaultContactDamping;
+#endif
 		EditBoxPtr		mEditBox_DefaultStaticFriction;
 		EditBoxPtr		mEditBox_DefaultDynamicFriction;
 		EditBoxPtr		mEditBox_FrictionOffsetThreshold;
@@ -5128,6 +5210,10 @@ void PhysX3::GetOptionsFromGUI(const char* test_name)
 	Common_GetFromEditBox(gParams.mSolverBatchSize, gPhysXUI->mEditBox_SolverBatchSize);
 	Common_GetFromEditBox(gParams.mMaxBiasCoeff, gPhysXUI->mEditBox_MaxBiasCoeff, -FLT_MAX, FLT_MAX);
 	Common_GetFromEditBox(gParams.mDefaultRestitution, gPhysXUI->mEditBox_DefaultRestitution, -FLT_MAX, FLT_MAX);
+#if PHYSX_SUPPORT_COMPLIANT_CONTACTS
+	Common_GetFromEditBox(gParams.mDefaultContactStiffness, gPhysXUI->mEditBox_DefaultContactStiffness, -FLT_MAX, FLT_MAX);
+	Common_GetFromEditBox(gParams.mDefaultContactDamping, gPhysXUI->mEditBox_DefaultContactDamping, -FLT_MAX, FLT_MAX);
+#endif
 	Common_GetFromEditBox(gParams.mDefaultStaticFriction, gPhysXUI->mEditBox_DefaultStaticFriction, 0.0f, FLT_MAX);
 	Common_GetFromEditBox(gParams.mDefaultDynamicFriction, gPhysXUI->mEditBox_DefaultDynamicFriction, 0.0f, FLT_MAX);
 	Common_GetFromEditBox(gParams.mFrictionOffsetThreshold, gPhysXUI->mEditBox_FrictionOffsetThreshold, 0.0f, FLT_MAX);
@@ -5497,6 +5583,11 @@ static void gCheckBoxCallback(const IceCheckBox& check_box, bool checked, void* 
 #if PHYSX_SUPPORT_TIGHT_CONVEX_BOUNDS
 		case PHYSX_GUI_TIGHT_CONVEX_BOUNDS:
 			gParams.mUseTightConvexBounds = checked;
+			break;
+#endif
+#if PHYSX_SUPPORT_CONVEX_CORE_GEOMETRY
+		case PHYSX_GUI_CONVEX_CORE_GEOMETRY:
+			gParams.mUseConvexCoreCylinders = checked;
 			break;
 #endif
 		case PHYSX_GUI_PCM:
@@ -5879,6 +5970,10 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 			helper.CreateCheckBox(TabWindow, PHYSX_GUI_TIGHT_CONVEX_BOUNDS, 4, y, CheckBoxWidth, 20, "Tight convex bounds", gPhysXUI->mPhysXGUI, gParams.mUseTightConvexBounds, gCheckBoxCallback);
 			y += YStepCB;
 #endif
+#if PHYSX_SUPPORT_CONVEX_CORE_GEOMETRY
+			helper.CreateCheckBox(TabWindow, PHYSX_GUI_CONVEX_CORE_GEOMETRY, 4, y, CheckBoxWidth, 20, "Use convex core cylinders", gPhysXUI->mPhysXGUI, gParams.mUseConvexCoreCylinders, gCheckBoxCallback);
+			y += YStepCB;
+#endif
 			helper.CreateCheckBox(TabWindow, PHYSX_GUI_PCM, 4, y, CheckBoxWidth, 20, "Enable PCM", gPhysXUI->mPhysXGUI, gParams.mPCM, gCheckBoxCallback);
 			y += YStepCB;
 
@@ -6072,7 +6167,11 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 				y += YStepCB;
 
 				gPhysXUI->mEditBox_DefaultRestitution = CreateEditBox(helper, TabWindow, xf2, y, "Default restitution:", helper.Convert(gParams.mDefaultRestitution), EDITBOX_FLOAT, LabelWidth2, EditBoxX2);
-				gPhysXUI->mEditBox_DefaultRestitution->AddToolTip("Coeff of elasticity/restitution between 0 and 1. Use negative value for compliant contacts.");
+				//gPhysXUI->mEditBox_DefaultRestitution->AddToolTip("Coeff of elasticity/restitution between 0 and 1. Use negative value for compliant contacts.");
+#if PHYSX_SUPPORT_COMPLIANT_CONTACTS
+				gPhysXUI->mEditBox_DefaultContactStiffness = CreateEditBox(helper, TabWindow, xf2, y, "Default contact stiffness:", helper.Convert(gParams.mDefaultContactStiffness), EDITBOX_FLOAT, LabelWidth2, EditBoxX2);
+				gPhysXUI->mEditBox_DefaultContactDamping = CreateEditBox(helper, TabWindow, xf2, y, "Default contact damping:", helper.Convert(gParams.mDefaultContactDamping), EDITBOX_FLOAT, LabelWidth2, EditBoxX2);
+#endif
 				gPhysXUI->mEditBox_DefaultStaticFriction = CreateEditBox(helper, TabWindow, xf2, y, "Default static friction:", helper.Convert(gParams.mDefaultStaticFriction), EDITBOX_FLOAT_POSITIVE, LabelWidth2, EditBoxX2);
 				gPhysXUI->mEditBox_DefaultDynamicFriction = CreateEditBox(helper, TabWindow, xf2, y, "Default dynamic friction:", helper.Convert(gParams.mDefaultDynamicFriction), EDITBOX_FLOAT_POSITIVE, LabelWidth2, EditBoxX2);
 				gPhysXUI->mEditBox_FrictionOffsetThreshold = CreateEditBox(helper, TabWindow, xf2, y, "Friction offset threshold:", helper.Convert(gParams.mFrictionOffsetThreshold), EDITBOX_FLOAT_POSITIVE, LabelWidth2, EditBoxX2);

@@ -225,6 +225,9 @@
 #if PHYSX_SUPPORT_TIGHT_CONVEX_BOUNDS
 		bool							mUseTightConvexBounds;
 #endif
+#if PHYSX_SUPPORT_CONVEX_CORE_GEOMETRY
+		bool							mUseConvexCoreCylinders;
+#endif
 		bool							mPCM;
 #ifdef PHYSX_SUPPORT_SSE_FLAG
 		bool							mEnableSSE;
@@ -272,6 +275,10 @@
 		float							mDefaultStaticFriction;
 		float							mDefaultDynamicFriction;
 		float							mDefaultRestitution;
+#if PHYSX_SUPPORT_COMPLIANT_CONTACTS
+		float							mDefaultContactStiffness;
+		float							mDefaultContactDamping;
+#endif
 		float							mFrictionOffsetThreshold;
 #if PHYSX_SUPPORT_TORSION_FRICTION
 		float							mTorsionalPatchRadius;
@@ -823,6 +830,9 @@
 #if PHYSX_SUPPORT_CUSTOM_GEOMETRY
 				PxShape*							CreateCylinderShape		(const PINT_SHAPE_CREATE* create, PxRigidActor* actor, const PxCustomGeometry& geometry,		const PxMaterial& material, const PxTransform& local_pose, PxU16 collision_group);
 #endif
+#if PHYSX_SUPPORT_CONVEX_CORE_GEOMETRY
+				PxShape*							CreateConvexCoreShape	(const PINT_CYLINDER_CREATE* create, PxRigidActor* actor, const PxConvexCoreGeometry& geometry,	const PxMaterial& material, const PxTransform& local_pose, PxU16 collision_group);
+#endif
 				PxShape*							CreateConvexShape		(const PINT_SHAPE_CREATE* create, PxRigidActor* actor, const PxConvexMeshGeometry& geometry,	const PxMaterial& material, const PxTransform& local_pose, PxU16 collision_group);
 				PxShape*							CreateMeshShape			(const PINT_SHAPE_CREATE* create, PxRigidActor* actor, const PxTriangleMeshGeometry& geometry,	const PxMaterial& material, const PxTransform& local_pose, PxU16 collision_group);
 #if PHYSX_SUPPORT_HEIGHTFIELDS
@@ -912,10 +922,11 @@
 		{
 			shape.setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
 			shape.setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, false);
+			//shape.setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, params.mSQFlag);
 		}
 		else
 		{
-//			shape.setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
+			//shape.setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
 			shape.setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, params.mSQFlag);
 		}
 
