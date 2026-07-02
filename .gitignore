@@ -21,6 +21,9 @@
 # Compiled Dynamic libraries
 *.so
 *.dylib
+# NOTE: this repo intentionally commits DLL (and EXE) binaries so users can download
+# the repo and run precompiled plugins immediately, without building everything.
+# So *.dll is deliberately NOT ignored.
 # *.dll
 
 # Compiled Static libraries
@@ -30,7 +33,7 @@
 #*.lib
 
 # Executables
-# *.exe
+# *.exe   -- intentionally NOT ignored; see the DLL note above (precompiled binaries are committed)
 *.out
 *.app
 
@@ -48,6 +51,7 @@
 \.vs
 \__tmp__
 *.bak
+*res
 
 
 
