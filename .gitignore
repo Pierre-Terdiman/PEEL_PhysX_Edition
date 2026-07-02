@@ -10,6 +10,10 @@
 *.ipdb
 *.ilk
 
+# ...but keep 3D mesh assets (Wavefront .obj), which all live under PEEL/Media/.
+# The blanket *.obj rule above still ignores compiler .obj files in the build dirs.
+!PEEL/Media/**/*.obj
+
 # Precompiled Headers
 *.gch
 *.pch
