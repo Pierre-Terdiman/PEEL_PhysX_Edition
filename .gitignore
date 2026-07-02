@@ -51,7 +51,8 @@
 \.vs
 \__tmp__
 *.bak
-*res
+*.res
+
 
 
 
