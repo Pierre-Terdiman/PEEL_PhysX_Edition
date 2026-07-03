@@ -63,6 +63,8 @@ static float	gAngularDamping	= 0.05f;	// PEEL default
 static bool		gShareMeshData	= true;		// cook a triangle mesh once and share the BVH across bodies
 static float	gDefaultFriction	= 0.5f;		// PEEL default; used when a shape carries no material
 static float	gDefaultRestitution	= 0.0f;		// PEEL default
+static float	gContactHertz		= 30.0f;	// Box3d default; contact "spring" frequency (higher = stiffer contacts)
+static float	gContactDampingRatio	= 10.0f;	// Box3d default; contact damping (higher = more energy absorbed at contacts)
 
 // --- Conversions between PEEL/Ice math and Box3d math ---
 // Point <-> b3Vec3 : both are 3 contiguous floats.
@@ -167,6 +169,22 @@ Box3d_SceneAPI::Box3d_SceneAPI(Pint& pint) : Pint_Scene(pint)
 
 Box3d_SceneAPI::~Box3d_SceneAPI()
 {
+}
+
+// PEEL builds "deferred" actors with mAddToWorld==false -- CreateObject creates them disabled
+// (BodyDef.isEnabled=false). AddActors enables them so they start simulating, the Box3d equivalent of
+// Jolt's BodyInterface::AddBody. Enabling a dynamic body also brings it into the awake set.
+bool Box3d_SceneAPI::AddActors(udword nb_actors, const PintActorHandle* actors)
+{
+	if(!actors)
+		return false;
+	while(nb_actors--)
+	{
+		const Box3dActor* Actor = reinterpret_cast<const Box3dActor*>(*actors++);
+		if(Actor && !b3Body_IsEnabled(Actor->mBody))
+			b3Body_Enable(Actor->mBody);
+	}
+	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -339,6 +357,8 @@ void Box3dPint::Init(const PINT_WORLD_CREATE& desc)
 	WorldDef.workerCount	= gNbThreads ? gNbThreads : (HardwareThreads>1 ? HardwareThreads-1 : 1);
 	WorldDef.enableSleep		= gAllowSleeping;
 	WorldDef.enableContinuous	= gEnableCCD;	// continuous collision (CCD) toggle
+	WorldDef.contactHertz		= gContactHertz;		// contact softness: higher = stiffer, less energy absorbed
+	WorldDef.contactDampingRatio	= gContactDampingRatio;	// overdamped (10) contacts can eat marginal tipping energy
 
 	mTimestep = desc.mTimestep>0.0f ? desc.mTimestep : (1.0f/60.0f);	// for the CCD bullet heuristic
 
@@ -842,6 +862,12 @@ PintActorHandle Box3dPint::CreateObject(const PINT_OBJECT_CREATE& desc)
 			if(HasCOMOffset)
 				MassData.center = b3Vec3{ MassData.center.x + desc.mCOMLocalOffset.x, MassData.center.y + desc.mCOMLocalOffset.y, MassData.center.z + desc.mCOMLocalOffset.z };
 			b3Body_SetMassData(Body, MassData);
+
+			// b3Body_SetMassData updates invInertiaLocal but NOT invInertiaWorld (the solver refreshes the
+			// latter each step). Re-apply the transform so invInertiaWorld is recomputed from the rescaled
+			// inertia NOW -- otherwise an impulse applied before the first step (e.g. DoubleDominoEffect's
+			// setup-time AddWorldImpulseAtWorldPos) uses the stale pre-rescale inertia and spins the body wildly.
+			b3Body_SetTransform(Body, ToB3Vec3(desc.mPosition), ToB3Quat(desc.mRotation));
 		}
 	}
 
@@ -944,6 +970,20 @@ static void Box3d_MakeConsistentAxisFrames(b3BodyId bodyA, const Point& pivotA, 
 	frameA.q = b3InvMulQuat(qA, qW);	// qA^-1 * qW: the world frame expressed in body A
 	frameB.p = ToB3Vec3(pivotB);
 	frameB.q = b3InvMulQuat(qB, qW);	// qB^-1 * qW: the world frame expressed in body B
+}
+
+// Given frame A (already built from PEEL's local data) and the two bodies' rest orientations, build frame
+// B so that worldFrameB == worldFrameA at rest -- i.e. the joint's reference (its limit/cone zero) is
+// identity regardless of the bodies' initial relative orientation. Works for any joint type (it just
+// matches B's world frame to A's), and keeps A's PEEL-authored frame (e.g. a spherical cone axis).
+static b3Transform Box3d_MatchFrameB(b3BodyId bodyA, const b3Transform& frameA, b3BodyId bodyB, const Point& pivotB)
+{
+	const b3Quat qA = b3Body_GetRotation(bodyA);
+	const b3Quat qB = b3Body_GetRotation(bodyB);
+	b3Transform frameB;
+	frameB.p = ToB3Vec3(pivotB);
+	frameB.q = b3InvMulQuat(qB, b3MulQuat(qA, frameA.q));	// qB^-1 * (qA * frameA.q)
+	return frameB;
 }
 
 static b3Transform Box3d_MakePRFrame(const PR& pr)
@@ -1059,8 +1099,10 @@ PintJointHandle Box3dPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 			d.base.bodyIdA			= BodyA;
 			d.base.bodyIdB			= BodyB;
 			d.base.collideConnected	= false;
+			// Keep A's PEEL-authored cone frame; match B so the cone reference is identity at rest even when
+			// the bodies are misoriented (same reasoning as the hinge fix).
 			d.base.localFrameA		= Box3d_MakePRFrame(jc.mLocalPivot0);
-			d.base.localFrameB		= Box3d_MakePRFrame(jc.mLocalPivot1);
+			d.base.localFrameB		= Box3d_MatchFrameB(BodyA, d.base.localFrameA, BodyB, jc.mLocalPivot1.mPos);
 			if(jc.mLimits.mMinValue>0.0f && jc.mLimits.mMaxValue>0.0f)	// PEEL: cone limit enabled when both>0
 			{
 				d.enableConeLimit	= true;
@@ -1104,9 +1146,10 @@ PintJointHandle Box3dPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 			d.base.bodyIdA			= BodyA;
 			d.base.bodyIdB			= BodyB;
 			d.base.collideConnected	= false;
-			// The PR's X column is the hinge axis (matches the Jolt plugin); align it to frame Z.
-			d.base.localFrameA		= Box3d_MakeAxisFrame(jc.mLocalPivot0.mPos, jc.mLocalPivot0.mRot.Rotate(Point(1.0f,0.0f,0.0f)), AxisZ);
-			d.base.localFrameB		= Box3d_MakeAxisFrame(jc.mLocalPivot1.mPos, jc.mLocalPivot1.mRot.Rotate(Point(1.0f,0.0f,0.0f)), AxisZ);
+			// The PR's X column is the hinge axis (matches the Jolt plugin); align it to frame Z. Build both
+			// frames from the common world axis so misoriented bodies get a correct limit reference (see hinge).
+			Box3d_MakeConsistentAxisFrames(BodyA, jc.mLocalPivot0.mPos, jc.mLocalPivot0.mRot.Rotate(Point(1.0f,0.0f,0.0f)),
+										   BodyB, jc.mLocalPivot1.mPos, AxisZ, d.base.localFrameA, d.base.localFrameB);
 			MotorCap = Box3d_RevoluteMotorCap(BodyA, ToB3Vec3(jc.mLocalPivot0.mPos), ToB3Vec3(jc.mLocalPivot0.mRot.Rotate(Point(1.0f,0.0f,0.0f))),
 											  BodyB, ToB3Vec3(jc.mLocalPivot1.mPos), ToB3Vec3(jc.mLocalPivot1.mRot.Rotate(Point(1.0f,0.0f,0.0f))));
 			if(jc.mLimits.mMinValue<=jc.mLimits.mMaxValue)
@@ -1901,6 +1944,8 @@ static IceEditBox* gEditBox_PenetrationSlop = null;
 static IceEditBox* gEditBox_Baumgarte = null;
 static IceEditBox* gEditBox_Friction = null;
 static IceEditBox* gEditBox_Restitution = null;
+static IceEditBox* gEditBox_ContactHertz = null;
+static IceEditBox* gEditBox_ContactDampingRatio = null;
 
 enum Box3dGUIElement
 {
@@ -1976,6 +2021,8 @@ static void gBox3d_GetOptionsFromGUI(const char* test_name)
 	Common_GetFromEditBox(gAngularDamping, gEditBox_AngularDamping, 0.0f, MAX_FLOAT);
 	Common_GetFromEditBox(gDefaultFriction, gEditBox_Friction, 0.0f, MAX_FLOAT);
 	Common_GetFromEditBox(gDefaultRestitution, gEditBox_Restitution, 0.0f, MAX_FLOAT);
+	Common_GetFromEditBox(gContactHertz, gEditBox_ContactHertz, 0.0f, MAX_FLOAT);
+	Common_GetFromEditBox(gContactDampingRatio, gEditBox_ContactDampingRatio, 0.0f, MAX_FLOAT);
 
 	if(test_name)
 		GetPintPlugin()->ApplyTestUIParams(test_name);
@@ -2066,6 +2113,8 @@ IceWindow* Box3d_InitGUI(IceWidget* parent, PintGUIHelper& helper)
 	gEditBox_AngularDamping = CreateEditBox(helper, Main, y, "Angular damping:", helper.Convert(gAngularDamping), EDITBOX_FLOAT_POSITIVE);
 	gEditBox_Friction = CreateEditBox(helper, Main, y, "Default friction:", helper.Convert(gDefaultFriction), EDITBOX_FLOAT_POSITIVE);
 	gEditBox_Restitution = CreateEditBox(helper, Main, y, "Default restitution:", helper.Convert(gDefaultRestitution), EDITBOX_FLOAT_POSITIVE);
+	gEditBox_ContactHertz = CreateEditBox(helper, Main, y, "Contact hertz:", helper.Convert(gContactHertz), EDITBOX_FLOAT_POSITIVE);
+	gEditBox_ContactDampingRatio = CreateEditBox(helper, Main, y, "Contact damping ratio:", helper.Convert(gContactDampingRatio), EDITBOX_FLOAT_POSITIVE);
 
 	return Main;
 }
@@ -2090,6 +2139,8 @@ void Box3d_CloseGUI()
 	gEditBox_NbVelIter = null;
 	gEditBox_LinearDamping = null;
 	gEditBox_AngularDamping = null;
+	gEditBox_ContactHertz = null;
+	gEditBox_ContactDampingRatio = null;
 	gEditBox_SpeculativeContactDistance = null;
 	gEditBox_PenetrationSlop = null;
 	gEditBox_Baumgarte = null;

@@ -51,6 +51,8 @@
 		public:
 								Box3d_SceneAPI(Pint& pint);
 		virtual					~Box3d_SceneAPI();
+
+		virtual	bool			AddActors(udword nb_actors, const PintActorHandle* actors)	override;
 	};
 
 	class Box3d_ActorAPI : public Pint_Actor
