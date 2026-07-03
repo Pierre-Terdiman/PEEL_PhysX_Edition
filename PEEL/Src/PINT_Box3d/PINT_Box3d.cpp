@@ -927,6 +927,25 @@ static b3Transform Box3d_MakeAxisFrame(const Point& pivot, const Point& axis, co
 	return Frame;
 }
 
+// Build both revolute frames from a COMMON world axis so the joint's reference orientation is identity at
+// the rest pose, whatever the bodies' initial relative orientation. Box3d_MakeAxisFrame derives each
+// frame's perpendicular basis from that body's LOCAL axis independently; when the bodies are misoriented
+// (e.g. ragdoll bones) those bases diverge, giving a wrong limit reference -> a huge violation at t=0 ->
+// explosion. This mirrors PhysX's PxSetJointGlobalFrame: one world frame, expressed in each body's space.
+static void Box3d_MakeConsistentAxisFrames(b3BodyId bodyA, const Point& pivotA, const Point& axisA,
+										   b3BodyId bodyB, const Point& pivotB,
+										   const b3Vec3& canonical, b3Transform& frameA, b3Transform& frameB)
+{
+	const b3Quat qA = b3Body_GetRotation(bodyA);
+	const b3Quat qB = b3Body_GetRotation(bodyB);
+	const b3Vec3 worldAxis = b3Normalize(b3RotateVector(qA, ToB3Vec3(axisA)));	// common hinge axis, in world
+	const b3Quat qW = b3ComputeQuatBetweenUnitVectors(canonical, worldAxis);		// one world frame orientation
+	frameA.p = ToB3Vec3(pivotA);
+	frameA.q = b3InvMulQuat(qA, qW);	// qA^-1 * qW: the world frame expressed in body A
+	frameB.p = ToB3Vec3(pivotB);
+	frameB.q = b3InvMulQuat(qB, qW);	// qB^-1 * qW: the world frame expressed in body B
+}
+
 static b3Transform Box3d_MakePRFrame(const PR& pr)
 {
 	b3Transform Frame;
@@ -943,6 +962,71 @@ static inline b3Quat Box3d_QuatIdentity()
 	return q;
 }
 
+// Box3d solves the velocity motor against contacts iteratively; an unbounded motor (the old 1e6)
+// can overpower a contact and drive the body through an obstacle -- PhysX/Jolt keep the contact
+// dominant. We cap the motor to a bounded acceleration scaled by the driven body's inertia
+// (revolute/spherical) or mass (prismatic), so it still spins up quickly but a solid contact stalls it.
+static const float BOX3D_MOTOR_ANG_ACCEL = 250.0f;	// rad/s^2
+static const float BOX3D_MOTOR_LIN_ACCEL = 250.0f;	// m/s^2
+
+static float Box3d_MeanInertia(b3BodyId body)	// 0 for non-dynamic bodies (treated as immovable)
+{
+	if(b3Body_GetType(body)!=b3_dynamicBody)
+		return 0.0f;
+	const b3Matrix3 I = b3Body_GetLocalRotationalInertia(body);
+	return (I.cx.x + I.cy.y + I.cz.z) / 3.0f;	// rotation-invariant scalar inertia
+}
+
+static float Box3d_ReducePositive(float a, float b)	// reduced (harmonic) value; 0 == immovable (infinite)
+{
+	if(a>0.0f && b>0.0f)	return (a*b)/(a+b);
+	if(a>0.0f)				return a;
+	if(b>0.0f)				return b;
+	return 1.0f;	// both immovable: harmless fallback
+}
+
+// Bounded motor cap: a torque for rotational joints, a force for prismatic.
+static float Box3d_MotorCap(PintJoint type, b3BodyId a, b3BodyId b)
+{
+	if(type==PINT_JOINT_PRISMATIC)
+		return BOX3D_MOTOR_LIN_ACCEL * Box3d_ReducePositive(b3Body_GetMass(a), b3Body_GetMass(b));
+	return BOX3D_MOTOR_ANG_ACCEL * Box3d_ReducePositive(Box3d_MeanInertia(a), Box3d_MeanInertia(b));
+}
+
+// Inertia about the hinge axis LINE through the pivot: aT.I_com.a + m.d_perp^2 (parallel-axis theorem).
+// b3Body_GetLocalRotationalInertia is taken about the COM, but a revolute joint pins the pivot, so the
+// motor's effective inertia -- and thus the torque it needs to hold the body against gravity -- must be
+// taken about the pivot. For a beam hinged at one end this is ~4x the COM inertia.
+static float Box3d_HingeAxisInertia(b3BodyId body, const b3Vec3& pivotLocal, const b3Vec3& axisLocal)
+{
+	if(b3Body_GetType(body)!=b3_dynamicBody)
+		return 0.0f;	// static/kinematic: immovable
+	const float len2 = axisLocal.x*axisLocal.x + axisLocal.y*axisLocal.y + axisLocal.z*axisLocal.z;
+	if(len2<1.0e-12f)
+		return 0.0f;
+	const float inv = 1.0f/sqrtf(len2);
+	const b3Vec3 a = { axisLocal.x*inv, axisLocal.y*inv, axisLocal.z*inv };
+	const b3Matrix3 I = b3Body_GetLocalRotationalInertia(body);	// columns cx,cy,cz
+	const b3Vec3 Ia = { I.cx.x*a.x + I.cy.x*a.y + I.cz.x*a.z,
+						I.cx.y*a.x + I.cy.y*a.y + I.cz.y*a.z,
+						I.cx.z*a.x + I.cy.z*a.y + I.cz.z*a.z };
+	const float comInertia = a.x*Ia.x + a.y*Ia.y + a.z*Ia.z;	// aT.I.a (inertia about a parallel axis through COM)
+	const b3Vec3 com = b3Body_GetLocalCenterOfMass(body);
+	const b3Vec3 r = { pivotLocal.x-com.x, pivotLocal.y-com.y, pivotLocal.z-com.z };
+	const float rDotA = r.x*a.x + r.y*a.y + r.z*a.z;
+	float dPerp2 = (r.x*r.x + r.y*r.y + r.z*r.z) - rDotA*rDotA;	// squared perpendicular distance COM->axis
+	if(dPerp2<0.0f)
+		dPerp2 = 0.0f;
+	return comInertia + b3Body_GetMass(body)*dPerp2;
+}
+
+static float Box3d_RevoluteMotorCap(b3BodyId a, const b3Vec3& pivotA, const b3Vec3& axisA,
+									b3BodyId b, const b3Vec3& pivotB, const b3Vec3& axisB)
+{
+	return BOX3D_MOTOR_ANG_ACCEL * Box3d_ReducePositive(Box3d_HingeAxisInertia(a, pivotA, axisA),
+														Box3d_HingeAxisInertia(b, pivotB, axisB));
+}
+
 PintJointHandle Box3dPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 {
 	if(!mHasWorld)
@@ -953,6 +1037,14 @@ PintJointHandle Box3dPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 	const b3BodyId BodyA = A0 ? A0->mBody : mWorldBody;	// null actor -> the static world anchor
 	const b3BodyId BodyB = A1 ? A1->mBody : mWorldBody;
 
+	// Generic motor bound (mean COM inertia for rotational joints, mass for prismatic). Revolute joints
+	// refine this below to the inertia about the hinge axis THROUGH THE PIVOT (parallel-axis term): that's
+	// the effective inertia a cantilever needs to hold itself against gravity, ~4x the COM inertia when
+	// hinged at one end. This fixes both HingeJointMotorsZeroVelocity (holds) and HingeJointMotorVsObstacle
+	// (still yields to the contact, since a box hinged near its COM keeps a small parallel-axis term).
+	float MotorCap = Box3d_MotorCap(desc.mType, BodyA, BodyB);
+	
+	
 	const b3Vec3 AxisZ = { 0.0f, 0.0f, 1.0f };	// revolute axis
 	const b3Vec3 AxisX = { 1.0f, 0.0f, 0.0f };	// prismatic axis
 
@@ -985,8 +1077,10 @@ PintJointHandle Box3dPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 			d.base.bodyIdA			= BodyA;
 			d.base.bodyIdB			= BodyB;
 			d.base.collideConnected	= false;
-			d.base.localFrameA		= Box3d_MakeAxisFrame(jc.mLocalPivot0, jc.mLocalAxis0, AxisZ);
-			d.base.localFrameB		= Box3d_MakeAxisFrame(jc.mLocalPivot1, jc.mLocalAxis1, AxisZ);
+			// Common-world-axis frames so misoriented bodies (ragdolls) get a correct limit reference.
+			Box3d_MakeConsistentAxisFrames(BodyA, jc.mLocalPivot0, jc.mLocalAxis0, BodyB, jc.mLocalPivot1, AxisZ, d.base.localFrameA, d.base.localFrameB);
+			MotorCap = Box3d_RevoluteMotorCap(BodyA, ToB3Vec3(jc.mLocalPivot0), ToB3Vec3(jc.mLocalAxis0),
+											  BodyB, ToB3Vec3(jc.mLocalPivot1), ToB3Vec3(jc.mLocalAxis1));
 			if(jc.mLimits.mMinValue<=jc.mLimits.mMaxValue)	// PEEL: hinge limit enabled when min<=max
 			{
 				d.enableLimit	= true;
@@ -997,7 +1091,7 @@ PintJointHandle Box3dPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 			{
 				d.enableMotor		= true;
 				d.motorSpeed		= jc.mDriveVelocity;
-				d.maxMotorTorque	= 1.0e6f;
+				d.maxMotorTorque	= MotorCap;
 			}
 			Jid = b3CreateRevoluteJoint(mWorld, &d);
 		}
@@ -1013,6 +1107,8 @@ PintJointHandle Box3dPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 			// The PR's X column is the hinge axis (matches the Jolt plugin); align it to frame Z.
 			d.base.localFrameA		= Box3d_MakeAxisFrame(jc.mLocalPivot0.mPos, jc.mLocalPivot0.mRot.Rotate(Point(1.0f,0.0f,0.0f)), AxisZ);
 			d.base.localFrameB		= Box3d_MakeAxisFrame(jc.mLocalPivot1.mPos, jc.mLocalPivot1.mRot.Rotate(Point(1.0f,0.0f,0.0f)), AxisZ);
+			MotorCap = Box3d_RevoluteMotorCap(BodyA, ToB3Vec3(jc.mLocalPivot0.mPos), ToB3Vec3(jc.mLocalPivot0.mRot.Rotate(Point(1.0f,0.0f,0.0f))),
+											  BodyB, ToB3Vec3(jc.mLocalPivot1.mPos), ToB3Vec3(jc.mLocalPivot1.mRot.Rotate(Point(1.0f,0.0f,0.0f))));
 			if(jc.mLimits.mMinValue<=jc.mLimits.mMaxValue)
 			{
 				d.enableLimit	= true;
@@ -1023,7 +1119,7 @@ PintJointHandle Box3dPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 			{
 				d.enableMotor		= true;
 				d.motorSpeed		= jc.mDriveVelocity;
-				d.maxMotorTorque	= 1.0e6f;
+				d.maxMotorTorque	= MotorCap;
 			}
 			Jid = b3CreateRevoluteJoint(mWorld, &d);
 		}
@@ -1122,6 +1218,7 @@ PintJointHandle Box3dPint::CreateJoint(const PINT_JOINT_CREATE& desc)
 	Box3dJoint* Joint	= new Box3dJoint;
 	Joint->mJoint		= Jid;
 	Joint->mType		= desc.mType;
+	Joint->mMotorCap	= MotorCap;
 	mJoints.push_back(Joint);
 	return reinterpret_cast<PintJointHandle>(Joint);
 }
@@ -1707,15 +1804,15 @@ bool Box3dPint::SetDriveVelocity(PintJointHandle handle, const Point& linear, co
 		case PINT_JOINT_HINGE:
 		case PINT_JOINT_HINGE2:
 			b3RevoluteJoint_SetMotorSpeed(Joint->mJoint, angular.x);
-			b3RevoluteJoint_SetMaxMotorTorque(Joint->mJoint, 1.0e6f);
+			b3RevoluteJoint_SetMaxMotorTorque(Joint->mJoint, Joint->mMotorCap);
 			break;
 		case PINT_JOINT_PRISMATIC:
 			b3PrismaticJoint_SetMotorSpeed(Joint->mJoint, linear.x);
-			b3PrismaticJoint_SetMaxMotorForce(Joint->mJoint, 1.0e6f);
+			b3PrismaticJoint_SetMaxMotorForce(Joint->mJoint, Joint->mMotorCap);
 			break;
 		case PINT_JOINT_SPHERICAL:
 			b3SphericalJoint_SetMotorVelocity(Joint->mJoint, ToB3Vec3(angular));
-			b3SphericalJoint_SetMaxMotorTorque(Joint->mJoint, 1.0e6f);
+			b3SphericalJoint_SetMaxMotorTorque(Joint->mJoint, Joint->mMotorCap);
 			break;
 		default:
 			return false;

@@ -43,6 +43,7 @@
 	{
 		b3JointId	mJoint;
 		PintJoint	mType;
+		float		mMotorCap;	// max motor torque (revolute/spherical) or force (prismatic); inertia/mass-scaled
 	};
 
 	class Box3d_SceneAPI : public Pint_Scene
