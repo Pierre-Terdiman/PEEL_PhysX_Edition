@@ -19,6 +19,8 @@ This "PhysX edition" currently mostly includes plugins for recent PhysX versions
 - PhysX 5.5.0
 - PhysX 5.6.0
 - Jolt 5.2.0
+- Jolt 5.5.0
+- Box 3D 0.1.0
 - MuJoCo 3.3.2
 - Opcode 2.1 (binaries only)
 
