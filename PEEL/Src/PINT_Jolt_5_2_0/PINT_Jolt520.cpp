@@ -2523,6 +2523,7 @@ static IceWindow* CreateTabWindow(IceWidget* parent, Widgets& owner)
 }
 
 static const sdword YStep = 20;
+static const udword CheckBoxWidth = 200;
 
 static IceCheckBox*	gCheckBox_Override = null;
 static IceCheckBox*	gCheckBox_Generic0 = null;
@@ -2573,10 +2574,39 @@ static bool IsCCDTest(const char* test_name)
 	return strncmp(test_name, "CCDTest_", 8)==0;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+static IceWindow* CreateUI_Dzhanibekov(IceWidget* parent, PintGUIHelper& helper, Widgets& owner, bool enabled)
+{
+	IceWindow* TabWindow = CreateTabWindow(parent, owner);
+
+	sdword y = 4;
+	sdword x = 4;
+
+	struct Override{ static void Gyro(const IceCheckBox& check_box, bool checked, void* user_data)
+	{
+		gCheckBox_Generic0->SetEnabled(checked);
+	}};
+	ASSERT(!gCheckBox_Override);
+	gCheckBox_Override = helper.CreateCheckBox(TabWindow, 0, x, y, 200, 20, "Override main panel settings", &owner, true, Override::Gyro, null);
+	y += YStep;
+
+	ASSERT(!gCheckBox_Generic0);
+	gCheckBox_Generic0 = helper.CreateCheckBox(TabWindow, 0, 4, y, CheckBoxWidth, 20, "Enable gyroscopic forces", &owner, enabled, null, null);
+	y += YStep;
+
+	return TabWindow;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 IceWindow* JoltPlugIn::InitTestGUI(const char* test_name, IceWidget* parent, PintGUIHelper& helper, Widgets& owner)
 {
 	if(IsCCDTest(test_name))
 		return CreateUI_CCD(parent, helper, owner, test_name);
+
+	if(	strcmp(test_name, "Dzhanibekov")==0 || strcmp(test_name, "ThinRods")==0)
+		return CreateUI_Dzhanibekov(parent, helper, owner, true);
 
 	return null;
 }
@@ -2593,9 +2623,26 @@ void JoltPlugIn::ApplyTestUIParams(const char* test_name)
 	if(!ApplySettings)
 		return;
 
+	// TODO: we should eventually expose and define all of these directly in the PINT structures
+
 	if(IsCCDTest(test_name))
 	{
 		gEnableCCD = gCheckBox_Generic0->IsChecked();
+		if(strcmp(test_name, "CCDTest_ThinRods")==0)
+			gGyroscopic = true;
+		return;
+	}
+
+	if(	strcmp(test_name, "Dzhanibekov")==0)
+	{
+		gGyroscopic = gCheckBox_Generic0->IsChecked();
+		gAngularDamping = 0.0f;
+		return;
+	}
+
+	if(strcmp(test_name, "ThinRods")==0)
+	{
+		gGyroscopic = gCheckBox_Generic0->IsChecked();
 		return;
 	}
 }
