@@ -810,8 +810,9 @@ PintActorHandle Box3dPint::CreateObject(const PINT_OBJECT_CREATE& desc)
 	BodyDef.type			= (MeshCheck.mHasMesh || !IsDynamic) ? b3_staticBody : (desc.mKinematic ? b3_kinematicBody : b3_dynamicBody);
 	BodyDef.position		= ToB3Vec3(desc.mPosition);
 	BodyDef.rotation		= ToB3Quat(desc.mRotation);
-	BodyDef.linearVelocity	= ToB3Vec3(desc.mLinearVelocity);
-	BodyDef.angularVelocity	= ToB3Vec3(desc.mAngularVelocity);
+	// PT: Erin says we should do this last, see note below
+//	BodyDef.linearVelocity	= ToB3Vec3(desc.mLinearVelocity);
+//	BodyDef.angularVelocity	= ToB3Vec3(desc.mAngularVelocity);
 	BodyDef.enableSleep		= gAllowSleeping;
 	BodyDef.linearDamping	= gLinearDamping;	// per-body in Box3d (no global damping); static/kinematic ignore it
 	BodyDef.angularDamping	= gAngularDamping;
@@ -911,6 +912,13 @@ PintActorHandle Box3dPint::CreateObject(const PINT_OBJECT_CREATE& desc)
 	}
 
 	mActors.push_back(Actor);
+
+	// PT: Erin says:
+	// "When you create a body with non-zero angular velocity then shift the center of mass (by adding shapes),
+	// this adds some linear velocity. Apparently PhysX and Jolt don't apply this correction. To make the spinning
+	// samples work, set body velocity last."
+	b3Body_SetLinearVelocity(Actor->mBody, ToB3Vec3(desc.mLinearVelocity));
+	b3Body_SetAngularVelocity(Actor->mBody, ToB3Vec3(desc.mAngularVelocity));
 	return reinterpret_cast<PintActorHandle>(Actor);
 }
 
