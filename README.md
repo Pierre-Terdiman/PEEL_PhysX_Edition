@@ -22,6 +22,7 @@ This "PhysX edition" currently mostly includes plugins for recent PhysX versions
 - Jolt 5.5.0
 - Box 3D 0.1.0
 - MuJoCo 3.3.2
+- Bepu2
 - Opcode 2.1 (binaries only)
 
 The older PhysX versions are not included so far. Due to the size limits enforced by Github on binary files, the GPU DLLs have been zipped. Just unzip them locally if you need them. You should still be able to run the precompiled binaries on the CPU.
