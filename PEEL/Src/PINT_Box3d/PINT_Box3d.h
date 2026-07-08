@@ -35,6 +35,13 @@
 		std::vector<Box3dShapeData>		mShapes;
 		std::vector<b3MeshData*>		mMeshes;		// app-owned cooked meshes referenced by this body's mesh shapes
 		std::vector<b3HeightFieldData*>	mHeightfields;	// app-owned cooked heightfields referenced by this body's HF shapes
+		// Kinematic target, applied as velocities via b3Body_SetTargetTransform in Update(). A
+		// teleported kinematic looks stationary to the solver, so objects resting on it can only
+		// be separated by penetration recovery and sink through moving platforms.
+		b3Vec3							mKinematicTargetPos = {};
+		b3Quat							mKinematicTargetRot = {};
+		bool							mKinematicTargetPending = false;
+		bool							mKinematicMoving = false;
 	};
 
 	// b3JointId is a value-type id (not a pointer), so we box it and hand back the pointer
@@ -167,6 +174,7 @@
 		float							mTimestep;	// world timestep, used by the CCD bullet heuristic
 		bool							mHasWorld;
 		std::vector<Box3dActor*>		mActors;
+		std::vector<Box3dActor*>		mKinematicTargets;	// Actors with a pending kinematic target or still moving
 		std::vector<Box3dJoint*>		mJoints;
 		std::vector<b3MeshData*>		mSharedMeshes;	// cooked meshes shared across bodies (gShareMeshData); owned here
 		uint64_t						mGroupMask[32];	// per-group collision mask: bit k set => group collides with group k

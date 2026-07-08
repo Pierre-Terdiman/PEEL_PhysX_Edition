@@ -380,6 +380,7 @@ void Box3dPint::Close()
 	for(Box3dJoint* Joint : mJoints)
 		delete Joint;
 	mJoints.clear();
+	mKinematicTargets.clear();
 
 	// Destroy the world first: it frees all bodies/shapes/joints. Only then is it safe to free
 	// the app-owned mesh data those shapes referenced (b3DestroyWorld does not own it).
@@ -413,6 +414,38 @@ void Box3dPint::SetGravity(const Point& gravity)
 
 udword Box3dPint::Update(float dt)
 {
+	// Kinematic targets: convert to velocities so contacts against the kinematics are solved at
+	// the velocity level (PhysX setKinematicTarget semantics). Kinematics without a fresh target
+	// are stopped, since b3Body_SetTargetTransform velocities persist.
+	if(mHasWorld && dt>0.0f)
+	{
+		udword NbKinematics = udword(mKinematicTargets.size());
+		for(udword i=0;i<NbKinematics;)
+		{
+			Box3dActor* Actor = mKinematicTargets[i];
+			if(Actor->mKinematicTargetPending)
+			{
+				b3WorldTransform Target;
+				Target.p = Actor->mKinematicTargetPos;
+				Target.q = Actor->mKinematicTargetRot;
+				b3Body_SetTargetTransform(Actor->mBody, Target, dt, true);
+				Actor->mKinematicTargetPending = false;
+				Actor->mKinematicMoving = true;
+				i++;
+			}
+			else
+			{
+				const b3Vec3 Zero = { 0.0f, 0.0f, 0.0f };
+				b3Body_SetLinearVelocity(Actor->mBody, Zero);
+				b3Body_SetAngularVelocity(Actor->mBody, Zero);
+				Actor->mKinematicMoving = false;
+				NbKinematics--;
+				mKinematicTargets[i] = mKinematicTargets[NbKinematics];
+				mKinematicTargets.pop_back();
+			}
+		}
+	}
+
 	if(mHasWorld)
 		b3World_Step(mWorld, dt, gNbSubsteps>0 ? int(gNbSubsteps) : 1);
 	return udword(b3GetByteCount());
@@ -927,6 +960,20 @@ bool Box3dPint::ReleaseObject(PintActorHandle handle)
 	Box3dActor* Actor = reinterpret_cast<Box3dActor*>(handle);
 	if(!Actor)
 		return false;
+
+	if(Actor->mKinematicTargetPending || Actor->mKinematicMoving)
+	{
+		const udword NbKinematics = udword(mKinematicTargets.size());
+		for(udword i=0;i<NbKinematics;i++)
+		{
+			if(mKinematicTargets[i]==Actor)
+			{
+				mKinematicTargets[i] = mKinematicTargets[NbKinematics-1];
+				mKinematicTargets.pop_back();
+				break;
+			}
+		}
+	}
 
 	if(b3Body_IsValid(Actor->mBody))
 		b3DestroyBody(Actor->mBody);
@@ -1799,17 +1846,23 @@ void Box3dPint::SetAngularVelocity(PintActorHandle handle, const Point& angular_
 
 bool Box3dPint::SetKinematicPose(PintActorHandle handle, const Point& pos)
 {
-	const Box3dActor* Actor = reinterpret_cast<const Box3dActor*>(handle);
-	const b3Quat Rot = b3Body_GetRotation(Actor->mBody);
-	b3Body_SetTransform(Actor->mBody, ToB3Vec3(pos), Rot);
+	Box3dActor* Actor = reinterpret_cast<Box3dActor*>(handle);
+	Actor->mKinematicTargetPos = ToB3Vec3(pos);
+	Actor->mKinematicTargetRot = b3Body_GetRotation(Actor->mBody);
+	if(!Actor->mKinematicTargetPending && !Actor->mKinematicMoving)
+		mKinematicTargets.push_back(Actor);
+	Actor->mKinematicTargetPending = true;
 	return true;
 }
 
 bool Box3dPint::SetKinematicPose(PintActorHandle handle, const PR& pr)
 {
-	const Box3dActor* Actor = reinterpret_cast<const Box3dActor*>(handle);
-	// TODO: b3Body_SetTargetTransform() would give proper kinematic contact velocities (needs dt).
-	b3Body_SetTransform(Actor->mBody, ToB3Vec3(pr.mPos), ToB3Quat(pr.mRot));
+	Box3dActor* Actor = reinterpret_cast<Box3dActor*>(handle);
+	Actor->mKinematicTargetPos = ToB3Vec3(pr.mPos);
+	Actor->mKinematicTargetRot = ToB3Quat(pr.mRot);
+	if(!Actor->mKinematicTargetPending && !Actor->mKinematicMoving)
+		mKinematicTargets.push_back(Actor);
+	Actor->mKinematicTargetPending = true;
 	return true;
 }
 
