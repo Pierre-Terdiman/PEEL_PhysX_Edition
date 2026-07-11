@@ -30,12 +30,17 @@ TitleWindow::~TitleWindow()
 }
 
 extern udword gPictureData_Data[];
+extern udword gPictureData_Data2[];
 
 void TitleWindow::CreatePic()
 {
 	mPic.Init(TITLE_WIDTH, TITLE_HEIGHT);
 	RGBAPixel* Pixels = mPic.GetPixels();
-	CopyMemory(Pixels, gPictureData_Data, mPic.GetDataSize());
+
+	if(TimeGetTime() & 1)
+		CopyMemory(Pixels, gPictureData_Data, mPic.GetDataSize());
+	else
+		CopyMemory(Pixels, gPictureData_Data2, mPic.GetDataSize());
 }
 
 void TitleWindow::redraw()
