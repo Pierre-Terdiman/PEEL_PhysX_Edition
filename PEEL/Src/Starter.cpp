@@ -7,7 +7,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "RepX_Tools.h"
 #include "CustomICEAllocator.h"
 #include <xmmintrin.h>
 
