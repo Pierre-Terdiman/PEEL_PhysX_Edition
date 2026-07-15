@@ -5007,6 +5007,7 @@ namespace
 		CheckBoxPtr		mCheckBox_RaycastCCDStatic;
 		CheckBoxPtr		mCheckBox_RaycastCCDDynamic;
 #endif
+		CheckBoxPtr		mCheckBox_UseD6Joints;
 		CheckBoxPtr		mCheckBox_Sleeping;
 		CheckBoxPtr		mCheckBox_PVD;
 		CheckBoxPtr		mCheckBox_FullPVD;
@@ -5285,6 +5286,8 @@ void PhysX3::GetOptionsFromGUI(const char* test_name)
 	if(gPhysXUI->mCheckBox_RaycastCCDDynamic)
 		gParams.mEnableRaycastCCDDynamic = gPhysXUI->mCheckBox_RaycastCCDDynamic->IsChecked();
 #endif
+	if(gPhysXUI->mCheckBox_UseD6Joints)
+		gParams.mUseD6Joints = gPhysXUI->mCheckBox_UseD6Joints->IsChecked();
 
 #if PHYSX_SUPPORT_STEER_FILTER
 	Common_GetFromEditBox(gParams.mSteerFilter, gPhysXUI->mEditBox_SteerFilter, 0.0f, FLT_MAX);
@@ -6246,7 +6249,7 @@ IceWindow* PhysX3::InitSharedGUI(IceWidget* parent, PintGUIHelper& helper, UICal
 
 			const sdword xj = 4;
 
-			helper.CreateCheckBox(TabWindow, PHYSX_GUI_USE_D6_JOINT, xj, y, CheckBoxWidth, 20, "Use D6 joint if possible", gPhysXUI->mPhysXGUI, gParams.mUseD6Joints, gCheckBoxCallback, gTooltip_d6);
+			gPhysXUI->mCheckBox_UseD6Joints = helper.CreateCheckBox(TabWindow, PHYSX_GUI_USE_D6_JOINT, xj, y, CheckBoxWidth, 20, "Use D6 joint if possible", gPhysXUI->mPhysXGUI, gParams.mUseD6Joints, gCheckBoxCallback, gTooltip_d6);
 			y += YStepCB;
 
 #if PHYSX_SUPPORT_DISABLE_PREPROCESSING
