@@ -56,6 +56,8 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_ICON1               ICON                    "PEEL.ico"
+// Named entry picked up by GLUT's window class (glut_init.c) for the title bar.
+GLUT_ICON               ICON                    "PEEL.ico"
 #endif    // French (France) resources
 /////////////////////////////////////////////////////////////////////////////
 
