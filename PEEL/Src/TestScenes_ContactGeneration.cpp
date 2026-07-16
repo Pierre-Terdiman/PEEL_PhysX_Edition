@@ -908,6 +908,71 @@ Ref: 1036831949
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// A symmetric V-groove (valley) mesh, ridge running along Z. Y = 0 at the centre line and rises to
+// 'depth' at the two X-edges, so a box dropped in wedges against the two inclined walls and rests on TWO contact
+// patches with genuinely DIFFERENT normals - which a flat mesh cannot produce. Vertex positions are set
+// explicitly (a regular grid + the V profile) so the geometry is exact regardless of MakePlane's base size.
+static IndexedSurface* CreateGrooveMesh(udword nb, float halfWidth, float halfDepth, float depth)
+{
+	IndexedSurface* IS = ICE_NEW(TrackedIndexedSurface);
+	IS->MakePlane(nb, nb);
+	IS->Flip();
+	Point* P = IS->GetVerts();
+	const udword nbV = IS->GetNbVerts();
+	for(udword i=0;i<nbV;i++)
+	{
+		const udword ix = i % nb;
+		const udword iz = i / nb;
+		const float fx = (nb>1) ? float(ix)/float(nb-1) : 0.0f;	// 0..1 across the width (X)
+		const float fz = (nb>1) ? float(iz)/float(nb-1) : 0.0f;	// 0..1 along the ridge (Z)
+		P[i].x = (fx*2.0f - 1.0f) * halfWidth;
+		P[i].z = (fz*2.0f - 1.0f) * halfDepth;
+		P[i].y = depth * fabsf(fx*2.0f - 1.0f);					// V-groove: 0 at centre, 'depth' at the X-edges
+	}
+	return IS;
+}
+
+static const char* gDesc_BoxStraddlingRidge = "A box dropped into a V-groove mesh, so it wedges against two inclined facets \
+whose contact normals differ. It should come to rest straddling both walls without sinking through either. This exercises \
+multi-patch / multi-normal contact handling that a flat mesh (e.g. BoxSlidingOnPlanarMesh) cannot.";
+
+START_TEST(BoxStraddlingRidge, CATEGORY_CONTACT_GENERATION, gDesc_BoxStraddlingRidge)
+
+	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
+	{
+		TestBase::GetSceneParams(desc);
+		desc.mCamera[0] = PintCameraPose(Point(4.04f, 7.54f, 8.68f), Point(-0.41f, -0.57f, -0.72f));
+		SetDefEnv(desc, true);
+	}
+
+	virtual bool	CommonSetup()
+	{
+		// Groove 8 units wide (halfWidth 4), 8 deep along Z, walls rising 3 units => ~37 degrees from horizontal.
+		RegisterSurface(CreateGrooveMesh(16, 4.0f, 4.0f, 3.0f), null, null);
+		return TestBase::CommonSetup();
+	}
+
+	virtual bool	Setup(Pint& pint, const PintCaps& caps)
+	{
+		if(!caps.mSupportMeshes || !caps.mSupportRigidBodySimulation)
+			return false;
+
+		const PINT_MATERIAL_CREATE MatDesc(0.5f, 0.5f, 0.0f);
+		if(!CreateMeshesFromRegisteredSurfaces(pint, caps, &MatDesc))
+			return false;
+
+		// 2x2x2 box (half-extent 1), wider than the groove bottom so it wedges on the two walls (rests ~y=1.75).
+		const float BoxExtent = 1.0f;
+		const Point BoxPos(0.0f, 6.0f, 0.0f);
+		const PintActorHandle Cube = CreateDynamicBox(pint, BoxExtent, BoxExtent, BoxExtent, BoxPos, null, &MatDesc);
+		ASSERT(Cube);
+		return true;
+	}
+
+END_TEST(BoxStraddlingRidge)
+
+///////////////////////////////////////////////////////////////////////////////
+
 static const char* gDesc_VeryLargeTriangle = "Objects on a very large triangle. Used to test accuracy limits of various contact routines.";
 
 START_TEST(VeryLargeTriangle, CATEGORY_CONTACT_GENERATION, gDesc_VeryLargeTriangle)
