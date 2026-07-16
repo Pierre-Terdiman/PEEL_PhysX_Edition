@@ -1198,6 +1198,80 @@ END_TEST(HingeJointMotorVsObstacle)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static const char* gDesc_HingeJointMotorVsLimits = "Hinge joints motor vs limits. The motor should not push the rotating arm beyond the joint limits.";
+
+START_TEST(HingeJointMotorVsLimits, CATEGORY_JOINTS_BASICS, gDesc_HingeJointMotorVsLimits)
+
+	virtual	IceTabControl*	InitUI(PintGUIHelper& helper)	override
+	{
+		return CreateOverrideTabControl("HingeJointMotorVsLimits", 0);
+	}
+
+	virtual	void	GetSceneParams(PINT_WORLD_CREATE& desc)
+	{
+		TestBase::GetSceneParams(desc);
+		desc.mCamera[0] = PintCameraPose(Point(-11.66f, 21.81f, 4.42f), Point(0.82f, -0.06f, -0.57f));
+//		desc.mGravity.Zero();
+		SetDefEnv(desc, false);
+	}
+
+	virtual bool	Setup(Pint& pint, const PintCaps& caps)
+	{
+		const Point static_pos(0.0f, 20.0f, 0.0f);
+		const Point local_axis(0.0f, 0.0f, 1.0f);
+
+		if(!caps.mSupportHingeJoints || !caps.mSupportRigidBodySimulation)
+			return false;
+
+		const float BoxSize = 1.0f;
+		const Point Extents(BoxSize, BoxSize, BoxSize);
+
+		PINT_BOX_CREATE BoxDesc(Extents);
+		BoxDesc.mRenderer = CreateBoxRenderer(Extents);
+
+		const Point Extents2(BoxSize, BoxSize*8.0f, BoxSize);
+		PINT_BOX_CREATE BoxDesc2(Extents2);
+		BoxDesc2.mRenderer = CreateBoxRenderer(Extents2);
+
+		const Point Disp(0.0f, 0.0f, 0.0f);
+		const Point DynamicPos = static_pos + Disp;
+
+		const PintActorHandle StaticObject = CreateStaticObject(pint, &BoxDesc, static_pos);
+
+		const PintActorHandle DynamicObject = CreateDynamicObject(pint, &BoxDesc2, DynamicPos);
+
+		PINT_HINGE_JOINT_CREATE Desc;
+		Desc.mObject0		= StaticObject;
+		Desc.mObject1		= DynamicObject;
+		Desc.mLocalPivot0	= Disp*0.5f;
+		Desc.mLocalPivot1	= -Disp*0.5f;
+		Desc.mLocalAxis0	= local_axis;
+		Desc.mLocalAxis1	= local_axis;
+
+		if(1)
+		{
+			Desc.mUseMotor		= true;
+			Desc.mDriveVelocity	= 1.0f;
+		}
+
+		Desc.mLimits.mMinValue	= -45.0f * DEGTORAD;
+		Desc.mLimits.mMaxValue	= 45.0f * DEGTORAD;
+
+		const PintJointHandle JointHandle = pint.CreateJoint(Desc);
+		ASSERT(JointHandle);
+		pint.mUserData = JointHandle;
+		return true;
+	}
+
+	virtual	float		DrawDebugText(Pint& pint, GLFontRenderer& renderer, float y, float text_scale)
+	{
+		return PrintTwistAngle(pint, renderer, y, text_scale);
+	}
+
+END_TEST(HingeJointMotorVsLimits)
+
+///////////////////////////////////////////////////////////////////////////////
+
 #ifdef REMOVED
 static const char* gDesc_HingeJointPosDrive = "Hinge joints motor test (position drive).";
 
