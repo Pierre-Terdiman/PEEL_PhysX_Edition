@@ -15,6 +15,7 @@
 #include "Loader_Bin.h"
 #include "GUI_Helpers.h"
 #include "GLRenderStates.h"
+#include "Loader_Rays.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1406,6 +1407,7 @@ START_SQ_TEST(SceneBoxSweepVsStaticMeshes_TessBunny_Test3, CATEGORY_SWEEP, gDesc
 	{
 		TestBase::GetSceneParams(desc);
 		//desc.mCamera[0] = PintCameraPose(Point(50.00f, 50.00f, 50.00f), Point(-0.43f, -0.58f, -0.69f));
+		desc.mCamera[0] = PintCameraPose(Point(-10.28f, 14.26f, -11.40f), Point(0.24f, -0.52f, 0.82f));
 		SetDefEnv(desc, false);
 	}
 
